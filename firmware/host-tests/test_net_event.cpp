@@ -144,7 +144,7 @@ void test_clean_over_and_height_interval() {
     smartgear::NetEventAggregator aggregator;
     aggregator.set_calibration("cal-test", true);
     aggregator.on_beam(beam(10'000, 11'000, 0b0000001001, 0, 3));
-    aggregator.poll(131'001);
+    aggregator.poll(256'001);
     const auto event = pop_one(aggregator);
     require(event.state == smartgear::NetState::kCleanOver,
             "beam-only event must be clean_over");
@@ -176,6 +176,20 @@ void test_touch_over_before_and_after_beam() {
             "PVDF after beam should associate as touch_over");
     require(after_event.net_touch.sensor_mask == 2,
             "right PVDF mask must be preserved");
+
+    smartgear::NetEventAggregator delayed({20'000, 120'000, 140'000,
+                                           125'000});
+    delayed.set_calibration("cal-test", true);
+    delayed.on_beam(beam(100'000, 101'000, 1U << 1, 1, 1));
+    // 先越过业务关联窗口，但仍处于 ADC/归并完成裕量内；晚到的 PVDF
+    // 候选按自身 first_trigger_us 仍应关联到这次光栅事件。
+    delayed.poll(221'001);
+    require(delayed.pending_output_count() == 0,
+            "beam must remain pending during waveform completion grace");
+    delayed.on_touch(touch(220'000, 220'500, 1));
+    const auto delayed_event = pop_one(delayed);
+    require(delayed_event.state == smartgear::NetState::kTouchOver,
+            "late waveform completion must still associate within touch window");
 }
 
 void test_touch_no_cross_and_unknown() {
@@ -192,7 +206,7 @@ void test_touch_no_cross_and_unknown() {
     smartgear::NetEventAggregator invalid;
     invalid.set_calibration("pending", false);
     invalid.on_beam(beam(40'000, 41'000, 1, 0, 0));
-    invalid.poll(161'001);
+    invalid.poll(286'001);
     const auto unknown_event = pop_one(invalid);
     require(unknown_event.state == smartgear::NetState::kUnknown,
             "invalid calibration must force unknown state");
@@ -214,9 +228,9 @@ void test_sequential_and_overlapping_events() {
     smartgear::NetEventAggregator sequential;
     sequential.set_calibration("cal-test", true);
     sequential.on_beam(beam(200'000, 201'000, 1, 0, 0));
-    sequential.poll(321'001);
+    sequential.poll(446'001);
     sequential.on_beam(beam(300'000, 301'000, 1U << 2, 2, 2));
-    sequential.poll(421'001);
+    sequential.poll(546'001);
     smartgear::NetEvent first;
     smartgear::NetEvent second;
     require(sequential.pop_event(first) && sequential.pop_event(second),
@@ -235,7 +249,7 @@ void test_sequential_and_overlapping_events() {
     require(unknown.state == smartgear::NetState::kUnknown,
             "overlapping beam events must not be silently merged");
 
-    smartgear::NetEventAggregator unmatched({20'000, 80'000, 200'000});
+    smartgear::NetEventAggregator unmatched({20'000, 80'000, 200'000, 0});
     unmatched.set_calibration("cal-test", true);
     unmatched.on_beam(beam(500'000, 501'000, 1, 0, 0));
     // 该 PVDF 时间点距离光栅开始超过 before 窗口，但仍在 beam 的
@@ -353,7 +367,7 @@ void test_sensor_health_quality_flags() {
     healthy.set_beam_health(1U << 2, true);
     healthy.set_piezo_baseline(true);
     healthy.on_beam(beam(10'000, 11'000, 1U << 2, 2, 2));
-    healthy.poll(131'001);
+    healthy.poll(256'001);
     const auto healthy_event = pop_one(healthy);
     require(!has_quality_flag(healthy_event, "beam_self_test_invalid") &&
                 !has_quality_flag(healthy_event, "beam_channel_unhealthy"),
@@ -363,7 +377,7 @@ void test_sensor_health_quality_flags() {
     unverified.set_calibration("pending", false);
     unverified.set_beam_health(0, false);
     unverified.on_beam(beam(15'000, 16'000, 1, 0, 0));
-    unverified.poll(136'001);
+    unverified.poll(261'001);
     const auto unverified_event = pop_one(unverified);
     require(has_quality_flag(unverified_event, "beam_self_test_invalid") &&
                 !has_quality_flag(unverified_event, "beam_channel_unhealthy"),
@@ -374,7 +388,7 @@ void test_sensor_health_quality_flags() {
     unhealthy.set_beam_health(0, true);
     unhealthy.set_piezo_baseline(false);
     unhealthy.on_beam(beam(20'000, 21'000, 1, 0, 0));
-    unhealthy.poll(141'001);
+    unhealthy.poll(266'001);
     const auto unhealthy_beam = pop_one(unhealthy);
     require(!has_quality_flag(unhealthy_beam, "beam_self_test_invalid") &&
                 has_quality_flag(unhealthy_beam, "beam_channel_unhealthy"),
@@ -474,7 +488,7 @@ void print_schema_events() {
     smartgear::NetEventAggregator aggregator;
     aggregator.set_calibration("cal-schema", true);
     aggregator.on_beam(beam(50'000, 51'000, 1U << 9, 9, 9));
-    aggregator.poll(171'001);
+    aggregator.poll(296'001);
     smartgear::NetEvent event;
     require(aggregator.pop_event(event), "schema event missing");
     std::cout << "JSON_EVENT " << smartgear::net_event_to_json(event) << '\n';

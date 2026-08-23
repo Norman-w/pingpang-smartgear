@@ -44,6 +44,10 @@ constexpr std::uint64_t kTouchAssociationBeforeUs = 20'000;
 constexpr std::uint64_t kTouchAssociationAfterUs = 120'000;
 constexpr std::uint64_t kTouchOnlyTimeoutUs = 140'000;
 constexpr std::uint64_t kPiezoWaveformTimeoutUs = 120'000;
+// 光栅待决边界还要覆盖 PVDF 最坏波形超时和最后一次归并间隔，避免
+// 关联窗口末端的擦网候选因异步 ADC 完成而先被判为 clean_over。
+constexpr std::uint64_t kTouchCompletionGraceUs =
+    kPiezoWaveformTimeoutUs + kTouchMergeUs;
 constexpr std::size_t kWaveformArchiveCapacity = 4;
 
 constexpr std::size_t kEventCacheCapacity = 16;

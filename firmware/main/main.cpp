@@ -151,7 +151,8 @@ extern "C" void app_main() {
     PiezoAdcContinuous adc_continuous;
     NetEventAggregator aggregator({config::kTouchAssociationBeforeUs,
                                    config::kTouchAssociationAfterUs,
-                                   config::kTouchOnlyTimeoutUs});
+                                   config::kTouchOnlyTimeoutUs,
+                                   config::kTouchCompletionGraceUs});
     NetEventDelivery delivery;
 #ifdef ESP_PLATFORM
     FeedbackGpio feedback_gpio({

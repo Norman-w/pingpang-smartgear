@@ -16,6 +16,7 @@ struct NetEventAggregatorConfig {
     std::uint64_t touch_association_before_us = config::kTouchAssociationBeforeUs;
     std::uint64_t touch_association_after_us = config::kTouchAssociationAfterUs;
     std::uint64_t touch_only_timeout_us = config::kTouchOnlyTimeoutUs;
+    std::uint64_t touch_completion_grace_us = config::kTouchCompletionGraceUs;
 };
 
 class NetEventAggregator {

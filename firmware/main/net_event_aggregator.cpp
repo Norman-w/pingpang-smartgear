@@ -172,7 +172,8 @@ void NetEventAggregator::on_beam(const BeamObservation& observation) {
 
     pending_beam_ = observation;
     pending_beam_deadline_us_ =
-        observation.end_us + config_.touch_association_after_us;
+        observation.end_us + config_.touch_association_after_us +
+        config_.touch_completion_grace_us;
 }
 
 void NetEventAggregator::on_touch(const PiezoObservation& observation) {
