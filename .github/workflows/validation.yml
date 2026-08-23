@@ -68,6 +68,15 @@ jobs:
       - name: Validate shared CAD parameter geometry
         run: python hardware/cad/validate_geometry.py
 
+      - name: Render OpenSCAD visual evidence
+        run: python hardware/cad/render_openscad_preview.py
+
+      - name: Upload OpenSCAD visual evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartgear-openscad-previews
+          path: hardware/cad/rendered/*.png
+
   esp-idf:
     name: ESP32-S3 firmware build
     runs-on: ubuntu-latest

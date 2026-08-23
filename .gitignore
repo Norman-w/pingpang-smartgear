@@ -27,6 +27,7 @@ data/exports/
 
 # CAD exports and local slicer output
 hardware/cad/exports/
+hardware/cad/rendered/
 hardware/prints/
 
 # ESP-IDF generated project configuration
