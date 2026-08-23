@@ -5,6 +5,8 @@
 #include <optional>
 #include <string>
 
+#include "piezo_features.h"
+
 namespace smartgear {
 
 struct PiezoObservation {
@@ -17,11 +19,13 @@ struct PiezoObservation {
     std::uint64_t last_trigger_us = 0;
     std::uint64_t duration_us = 0;
     std::string waveform_ref;
+    bool features_ready = false;
 };
 
 class PiezoCapture {
   public:
-    explicit PiezoCapture(std::uint64_t merge_window_us);
+    explicit PiezoCapture(std::uint64_t merge_window_us,
+                          std::uint64_t waveform_timeout_us);
 
     // 比较器 ISR/ADC 业务适配器调用此方法；这里不直接操作 GPIO 或 ADC。
     std::optional<PiezoObservation> on_trigger(
@@ -30,6 +34,8 @@ class PiezoCapture {
         float peak,
         float energy,
         const std::string& waveform_ref);
+    void on_waveform_ready(const std::string& waveform_ref,
+                           const PiezoFeatureSummary& features);
     std::optional<PiezoObservation> poll(std::uint64_t timestamp_us);
     void reset();
 
@@ -37,6 +43,7 @@ class PiezoCapture {
     std::optional<PiezoObservation> finish();
 
     std::uint64_t merge_window_us_;
+    std::uint64_t waveform_timeout_us_;
     bool pending_ = false;
     PiezoObservation pending_observation_;
 };

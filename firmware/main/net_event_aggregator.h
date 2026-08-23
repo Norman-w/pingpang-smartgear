@@ -13,8 +13,8 @@ namespace smartgear {
 
 struct NetEventAggregatorConfig {
     std::uint64_t touch_association_before_us = 20'000;
-    std::uint64_t touch_association_after_us = 80'000;
-    std::uint64_t touch_only_timeout_us = 100'000;
+    std::uint64_t touch_association_after_us = 120'000;
+    std::uint64_t touch_only_timeout_us = 140'000;
 };
 
 class NetEventAggregator {

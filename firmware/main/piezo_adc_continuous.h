@@ -23,7 +23,8 @@ using PiezoAdcSampleSink = void (*)(std::uint8_t channel,
                                     std::uint64_t timestamp_us,
                                     void* context);
 
-// ESP-IDF ADC1 continuous/DMA 的薄适配器。它只负责把有效样本送到
+// ESP-IDF ADC1 continuous/DMA 的薄适配器。sample_rate_hz 表示每个 PVDF
+// 通道的有效采样率；底层扫描总频率会乘以通道数。它只负责把有效样本送到
 // PiezoWaveformCapture，峰值/能量仍由业务层按窗口计算。
 class PiezoAdcContinuous {
   public:
@@ -44,7 +45,7 @@ class PiezoAdcContinuous {
 
     adc_continuous_handle_t handle_ = nullptr;
     std::array<adc_channel_t, 2> channels_{};
-    std::uint32_t sample_rate_hz_ = 16'000;
+    std::uint32_t conversion_rate_hz_ = 32'000;
     PiezoAdcSampleSink sink_ = nullptr;
     void* context_ = nullptr;
     bool started_ = false;

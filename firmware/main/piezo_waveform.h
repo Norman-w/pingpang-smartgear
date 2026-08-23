@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "piezo_features.h"
+
 namespace smartgear {
 
 struct PiezoWaveformConfig {
@@ -26,8 +28,12 @@ struct PiezoWaveformConfig {
 struct PiezoWaveformFrame {
     std::string reference;
     std::uint64_t trigger_us = 0;
+    std::size_t pre_trigger_samples = 0;
     std::array<std::vector<std::int16_t>, 2> samples;
 };
+
+PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
+                                           std::uint32_t sample_rate_hz);
 
 class PiezoWaveformCapture {
   public:

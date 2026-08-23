@@ -1,3 +1,5 @@
+#include <array>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -50,7 +52,17 @@ smartgear::PiezoObservation touch(std::uint64_t first,
     result.peak = {1.5F, 2.5F};
     result.energy = {3.0F, 4.0F};
     result.waveform_ref = "wave-test-1";
+    result.features_ready = true;
     return result;
+}
+
+bool has_quality_flag(const smartgear::NetEvent& event, const std::string& flag) {
+    for (const auto& value : event.quality_flags) {
+        if (value == flag) {
+            return true;
+        }
+    }
+    return false;
 }
 
 smartgear::NetEvent pop_one(smartgear::NetEventAggregator& aggregator) {
@@ -99,24 +111,39 @@ void test_each_beam_channel_independently() {
 }
 
 void test_piezo_merge() {
-    smartgear::PiezoCapture capture(5'000);
+    smartgear::PiezoCapture capture(5'000, 120'000);
     capture.on_trigger(0, 1'000, 1.0F, 2.0F, "wave-a");
     capture.on_trigger(1, 3'000, 2.0F, 4.0F, "wave-a");
-    auto result = capture.poll(8'001);
+    smartgear::PiezoFeatureSummary features;
+    features.peak = {1.5F, 2.5F};
+    features.energy = {3.5F, 4.5F};
+    features.duration_us = 4'000;
+    capture.on_waveform_ready("wave-a", features);
+    capture.on_trigger(0, 4'000, 0.0F, 0.0F, "wave-a");
+    auto result = capture.poll(9'001);
     require(result.has_value(), "PVDF event should close after merge window");
     require(result->sensor_mask == 3, "both PVDF channels must be retained");
-    require(result->peak[0] == 1.0F && result->peak[1] == 2.0F,
-            "PVDF peak values were not retained");
-    require(result->energy[0] == 2.0F && result->energy[1] == 4.0F,
-            "PVDF energy values were not retained");
-    require(result->duration_us == 2'000, "PVDF duration is wrong");
+    require(result->peak[0] == 1.5F && result->peak[1] == 2.5F,
+            "PVDF waveform peak values were not retained");
+    require(result->energy[0] == 3.5F && result->energy[1] == 4.5F,
+            "PVDF waveform energy values were not retained");
+    require(result->duration_us == 4'000 && result->features_ready,
+            "PVDF waveform duration/readiness is wrong");
+
+    smartgear::PiezoCapture timeout(5'000, 100'000);
+    timeout.on_trigger(0, 10'000, 0.0F, 0.0F, "wave-timeout");
+    require(!timeout.poll(109'999),
+            "PVDF event must wait for merge window and waveform timeout");
+    auto timed_out = timeout.poll(115'001);
+    require(timed_out.has_value() && !timed_out->features_ready,
+            "PVDF waveform timeout must preserve an incomplete quality state");
 }
 
 void test_clean_over_and_height_interval() {
     smartgear::NetEventAggregator aggregator;
     aggregator.set_calibration("cal-test", true);
     aggregator.on_beam(beam(10'000, 11'000, 0b0000001001, 0, 3));
-    aggregator.poll(91'001);
+    aggregator.poll(131'001);
     const auto event = pop_one(aggregator);
     require(event.state == smartgear::NetState::kCleanOver,
             "beam-only event must be clean_over");
@@ -154,7 +181,7 @@ void test_touch_no_cross_and_unknown() {
     smartgear::NetEventAggregator no_cross;
     no_cross.set_calibration("cal-test", true);
     no_cross.on_touch(touch(30'000, 31'000, 1));
-    no_cross.poll(131'001);
+    no_cross.poll(171'001);
     const auto no_cross_event = pop_one(no_cross);
     require(no_cross_event.state == smartgear::NetState::kTouchNoCross,
             "PVDF without beam must become touch_no_cross");
@@ -164,21 +191,31 @@ void test_touch_no_cross_and_unknown() {
     smartgear::NetEventAggregator invalid;
     invalid.set_calibration("pending", false);
     invalid.on_beam(beam(40'000, 41'000, 1, 0, 0));
-    invalid.poll(121'001);
+    invalid.poll(161'001);
     const auto unknown_event = pop_one(invalid);
     require(unknown_event.state == smartgear::NetState::kUnknown,
             "invalid calibration must force unknown state");
     require(!unknown_event.quality_flags.empty(),
             "unknown event must explain its quality failure");
+
+    smartgear::NetEventAggregator incomplete;
+    incomplete.set_calibration("cal-test", true);
+    auto incomplete_touch = touch(50'000, 50'500, 1);
+    incomplete_touch.features_ready = false;
+    incomplete.on_touch(incomplete_touch);
+    incomplete.poll(190'501);
+    const auto incomplete_event = pop_one(incomplete);
+    require(has_quality_flag(incomplete_event, "waveform_incomplete"),
+            "incomplete PVDF waveform must be visible in quality flags");
 }
 
 void test_sequential_and_overlapping_events() {
     smartgear::NetEventAggregator sequential;
     sequential.set_calibration("cal-test", true);
     sequential.on_beam(beam(200'000, 201'000, 1, 0, 0));
-    sequential.poll(281'001);
+    sequential.poll(321'001);
     sequential.on_beam(beam(300'000, 301'000, 1U << 2, 2, 2));
-    sequential.poll(381'001);
+    sequential.poll(421'001);
     smartgear::NetEvent first;
     smartgear::NetEvent second;
     require(sequential.pop_event(first) && sequential.pop_event(second),
@@ -236,6 +273,8 @@ void test_waveform_window() {
     require(frame.has_value(), "ready waveform frame should be available");
     require(frame->samples[0].size() == 50 && frame->samples[1].size() == 50,
             "each channel must contain pre+post samples");
+    require(frame->pre_trigger_samples == 20,
+            "waveform frame must retain its trigger sample boundary");
     require(frame->samples[0][19] == 24 && frame->samples[0][20] == 200,
             "pre/post waveform boundary is wrong");
     require(frame->samples[1][19] == 124 && frame->samples[1][20] == 300,
@@ -258,6 +297,20 @@ void test_waveform_window() {
                 partial_frame->samples[0][3] == 11 &&
                 partial_frame->samples[0][4] == 12,
             "partial pre-trigger history must be zero-filled chronologically");
+}
+
+void test_piezo_feature_extraction() {
+    smartgear::PiezoWaveformFrame frame;
+    frame.pre_trigger_samples = 4;
+    frame.samples[0] = {100, 100, 100, 100, 101, 102, 106, 110, 104, 100};
+    frame.samples[1] = {200, 200, 200, 200, 200, 200, 205, 200, 200, 200};
+    const auto features = smartgear::extract_piezo_features(frame, 1'000);
+    require(features.peak[0] == 10.0F && features.peak[1] == 5.0F,
+            "waveform peak extraction is wrong");
+    require(features.energy[0] == 157.0F && features.energy[1] == 25.0F,
+            "waveform energy extraction is wrong");
+    require(features.duration_us == 5'000,
+            "waveform duration must use the longest thresholded run");
 }
 
 void test_channel_self_test_and_baseline() {
@@ -347,7 +400,7 @@ void print_schema_events() {
     smartgear::NetEventAggregator aggregator;
     aggregator.set_calibration("cal-schema", true);
     aggregator.on_beam(beam(50'000, 51'000, 1U << 9, 9, 9));
-    aggregator.poll(131'001);
+    aggregator.poll(171'001);
     smartgear::NetEvent event;
     require(aggregator.pop_event(event), "schema event missing");
     std::cout << "JSON_EVENT " << smartgear::net_event_to_json(event) << '\n';
@@ -355,7 +408,7 @@ void print_schema_events() {
     smartgear::NetEventAggregator touch_aggregator;
     touch_aggregator.set_calibration("cal-schema", true);
     touch_aggregator.on_touch(touch(60'000, 60'500, 3));
-    touch_aggregator.poll(160'501);
+    touch_aggregator.poll(200'501);
     require(touch_aggregator.pop_event(event), "touch schema event missing");
     std::cout << "JSON_EVENT " << smartgear::net_event_to_json(event) << '\n';
 }
@@ -372,6 +425,7 @@ int main() {
         test_touch_no_cross_and_unknown();
         test_sequential_and_overlapping_events();
         test_waveform_window();
+        test_piezo_feature_extraction();
         test_channel_self_test_and_baseline();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();

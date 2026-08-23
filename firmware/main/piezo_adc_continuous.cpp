@@ -3,6 +3,7 @@
 #include "piezo_adc_continuous.h"
 
 #include <array>
+#include <limits>
 
 #include "esp_idf_version.h"
 #include "esp_timer.h"
@@ -20,6 +21,15 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
     if (handle_ != nullptr || sink == nullptr || config.sample_rate_hz == 0) {
         return ESP_ERR_INVALID_STATE;
     }
+
+    const std::size_t channel_count = config.gpio.size();
+    if (channel_count == 0 ||
+        config.sample_rate_hz >
+            std::numeric_limits<std::uint32_t>::max() / channel_count) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    const std::uint32_t conversion_rate_hz =
+        config.sample_rate_hz * static_cast<std::uint32_t>(channel_count);
 
     adc_continuous_handle_cfg_t handle_config{};
     handle_config.max_store_buf_size = config.max_store_buffer_bytes;
@@ -49,7 +59,7 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
     adc_continuous_config_t adc_config{};
     adc_config.pattern_num = patterns.size();
     adc_config.adc_pattern = patterns.data();
-    adc_config.sample_freq_hz = config.sample_rate_hz;
+    adc_config.sample_freq_hz = conversion_rate_hz;
     adc_config.conv_mode = ADC_CONV_SINGLE_UNIT_1;
     adc_config.format = ADC_DIGI_OUTPUT_FORMAT_TYPE2;
     error = adc_continuous_config(handle_, &adc_config);
@@ -58,7 +68,7 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
         return error;
     }
 
-    sample_rate_hz_ = config.sample_rate_hz;
+    conversion_rate_hz_ = conversion_rate_hz;
     sink_ = sink;
     context_ = context;
     return ESP_OK;
@@ -115,7 +125,7 @@ esp_err_t PiezoAdcContinuous::read_and_dispatch(const std::uint32_t timeout_ms) 
         }
         const std::uint64_t sample_age_us =
             static_cast<std::uint64_t>(sample_count - 1U - index) * 1'000'000ULL /
-            sample_rate_hz_;
+            conversion_rate_hz_;
         const std::uint64_t timestamp_us =
             frame_end_us >= sample_age_us ? frame_end_us - sample_age_us
                                           : frame_end_us;
@@ -147,7 +157,7 @@ esp_err_t PiezoAdcContinuous::read_and_dispatch(const std::uint32_t timeout_ms) 
         }
         const std::uint64_t sample_age_us =
             static_cast<std::uint64_t>(sample_count - 1U - index) * 1'000'000ULL /
-            sample_rate_hz_;
+            conversion_rate_hz_;
         const std::uint64_t timestamp_us =
             frame_end_us >= sample_age_us ? frame_end_us - sample_age_us
                                           : frame_end_us;

@@ -105,6 +105,9 @@ NetEvent NetEventAggregator::build_event(
     if (touch && !touch->valid) {
         add_quality_flag(event, "touch_invalid");
     }
+    if (touch && !touch->features_ready) {
+        add_quality_flag(event, "waveform_incomplete");
+    }
     if (!calibration_valid_) {
         add_quality_flag(event, "calibration_invalid");
     }

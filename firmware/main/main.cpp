@@ -140,7 +140,8 @@ extern "C" void app_main() {
     using namespace smartgear;
 
     BeamCapture beam_capture(config::kBeamQuietUs, config::kBeamMaxEventUs);
-    PiezoCapture piezo_capture(config::kTouchMergeUs);
+    PiezoCapture piezo_capture(config::kTouchMergeUs,
+                               config::kPiezoWaveformTimeoutUs);
     PiezoWaveformCapture waveform_capture({config::kPiezoSampleRateHz,
                                            config::kPiezoPreTriggerMs,
                                            config::kPiezoPostTriggerMs});
@@ -192,6 +193,11 @@ extern "C" void app_main() {
                          esp_err_to_name(adc_read_error));
             }
         }
+        while (auto frame = waveform_capture.take_ready()) {
+            const auto features =
+                extract_piezo_features(*frame, config::kPiezoSampleRateHz);
+            piezo_capture.on_waveform_ready(frame->reference, features);
+        }
         if (xQueueReceive(s_sensor_queue, &edge, pdMS_TO_TICKS(1)) == pdTRUE) {
             if (edge.kind == SensorKind::kBeam) {
                 const bool blocked =
@@ -206,11 +212,22 @@ extern "C" void app_main() {
                               sizeof(waveform_reference),
                               "wave-%llu",
                               static_cast<unsigned long long>(edge.timestamp_us));
-                const bool waveform_started = waveform_capture.start_capture(
-                    edge.timestamp_us, waveform_reference);
-                const std::string effective_waveform_reference =
-                    waveform_started ? std::string(waveform_reference)
-                                      : waveform_capture.active_reference();
+                const bool waveform_started =
+                    adc_continuous.initialized() &&
+                    waveform_capture.start_capture(edge.timestamp_us,
+                                                   waveform_reference);
+                std::string effective_waveform_reference;
+                if (waveform_started) {
+                    effective_waveform_reference = waveform_reference;
+                } else {
+                    effective_waveform_reference =
+                        waveform_capture.active_reference();
+                }
+                if (effective_waveform_reference.empty()) {
+                    // 没有可用波形帧时也必须走“未完成”路径，不能把比较器
+                    // 时间点和零特征误报成已完成的波形证据。
+                    effective_waveform_reference = "wave-unavailable";
+                }
 
                 // comparator 只给低延迟时间点；peak/energy 和 waveform_ref 的
                 // 完整内容由 ADC1 continuous 解析任务补入。这里保留业务接口，

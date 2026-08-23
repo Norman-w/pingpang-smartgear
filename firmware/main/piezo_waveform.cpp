@@ -1,11 +1,68 @@
 #include "piezo_waveform.h"
 
 #include <algorithm>
+#include <cmath>
+#include <numeric>
 
 namespace smartgear {
 
 namespace {
 constexpr std::size_t kReadyFrameCapacity = 4;
+}
+
+PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
+                                           const std::uint32_t sample_rate_hz) {
+    PiezoFeatureSummary features;
+    if (sample_rate_hz == 0) {
+        return features;
+    }
+
+    std::size_t max_active_samples = 0;
+    for (std::size_t channel = 0; channel < frame.samples.size(); ++channel) {
+        const auto& samples = frame.samples[channel];
+        if (samples.empty()) {
+            continue;
+        }
+        const std::size_t pre_samples = std::min(
+            samples.size(), frame.pre_trigger_samples != 0
+                                ? frame.pre_trigger_samples
+                                : static_cast<std::size_t>(sample_rate_hz) * 20U /
+                                      1'000U);
+        const float baseline = std::accumulate(
+                                  samples.begin(), samples.begin() + pre_samples, 0.0F) /
+                              static_cast<float>(pre_samples == 0 ? 1 : pre_samples);
+
+        float peak = 0.0F;
+        float energy = 0.0F;
+        for (auto sample = samples.begin() + pre_samples; sample != samples.end();
+             ++sample) {
+            const float deviation = static_cast<float>(*sample) - baseline;
+            const float magnitude = std::fabs(deviation);
+            peak = std::max(peak, magnitude);
+            energy += deviation * deviation;
+        }
+        features.peak[channel] = peak;
+        features.energy[channel] = energy;
+
+        const float active_threshold = peak * 0.1F;
+        std::size_t active_samples = 0;
+        std::size_t current_active_samples = 0;
+        if (active_threshold > 0.0F) {
+            for (std::size_t index = pre_samples; index < samples.size(); ++index) {
+                if (std::fabs(static_cast<float>(samples[index]) - baseline) >=
+                    active_threshold) {
+                    ++current_active_samples;
+                    active_samples = std::max(active_samples, current_active_samples);
+                } else {
+                    current_active_samples = 0;
+                }
+            }
+        }
+        max_active_samples = std::max(max_active_samples, active_samples);
+    }
+    features.duration_us = static_cast<std::uint64_t>(max_active_samples) *
+                           1'000'000ULL / sample_rate_hz;
+    return features;
 }
 
 PiezoWaveformCapture::PiezoWaveformCapture(PiezoWaveformConfig config)
@@ -61,6 +118,7 @@ bool PiezoWaveformCapture::start_capture(const std::uint64_t trigger_us,
     frame_ = PiezoWaveformFrame{};
     frame_->reference = reference;
     frame_->trigger_us = trigger_us;
+    frame_->pre_trigger_samples = config_.pre_trigger_samples();
     const std::size_t total_samples =
         config_.pre_trigger_samples() + config_.post_trigger_samples();
     for (auto& channel_samples : frame_->samples) {

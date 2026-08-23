@@ -40,8 +40,10 @@ constexpr std::uint64_t kBeamQuietUs = 5'000;
 constexpr std::uint64_t kBeamMaxEventUs = 250'000;
 constexpr std::uint64_t kTouchMergeUs = 5'000;
 constexpr std::uint64_t kTouchAssociationBeforeUs = 20'000;
-constexpr std::uint64_t kTouchAssociationAfterUs = 80'000;
-constexpr std::uint64_t kTouchOnlyTimeoutUs = 100'000;
+// 关联窗口覆盖 20 ms 预触发 + 80 ms 后触发，并留出 ADC/DMA 调度裕量。
+constexpr std::uint64_t kTouchAssociationAfterUs = 120'000;
+constexpr std::uint64_t kTouchOnlyTimeoutUs = 140'000;
+constexpr std::uint64_t kPiezoWaveformTimeoutUs = 120'000;
 
 constexpr std::size_t kEventCacheCapacity = 16;
 

@@ -12,12 +12,12 @@
                                  └─ RAM RingBuffer 断链缓存
 ```
 
-`piezo_waveform.*` 保存 16 kHz、20 ms 预触发和 80 ms 后触发的双通道短波形。`piezo_adc_continuous.*` 已提供 ADC1 continuous/DMA 适配，并兼容 SmartPaddle 当前使用的 ESP-IDF 5.5.x 原始结果格式与 ESP-IDF 6.x 的解析接口；目标 PCB 的最终引脚表和 AFE 输出范围仍需实机确认。
+`piezo_waveform.*` 保存每路 16 kHz、20 ms 预触发和 80 ms 后触发的双通道短波形，并在波形完成后计算峰值、能量和持续时间。`piezo_adc_continuous.*` 已提供 ADC1 continuous/DMA 适配，并兼容 SmartPaddle 当前使用的 ESP-IDF 5.5.x 原始结果格式与 ESP-IDF 6.x 的解析接口；目标 PCB 的最终引脚表和 AFE 输出范围仍需实机确认。
 
 ## 构建与测试
 
 - ESP32-S3：在 ESP-IDF 环境中从 `firmware/` 运行 `idf.py build`；
 - 主机业务测试：运行 `python3 host-tests/run_tests.py`；
-- 主机测试覆盖光栅位图/安静结束、PVDF 双通道归并、四种事件状态、波形窗口、环形缓存和 JSON Schema。
+- 主机测试覆盖光栅位图/安静结束、PVDF 双通道归并、波形特征与超时质量标记、四种事件状态、波形窗口、环形缓存和 JSON Schema。
 
 硬件 GPIO 映射在 `main/net_sensor_config.h` 中明确标为首轮占位，不能在最终 PCB 未复核前视为量产引脚表。
