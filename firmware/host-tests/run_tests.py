@@ -78,6 +78,10 @@ def main() -> None:
             "trace states mismatch: "
             f"{[event['state'] for event in trace_events]}"
         )
+    if not trace_events[1]["net_touch"]["waveform_ref"].startswith("trace-wave-"):
+        raise AssertionError("trace touch_over must retain an actual waveform reference")
+    if trace_events[1]["net_touch"]["duration_us"] == 0:
+        raise AssertionError("trace touch_over must retain waveform duration")
     invalid_touch_state = deepcopy(trace_events[1])
     invalid_touch_state["net_touch"]["triggered"] = False
     invalid_touch_state["net_touch"]["sensor_mask"] = 0

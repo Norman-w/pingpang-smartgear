@@ -27,6 +27,7 @@ add_executable(net_event_trace
     ../main/net_event.cpp
     ../main/beam_capture.cpp
     ../main/piezo_capture.cpp
+    ../main/piezo_waveform.cpp
     ../main/net_event_aggregator.cpp
 )
 target_include_directories(net_event_trace PRIVATE ../main)

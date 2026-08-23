@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -9,6 +10,7 @@
 #include "net_event.h"
 #include "net_event_aggregator.h"
 #include "piezo_capture.h"
+#include "piezo_waveform.h"
 
 namespace {
 
@@ -46,10 +48,16 @@ TraceRow parse_row(const std::string& line, const std::size_t line_number) {
 class TraceReplay {
   public:
     TraceReplay()
-        : beam_capture_(5'000, 250'000), piezo_capture_(5'000, 120'000) {
+        : beam_capture_(5'000, 250'000),
+          piezo_capture_(5'000, 120'000),
+          waveform_capture_({1'000, 2, 3}) {
         aggregator_.set_calibration("trace-calibration", true);
         aggregator_.set_beam_health(0x03ffU, true);
         aggregator_.set_piezo_baseline(true);
+        waveform_capture_.feed_sample(0, 100, 0);
+        waveform_capture_.feed_sample(1, 200, 0);
+        waveform_capture_.feed_sample(0, 101, 1'000);
+        waveform_capture_.feed_sample(1, 201, 1'000);
     }
 
     void apply(const TraceRow& row) {
@@ -64,16 +72,32 @@ class TraceReplay {
         } else if (row.kind == "touch") {
             const std::string reference =
                 "trace-wave-" + std::to_string(row.timestamp_us);
+            const bool waveform_started =
+                piezo_capture_.will_start_new_observation(row.timestamp_us) &&
+                waveform_capture_.start_capture(row.timestamp_us, reference);
+            const std::string effective_reference =
+                waveform_started ? reference : waveform_capture_.active_reference();
             if (auto observation = piezo_capture_.on_trigger(
-                    row.channel, row.timestamp_us, 0.0F, 0.0F, reference)) {
+                    row.channel, row.timestamp_us, 0.0F, 0.0F,
+                    effective_reference.empty() ? "trace-no-waveform"
+                                                : effective_reference)) {
                 aggregator_.on_touch(*observation);
             }
-            smartgear::PiezoFeatureSummary features;
-            features.peak[row.channel] = 6.0F;
-            features.energy[row.channel] = 36.0F;
-            features.duration_us = 500;
-            features.complete = true;
-            piezo_capture_.on_waveform_ready(reference, features);
+            if (waveform_started) {
+                for (std::uint64_t sample = 0; sample < 3; ++sample) {
+                    const auto sample_timestamp =
+                        row.timestamp_us + sample * 1'000ULL;
+                    waveform_capture_.feed_sample(
+                        0, static_cast<std::int16_t>(110 + sample),
+                        sample_timestamp);
+                    waveform_capture_.feed_sample(
+                        1, static_cast<std::int16_t>(220 + sample),
+                        sample_timestamp);
+                    last_timestamp_us_ =
+                        std::max(last_timestamp_us_, sample_timestamp);
+                }
+                process_ready_waveforms();
+            }
         } else {
             require(row.kind == "tick",
                     "unsupported trace kind: " + row.kind);
@@ -88,6 +112,8 @@ class TraceReplay {
 
   private:
     void advance(const std::uint64_t timestamp_us) {
+        waveform_capture_.expire(timestamp_us);
+        process_ready_waveforms();
         if (auto observation = beam_capture_.poll(timestamp_us)) {
             aggregator_.on_beam(*observation);
         }
@@ -103,8 +129,17 @@ class TraceReplay {
         }
     }
 
+    void process_ready_waveforms() {
+        while (auto frame = waveform_capture_.take_ready()) {
+            const auto features =
+                smartgear::extract_piezo_features(*frame, 1'000);
+            piezo_capture_.on_waveform_ready(frame->reference, features);
+        }
+    }
+
     smartgear::BeamCapture beam_capture_;
     smartgear::PiezoCapture piezo_capture_;
+    smartgear::PiezoWaveformCapture waveform_capture_;
     smartgear::NetEventAggregator aggregator_;
     std::uint64_t last_timestamp_us_ = 0;
     std::size_t emitted_count_ = 0;

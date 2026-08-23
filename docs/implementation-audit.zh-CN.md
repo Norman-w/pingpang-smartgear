@@ -14,7 +14,9 @@
 | 传输边界 | `NetEventDelivery` 支持断链缓存、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层。 |
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
 | 契约与回归 | JSON Schema 正例/反例、CMake/CTest、ASan/UBSan 主机测试和可视预览均通过。 Schema 还限制 UUID-like `event_id`、10 mm 离散高度档位及擦网状态与传感器位图一致。 |
-| 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/事件归并并输出 3 个 Schema 合法事件；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
+| 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/短波形采集/事件归并并输出 3 个 Schema 合法事件，`touch_over` 保留波形引用和持续时间；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
+| 接板操作边界 | `hardware/electronics/bring-up-v0.1.zh-CN.md` 固化上电、逐光栅、ADC、PVDF 基线和健康快照放行顺序；该文档是现场执行清单，不被主机测试替代。 |
+| 自动化入口 | `.github/workflows/validation.yml` 已配置主机/CTest/Schema/预览和 OpenSCAD 两个 job；本地 YAML 静态解析通过，推送后的 GitHub Actions 首次运行仍需以远端结果为准。 |
 
 ## 仍必须用实物证明
 
