@@ -28,3 +28,7 @@ data/exports/
 # CAD exports and local slicer output
 hardware/cad/exports/
 hardware/prints/
+
+# ESP-IDF generated project configuration
+firmware/sdkconfig
+firmware/sdkconfig.old

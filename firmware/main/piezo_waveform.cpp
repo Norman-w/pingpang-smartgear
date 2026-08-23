@@ -1,0 +1,119 @@
+#include "piezo_waveform.h"
+
+#include <algorithm>
+
+namespace smartgear {
+
+namespace {
+constexpr std::size_t kReadyFrameCapacity = 4;
+}
+
+PiezoWaveformCapture::PiezoWaveformCapture(PiezoWaveformConfig config)
+    : config_(config) {
+    const std::size_t pre_samples = config_.pre_trigger_samples();
+    for (auto& channel_history : history_) {
+        channel_history.assign(pre_samples, 0);
+    }
+}
+
+void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
+                                       const std::int16_t sample,
+                                       const std::uint64_t /*timestamp_us*/) {
+    if (channel >= history_.size() || history_[channel].empty()) {
+        return;
+    }
+
+    if (!active_) {
+        auto& channel_history = history_[channel];
+        channel_history[history_cursor_[channel]] = sample;
+        history_cursor_[channel] =
+            (history_cursor_[channel] + 1) % channel_history.size();
+        history_count_[channel] = std::min(
+            history_count_[channel] + static_cast<std::size_t>(1),
+            channel_history.size());
+        return;
+    }
+
+    if (!frame_ || post_written_[channel] >= config_.post_trigger_samples()) {
+        return;
+    }
+    frame_->samples[channel][config_.pre_trigger_samples() + post_written_[channel]] =
+        sample;
+    ++post_written_[channel];
+    if (all_post_samples_written()) {
+        active_ = false;
+        if (ready_frames_.size() == kReadyFrameCapacity) {
+            ready_frames_.pop_front();
+            ++dropped_ready_count_;
+        }
+        ready_frames_.push_back(std::move(*frame_));
+        frame_.reset();
+    }
+}
+
+bool PiezoWaveformCapture::start_capture(const std::uint64_t trigger_us,
+                                         const std::string& reference) {
+    if (active_ || config_.pre_trigger_samples() == 0 ||
+        config_.post_trigger_samples() == 0) {
+        return false;
+    }
+
+    frame_ = PiezoWaveformFrame{};
+    frame_->reference = reference;
+    frame_->trigger_us = trigger_us;
+    const std::size_t total_samples =
+        config_.pre_trigger_samples() + config_.post_trigger_samples();
+    for (auto& channel_samples : frame_->samples) {
+        channel_samples.assign(total_samples, 0);
+    }
+    post_written_ = {0, 0};
+    snapshot_pre_trigger();
+    active_ = true;
+    return true;
+}
+
+void PiezoWaveformCapture::snapshot_pre_trigger() {
+    for (std::size_t channel = 0; channel < history_.size(); ++channel) {
+        const auto& channel_history = history_[channel];
+        const std::size_t pre_samples = config_.pre_trigger_samples();
+        const std::size_t missing = pre_samples - history_count_[channel];
+        const std::size_t oldest =
+            (history_cursor_[channel] + channel_history.size() -
+             history_count_[channel]) % channel_history.size();
+        for (std::size_t index = 0; index < pre_samples; ++index) {
+            if (index < missing) {
+                frame_->samples[channel][index] = 0;
+                continue;
+            }
+            const std::size_t chronological_index =
+                (oldest + index - missing) % channel_history.size();
+            frame_->samples[channel][index] = channel_history[chronological_index];
+        }
+    }
+}
+
+bool PiezoWaveformCapture::all_post_samples_written() const {
+    const std::size_t target = config_.post_trigger_samples();
+    return post_written_[0] >= target && post_written_[1] >= target;
+}
+
+std::optional<PiezoWaveformFrame> PiezoWaveformCapture::take_ready() {
+    if (ready_frames_.empty()) {
+        return std::nullopt;
+    }
+    auto result = std::move(ready_frames_.front());
+    ready_frames_.pop_front();
+    return result;
+}
+
+std::string PiezoWaveformCapture::active_reference() const {
+    return frame_ ? frame_->reference : std::string{};
+}
+
+void PiezoWaveformCapture::abort() {
+    active_ = false;
+    frame_.reset();
+    post_written_ = {0, 0};
+}
+
+}  // namespace smartgear

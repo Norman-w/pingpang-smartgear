@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Norman-w/pingpang-smartgear/schema/net-event-v0.1.json",
+  "title": "Pingpang SmartGear NetEvent v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "schema_version",
+    "event_id",
+    "timestamp_us",
+    "calibration_id",
+    "beam_mask",
+    "beam_height_mm",
+    "ball_bottom_gap_mm",
+    "net_touch",
+    "state",
+    "quality_flags"
+  ],
+  "properties": {
+    "type": { "const": "net_event" },
+    "schema_version": { "const": "0.1" },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp_us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "calibration_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "beam_mask": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1023
+    },
+    "beam_height_mm": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 0, "maximum": 100 },
+        { "type": "integer", "minimum": 0, "maximum": 100 }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "ball_bottom_gap_mm": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 0, "maximum": 100 },
+        { "type": "integer", "minimum": 0, "maximum": 100 }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "net_touch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "triggered",
+        "sensor_mask",
+        "peak",
+        "energy",
+        "duration_us",
+        "waveform_ref"
+      ],
+      "properties": {
+        "triggered": { "type": "boolean" },
+        "sensor_mask": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "peak": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "number", "minimum": 0 },
+            { "type": "number", "minimum": 0 }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "energy": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "number", "minimum": 0 },
+            { "type": "number", "minimum": 0 }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "duration_us": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "waveform_ref": { "type": "string" }
+      }
+    },
+    "state": {
+      "enum": ["clean_over", "touch_over", "touch_no_cross", "unknown"]
+    },
+    "quality_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  }
+}
