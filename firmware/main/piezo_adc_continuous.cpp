@@ -21,6 +21,11 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
     if (handle_ != nullptr || sink == nullptr || config.sample_rate_hz == 0) {
         return ESP_ERR_INVALID_STATE;
     }
+    if (config.conversion_frame_bytes == 0 ||
+        config.conversion_frame_bytes > kReadBufferCapacityBytes ||
+        config.max_store_buffer_bytes < config.conversion_frame_bytes) {
+        return ESP_ERR_INVALID_ARG;
+    }
 
     const std::size_t channel_count = config.gpio.size();
     if (channel_count == 0 ||
@@ -50,6 +55,12 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
             return error == ESP_OK ? ESP_ERR_INVALID_ARG : error;
         }
         channels_[index] = channel;
+        for (std::size_t previous = 0; previous < index; ++previous) {
+            if (channels_[previous] == channel) {
+                deinit();
+                return ESP_ERR_INVALID_ARG;
+            }
+        }
         patterns[index].atten = ADC_ATTEN_DB_12;
         patterns[index].channel = channel;
         patterns[index].unit = unit;
@@ -69,13 +80,14 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
     }
 
     conversion_rate_hz_ = conversion_rate_hz;
+    conversion_frame_bytes_ = config.conversion_frame_bytes;
     sink_ = sink;
     context_ = context;
     return ESP_OK;
 }
 
 esp_err_t PiezoAdcContinuous::start() {
-    if (handle_ == nullptr) {
+    if (handle_ == nullptr || conversion_frame_bytes_ == 0) {
         return ESP_ERR_INVALID_STATE;
     }
     const esp_err_t error = adc_continuous_start(handle_);
@@ -90,11 +102,11 @@ esp_err_t PiezoAdcContinuous::read_and_dispatch(const std::uint32_t timeout_ms) 
         return ESP_ERR_INVALID_STATE;
     }
 
-    std::array<std::uint8_t, 256> raw_buffer{};
+    alignas(4) std::array<std::uint8_t, kReadBufferCapacityBytes> raw_buffer{};
     std::uint32_t bytes_read = 0;
     esp_err_t error = adc_continuous_read(handle_,
                                           raw_buffer.data(),
-                                          raw_buffer.size(),
+                                          conversion_frame_bytes_,
                                           &bytes_read,
                                           timeout_ms);
     if (error != ESP_OK) {
@@ -105,7 +117,7 @@ esp_err_t PiezoAdcContinuous::read_and_dispatch(const std::uint32_t timeout_ms) 
         static_cast<std::uint64_t>(esp_timer_get_time());
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
-    std::array<adc_continuous_data_t, 64> parsed{};
+    std::array<adc_continuous_data_t, kReadBufferCapacityBytes> parsed{};
     std::uint32_t sample_count = 0;
     error = adc_continuous_parse_data(handle_,
                                       raw_buffer.data(),
@@ -114,6 +126,9 @@ esp_err_t PiezoAdcContinuous::read_and_dispatch(const std::uint32_t timeout_ms) 
                                       &sample_count);
     if (error != ESP_OK) {
         return error;
+    }
+    if (sample_count > parsed.size()) {
+        return ESP_ERR_INVALID_SIZE;
     }
     for (std::uint32_t index = 0; index < sample_count; ++index) {
         if (!parsed[index].valid || parsed[index].unit != ADC_UNIT_1) {
@@ -192,6 +207,7 @@ esp_err_t PiezoAdcContinuous::deinit() {
     const esp_err_t error = adc_continuous_deinit(handle_);
     if (error == ESP_OK) {
         handle_ = nullptr;
+        conversion_frame_bytes_ = 0;
         sink_ = nullptr;
         context_ = nullptr;
     }

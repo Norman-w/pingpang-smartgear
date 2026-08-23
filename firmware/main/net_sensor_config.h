@@ -20,6 +20,73 @@ constexpr int kFeedbackLedRedGpio = 16;
 constexpr int kFeedbackLedGreenGpio = 17;
 constexpr int kFeedbackLedBlueGpio = 18;
 constexpr int kFeedbackBuzzerGpio = 19;
+constexpr std::array<int, 4> kFeedbackGpioPins = {
+    kFeedbackLedRedGpio,
+    kFeedbackLedGreenGpio,
+    kFeedbackLedBlueGpio,
+    kFeedbackBuzzerGpio,
+};
+
+template <std::size_t Size>
+constexpr bool all_gpio_numbers_valid(const std::array<int, Size>& pins) {
+    for (const int pin : pins) {
+        // ESP32-S3 exposes GPIO numbers 0..48. This is only a range check;
+        // strapping, USB and board-specific reservations still belong to the
+        // final PCB review.
+        if (pin < 0 || pin > 48) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <std::size_t Size>
+constexpr bool all_unique(const std::array<int, Size>& pins) {
+    for (std::size_t left = 0; left < Size; ++left) {
+        for (std::size_t right = left + 1; right < Size; ++right) {
+            if (pins[left] == pins[right]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+template <std::size_t LeftSize, std::size_t RightSize>
+constexpr bool disjoint(const std::array<int, LeftSize>& left,
+                        const std::array<int, RightSize>& right) {
+    for (const int left_pin : left) {
+        for (const int right_pin : right) {
+            if (left_pin == right_pin) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static_assert(all_gpio_numbers_valid(kBeamGpioPins),
+              "beam GPIO mapping contains an invalid ESP32-S3 GPIO number");
+static_assert(all_gpio_numbers_valid(kPiezoComparatorGpioPins),
+              "PVDF comparator mapping contains an invalid GPIO number");
+static_assert(all_gpio_numbers_valid(kPiezoAdcGpioPins),
+              "PVDF ADC mapping contains an invalid GPIO number");
+static_assert(all_gpio_numbers_valid(kFeedbackGpioPins),
+              "feedback mapping contains an invalid GPIO number");
+static_assert(all_unique(kBeamGpioPins), "beam GPIO mapping contains duplicates");
+static_assert(all_unique(kPiezoComparatorGpioPins),
+              "PVDF comparator mapping contains duplicates");
+static_assert(all_unique(kPiezoAdcGpioPins),
+              "PVDF ADC mapping contains duplicates");
+static_assert(all_unique(kFeedbackGpioPins),
+              "feedback mapping contains duplicates");
+static_assert(disjoint(kBeamGpioPins, kPiezoComparatorGpioPins) &&
+                  disjoint(kBeamGpioPins, kPiezoAdcGpioPins) &&
+                  disjoint(kBeamGpioPins, kFeedbackGpioPins) &&
+                  disjoint(kPiezoComparatorGpioPins, kPiezoAdcGpioPins) &&
+                  disjoint(kPiezoComparatorGpioPins, kFeedbackGpioPins) &&
+                  disjoint(kPiezoAdcGpioPins, kFeedbackGpioPins),
+              "sensor and feedback GPIO mappings must be disjoint");
 
 // 比较器电平约定：光束被遮挡时为低，PVDF 比较器触发时为高。
 constexpr int kBeamBlockedLevel = 0;

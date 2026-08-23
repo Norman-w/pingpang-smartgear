@@ -28,6 +28,8 @@ using PiezoAdcSampleSink = void (*)(std::uint8_t channel,
 // PiezoWaveformCapture，峰值/能量仍由业务层按窗口计算。
 class PiezoAdcContinuous {
   public:
+    static constexpr std::size_t kReadBufferCapacityBytes = 256;
+
     ~PiezoAdcContinuous();
 
     esp_err_t init(const PiezoAdcContinuousConfig& config,
@@ -46,6 +48,7 @@ class PiezoAdcContinuous {
     adc_continuous_handle_t handle_ = nullptr;
     std::array<adc_channel_t, 2> channels_{};
     std::uint32_t conversion_rate_hz_ = 32'000;
+    std::size_t conversion_frame_bytes_ = 0;
     PiezoAdcSampleSink sink_ = nullptr;
     void* context_ = nullptr;
     bool started_ = false;

@@ -117,9 +117,9 @@ void configure_sensor_inputs() {
         route = {SensorKind::kBeam,
                  static_cast<std::uint8_t>(channel),
                  static_cast<gpio_num_t>(smartgear::config::kBeamGpioPins[channel])};
-        gpio_set_direction(route.pin, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(route.pin, GPIO_PULLUP_ONLY);
-        gpio_set_intr_type(route.pin, GPIO_INTR_ANYEDGE);
+        ESP_ERROR_CHECK(gpio_set_direction(route.pin, GPIO_MODE_INPUT));
+        ESP_ERROR_CHECK(gpio_set_pull_mode(route.pin, GPIO_PULLUP_ONLY));
+        ESP_ERROR_CHECK(gpio_set_intr_type(route.pin, GPIO_INTR_ANYEDGE));
         ESP_ERROR_CHECK(gpio_isr_handler_add(route.pin, sensor_isr, &route));
     }
     for (std::size_t channel = 0; channel < smartgear::config::kPiezoCount;
@@ -127,11 +127,11 @@ void configure_sensor_inputs() {
         auto& route = s_routes[route_index];
         route = {SensorKind::kPiezo,
                  static_cast<std::uint8_t>(channel),
-                 static_cast<gpio_num_t>(
-                     smartgear::config::kPiezoComparatorGpioPins[channel])};
-        gpio_set_direction(route.pin, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(route.pin, GPIO_FLOATING);
-        gpio_set_intr_type(route.pin, GPIO_INTR_POSEDGE);
+                     static_cast<gpio_num_t>(
+                         smartgear::config::kPiezoComparatorGpioPins[channel])};
+        ESP_ERROR_CHECK(gpio_set_direction(route.pin, GPIO_MODE_INPUT));
+        ESP_ERROR_CHECK(gpio_set_pull_mode(route.pin, GPIO_FLOATING));
+        ESP_ERROR_CHECK(gpio_set_intr_type(route.pin, GPIO_INTR_POSEDGE));
         ESP_ERROR_CHECK(gpio_isr_handler_add(route.pin, sensor_isr, &route));
     }
 }

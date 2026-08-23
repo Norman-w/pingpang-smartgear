@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
@@ -17,6 +18,7 @@
 #include "piezo_waveform_hook.h"
 #include "piezo_waveform.h"
 #include "ring_buffer.h"
+#include "net_sensor_config.h"
 #include "sensor_self_test.h"
 
 namespace {
@@ -227,6 +229,46 @@ void test_clean_over_and_height_interval() {
             "ball bottom gap must be derived from lowest beam");
     require(event.net_touch.sensor_mask == 0,
             "clean event must not report a PVDF sensor");
+}
+
+void test_every_beam_mask_interval() {
+    for (std::uint16_t mask = 1; mask <= smartgear::config::kAllBeamMask;
+         ++mask) {
+        std::uint8_t min_index = 0;
+        std::uint8_t max_index = 0;
+        bool found = false;
+        for (std::uint8_t index = 0; index < smartgear::config::kBeamCount;
+             ++index) {
+            if ((mask & (1U << index)) == 0) {
+                continue;
+            }
+            if (!found) {
+                min_index = index;
+                found = true;
+            }
+            max_index = index;
+        }
+
+        smartgear::NetEventAggregator aggregator;
+        aggregator.set_calibration("cal-mask", true);
+        aggregator.on_beam(beam(1'000, 2'000, mask, min_index, max_index));
+        aggregator.poll(300'000);
+        const auto event = pop_one(aggregator);
+        const int low = smartgear::config::kBeamFirstHeightMm +
+                        static_cast<int>(min_index) *
+                            smartgear::config::kBeamPitchMm;
+        const int high = smartgear::config::kBeamFirstHeightMm +
+                         static_cast<int>(max_index) *
+                             smartgear::config::kBeamPitchMm;
+        require(event.state == smartgear::NetState::kCleanOver &&
+                    event.beam_mask == mask &&
+                    event.beam_height_mm == std::array<int, 2>{low, high} &&
+                    event.ball_bottom_gap_mm ==
+                        std::array<int, 2>{std::max(0, low -
+                                                           smartgear::config::kBeamPitchMm),
+                                           low},
+                "every nonzero beam mask must map to a stable height interval");
+    }
 }
 
 void test_touch_over_before_and_after_beam() {
@@ -799,6 +841,26 @@ void test_ring_buffer() {
     require(!cache.pop(value), "empty cache pop must fail");
 }
 
+void test_pin_mapping_contract() {
+    using namespace smartgear::config;
+    require(kAllBeamMask == 0x03ffU, "ten optical channels must fit the beam mask");
+    require(all_gpio_numbers_valid(kBeamGpioPins) &&
+                all_gpio_numbers_valid(kPiezoComparatorGpioPins) &&
+                all_gpio_numbers_valid(kPiezoAdcGpioPins) &&
+                all_gpio_numbers_valid(kFeedbackGpioPins),
+            "all placeholder pins must be valid ESP32-S3 GPIO numbers");
+    require(all_unique(kBeamGpioPins) && all_unique(kPiezoComparatorGpioPins) &&
+                all_unique(kPiezoAdcGpioPins) && all_unique(kFeedbackGpioPins),
+            "each hardware group must have unique pins");
+    require(disjoint(kBeamGpioPins, kPiezoComparatorGpioPins) &&
+                disjoint(kBeamGpioPins, kPiezoAdcGpioPins) &&
+                disjoint(kBeamGpioPins, kFeedbackGpioPins) &&
+                disjoint(kPiezoComparatorGpioPins, kPiezoAdcGpioPins) &&
+                disjoint(kPiezoComparatorGpioPins, kFeedbackGpioPins) &&
+                disjoint(kPiezoAdcGpioPins, kFeedbackGpioPins),
+            "placeholder sensor and feedback pins must not overlap");
+}
+
 void print_schema_events() {
     smartgear::NetEventAggregator aggregator;
     aggregator.set_calibration("cal-schema", true);
@@ -824,6 +886,7 @@ int main() {
         test_each_beam_channel_independently();
         test_piezo_merge();
         test_clean_over_and_height_interval();
+        test_every_beam_mask_interval();
         test_touch_over_before_and_after_beam();
         test_touch_no_cross_and_unknown();
         test_sequential_and_overlapping_events();
@@ -838,6 +901,7 @@ int main() {
         test_input_shape_and_deadline_safety();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();
+        test_pin_mapping_contract();
         print_schema_events();
         std::cout << "HOST_TESTS_OK\n";
         return EXIT_SUCCESS;

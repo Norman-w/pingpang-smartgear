@@ -91,6 +91,23 @@ def main() -> None:
     invalid_height_step["beam_height_mm"] = [15, 20]
     if validator.is_valid(invalid_height_step):
         raise AssertionError("schema must reject a height outside the 10 mm grid")
+    invalid_height_order = deepcopy(trace_events[0])
+    invalid_height_order["beam_height_mm"] = [40, 10]
+    if validator.is_valid(invalid_height_order):
+        raise AssertionError("schema must reject a descending height interval")
+    invalid_gap = deepcopy(trace_events[0])
+    invalid_gap["ball_bottom_gap_mm"] = [0, 20]
+    if validator.is_valid(invalid_gap):
+        raise AssertionError("schema must reject a gap outside the adjacent 10 mm interval")
+    invalid_touch_mask = deepcopy(trace_events[2])
+    invalid_touch_mask["net_touch"]["triggered"] = False
+    invalid_touch_mask["net_touch"]["sensor_mask"] = 1
+    if validator.is_valid(invalid_touch_mask):
+        raise AssertionError("schema must reject a false trigger with a nonzero sensor mask")
+    invalid_touch_no_cross = deepcopy(trace_events[1])
+    invalid_touch_no_cross["state"] = "touch_no_cross"
+    if validator.is_valid(invalid_touch_no_cross):
+        raise AssertionError("schema must reject touch_no_cross with a beam hit")
     invalid_event_id = deepcopy(trace_events[0])
     invalid_event_id["event_id"] = "not-a-uuid"
     if validator.is_valid(invalid_event_id):
