@@ -8,6 +8,8 @@ namespace smartgear::config {
 
 constexpr std::size_t kBeamCount = 10;
 constexpr std::size_t kPiezoCount = 2;
+constexpr std::uint16_t kAllBeamMask = static_cast<std::uint16_t>(
+    (1U << kBeamCount) - 1U);
 
 // 首轮占位引脚映射。最终值必须和 PCB、SmartPaddle 既有约束及启动脚复核后冻结。
 constexpr std::array<int, kBeamCount> kBeamGpioPins = {

@@ -172,7 +172,14 @@ void NetEventAggregator::on_beam(const BeamObservation& observation) {
     // 首版明确不处理重叠多球：已有未完成边界时，先标为 unknown，再接收新事件。
     if (pending_beam_) {
         emit_pending_beam(NetState::kUnknown);
-        clear_pending();
+        clear_beam_pending();
+        if (pending_touch_) {
+            // The touch candidate cannot be safely assigned to either
+            // overlapping beam boundary. Preserve it as its own no-cross
+            // record instead of dropping it with the old beam.
+            emit_pending_touch(NetState::kTouchNoCross);
+            clear_touch_pending();
+        }
     }
 
     if (pending_touch_) {
@@ -184,7 +191,7 @@ void NetEventAggregator::on_beam(const BeamObservation& observation) {
             return;
         }
         emit_pending_touch(NetState::kTouchNoCross);
-        clear_pending();
+        clear_touch_pending();
     }
 
     pending_beam_ = observation;
@@ -211,13 +218,13 @@ void NetEventAggregator::on_touch(const PiezoObservation& observation) {
         }
         if (observation.first_trigger_us > pending_beam_deadline_us_) {
             emit_pending_beam(NetState::kCleanOver);
-            clear_pending();
+            clear_beam_pending();
         }
     }
 
     if (pending_touch_) {
         emit_pending_touch(NetState::kTouchNoCross);
-        clear_pending();
+        clear_touch_pending();
     }
 
     pending_touch_ = observation;

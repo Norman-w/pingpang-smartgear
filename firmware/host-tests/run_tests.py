@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from copy import deepcopy
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -77,6 +78,19 @@ def main() -> None:
             "trace states mismatch: "
             f"{[event['state'] for event in trace_events]}"
         )
+    invalid_touch_state = deepcopy(trace_events[1])
+    invalid_touch_state["net_touch"]["triggered"] = False
+    invalid_touch_state["net_touch"]["sensor_mask"] = 0
+    if validator.is_valid(invalid_touch_state):
+        raise AssertionError("schema must reject touch_over without touch evidence")
+    invalid_height_step = deepcopy(trace_events[0])
+    invalid_height_step["beam_height_mm"] = [15, 20]
+    if validator.is_valid(invalid_height_step):
+        raise AssertionError("schema must reject a height outside the 10 mm grid")
+    invalid_event_id = deepcopy(trace_events[0])
+    invalid_event_id["event_id"] = "not-a-uuid"
+    if validator.is_valid(invalid_event_id):
+        raise AssertionError("schema must reject a non-UUID event ID")
     print(f"TRACE_SCHEMA_OK ({len(trace_events)} events)")
 
 

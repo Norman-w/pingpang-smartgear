@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 #include "net_sensor_config.h"
@@ -32,5 +33,15 @@ struct PiezoQuietBaseline {
 bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
                              float max_peak,
                              float max_rms);
+
+// Validate the shape of the board health snapshot before it reaches the
+// event state machine. A false calibration flag is allowed, because it is a
+// valid fail-closed boot/self-test state; a true flag requires a non-empty
+// bounded ID.
+bool sensor_health_snapshot_is_well_formed(const char* calibration_id,
+                                           std::size_t calibration_id_capacity,
+                                           std::uint16_t healthy_beam_mask,
+                                           bool beam_health_valid,
+                                           bool calibration_valid);
 
 }  // namespace smartgear

@@ -1,5 +1,15 @@
 #include "piezo_capture.h"
 
+#include <cmath>
+
+namespace {
+
+bool finite_nonnegative(const float value) {
+    return std::isfinite(value) && value >= 0.0F;
+}
+
+}  // namespace
+
 namespace smartgear {
 
 PiezoCapture::PiezoCapture(const std::uint64_t merge_window_us,
@@ -15,6 +25,9 @@ std::optional<PiezoObservation> PiezoCapture::on_trigger(
     if (channel >= 2) {
         return std::nullopt;
     }
+
+    const bool trigger_features_valid = finite_nonnegative(peak) &&
+                                        finite_nonnegative(energy);
 
     if (pending_ && timestamp_us < pending_observation_.last_trigger_us) {
         // ISR delivery should be FIFO, but an adapter must not allow a late
@@ -40,16 +53,25 @@ std::optional<PiezoObservation> PiezoCapture::on_trigger(
         pending_observation_.valid = true;
         pending_observation_.triggered = true;
         pending_observation_.first_trigger_us = timestamp_us;
-        pending_observation_.features_ready = waveform_ref.empty();
+        // A comparator edge is only a candidate. Without a non-empty frame
+        // reference there is no ADC evidence that can make the observation
+        // complete, even if an adapter supplied placeholder peak/energy.
+        pending_observation_.features_ready = false;
     }
 
     pending_observation_.sensor_mask = static_cast<std::uint8_t>(
         pending_observation_.sensor_mask | static_cast<std::uint8_t>(1U << channel));
+    if (!trigger_features_valid) {
+        pending_observation_.valid = false;
+    }
     if (!pending_observation_.features_ready) {
         pending_observation_.peak[channel] =
-            pending_observation_.peak[channel] > peak ? pending_observation_.peak[channel]
-                                                       : peak;
-        pending_observation_.energy[channel] += energy;
+            pending_observation_.peak[channel] > peak || !trigger_features_valid
+                ? pending_observation_.peak[channel]
+                : peak;
+        if (trigger_features_valid) {
+            pending_observation_.energy[channel] += energy;
+        }
     }
     pending_observation_.last_trigger_us = timestamp_us;
     if (!pending_observation_.features_ready) {
@@ -69,6 +91,18 @@ void PiezoCapture::on_waveform_ready(const std::string& waveform_ref,
                                      const PiezoFeatureSummary& features) {
     if (!pending_ || waveform_ref.empty() ||
         pending_observation_.waveform_ref != waveform_ref) {
+        return;
+    }
+    const bool features_valid = finite_nonnegative(features.peak[0]) &&
+                                finite_nonnegative(features.peak[1]) &&
+                                finite_nonnegative(features.energy[0]) &&
+                                finite_nonnegative(features.energy[1]);
+    if (!features_valid) {
+        pending_observation_.peak = {0.0F, 0.0F};
+        pending_observation_.energy = {0.0F, 0.0F};
+        pending_observation_.duration_us = 0;
+        pending_observation_.valid = false;
+        pending_observation_.features_ready = false;
         return;
     }
     pending_observation_.peak = features.peak;

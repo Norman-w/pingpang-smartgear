@@ -20,7 +20,7 @@
 - 光栅输入采用并行 GPIO 采集，不以逐路低速轮询替代。业务层输出 `beam_mask`、最低/最高命中档位和区间结果。
 - PVDF 比较器只产生低延迟候选；ADC1 连续采样保存触发前 20 ms、触发后 80 ms 的双通道短波形。
 - AFE 的偏置、保护、增益、带通、比较器迟滞和光学调制参数必须通过真实波形与环境光测试冻结；接口契约不为这些参数预设精度。
-- GPIO 队列溢出、健康快照不可用、标定无效或波形不完整时，业务状态保持 `unknown`，不得输出伪造的有效高度或擦网结论。
+- GPIO 队列溢出、健康快照不可用/形状非法、标定无效或波形不完整时，业务状态保持 `unknown`，不得输出伪造的有效高度或擦网结论。
 
 ## 3. SmartPaddle 适配 hook
 
@@ -49,7 +49,7 @@ bool smartgear_board_read_sensor_health(
     bool* calibration_valid);
 ```
 
-`healthy_beam_mask` 的 bit 顺序必须与 `BEAM_BLOCKED[i]` 一致。健康快照不可用时，固件会主动设置无效标记并让后续事件进入 `unknown`。
+`healthy_beam_mask` 的 bit 顺序必须与 `BEAM_BLOCKED[i]` 一致。健康快照不可用、校准 ID 为空/未终止，或健康位图包含第 10 路以外的 bit 时，固件会主动设置无效标记并让后续事件进入 `unknown`。
 
 ### 3.3 原始 PVDF 波形
 

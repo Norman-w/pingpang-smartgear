@@ -38,6 +38,53 @@
       "then": {
         "properties": { "beam_mask": { "minimum": 1 } }
       }
+    },
+    {
+      "if": {
+        "properties": { "beam_mask": { "minimum": 1 } }
+      },
+      "then": {
+        "properties": {
+          "beam_height_mm": {
+            "prefixItems": [
+              { "minimum": 10 },
+              { "minimum": 10 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "clean_over" } }
+      },
+      "then": {
+        "properties": {
+          "net_touch": {
+            "properties": {
+              "triggered": { "const": false },
+              "sensor_mask": { "const": 0 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": { "enum": ["touch_over", "touch_no_cross"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "net_touch": {
+            "properties": {
+              "triggered": { "const": true },
+              "sensor_mask": { "minimum": 1 }
+            }
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -45,7 +92,7 @@
     "schema_version": { "const": "0.1" },
     "event_id": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$"
     },
     "timestamp_us": {
       "type": "integer",
@@ -63,8 +110,14 @@
     "beam_height_mm": {
       "type": "array",
       "prefixItems": [
-        { "type": "integer", "minimum": 0, "maximum": 100 },
-        { "type": "integer", "minimum": 0, "maximum": 100 }
+        {
+          "type": "integer",
+          "enum": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        },
+        {
+          "type": "integer",
+          "enum": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        }
       ],
       "items": false,
       "minItems": 2,
@@ -73,8 +126,14 @@
     "ball_bottom_gap_mm": {
       "type": "array",
       "prefixItems": [
-        { "type": "integer", "minimum": 0, "maximum": 100 },
-        { "type": "integer", "minimum": 0, "maximum": 100 }
+        {
+          "type": "integer",
+          "enum": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        },
+        {
+          "type": "integer",
+          "enum": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        }
       ],
       "items": false,
       "minItems": 2,

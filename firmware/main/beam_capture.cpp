@@ -16,6 +16,14 @@ std::optional<BeamObservation> BeamCapture::on_edge(
         return std::nullopt;
     }
 
+    const bool timestamp_in_order = !active_ || timestamp_us >= last_change_us_;
+    if (!timestamp_in_order) {
+        // GPIO ISR delivery is expected to be FIFO, but a board adapter or
+        // replay source can violate that assumption. Keep the boundary
+        // recoverable while making the eventual observation invalid.
+        timestamp_order_valid_ = false;
+    }
+
     if (active_ && timestamp_us >= start_us_ &&
         timestamp_us - start_us_ > max_event_us_) {
         auto timed_out = finish(timestamp_us, true);
@@ -42,7 +50,9 @@ std::optional<BeamObservation> BeamCapture::on_edge(
     } else if (active_) {
         active_mask_ = static_cast<std::uint16_t>(active_mask_ & ~bit);
     }
-    last_change_us_ = timestamp_us;
+    if (timestamp_in_order) {
+        last_change_us_ = timestamp_us;
+    }
     return std::nullopt;
 }
 
@@ -69,7 +79,8 @@ std::optional<BeamObservation> BeamCapture::finish(
     }
 
     BeamObservation observation;
-    observation.valid = latched_mask_ != 0 && timestamp_us >= start_us_;
+    observation.valid = latched_mask_ != 0 && timestamp_us >= start_us_ &&
+                        timestamp_order_valid_;
     observation.timed_out = timed_out;
     observation.start_us = start_us_;
     observation.end_us = timestamp_us;
@@ -98,6 +109,7 @@ void BeamCapture::reset() {
     latched_mask_ = 0;
     start_us_ = 0;
     last_change_us_ = 0;
+    timestamp_order_valid_ = true;
 }
 
 }  // namespace smartgear

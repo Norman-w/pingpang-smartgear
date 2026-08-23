@@ -12,7 +12,8 @@
 //   PART="guide"        连续光栅导轨
 //   PART="calibration_gauge"  打印式光栅/参考线标定规
 //   PART="parameter_probe"    输出几何验证所需的单一参数源
-//   SIDE=1/-1            单夹具镜像选择
+//   SIDE=0               按 PART 的默认左右方向
+//   SIDE=1/-1            显式覆盖单夹具镜像选择
 //
 // 重要：螺纹、金属光轴、滚柱、软垫为装配占位几何；打印前要按实际
 // 标准件、打印方向和 PETG 收缩率修订孔径与间隙。
@@ -20,7 +21,7 @@
 $fn = 48;
 
 PART = "assembly";
-SIDE = 1;
+SIDE = 0;
 
 // 立柱与夹持参数
 post_nominal_d = 25;
@@ -90,6 +91,7 @@ assert(beam_count == 10, "first prototype uses 10 optical channels");
 assert(beam_first_height == 10, "first effective beam starts at +10 mm");
 assert(beam_last_height == 100, "first prototype ends at +100 mm");
 assert(rod_w == 12 && rod_h == 12 && rod_len == 130, "first rod is 12 x 12 x 130 mm");
+assert(SIDE == -1 || SIDE == 0 || SIDE == 1, "SIDE must be -1, 0, or 1");
 assert(clamp_angle_deg >= clamp_angle_min_deg && clamp_angle_deg <= clamp_angle_max_deg,
        "clamp angle must stay inside the printable motion range");
 assert(clamp_angle_min_deg > 0 && clamp_angle_max_deg < 30,
@@ -323,6 +325,7 @@ module calibration_gauge() {
 
 module parameter_probe() {
     // 供 validate_geometry.py 读取；几何计算不复制一套 CAD 参数。
+    echo(str("SMARTGEAR_SIDE side=", SIDE));
     echo(str("SMARTGEAR_PARAM ",
              "post_nominal_d=", post_nominal_d,
              ";jaw_clearance=", jaw_clearance,
@@ -391,6 +394,8 @@ module oriented_clamp(side = 1) {
         mirror([1, 0, 0]) clamp_assembly();
 }
 
+function resolved_side(default_side) = SIDE == 0 ? default_side : SIDE;
+
 module assembly_preview() {
     left_x = -assembly_span / 2;
     right_x = assembly_span / 2;
@@ -408,9 +413,9 @@ module assembly_preview() {
 if (PART == "assembly") {
     assembly_preview();
 } else if (PART == "left_clamp") {
-    oriented_clamp(1);
+    oriented_clamp(resolved_side(1));
 } else if (PART == "right_clamp") {
-    oriented_clamp(-1);
+    oriented_clamp(resolved_side(-1));
 } else if (PART == "arm") {
     scissor_arm(outer_point(1), inner_point(1));
 } else if (PART == "roller") {

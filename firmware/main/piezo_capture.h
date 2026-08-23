@@ -28,6 +28,7 @@ class PiezoCapture {
                           std::uint64_t waveform_timeout_us);
 
     // 比较器 ISR/ADC 业务适配器调用此方法；这里不直接操作 GPIO 或 ADC。
+    // waveform_ref 为空时只保留候选，不能把它当成已完成波形。
     std::optional<PiezoObservation> on_trigger(
         std::uint8_t channel,
         std::uint64_t timestamp_us,

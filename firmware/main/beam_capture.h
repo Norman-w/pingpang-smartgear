@@ -38,6 +38,7 @@ class BeamCapture {
     std::uint16_t latched_mask_ = 0;
     std::uint64_t start_us_ = 0;
     std::uint64_t last_change_us_ = 0;
+    bool timestamp_order_valid_ = true;
 };
 
 }  // namespace smartgear

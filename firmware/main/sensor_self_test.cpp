@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 namespace smartgear {
 
@@ -37,6 +38,27 @@ bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
             baseline.rms[channel] > max_rms) {
             return false;
         }
+    }
+    return true;
+}
+
+bool sensor_health_snapshot_is_well_formed(
+    const char* calibration_id,
+    const std::size_t calibration_id_capacity,
+    const std::uint16_t healthy_beam_mask,
+    const bool beam_health_valid,
+    const bool calibration_valid) {
+    if (calibration_id == nullptr || calibration_id_capacity == 0 ||
+        std::memchr(calibration_id, '\0', calibration_id_capacity) == nullptr) {
+        return false;
+    }
+    if (calibration_valid && calibration_id[0] == '\0') {
+        return false;
+    }
+    if (beam_health_valid &&
+        (healthy_beam_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) !=
+            0) {
+        return false;
     }
     return true;
 }

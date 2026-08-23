@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -122,6 +123,13 @@ void test_beam_capture() {
     const auto timed_out = timeout.poll(1'101);
     require(timed_out.has_value() && timed_out->timed_out,
             "an overlong beam boundary must be explicitly timed out");
+
+    smartgear::BeamCapture out_of_order(5, 1'000);
+    out_of_order.on_edge(0, true, 2'000);
+    out_of_order.on_edge(0, false, 1'900);
+    const auto invalid_order = out_of_order.poll(3'001);
+    require(invalid_order.has_value() && !invalid_order->valid,
+            "out-of-order beam timestamps must fail closed");
 }
 
 void test_each_beam_channel_independently() {
@@ -177,6 +185,25 @@ void test_piezo_merge() {
             "PVDF waveform timeout must preserve an incomplete quality state");
     require(timeout.will_start_new_observation(225'001),
             "a trigger after waveform timeout must start a new frame");
+
+    smartgear::PiezoCapture no_waveform(5'000, 100'000);
+    no_waveform.on_trigger(0, 10'000, 99.0F, 100.0F, "");
+    const auto no_waveform_result = no_waveform.poll(115'001);
+    require(no_waveform_result.has_value() &&
+                !no_waveform_result->features_ready,
+            "an empty waveform reference must remain incomplete evidence");
+
+    smartgear::PiezoCapture invalid_features(5'000, 100'000);
+    invalid_features.on_trigger(0, 20'000, 0.0F, 0.0F, "wave-invalid");
+    smartgear::PiezoFeatureSummary invalid_summary;
+    invalid_summary.peak[0] = std::numeric_limits<float>::quiet_NaN();
+    invalid_summary.complete = true;
+    invalid_features.on_waveform_ready("wave-invalid", invalid_summary);
+    const auto invalid_feature_result = invalid_features.poll(125'001);
+    require(invalid_feature_result.has_value() &&
+                !invalid_feature_result->valid &&
+                !invalid_feature_result->features_ready,
+            "non-finite waveform features must fail closed");
 
     smartgear::PiezoCapture out_of_order(5'000, 20'000);
     out_of_order.on_trigger(0, 10'000, 0.0F, 0.0F, "wave-order");
@@ -315,6 +342,21 @@ void test_sequential_and_overlapping_events() {
     const auto no_cross = pop_one(unmatched);
     require(no_cross.state == smartgear::NetState::kTouchNoCross,
             "unmatched PVDF must remain as touch_no_cross");
+
+    smartgear::NetEventAggregator preserve_beam({20'000, 80'000, 200'000, 0});
+    preserve_beam.set_calibration("cal-test", true);
+    preserve_beam.on_beam(beam(700'000, 701'000, 1, 0, 0));
+    preserve_beam.on_touch(touch(600'000, 600'000, 1));
+    preserve_beam.on_touch(touch(600'100, 600'100, 2));
+    preserve_beam.poll(781'001);
+    smartgear::NetEvent preserved_touch;
+    smartgear::NetEvent preserved_beam;
+    require(preserve_beam.pop_event(preserved_touch) &&
+                preserve_beam.pop_event(preserved_beam),
+            "mismatched pending candidates must both be retained");
+    require(preserved_touch.state == smartgear::NetState::kTouchNoCross &&
+                preserved_beam.state == smartgear::NetState::kCleanOver,
+            "mismatched candidates must not silently drop the beam event");
 }
 
 void test_waveform_window() {
@@ -532,6 +574,17 @@ void test_channel_self_test_and_baseline() {
     const smartgear::PiezoQuietBaseline invalid{{-0.1F, 0.3F}, {0.1F, 0.1F}, 1600};
     require(!smartgear::piezo_baseline_is_quiet(invalid, 0.5F, 0.2F),
             "negative PVDF baseline values must fail validation");
+
+    const char valid_id[] = "cal-v1";
+    require(smartgear::sensor_health_snapshot_is_well_formed(
+                valid_id, sizeof(valid_id), 0x03ffU, true, true),
+            "well-formed sensor health snapshot should pass");
+    require(!smartgear::sensor_health_snapshot_is_well_formed(
+                "", 1, 0x03ffU, true, true),
+            "valid calibration cannot have an empty ID");
+    require(!smartgear::sensor_health_snapshot_is_well_formed(
+                valid_id, sizeof(valid_id), 0x0400U, true, true),
+            "beam health snapshot must not contain bits above channel 9");
 }
 
 void test_sensor_pipeline_end_to_end() {
