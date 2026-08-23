@@ -1,5 +1,6 @@
 #include "net_event.h"
 
+#include <cmath>
 #include <iomanip>
 #include <sstream>
 
@@ -50,10 +51,15 @@ void append_array(std::ostringstream& out, const std::array<T, 2>& values) {
     out << '[' << values[0] << ',' << values[1] << ']';
 }
 
+float safe_nonnegative_float(const float value) {
+    return std::isfinite(value) && value >= 0.0F ? value : 0.0F;
+}
+
 void append_float_array(std::ostringstream& out,
                         const std::array<float, 2>& values) {
-    out << '[' << std::fixed << std::setprecision(4) << values[0] << ','
-        << values[1] << ']';
+    out << '[' << std::fixed << std::setprecision(4)
+        << safe_nonnegative_float(values[0]) << ','
+        << safe_nonnegative_float(values[1]) << ']';
 }
 
 }  // namespace

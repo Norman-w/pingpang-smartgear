@@ -585,6 +585,11 @@ void test_channel_self_test_and_baseline() {
     require(!smartgear::sensor_health_snapshot_is_well_formed(
                 valid_id, sizeof(valid_id), 0x0400U, true, true),
             "beam health snapshot must not contain bits above channel 9");
+    const char unterminated_id[] = {'c', 'a', 'l', 'x'};
+    require(!smartgear::sensor_health_snapshot_is_well_formed(
+                unterminated_id, sizeof(unterminated_id), 0x03ffU, true,
+                true),
+            "health snapshot must reject an unterminated calibration ID");
 }
 
 void test_sensor_pipeline_end_to_end() {
@@ -622,6 +627,54 @@ void test_sensor_pipeline_end_to_end() {
     require(event.net_touch.waveform_ref == "wave-pipeline" &&
                 event.net_touch.peak[0] == 8.0F,
             "pipeline must retain completed waveform evidence");
+}
+
+void test_input_shape_and_deadline_safety() {
+    smartgear::NetEventAggregator malformed_beam;
+    malformed_beam.set_calibration("cal-shape", true);
+    auto beam_with_wrong_bounds = beam(80'000, 81'000, 1, 0, 0);
+    beam_with_wrong_bounds.min_index = 4;
+    malformed_beam.on_beam(beam_with_wrong_bounds);
+    const auto malformed_beam_event = pop_one(malformed_beam);
+    require(malformed_beam_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(malformed_beam_event, "beam_shape_invalid") &&
+                malformed_beam_event.beam_mask == 0,
+            "malformed beam observations must fail closed without height data");
+
+    smartgear::NetEventAggregator malformed_touch;
+    malformed_touch.set_calibration("cal-shape", true);
+    auto touch_with_wrong_mask = touch(82'000, 82'100, 1);
+    touch_with_wrong_mask.sensor_mask = 4;
+    malformed_touch.on_touch(touch_with_wrong_mask);
+    const auto malformed_touch_event = pop_one(malformed_touch);
+    require(malformed_touch_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(malformed_touch_event, "touch_shape_invalid") &&
+                !malformed_touch_event.net_touch.triggered &&
+                malformed_touch_event.net_touch.sensor_mask == 0,
+            "malformed PVDF observations must not violate the event contract");
+
+    smartgear::NetEvent direct_event;
+    direct_event.net_touch.peak[0] =
+        std::numeric_limits<float>::quiet_NaN();
+    direct_event.net_touch.energy[1] = -1.0F;
+    const auto safe_json = smartgear::net_event_to_json(direct_event);
+    require(safe_json.find("nan") == std::string::npos &&
+                safe_json.find("NaN") == std::string::npos &&
+                safe_json.find("-1.0000") == std::string::npos,
+            "JSON serialization must not emit non-finite or negative floats");
+
+    smartgear::NetEventAggregator saturated({0,
+                                             std::numeric_limits<std::uint64_t>::max(),
+                                             0,
+                                             std::numeric_limits<std::uint64_t>::max()});
+    saturated.set_calibration("cal-saturated", true);
+    saturated.on_beam(beam(std::numeric_limits<std::uint64_t>::max() - 100,
+                           std::numeric_limits<std::uint64_t>::max() - 50,
+                           1, 0, 0));
+    saturated.poll(std::numeric_limits<std::uint64_t>::max());
+    const auto saturated_event = pop_one(saturated);
+    require(saturated_event.state == smartgear::NetState::kCleanOver,
+            "deadline arithmetic must saturate instead of wrapping around");
 }
 
 struct DeliverySink {
@@ -739,6 +792,7 @@ int main() {
         test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
         test_sensor_pipeline_end_to_end();
+        test_input_shape_and_deadline_safety();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();
         print_schema_events();

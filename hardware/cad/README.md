@@ -4,7 +4,7 @@
 
 - `PART="assembly"`：双侧装配预览；
 - `PART="left_clamp"` / `PART="right_clamp"`：左右镜像夹具；
-- `PART="arm"`、`"roller"`、`"knob"`、`"rod"`、`"guide"`：单件检查；
+- `PART="arm"`、`"roller"`、`"knob"`、`"rod"`、`"bridge"`、`"guide"`：单件检查；
 - `PART="calibration_gauge"`：打印式 10 mm 光栅/参考线标定规；
 - `PART="parameter_probe"`：由验证脚本读取的参数清单，不是打印件；
 - `SIDE=0`：按 `PART` 的默认左右方向；`SIDE=1/-1`：显式覆盖单件镜像选择。

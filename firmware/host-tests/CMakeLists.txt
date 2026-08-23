@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(pingpang_smartgear_host_tests LANGUAGES CXX)
 
+option(SMARTGEAR_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -32,6 +34,14 @@ add_executable(net_event_trace
 )
 target_include_directories(net_event_trace PRIVATE ../main)
 target_compile_options(net_event_trace PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
+if(SMARTGEAR_SANITIZERS)
+    set(SMARTGEAR_SANITIZER_FLAGS -fsanitize=address,undefined -fno-omit-frame-pointer)
+    foreach(target net_event_tests net_event_trace)
+        target_compile_options(${target} PRIVATE ${SMARTGEAR_SANITIZER_FLAGS})
+        target_link_options(${target} PRIVATE ${SMARTGEAR_SANITIZER_FLAGS})
+    endforeach()
+endif()
 
 enable_testing()
 add_test(NAME net_event_unit_tests COMMAND net_event_tests)

@@ -181,7 +181,6 @@ void sync_sensor_health(smartgear::NetEventAggregator& aggregator) {
         aggregator.set_piezo_baseline(false);
         return;
     }
-    calibration_id[sizeof(calibration_id) - 1] = '\0';
     if (!smartgear::sensor_health_snapshot_is_well_formed(
             calibration_id, sizeof(calibration_id), healthy_beam_mask,
             beam_health_valid, calibration_valid)) {

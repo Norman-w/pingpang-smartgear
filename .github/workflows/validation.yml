@@ -26,6 +26,12 @@ jobs:
       - name: Run CTest regression
         run: ctest --test-dir firmware/host-tests/build --output-on-failure
 
+      - name: Run ASan and UBSan regression
+        run: |
+          cmake -S firmware/host-tests -B firmware/host-tests/build-sanitize -DCMAKE_BUILD_TYPE=Debug -DSMARTGEAR_SANITIZERS=ON
+          cmake --build firmware/host-tests/build-sanitize --parallel
+          ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir firmware/host-tests/build-sanitize --output-on-failure
+
       - name: Compile Python validation scripts
         run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/preview.py
 

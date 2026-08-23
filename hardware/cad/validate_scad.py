@@ -23,6 +23,7 @@ PARTS = (
     "roller",
     "knob",
     "rod",
+    "bridge",
     "guide",
     "calibration_gauge",
 )

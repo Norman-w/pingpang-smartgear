@@ -73,4 +73,6 @@ bool smartgear_board_on_piezo_waveform(
 
 `firmware/host-tests/trace_replay.cpp` 使用真实的光栅、PVDF、短波形采集和事件归并类读取 `fixtures/net_trace_v0.1.csv`。它会生成紧凑的预触发/后触发样本并检查 `waveform_ref`、持续时间和状态派生，再验证 JSON Schema；它不模拟 ADC 电气噪声、光学串扰、夹具滑移或真实无线链路。
 
+SmartPaddle 当前工程的实际 WebSocket 接口、压电资源冲突和强 hook 接入示例见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。
+
 修改信号命名、通道顺序、时间窗口或 `NetEvent` 字段时，应同步更新该 CSV、回放测试和本契约，并保留实测原始波形/逻辑分析仪证据。

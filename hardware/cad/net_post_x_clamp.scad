@@ -8,7 +8,8 @@
 //   PART="arm"         活动臂
 //   PART="roller"      竖直滚柱与压盖
 //   PART="knob"        M8 旋钮/螺杆占位
-//   PART="rod"          方杆与固定桥件
+//   PART="rod"          方杆
+//   PART="bridge"       固定桥件
 //   PART="guide"        连续光栅导轨
 //   PART="calibration_gauge"  打印式光栅/参考线标定规
 //   PART="parameter_probe"    输出几何验证所需的单一参数源
@@ -112,6 +113,7 @@ function jaw_to_post_gap() = distance_2d(inner_point(1), [post_x(), 0]);
 function bridge_rod_x() = post_x() + 4;
 function guide_x() = bridge_rod_x() + rod_w / 2 + guide_t / 2 + 2;
 function beam_z(h) = bridge_z + h;
+function screw_tip_y() = outer_point(1)[1] + roller_d / 2;
 
 // 这些断言验证 X 线、内端夹持距离和外侧螺杆包络，而不是只验证语法。
 assert(abs(cross_2d(outer_point(1), inner_point(1))) < 0.01,
@@ -194,7 +196,9 @@ module dimpled_vertical_roller(p, has_dimple = false) {
         if (has_dimple)
             difference() {
                 vertical_cylinder_at(p, roller_d, roller_h, arm_height / 2 - roller_h / 2);
-                translate([point_x(p), point_y(p), arm_height / 2 + roller_h / 2 - 1])
+                // 圆坑在滚柱的外侧圆周面，承接沿 Y 方向来的螺杆圆头；
+                // 不把顶面凹坑误当成水平推力承接面。
+                translate([point_x(p), point_y(p) + roller_d / 2, arm_height / 2])
                     sphere(d = 6);
             }
         else
@@ -220,6 +224,17 @@ module u_roller_mount(p, has_dimple = false) {
     }
     dimpled_vertical_roller(p, has_dimple);
     removable_roller_cap(p);
+    if (!has_dimple)
+        m8_nut_capture(p);
+}
+
+module m8_nut_capture(p) {
+    // 下侧 U 槽捕获金属 M8 螺母；六边形仅表示标准件包络，实际螺纹由
+    // 金属螺母/螺杆提供，不把打印件当成受力螺纹。
+    color("dimgray")
+        translate([point_x(p), point_y(p) - roller_d / 2 - 3, arm_height / 2])
+            rotate([90, 0, 0])
+                cylinder(d = 15, h = 6, center = true, $fn = 6);
 }
 
 module rounded_screw_rod() {
@@ -229,7 +244,7 @@ module rounded_screw_rod() {
             rotate([90, 0, 0])
                 cylinder(d = screw_d, h = screw_span, center = true);
     color("silver")
-        translate([outer_point(1)[0], screw_span / 2, arm_height / 2])
+        translate([outer_point(1)[0], screw_tip_y(), arm_height / 2])
             sphere(d = screw_d + 2);
 }
 
@@ -425,8 +440,9 @@ if (PART == "assembly") {
     rounded_screw_rod();
     printed_knob();
 } else if (PART == "rod") {
-    fixed_bridge();
     square_extension_rod();
+} else if (PART == "bridge") {
+    fixed_bridge();
 } else if (PART == "guide") {
     optical_guide();
     reference_line_carriage();
@@ -435,5 +451,5 @@ if (PART == "assembly") {
 } else if (PART == "parameter_probe") {
     parameter_probe();
 } else {
-    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, knob, rod, guide, calibration_gauge, or parameter_probe.");
+    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, knob, rod, bridge, guide, calibration_gauge, or parameter_probe.");
 }
