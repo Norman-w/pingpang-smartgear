@@ -565,6 +565,32 @@ void test_channel_self_test_and_baseline() {
             "failed receiver must be reported by channel mask");
     require(!report.all_pass, "one failed beam channel must fail self-test");
 
+    for (std::size_t failed_field = 0; failed_field < 4; ++failed_field) {
+        auto one_channel = std::array<smartgear::BeamChannelCheck,
+                                      smartgear::config::kBeamCount>{};
+        for (auto& check : one_channel) {
+            check = {true, true, true, true};
+        }
+        switch (failed_field) {
+            case 0:
+                one_channel[0].emitter_ok = false;
+                break;
+            case 1:
+                one_channel[0].receiver_ok = false;
+                break;
+            case 2:
+                one_channel[0].clear_baseline = false;
+                break;
+            default:
+                one_channel[0].blocked_response = false;
+                break;
+        }
+        const auto field_report = smartgear::evaluate_beam_self_test(one_channel);
+        require((field_report.fail_mask & 1U) != 0 &&
+                    (field_report.pass_mask & 1U) == 0,
+                "each optical self-test component must gate its channel");
+    }
+
     const smartgear::PiezoQuietBaseline quiet{{0.2F, 0.3F}, {0.1F, 0.1F}, 1600};
     require(smartgear::piezo_baseline_is_quiet(quiet, 0.5F, 0.2F),
             "quiet PVDF baseline should pass");
@@ -734,6 +760,23 @@ void test_delivery_recovery_and_feedback() {
                 flaky_sink.messages.size() == 1 &&
                 flaky_sink.messages[0].find("failed-send") != std::string::npos,
             "re-arming transport must flush the failed event exactly once");
+
+    smartgear::NetEventDelivery bounded;
+    for (std::size_t index = 0;
+         index < smartgear::config::kEventCacheCapacity + 2; ++index) {
+        smartgear::NetEvent cached;
+        cached.event_id = "cached-" + std::to_string(index);
+        require(!bounded.publish(cached),
+                "disconnected bounded delivery must cache every event");
+    }
+    require(bounded.cached_count() == smartgear::config::kEventCacheCapacity &&
+                bounded.dropped_count() == 2,
+            "bounded delivery must report overwritten oldest events");
+    DeliverySink bounded_sink;
+    bounded.set_transport(true, delivery_sink, &bounded_sink);
+    require(bounded_sink.messages.size() == smartgear::config::kEventCacheCapacity &&
+                bounded_sink.messages.front().find("cached-2") != std::string::npos,
+            "bounded delivery must flush the newest events in order");
 
     require(smartgear::feedback_for(smartgear::NetState::kCleanOver).led_green,
             "clean_over must use green feedback");
