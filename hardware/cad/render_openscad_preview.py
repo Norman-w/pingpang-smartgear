@@ -30,7 +30,7 @@ def find_openscad() -> str:
 
 def render(openscad: str, part: str, output: Path, width: int, height: int) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
-    command = [
+    openscad_command = [
         openscad,
         "-o",
         str(output),
@@ -44,6 +44,14 @@ def render(openscad: str, part: str, output: Path, width: int, height: int) -> N
         "--colorscheme=Tomorrow",
         str(SOURCE),
     ]
+    command = openscad_command
+    if not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
+        command = [
+            "xvfb-run",
+            "-a",
+            "--server-args=-screen 0 1920x1200x24",
+            *openscad_command,
+        ]
     print("$", " ".join(command))
     subprocess.run(command, check=True)
     if not output.is_file() or output.stat().st_size < 1_024:

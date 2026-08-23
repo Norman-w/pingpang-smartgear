@@ -60,7 +60,7 @@ jobs:
         run: sudo apt-get update
 
       - name: Install OpenSCAD package
-        run: sudo apt-get install --no-install-recommends -y openscad
+        run: sudo apt-get install --no-install-recommends -y openscad xvfb
 
       - name: Validate OpenSCAD parts and mirrors
         run: python hardware/cad/validate_scad.py
