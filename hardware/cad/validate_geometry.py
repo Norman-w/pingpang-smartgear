@@ -93,6 +93,7 @@ def validate(parameters: dict[str, float]) -> str:
         "post_nominal_d",
         "jaw_clearance",
         "jaw_length",
+        "jaw_mount_overlap",
         "v_angle",
         "arm_length_outer",
         "arm_length_inner",
@@ -124,6 +125,8 @@ def validate(parameters: dict[str, float]) -> str:
     selected_angle = parameters["clamp_angle_deg"]
 
     require(parameters["v_angle"] == 90, "inner V jaw must remain 90 degrees")
+    require(0 < parameters["jaw_mount_overlap"] < parameters["jaw_length"] / 2,
+            "V jaw must overlap its arm endpoint without spanning the full jaw")
     require(parameters["pivot_d"] == 8, "pivot shaft must remain 8 mm")
     require(parameters["screw_d"] == 8, "adjustment screw must remain M8")
     require(0 < min_angle <= selected_angle <= max_angle < 30,

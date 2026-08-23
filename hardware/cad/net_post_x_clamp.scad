@@ -33,6 +33,7 @@ soft_pad_t = 2.0;
 jaw_length = 26;
 jaw_width = 9;
 jaw_height = 17;
+jaw_mount_overlap = 2;
 
 // X 臂/转轴参数
 arm_length_outer = 90;
@@ -97,6 +98,8 @@ assert(clamp_angle_deg >= clamp_angle_min_deg && clamp_angle_deg <= clamp_angle_
        "clamp angle must stay inside the printable motion range");
 assert(clamp_angle_min_deg > 0 && clamp_angle_max_deg < 30,
        "motion range must leave a stable X crossing");
+assert(jaw_mount_overlap > 0 && jaw_mount_overlap < jaw_length / 2,
+       "V jaw must overlap the arm endpoint without crossing its full length");
 
 function point_x(p) = p[0];
 function point_y(p) = p[1];
@@ -177,7 +180,10 @@ module v_jaw(center, opening_angle = 0) {
             rotate([0, 0, opening_angle]) {
                 for (a = [-45, 45])
                     rotate([0, 0, a])
-                        translate([jaw_length / 2, 0, 0])
+                        // Start slightly behind the arm endpoint so the V jaw
+                        // is an attached solid in the exported clamp, not a
+                        // merely touching/free-floating body.
+                        translate([jaw_length / 2 - jaw_mount_overlap, 0, 0])
                             cube([jaw_length, jaw_width, jaw_height], center = true);
             }
 
@@ -345,6 +351,7 @@ module parameter_probe() {
              "post_nominal_d=", post_nominal_d,
              ";jaw_clearance=", jaw_clearance,
              ";jaw_length=", jaw_length,
+             ";jaw_mount_overlap=", jaw_mount_overlap,
              ";v_angle=", v_angle,
              ";arm_length_outer=", arm_length_outer,
              ";arm_length_inner=", arm_length_inner,
