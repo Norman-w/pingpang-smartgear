@@ -89,6 +89,7 @@ assert(post_nominal_d > 0, "post_nominal_d must be positive");
 assert(v_angle == 90, "first prototype uses a 90 degree V jaw");
 assert(pivot_d == 8, "first prototype uses an 8 mm metal pivot shaft");
 assert(screw_d == 8, "first prototype uses an M8 screw");
+assert(screw_pitch == 1.25, "first prototype uses an M8 x 1.25 screw");
 assert(beam_count == 10, "first prototype uses 10 optical channels");
 assert(beam_first_height == 10, "first effective beam starts at +10 mm");
 assert(beam_last_height == 100, "first prototype ends at +100 mm");
@@ -365,6 +366,7 @@ module parameter_probe() {
              ";pivot_clearance=", pivot_clearance,
              ";roller_d=", roller_d,
              ";screw_d=", screw_d,
+             ";screw_pitch=", screw_pitch,
              ";screw_span=", screw_span,
              ";rod_len=", rod_len,
              ";beam_count=", beam_count,

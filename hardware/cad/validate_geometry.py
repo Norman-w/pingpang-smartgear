@@ -107,6 +107,7 @@ def validate(parameters: dict[str, float]) -> str:
         "pivot_clearance",
         "roller_d",
         "screw_d",
+        "screw_pitch",
         "screw_span",
         "rod_len",
         "beam_count",
@@ -129,6 +130,8 @@ def validate(parameters: dict[str, float]) -> str:
             "V jaw must overlap its arm endpoint without spanning the full jaw")
     require(parameters["pivot_d"] == 8, "pivot shaft must remain 8 mm")
     require(parameters["screw_d"] == 8, "adjustment screw must remain M8")
+    require(math.isclose(parameters["screw_pitch"], 1.25, abs_tol=1e-6),
+            "adjustment screw must remain M8 x 1.25")
     require(0 < min_angle <= selected_angle <= max_angle < 30,
             "selected clamp angle must stay inside a stable motion range")
     require(parameters["pivot_d"] < parameters["pivot_d"] + 2 * parameters["pivot_clearance"] < parameters["arm_width"],
