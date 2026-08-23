@@ -7,12 +7,14 @@
 #include "piezo_capture.h"
 #include "piezo_adc_continuous.h"
 #include "piezo_waveform.h"
+#include "piezo_waveform_archive.h"
 
 #ifdef ESP_PLATFORM
 
 #include <array>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -145,6 +147,7 @@ extern "C" void app_main() {
     PiezoWaveformCapture waveform_capture({config::kPiezoSampleRateHz,
                                            config::kPiezoPreTriggerMs,
                                            config::kPiezoPostTriggerMs});
+    PiezoWaveformArchive waveform_archive(config::kWaveformArchiveCapacity);
     PiezoAdcContinuous adc_continuous;
     NetEventAggregator aggregator({config::kTouchAssociationBeforeUs,
                                    config::kTouchAssociationAfterUs,
@@ -163,6 +166,8 @@ extern "C" void app_main() {
     // 校准成功后由设备状态层调用：
     //   aggregator.set_calibration("cal-<version>", true);
     aggregator.set_calibration("boot-self-test-pending", false);
+    aggregator.set_beam_health(0, false);
+    aggregator.set_piezo_baseline(false);
     configure_sensor_inputs();
 #ifdef ESP_PLATFORM
     const auto feedback_error = feedback_gpio.init();
@@ -196,48 +201,56 @@ extern "C" void app_main() {
         while (auto frame = waveform_capture.take_ready()) {
             const auto features =
                 extract_piezo_features(*frame, config::kPiezoSampleRateHz);
-            piezo_capture.on_waveform_ready(frame->reference, features);
+            const std::string reference = frame->reference;
+            waveform_archive.store(std::move(*frame));
+            piezo_capture.on_waveform_ready(reference, features);
         }
         if (xQueueReceive(s_sensor_queue, &edge, pdMS_TO_TICKS(1)) == pdTRUE) {
-            if (edge.kind == SensorKind::kBeam) {
-                const bool blocked =
-                    edge.level == config::kBeamBlockedLevel;
-                if (auto observation = beam_capture.on_edge(
-                        edge.channel, blocked, edge.timestamp_us)) {
-                    aggregator.on_beam(*observation);
-                }
-            } else if (edge.level == config::kPiezoTriggeredLevel) {
-                char waveform_reference[48] = {};
-                std::snprintf(waveform_reference,
-                              sizeof(waveform_reference),
-                              "wave-%llu",
-                              static_cast<unsigned long long>(edge.timestamp_us));
-                const bool waveform_started =
-                    adc_continuous.initialized() &&
-                    waveform_capture.start_capture(edge.timestamp_us,
-                                                   waveform_reference);
-                std::string effective_waveform_reference;
-                if (waveform_started) {
-                    effective_waveform_reference = waveform_reference;
-                } else {
-                    effective_waveform_reference =
-                        waveform_capture.active_reference();
-                }
-                if (effective_waveform_reference.empty()) {
-                    // 没有可用波形帧时也必须走“未完成”路径，不能把比较器
-                    // 时间点和零特征误报成已完成的波形证据。
-                    effective_waveform_reference = "wave-unavailable";
-                }
+            std::size_t processed_edges = 0;
+            do {
+                if (edge.kind == SensorKind::kBeam) {
+                    const bool blocked =
+                        edge.level == config::kBeamBlockedLevel;
+                    if (auto observation = beam_capture.on_edge(
+                            edge.channel, blocked, edge.timestamp_us)) {
+                        aggregator.on_beam(*observation);
+                    }
+                } else if (edge.level == config::kPiezoTriggeredLevel) {
+                    char waveform_reference[48] = {};
+                    std::snprintf(
+                        waveform_reference,
+                        sizeof(waveform_reference),
+                        "wave-%llu",
+                        static_cast<unsigned long long>(edge.timestamp_us));
+                    const bool waveform_started =
+                        adc_continuous.initialized() &&
+                        waveform_capture.start_capture(edge.timestamp_us,
+                                                       waveform_reference);
+                    std::string effective_waveform_reference;
+                    if (waveform_started) {
+                        effective_waveform_reference = waveform_reference;
+                    } else {
+                        effective_waveform_reference =
+                            waveform_capture.active_reference();
+                    }
+                    if (effective_waveform_reference.empty()) {
+                        // 没有可用波形帧时也必须走“未完成”路径，不能把比较器
+                        // 时间点和零特征误报成已完成的波形证据。
+                        effective_waveform_reference = "wave-unavailable";
+                    }
 
-                // comparator 只给低延迟时间点；peak/energy 和 waveform_ref 的
-                // 完整内容由 ADC1 continuous 解析任务补入。这里保留业务接口，
-                // 以便直接接既有 SmartPaddle 的 ADC/时间戳采集模式。
-                if (auto observation = piezo_capture.on_trigger(
-                        edge.channel, edge.timestamp_us, 0.0F, 0.0F,
-                        effective_waveform_reference)) {
-                    aggregator.on_touch(*observation);
+                    // comparator 只给低延迟时间点；peak/energy 和 waveform_ref 的
+                    // 完整内容由 ADC1 continuous 解析任务补入。这里保留业务接口，
+                    // 以便直接接既有 SmartPaddle 的 ADC/时间戳采集模式。
+                    if (auto observation = piezo_capture.on_trigger(
+                            edge.channel, edge.timestamp_us, 0.0F, 0.0F,
+                            effective_waveform_reference)) {
+                        aggregator.on_touch(*observation);
+                    }
                 }
-            }
+                ++processed_edges;
+            } while (processed_edges < 32 &&
+                     xQueueReceive(s_sensor_queue, &edge, 0) == pdTRUE);
         }
 
         if (auto observation = beam_capture.poll(now_us)) {

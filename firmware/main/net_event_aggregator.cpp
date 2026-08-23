@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cinttypes>
 #include <cstdio>
+#include <utility>
 
 #include "net_sensor_config.h"
 
@@ -41,6 +42,18 @@ void NetEventAggregator::set_calibration(std::string calibration_id,
                                          const bool valid) {
     calibration_id_ = calibration_id.empty() ? "uncalibrated" : std::move(calibration_id);
     calibration_valid_ = valid;
+}
+
+void NetEventAggregator::set_beam_health(const std::uint16_t healthy_mask,
+                                         const bool valid) {
+    beam_healthy_mask_ = healthy_mask;
+    beam_health_valid_ = valid;
+    beam_health_configured_ = true;
+}
+
+void NetEventAggregator::set_piezo_baseline(const bool valid) {
+    piezo_baseline_valid_ = valid;
+    piezo_baseline_configured_ = true;
 }
 
 bool NetEventAggregator::touch_matches_beam(const PiezoObservation& touch,
@@ -107,6 +120,22 @@ NetEvent NetEventAggregator::build_event(
     }
     if (touch && !touch->features_ready) {
         add_quality_flag(event, "waveform_incomplete");
+    }
+    if (beam && beam->valid && beam_health_configured_) {
+        if (!beam_health_valid_) {
+            add_quality_flag(event, "beam_self_test_invalid");
+        }
+        if (beam_health_valid_) {
+            const auto unhealthy_hits = static_cast<std::uint16_t>(
+                beam->beam_mask & static_cast<std::uint16_t>(~beam_healthy_mask_));
+            if (unhealthy_hits != 0) {
+                add_quality_flag(event, "beam_channel_unhealthy");
+            }
+        }
+    }
+    if (touch && touch->triggered && piezo_baseline_configured_ &&
+        !piezo_baseline_valid_) {
+        add_quality_flag(event, "piezo_baseline_invalid");
     }
     if (!calibration_valid_) {
         add_quality_flag(event, "calibration_invalid");

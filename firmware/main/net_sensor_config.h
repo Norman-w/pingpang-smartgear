@@ -44,6 +44,7 @@ constexpr std::uint64_t kTouchAssociationBeforeUs = 20'000;
 constexpr std::uint64_t kTouchAssociationAfterUs = 120'000;
 constexpr std::uint64_t kTouchOnlyTimeoutUs = 140'000;
 constexpr std::uint64_t kPiezoWaveformTimeoutUs = 120'000;
+constexpr std::size_t kWaveformArchiveCapacity = 4;
 
 constexpr std::size_t kEventCacheCapacity = 16;
 

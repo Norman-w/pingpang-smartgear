@@ -11,6 +11,7 @@ add_executable(net_event_tests
     ../main/beam_capture.cpp
     ../main/piezo_capture.cpp
     ../main/piezo_waveform.cpp
+    ../main/piezo_waveform_archive.cpp
     ../main/net_event_aggregator.cpp
     ../main/sensor_self_test.cpp
     ../main/feedback.cpp

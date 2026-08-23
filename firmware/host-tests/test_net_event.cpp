@@ -12,6 +12,7 @@
 #include "net_event_aggregator.h"
 #include "net_event_delivery.h"
 #include "piezo_capture.h"
+#include "piezo_waveform_archive.h"
 #include "piezo_waveform.h"
 #include "ring_buffer.h"
 #include "sensor_self_test.h"
@@ -313,6 +314,79 @@ void test_piezo_feature_extraction() {
             "waveform duration must use the longest thresholded run");
 }
 
+void test_waveform_archive() {
+    smartgear::PiezoWaveformArchive archive(2);
+    smartgear::PiezoWaveformFrame first;
+    first.reference = "wave-1";
+    first.samples[0] = {1, 2, 3};
+    archive.store(first);
+    require(archive.contains("wave-1"),
+            "waveform archive must retain the first reference");
+
+    smartgear::PiezoWaveformFrame second;
+    second.reference = "wave-2";
+    second.samples[0] = {4, 5};
+    archive.store(second);
+
+    smartgear::PiezoWaveformFrame replacement;
+    replacement.reference = "wave-1";
+    replacement.samples[0] = {9, 9, 9};
+    archive.store(replacement);
+    require(archive.size() == 2 && archive.dropped_count() == 0,
+            "replacing a waveform must not evict another frame");
+    const auto* stored = archive.find("wave-1");
+    require(stored != nullptr && stored->samples[0][0] == 9,
+            "waveform archive replacement is wrong");
+
+    smartgear::PiezoWaveformFrame third;
+    third.reference = "wave-3";
+    archive.store(third);
+    require(!archive.contains("wave-1") && archive.contains("wave-2") &&
+                archive.contains("wave-3") &&
+                archive.dropped_count() == 1,
+            "waveform archive must evict the oldest frame at capacity");
+}
+
+void test_sensor_health_quality_flags() {
+    smartgear::NetEventAggregator healthy;
+    healthy.set_calibration("cal-test", true);
+    healthy.set_beam_health(1U << 2, true);
+    healthy.set_piezo_baseline(true);
+    healthy.on_beam(beam(10'000, 11'000, 1U << 2, 2, 2));
+    healthy.poll(131'001);
+    const auto healthy_event = pop_one(healthy);
+    require(!has_quality_flag(healthy_event, "beam_self_test_invalid") &&
+                !has_quality_flag(healthy_event, "beam_channel_unhealthy"),
+            "healthy beam self-test must not add failure flags");
+
+    smartgear::NetEventAggregator unverified;
+    unverified.set_calibration("pending", false);
+    unverified.set_beam_health(0, false);
+    unverified.on_beam(beam(15'000, 16'000, 1, 0, 0));
+    unverified.poll(136'001);
+    const auto unverified_event = pop_one(unverified);
+    require(has_quality_flag(unverified_event, "beam_self_test_invalid") &&
+                !has_quality_flag(unverified_event, "beam_channel_unhealthy"),
+            "incomplete beam self-test must not claim a channel failure");
+
+    smartgear::NetEventAggregator unhealthy;
+    unhealthy.set_calibration("cal-test", true);
+    unhealthy.set_beam_health(0, true);
+    unhealthy.set_piezo_baseline(false);
+    unhealthy.on_beam(beam(20'000, 21'000, 1, 0, 0));
+    unhealthy.poll(141'001);
+    const auto unhealthy_beam = pop_one(unhealthy);
+    require(!has_quality_flag(unhealthy_beam, "beam_self_test_invalid") &&
+                has_quality_flag(unhealthy_beam, "beam_channel_unhealthy"),
+            "failed beam self-test must be visible in event quality");
+
+    unhealthy.on_touch(touch(30'000, 30'500, 1));
+    unhealthy.poll(170'501);
+    const auto unhealthy_touch = pop_one(unhealthy);
+    require(has_quality_flag(unhealthy_touch, "piezo_baseline_invalid"),
+            "failed PVDF baseline must be visible in event quality");
+}
+
 void test_channel_self_test_and_baseline() {
     std::array<smartgear::BeamChannelCheck, smartgear::config::kBeamCount> checks{};
     for (auto& check : checks) {
@@ -426,6 +500,8 @@ int main() {
         test_sequential_and_overlapping_events();
         test_waveform_window();
         test_piezo_feature_extraction();
+        test_waveform_archive();
+        test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();

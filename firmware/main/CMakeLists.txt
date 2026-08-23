@@ -5,6 +5,7 @@ idf_component_register(
         "beam_capture.cpp"
         "piezo_capture.cpp"
         "piezo_waveform.cpp"
+        "piezo_waveform_archive.cpp"
         "net_event_aggregator.cpp"
         "sensor_self_test.cpp"
         "feedback.cpp"
