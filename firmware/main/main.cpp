@@ -3,11 +3,13 @@
 #include "feedback_gpio.h"
 #include "net_event_aggregator.h"
 #include "net_event_delivery.h"
+#include "net_event_transport.h"
 #include "net_sensor_config.h"
 #include "piezo_capture.h"
 #include "piezo_adc_continuous.h"
 #include "piezo_waveform.h"
 #include "piezo_waveform_archive.h"
+#include "sensor_board_hooks.h"
 
 #ifdef ESP_PLATFORM
 
@@ -47,6 +49,8 @@ struct SensorEdge {
 };
 
 QueueHandle_t s_sensor_queue = nullptr;
+portMUX_TYPE s_sensor_queue_overflow_mux = portMUX_INITIALIZER_UNLOCKED;
+volatile bool s_sensor_queue_overflow = false;
 std::array<SensorRoute, smartgear::config::kBeamCount +
                             smartgear::config::kPiezoCount>
     s_routes{};
@@ -61,11 +65,24 @@ void IRAM_ATTR sensor_isr(void* argument) {
     };
     BaseType_t higher_priority_task_woken = pdFALSE;
     if (s_sensor_queue != nullptr) {
-        xQueueSendFromISR(s_sensor_queue, &edge, &higher_priority_task_woken);
+        if (xQueueSendFromISR(s_sensor_queue, &edge, &higher_priority_task_woken) !=
+            pdTRUE) {
+            portENTER_CRITICAL_ISR(&s_sensor_queue_overflow_mux);
+            s_sensor_queue_overflow = true;
+            portEXIT_CRITICAL_ISR(&s_sensor_queue_overflow_mux);
+        }
     }
     if (higher_priority_task_woken == pdTRUE) {
         portYIELD_FROM_ISR();
     }
+}
+
+bool consume_sensor_queue_overflow() {
+    portENTER_CRITICAL(&s_sensor_queue_overflow_mux);
+    const bool overflowed = s_sensor_queue_overflow;
+    s_sensor_queue_overflow = false;
+    portEXIT_CRITICAL(&s_sensor_queue_overflow_mux);
+    return overflowed;
 }
 
 void on_piezo_adc_sample(const std::uint8_t channel,
@@ -136,6 +153,38 @@ void log_and_cache_event(const smartgear::NetEvent& event,
     delivery.publish(event);
 }
 
+bool send_board_event(const char* json, void* /*context*/) {
+    return smartgear_board_transport_send_json(json);
+}
+
+void sync_transport(smartgear::NetEventDelivery& delivery) {
+    const bool connected = smartgear_board_transport_connected();
+    if (connected == delivery.connected()) {
+        return;
+    }
+    delivery.set_transport(connected, connected ? send_board_event : nullptr);
+}
+
+void sync_sensor_health(smartgear::NetEventAggregator& aggregator) {
+    char calibration_id[64] = {};
+    std::uint16_t healthy_beam_mask = 0;
+    bool beam_health_valid = false;
+    bool piezo_baseline_valid = false;
+    bool calibration_valid = false;
+    if (!smartgear_board_read_sensor_health(
+            calibration_id, sizeof(calibration_id), &healthy_beam_mask,
+            &beam_health_valid, &piezo_baseline_valid, &calibration_valid)) {
+        aggregator.set_calibration("health-snapshot-unavailable", false);
+        aggregator.set_beam_health(0, false);
+        aggregator.set_piezo_baseline(false);
+        return;
+    }
+    calibration_id[sizeof(calibration_id) - 1] = '\0';
+    aggregator.set_calibration(calibration_id, calibration_valid);
+    aggregator.set_beam_health(healthy_beam_mask, beam_health_valid);
+    aggregator.set_piezo_baseline(piezo_baseline_valid);
+}
+
 }  // namespace
 
 extern "C" void app_main() {
@@ -170,6 +219,8 @@ extern "C" void app_main() {
     aggregator.set_beam_health(0, false);
     aggregator.set_piezo_baseline(false);
     configure_sensor_inputs();
+    sync_transport(delivery);
+    sync_sensor_health(aggregator);
 #ifdef ESP_PLATFORM
     const auto feedback_error = feedback_gpio.init();
     if (feedback_error != ESP_OK) {
@@ -189,9 +240,25 @@ extern "C" void app_main() {
     ESP_LOGI(kTag, "ESP32-S3 net sensor business layer started");
 
     SensorEdge edge{};
+    std::uint64_t next_health_poll_us = 0;
     while (true) {
         const std::uint64_t now_us =
             static_cast<std::uint64_t>(esp_timer_get_time());
+        if (consume_sensor_queue_overflow()) {
+            // Dropped edges invalidate the current boundaries. Keep any
+            // pending business observation but force its eventual event to
+            // unknown, and allow fresh sensor edges to establish a new frame.
+            beam_capture.reset();
+            piezo_capture.reset();
+            waveform_capture.abort();
+            aggregator.mark_input_overflow();
+            ESP_LOGW(kTag, "sensor GPIO queue overflow; next event is unknown");
+        }
+        sync_transport(delivery);
+        if (now_us >= next_health_poll_us) {
+            sync_sensor_health(aggregator);
+            next_health_poll_us = now_us + 1'000'000ULL;
+        }
         if (adc_continuous.initialized()) {
             const esp_err_t adc_read_error = adc_continuous.read_and_dispatch(0);
             if (adc_read_error != ESP_OK && adc_read_error != ESP_ERR_TIMEOUT) {
@@ -199,6 +266,7 @@ extern "C" void app_main() {
                          esp_err_to_name(adc_read_error));
             }
         }
+        waveform_capture.expire(static_cast<std::uint64_t>(esp_timer_get_time()));
         while (auto frame = waveform_capture.take_ready()) {
             const auto features =
                 extract_piezo_features(*frame, config::kPiezoSampleRateHz);
@@ -223,8 +291,10 @@ extern "C" void app_main() {
                         sizeof(waveform_reference),
                         "wave-%llu",
                         static_cast<unsigned long long>(edge.timestamp_us));
+                    const bool new_piezo_observation =
+                        piezo_capture.will_start_new_observation(edge.timestamp_us);
                     const bool waveform_started =
-                        adc_continuous.initialized() &&
+                        new_piezo_observation && adc_continuous.initialized() &&
                         waveform_capture.start_capture(edge.timestamp_us,
                                                        waveform_reference);
                     std::string effective_waveform_reference;

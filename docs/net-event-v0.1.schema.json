@@ -17,6 +17,29 @@
     "state",
     "quality_flags"
   ],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "beam_mask": { "const": 0 } }
+      },
+      "then": {
+        "properties": {
+          "beam_height_mm": { "const": [0, 0] },
+          "ball_bottom_gap_mm": { "const": [0, 0] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": { "enum": ["clean_over", "touch_over"] }
+        }
+      },
+      "then": {
+        "properties": { "beam_mask": { "minimum": 1 } }
+      }
+    }
+  ],
   "properties": {
     "type": { "const": "net_event" },
     "schema_version": { "const": "0.1" },

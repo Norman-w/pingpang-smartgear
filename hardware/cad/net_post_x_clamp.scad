@@ -372,8 +372,8 @@ module clamp_assembly() {
     v_jaw(arm_b_inner, atan2(-arm_b_inner[1], post_x() - arm_b_inner[0]));
 
     // 外侧两个竖直滚柱：上侧承接螺杆圆头，下侧容纳螺母/螺纹件。
-    u_roller_mount([-arm_length_outer, arm_outer_y], true);
-    u_roller_mount([-arm_length_outer, -arm_outer_y], false);
+    u_roller_mount(outer_point(1), true);
+    u_roller_mount(outer_point(-1), false);
     rounded_screw_rod();
     printed_knob();
 

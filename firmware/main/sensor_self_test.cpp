@@ -1,6 +1,7 @@
 #include "sensor_self_test.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace smartgear {
 
@@ -30,7 +31,10 @@ bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
         return false;
     }
     for (std::size_t channel = 0; channel < 2; ++channel) {
-        if (baseline.peak[channel] > max_peak || baseline.rms[channel] > max_rms) {
+        if (!std::isfinite(baseline.peak[channel]) ||
+            !std::isfinite(baseline.rms[channel]) || baseline.peak[channel] < 0.0F ||
+            baseline.rms[channel] < 0.0F || baseline.peak[channel] > max_peak ||
+            baseline.rms[channel] > max_rms) {
             return false;
         }
     }

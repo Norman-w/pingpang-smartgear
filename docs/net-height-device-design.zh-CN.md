@@ -24,7 +24,7 @@
                                                      └─ RAM 小环形缓存
 ```
 
-BLE、Wi-Fi、WebSocket、MQTT、SSE、配网和 App 多设备基础设施不在本工程重新设计；本工程只提供传输无关的业务事件和首个 WebSocket 适配接点。
+BLE、Wi-Fi、WebSocket、MQTT、SSE、配网和 App 多设备基础设施不在本工程重新设计；本工程只提供传输无关的业务事件和首个适配接点。ESP32-S3 固件通过两个弱 C hook 连接 SmartPaddle 的 WebSocket/连接管理：连接层提供当前连接状态和 JSON 发送函数，断链或发送失败时事件自动留在 RAM 环形缓存，恢复连接后按序补发；没有接入 hook 时默认保持 fail-closed，不假装已经联网。
 
 ## 3. 机械方案
 
@@ -118,9 +118,9 @@ PVDF → 输入保护/偏置 → 放大与带通滤波 ──→ 可调阈值比
 3. 在事件前后可配置窗口内关联 PVDF 擦网候选；
 4. 关联成功为 `touch_over`，无擦网为 `clean_over`；
 5. 擦网候选超时仍未形成光栅事件为 `touch_no_cross`；
-6. 标定失效、信号质量不足或事件边界无法判断为 `unknown`。
+6. 标定失效、波形不完整、传感器健康门失败、GPIO 队列溢出或事件边界无法判断为 `unknown`；原始事件仍可带质量标记和 `waveform_ref` 供复核。
 
-首版不判断过网方向、不处理重叠多球。正常过网、擦网过网、擦网未过网和无效状态通过 RGB 灯与蜂鸣器提供不同提示。断链时事件进入设备 RAM 小环形缓存，恢复连接后由传输层补发。
+首版不判断过网方向、不处理重叠多球。正常过网、擦网过网、擦网未过网和无效状态通过 RGB 灯与蜂鸣器提供不同提示。断链时事件进入设备 RAM 小环形缓存，恢复连接后由传输层补发。传输 hook 与传感器健康 hook 的具体函数签名见 `firmware/main/net_event_transport.h` 和 `firmware/main/sensor_board_hooks.h`；健康快照未提供时事件保持 `unknown`。
 
 ## 7. 标定与阶段门
 
@@ -156,7 +156,7 @@ PVDF → 输入保护/偏置 → 放大与带通滤波 ──→ 可调阈值比
 
 ### 阶段 E：完整样机验证
 
-验证矩阵见 [`validation-matrix.zh-CN.md`](validation-matrix.zh-CN.md)。首版验收关注可复核记录、可重复安装、逐通道自检、稳定时间戳和断链补发，不等同于比赛级准确率。
+验证矩阵见 [`validation-matrix.zh-CN.md`](validation-matrix.zh-CN.md)，当前实现与现场缺口见 [`implementation-audit.zh-CN.md`](implementation-audit.zh-CN.md)。首版验收关注可复核记录、可重复安装、逐通道自检、稳定时间戳和断链补发，不等同于比赛级准确率。
 
 ## 8. 当前明确的待实测项
 

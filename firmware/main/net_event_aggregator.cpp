@@ -56,6 +56,10 @@ void NetEventAggregator::set_piezo_baseline(const bool valid) {
     piezo_baseline_configured_ = true;
 }
 
+void NetEventAggregator::mark_input_overflow() {
+    input_overflow_ = true;
+}
+
 bool NetEventAggregator::touch_matches_beam(const PiezoObservation& touch,
                                             const BeamObservation& beam) const {
     if (!touch.valid || !beam.valid || touch.last_trigger_us < beam.start_us) {
@@ -76,7 +80,7 @@ NetEvent NetEventAggregator::build_event(
     const std::optional<BeamObservation>& beam,
     const std::optional<PiezoObservation>& touch,
     const NetState state,
-    std::string extra_quality_flag) const {
+    std::string extra_quality_flag) {
     NetEvent event;
     event.event_id = make_event_id(
         beam ? beam->start_us : (touch ? touch->first_trigger_us : 0),
@@ -84,7 +88,7 @@ NetEvent NetEventAggregator::build_event(
     event.timestamp_us =
         beam ? beam->start_us : (touch ? touch->first_trigger_us : 0);
     event.calibration_id = calibration_id_;
-    event.state = calibration_valid_ ? state : NetState::kUnknown;
+    bool state_quality_valid = calibration_valid_;
 
     if (beam && beam->valid) {
         event.beam_mask = beam->beam_mask;
@@ -111,36 +115,49 @@ NetEvent NetEventAggregator::build_event(
     }
     if (beam && beam->timed_out) {
         add_quality_flag(event, "beam_event_timeout");
+        state_quality_valid = false;
     }
     if (beam && !beam->valid) {
         add_quality_flag(event, "beam_invalid");
+        state_quality_valid = false;
     }
     if (touch && !touch->valid) {
         add_quality_flag(event, "touch_invalid");
+        state_quality_valid = false;
     }
     if (touch && !touch->features_ready) {
         add_quality_flag(event, "waveform_incomplete");
+        state_quality_valid = false;
     }
-    if (beam && beam->valid && beam_health_configured_) {
+    if (beam_health_configured_) {
         if (!beam_health_valid_) {
             add_quality_flag(event, "beam_self_test_invalid");
+            state_quality_valid = false;
         }
-        if (beam_health_valid_) {
+        if (beam && beam->valid && beam_health_valid_) {
             const auto unhealthy_hits = static_cast<std::uint16_t>(
                 beam->beam_mask & static_cast<std::uint16_t>(~beam_healthy_mask_));
             if (unhealthy_hits != 0) {
                 add_quality_flag(event, "beam_channel_unhealthy");
+                state_quality_valid = false;
             }
         }
     }
     if (touch && touch->triggered && piezo_baseline_configured_ &&
         !piezo_baseline_valid_) {
         add_quality_flag(event, "piezo_baseline_invalid");
+        state_quality_valid = false;
     }
     if (!calibration_valid_) {
         add_quality_flag(event, "calibration_invalid");
     }
+    if (input_overflow_) {
+        add_quality_flag(event, "sensor_queue_overflow");
+        state_quality_valid = false;
+    }
+    event.state = state_quality_valid ? state : NetState::kUnknown;
     add_quality_flag(event, std::move(extra_quality_flag));
+    input_overflow_ = false;
     return event;
 }
 

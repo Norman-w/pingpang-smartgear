@@ -88,6 +88,12 @@ void test_beam_capture() {
     require(observation->min_index == 0 && observation->max_index == 3,
             "beam min/max indices are wrong");
     require(!observation->timed_out, "short beam event must not time out");
+
+    smartgear::BeamCapture timeout(5, 100);
+    timeout.on_edge(1, true, 1'000);
+    const auto timed_out = timeout.poll(1'101);
+    require(timed_out.has_value() && timed_out->timed_out,
+            "an overlong beam boundary must be explicitly timed out");
 }
 
 void test_each_beam_channel_independently() {
@@ -114,11 +120,14 @@ void test_each_beam_channel_independently() {
 void test_piezo_merge() {
     smartgear::PiezoCapture capture(5'000, 120'000);
     capture.on_trigger(0, 1'000, 1.0F, 2.0F, "wave-a");
+    require(!capture.will_start_new_observation(3'000),
+            "a trigger inside the merge window must reuse the current frame");
     capture.on_trigger(1, 3'000, 2.0F, 4.0F, "wave-a");
     smartgear::PiezoFeatureSummary features;
     features.peak = {1.5F, 2.5F};
     features.energy = {3.5F, 4.5F};
     features.duration_us = 4'000;
+    features.complete = true;
     capture.on_waveform_ready("wave-a", features);
     capture.on_trigger(0, 4'000, 0.0F, 0.0F, "wave-a");
     auto result = capture.poll(9'001);
@@ -138,6 +147,15 @@ void test_piezo_merge() {
     auto timed_out = timeout.poll(115'001);
     require(timed_out.has_value() && !timed_out->features_ready,
             "PVDF waveform timeout must preserve an incomplete quality state");
+    require(timeout.will_start_new_observation(225'001),
+            "a trigger after waveform timeout must start a new frame");
+
+    smartgear::PiezoCapture out_of_order(5'000, 20'000);
+    out_of_order.on_trigger(0, 10'000, 0.0F, 0.0F, "wave-order");
+    out_of_order.on_trigger(1, 9'000, 0.0F, 0.0F, "wave-order");
+    const auto invalid_order = out_of_order.poll(35'001);
+    require(invalid_order.has_value() && !invalid_order->valid,
+            "out-of-order PVDF timestamps must fail closed");
 }
 
 void test_clean_over_and_height_interval() {
@@ -222,6 +240,8 @@ void test_touch_no_cross_and_unknown() {
     const auto incomplete_event = pop_one(incomplete);
     require(has_quality_flag(incomplete_event, "waveform_incomplete"),
             "incomplete PVDF waveform must be visible in quality flags");
+    require(incomplete_event.state == smartgear::NetState::kUnknown,
+            "incomplete PVDF evidence must not produce a valid state");
 }
 
 void test_sequential_and_overlapping_events() {
@@ -240,6 +260,8 @@ void test_sequential_and_overlapping_events() {
     require(first.state == smartgear::NetState::kCleanOver &&
                 second.state == smartgear::NetState::kCleanOver,
             "separated single-ball events must remain separate");
+    require(!first.event_id.empty() && first.event_id != second.event_id,
+            "separated events must have distinct stable IDs");
 
     smartgear::NetEventAggregator overlapping;
     overlapping.set_calibration("cal-test", true);
@@ -280,8 +302,10 @@ void test_waveform_window() {
     require(capture.start_capture(1'000, "wave-test"),
             "waveform capture should start");
     for (int sample = 0; sample < 30; ++sample) {
-        capture.feed_sample(0, static_cast<std::int16_t>(200 + sample), sample);
-        capture.feed_sample(1, static_cast<std::int16_t>(300 + sample), sample);
+        capture.feed_sample(0, static_cast<std::int16_t>(200 + sample),
+                            1'000 + sample);
+        capture.feed_sample(1, static_cast<std::int16_t>(300 + sample),
+                            1'000 + sample);
     }
     require(capture.ready(), "waveform capture should become ready");
     auto frame = capture.take_ready();
@@ -290,6 +314,8 @@ void test_waveform_window() {
             "each channel must contain pre+post samples");
     require(frame->pre_trigger_samples == 20,
             "waveform frame must retain its trigger sample boundary");
+    require(frame->complete && frame->post_samples == std::array<std::size_t, 2>{30, 30},
+            "complete waveform must record both post-trigger sample counts");
     require(frame->samples[0][19] == 24 && frame->samples[0][20] == 200,
             "pre/post waveform boundary is wrong");
     require(frame->samples[1][19] == 124 && frame->samples[1][20] == 300,
@@ -301,8 +327,10 @@ void test_waveform_window() {
     require(partial.start_capture(2'000, "wave-partial"),
             "partial history waveform should start");
     for (int sample = 0; sample < 5; ++sample) {
-        partial.feed_sample(0, static_cast<std::int16_t>(30 + sample), sample);
-        partial.feed_sample(1, static_cast<std::int16_t>(40 + sample), sample);
+        partial.feed_sample(0, static_cast<std::int16_t>(30 + sample),
+                            2'000 + sample);
+        partial.feed_sample(1, static_cast<std::int16_t>(40 + sample),
+                            2'000 + sample);
     }
     auto partial_frame = partial.take_ready();
     require(partial_frame.has_value(), "partial history waveform should complete");
@@ -314,11 +342,37 @@ void test_waveform_window() {
             "partial pre-trigger history must be zero-filled chronologically");
 }
 
+void test_waveform_timeout_flush() {
+    smartgear::PiezoWaveformCapture capture({1'000, 5, 5});
+    require(capture.start_capture(1'000, "wave-timeout-partial"),
+            "partial timeout waveform should start");
+    for (int sample = 0; sample < 3; ++sample) {
+        capture.feed_sample(0, static_cast<std::int16_t>(20 + sample),
+                            1'000 + sample);
+    }
+    require(capture.expire(6'000),
+            "waveform must flush when the post-trigger deadline expires");
+    auto frame = capture.take_ready();
+    require(frame.has_value() && !frame->complete,
+            "expired waveform must remain explicitly incomplete");
+    require(frame->post_samples == std::array<std::size_t, 2>{3, 0},
+            "partial waveform must retain per-channel sample counts");
+    const auto features =
+        smartgear::extract_piezo_features(*frame, 1'000);
+    require(!features.complete,
+            "partial waveform features must not become ready evidence");
+    require(capture.start_capture(7'000, "wave-after-timeout"),
+            "timeout flush must release the capture state");
+}
+
 void test_piezo_feature_extraction() {
     smartgear::PiezoWaveformFrame frame;
     frame.pre_trigger_samples = 4;
     frame.samples[0] = {100, 100, 100, 100, 101, 102, 106, 110, 104, 100};
     frame.samples[1] = {200, 200, 200, 200, 200, 200, 205, 200, 200, 200};
+    frame.pre_samples_available = {4, 4};
+    frame.post_samples = {6, 6};
+    frame.complete = true;
     const auto features = smartgear::extract_piezo_features(frame, 1'000);
     require(features.peak[0] == 10.0F && features.peak[1] == 5.0F,
             "waveform peak extraction is wrong");
@@ -393,12 +447,26 @@ void test_sensor_health_quality_flags() {
     require(!has_quality_flag(unhealthy_beam, "beam_self_test_invalid") &&
                 has_quality_flag(unhealthy_beam, "beam_channel_unhealthy"),
             "failed beam self-test must be visible in event quality");
+    require(unhealthy_beam.state == smartgear::NetState::kUnknown,
+            "a hit on an unhealthy beam must not be reported as valid height");
 
     unhealthy.on_touch(touch(30'000, 30'500, 1));
     unhealthy.poll(170'501);
     const auto unhealthy_touch = pop_one(unhealthy);
     require(has_quality_flag(unhealthy_touch, "piezo_baseline_invalid"),
             "failed PVDF baseline must be visible in event quality");
+    require(unhealthy_touch.state == smartgear::NetState::kUnknown,
+            "PVDF baseline failure must make the touch state unknown");
+
+    smartgear::NetEventAggregator overflow;
+    overflow.set_calibration("cal-test", true);
+    overflow.mark_input_overflow();
+    overflow.on_beam(beam(25'000, 26'000, 1, 0, 0));
+    overflow.poll(271'001);
+    const auto overflow_event = pop_one(overflow);
+    require(overflow_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(overflow_event, "sensor_queue_overflow"),
+            "dropped GPIO edges must produce an explicit unknown event");
 }
 
 void test_channel_self_test_and_baseline() {
@@ -420,6 +488,46 @@ void test_channel_self_test_and_baseline() {
     const smartgear::PiezoQuietBaseline noisy{{0.8F, 0.3F}, {0.1F, 0.1F}, 1600};
     require(!smartgear::piezo_baseline_is_quiet(noisy, 0.5F, 0.2F),
             "noisy PVDF baseline should fail");
+    const smartgear::PiezoQuietBaseline invalid{{-0.1F, 0.3F}, {0.1F, 0.1F}, 1600};
+    require(!smartgear::piezo_baseline_is_quiet(invalid, 0.5F, 0.2F),
+            "negative PVDF baseline values must fail validation");
+}
+
+void test_sensor_pipeline_end_to_end() {
+    smartgear::BeamCapture beam_capture(5, 250'000);
+    smartgear::PiezoCapture piezo_capture(5'000, 120'000);
+    smartgear::NetEventAggregator aggregator;
+    aggregator.set_calibration("cal-pipeline", true);
+    aggregator.set_beam_health(1U, true);
+    aggregator.set_piezo_baseline(true);
+
+    piezo_capture.on_trigger(0, 1'000, 0.0F, 0.0F, "wave-pipeline");
+    smartgear::PiezoFeatureSummary features;
+    features.peak = {8.0F, 0.0F};
+    features.energy = {64.0F, 0.0F};
+    features.duration_us = 750;
+    features.complete = true;
+    piezo_capture.on_waveform_ready("wave-pipeline", features);
+    const auto touch_observation = piezo_capture.poll(6'001);
+    require(touch_observation.has_value(),
+            "pipeline PVDF observation must close before beam association");
+    aggregator.on_touch(*touch_observation);
+
+    beam_capture.on_edge(0, true, 5'000);
+    beam_capture.on_edge(0, false, 6'000);
+    const auto beam_observation = beam_capture.poll(6'005);
+    require(beam_observation.has_value(),
+            "pipeline beam observation must close after quiet time");
+    aggregator.on_beam(*beam_observation);
+
+    const auto event = pop_one(aggregator);
+    require(event.state == smartgear::NetState::kTouchOver,
+            "sensor pipeline must produce touch_over");
+    require(event.beam_mask == 1 && event.net_touch.sensor_mask == 1,
+            "pipeline must retain both beam and PVDF channel masks");
+    require(event.net_touch.waveform_ref == "wave-pipeline" &&
+                event.net_touch.peak[0] == 8.0F,
+            "pipeline must retain completed waveform evidence");
 }
 
 struct DeliverySink {
@@ -462,6 +570,23 @@ void test_delivery_recovery_and_feedback() {
     require(sink.messages[0].find("first") != std::string::npos &&
                 sink.messages[1].find("second") != std::string::npos,
             "recovery order must be stable");
+
+    DeliverySink flaky_sink;
+    flaky_sink.accepting = false;
+    smartgear::NetEventDelivery flaky_delivery;
+    flaky_delivery.set_transport(true, delivery_sink, &flaky_sink);
+    smartgear::NetEvent failed_event;
+    failed_event.event_id = "failed-send";
+    require(!flaky_delivery.publish(failed_event),
+            "failed transport send must cache the event");
+    require(!flaky_delivery.connected() && flaky_delivery.cached_count() == 1,
+            "failed send must disarm transport while preserving the event");
+    flaky_sink.accepting = true;
+    flaky_delivery.set_transport(true, delivery_sink, &flaky_sink);
+    require(flaky_delivery.cached_count() == 0 &&
+                flaky_sink.messages.size() == 1 &&
+                flaky_sink.messages[0].find("failed-send") != std::string::npos,
+            "re-arming transport must flush the failed event exactly once");
 
     require(smartgear::feedback_for(smartgear::NetState::kCleanOver).led_green,
             "clean_over must use green feedback");
@@ -513,10 +638,12 @@ int main() {
         test_touch_no_cross_and_unknown();
         test_sequential_and_overlapping_events();
         test_waveform_window();
+        test_waveform_timeout_flush();
         test_piezo_feature_extraction();
         test_waveform_archive();
         test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
+        test_sensor_pipeline_end_to_end();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();
         print_schema_events();

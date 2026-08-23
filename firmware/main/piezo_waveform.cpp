@@ -13,6 +13,7 @@ constexpr std::size_t kReadyFrameCapacity = 4;
 PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
                                            const std::uint32_t sample_rate_hz) {
     PiezoFeatureSummary features;
+    features.complete = frame.complete;
     if (sample_rate_hz == 0) {
         return features;
     }
@@ -28,14 +29,28 @@ PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
                                 ? frame.pre_trigger_samples
                                 : static_cast<std::size_t>(sample_rate_hz) * 20U /
                                       1'000U);
+        const std::size_t recorded_pre =
+            frame.complete && frame.pre_samples_available[channel] == 0
+                ? pre_samples
+                : frame.pre_samples_available[channel];
+        const std::size_t available_pre = std::min(pre_samples, recorded_pre);
+        const std::size_t baseline_begin = pre_samples - available_pre;
         const float baseline = std::accumulate(
-                                  samples.begin(), samples.begin() + pre_samples, 0.0F) /
-                              static_cast<float>(pre_samples == 0 ? 1 : pre_samples);
+                                  samples.begin() + baseline_begin,
+                                  samples.begin() + pre_samples,
+                                  0.0F) /
+                              static_cast<float>(available_pre == 0 ? 1 : available_pre);
 
         float peak = 0.0F;
         float energy = 0.0F;
-        for (auto sample = samples.begin() + pre_samples; sample != samples.end();
-             ++sample) {
+        const std::size_t recorded_post =
+            frame.complete && frame.post_samples[channel] == 0
+                ? samples.size() - pre_samples
+                : frame.post_samples[channel];
+        const std::size_t post_samples = std::min(
+            recorded_post, samples.size() - pre_samples);
+        for (auto sample = samples.begin() + pre_samples;
+             sample != samples.begin() + pre_samples + post_samples; ++sample) {
             const float deviation = static_cast<float>(*sample) - baseline;
             const float magnitude = std::fabs(deviation);
             peak = std::max(peak, magnitude);
@@ -48,7 +63,8 @@ PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
         std::size_t active_samples = 0;
         std::size_t current_active_samples = 0;
         if (active_threshold > 0.0F) {
-            for (std::size_t index = pre_samples; index < samples.size(); ++index) {
+            for (std::size_t index = pre_samples;
+                 index < pre_samples + post_samples; ++index) {
                 if (std::fabs(static_cast<float>(samples[index]) - baseline) >=
                     active_threshold) {
                     ++current_active_samples;
@@ -75,36 +91,34 @@ PiezoWaveformCapture::PiezoWaveformCapture(PiezoWaveformConfig config)
 
 void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
                                        const std::int16_t sample,
-                                       const std::uint64_t /*timestamp_us*/) {
+                                       const std::uint64_t timestamp_us) {
     if (channel >= history_.size() || history_[channel].empty()) {
         return;
     }
 
     if (!active_) {
-        auto& channel_history = history_[channel];
-        channel_history[history_cursor_[channel]] = sample;
-        history_cursor_[channel] =
-            (history_cursor_[channel] + 1) % channel_history.size();
-        history_count_[channel] = std::min(
-            history_count_[channel] + static_cast<std::size_t>(1),
-            channel_history.size());
+        record_history(channel, sample);
         return;
     }
 
-    if (!frame_ || post_written_[channel] >= config_.post_trigger_samples()) {
+    // ADC DMA may deliver samples that were already buffered before the
+    // comparator edge.  They belong to the pre-trigger history, which was
+    // snapshotted at start_capture(), and must not consume post-trigger slots.
+    if (!frame_ || timestamp_us < frame_->trigger_us) {
+        record_history(channel, sample);
+        return;
+    }
+
+    if (post_written_[channel] >= config_.post_trigger_samples()) {
+        record_history(channel, sample);
         return;
     }
     frame_->samples[channel][config_.pre_trigger_samples() + post_written_[channel]] =
         sample;
     ++post_written_[channel];
+    record_history(channel, sample);
     if (all_post_samples_written()) {
-        active_ = false;
-        if (ready_frames_.size() == kReadyFrameCapacity) {
-            ready_frames_.pop_front();
-            ++dropped_ready_count_;
-        }
-        ready_frames_.push_back(std::move(*frame_));
-        frame_.reset();
+        enqueue_current_frame(true);
     }
 }
 
@@ -134,6 +148,7 @@ void PiezoWaveformCapture::snapshot_pre_trigger() {
     for (std::size_t channel = 0; channel < history_.size(); ++channel) {
         const auto& channel_history = history_[channel];
         const std::size_t pre_samples = config_.pre_trigger_samples();
+        frame_->pre_samples_available[channel] = history_count_[channel];
         const std::size_t missing = pre_samples - history_count_[channel];
         const std::size_t oldest =
             (history_cursor_[channel] + channel_history.size() -
@@ -164,6 +179,19 @@ std::optional<PiezoWaveformFrame> PiezoWaveformCapture::take_ready() {
     return result;
 }
 
+bool PiezoWaveformCapture::expire(const std::uint64_t timestamp_us) {
+    if (!active_ || !frame_ || timestamp_us < frame_->trigger_us) {
+        return false;
+    }
+    const std::uint64_t post_window_us =
+        static_cast<std::uint64_t>(config_.post_trigger_ms) * 1'000ULL;
+    if (timestamp_us - frame_->trigger_us < post_window_us) {
+        return false;
+    }
+    enqueue_current_frame(false);
+    return true;
+}
+
 std::string PiezoWaveformCapture::active_reference() const {
     return frame_ ? frame_->reference : std::string{};
 }
@@ -172,6 +200,37 @@ void PiezoWaveformCapture::abort() {
     active_ = false;
     frame_.reset();
     post_written_ = {0, 0};
+    history_cursor_ = {0, 0};
+    history_count_ = {0, 0};
+    for (auto& channel_history : history_) {
+        std::fill(channel_history.begin(), channel_history.end(), 0);
+    }
+}
+
+void PiezoWaveformCapture::enqueue_current_frame(const bool complete) {
+    if (!frame_) {
+        return;
+    }
+    frame_->post_samples = post_written_;
+    frame_->complete = complete;
+    active_ = false;
+    if (ready_frames_.size() == kReadyFrameCapacity) {
+        ready_frames_.pop_front();
+        ++dropped_ready_count_;
+    }
+    ready_frames_.push_back(std::move(*frame_));
+    frame_.reset();
+}
+
+void PiezoWaveformCapture::record_history(const std::uint8_t channel,
+                                          const std::int16_t sample) {
+    auto& channel_history = history_[channel];
+    channel_history[history_cursor_[channel]] = sample;
+    history_cursor_[channel] =
+        (history_cursor_[channel] + 1) % channel_history.size();
+    history_count_[channel] = std::min(
+        history_count_[channel] + static_cast<std::size_t>(1),
+        channel_history.size());
 }
 
 }  // namespace smartgear

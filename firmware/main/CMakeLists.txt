@@ -11,6 +11,8 @@ idf_component_register(
         "feedback.cpp"
         "feedback_gpio.cpp"
         "piezo_adc_continuous.cpp"
+        "net_event_transport.cpp"
+        "sensor_board_hooks.cpp"
     INCLUDE_DIRS "."
     REQUIRES driver esp_timer freertos esp_adc
 )

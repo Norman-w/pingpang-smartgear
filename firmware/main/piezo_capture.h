@@ -36,6 +36,8 @@ class PiezoCapture {
         const std::string& waveform_ref);
     void on_waveform_ready(const std::string& waveform_ref,
                            const PiezoFeatureSummary& features);
+    // Pure look-ahead used by the runtime before allocating a new ADC frame.
+    bool will_start_new_observation(std::uint64_t timestamp_us) const;
     std::optional<PiezoObservation> poll(std::uint64_t timestamp_us);
     void reset();
 

@@ -16,6 +16,14 @@ std::optional<PiezoObservation> PiezoCapture::on_trigger(
         return std::nullopt;
     }
 
+    if (pending_ && timestamp_us < pending_observation_.last_trigger_us) {
+        // ISR delivery should be FIFO, but an adapter must not allow a late
+        // timestamp to make duration arithmetic wrap around. Retain the
+        // candidate and fail it closed when it is eventually emitted.
+        pending_observation_.valid = false;
+        return std::nullopt;
+    }
+
     std::optional<PiezoObservation> completed;
     if (pending_ && timestamp_us >= pending_observation_.last_trigger_us &&
         timestamp_us - pending_observation_.last_trigger_us >= merge_window_us_ &&
@@ -66,7 +74,22 @@ void PiezoCapture::on_waveform_ready(const std::string& waveform_ref,
     pending_observation_.peak = features.peak;
     pending_observation_.energy = features.energy;
     pending_observation_.duration_us = features.duration_us;
-    pending_observation_.features_ready = true;
+    pending_observation_.features_ready = features.complete;
+}
+
+bool PiezoCapture::will_start_new_observation(
+    const std::uint64_t timestamp_us) const {
+    if (!pending_) {
+        return true;
+    }
+    if (timestamp_us < pending_observation_.last_trigger_us ||
+        timestamp_us - pending_observation_.last_trigger_us < merge_window_us_) {
+        return false;
+    }
+    return pending_observation_.features_ready ||
+           (timestamp_us >= pending_observation_.first_trigger_us &&
+            timestamp_us - pending_observation_.first_trigger_us >=
+                waveform_timeout_us_);
 }
 
 std::optional<PiezoObservation> PiezoCapture::poll(

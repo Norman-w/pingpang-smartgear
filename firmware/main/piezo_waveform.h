@@ -30,6 +30,9 @@ struct PiezoWaveformFrame {
     std::uint64_t trigger_us = 0;
     std::size_t pre_trigger_samples = 0;
     std::array<std::vector<std::int16_t>, 2> samples;
+    std::array<std::size_t, 2> pre_samples_available = {0, 0};
+    std::array<std::size_t, 2> post_samples = {0, 0};
+    bool complete = false;
 };
 
 PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
@@ -50,6 +53,9 @@ class PiezoWaveformCapture {
     std::size_t dropped_ready_count() const { return dropped_ready_count_; }
     std::string active_reference() const;
     std::optional<PiezoWaveformFrame> take_ready();
+    // Flush a frame whose ADC stream stopped before the complete post window.
+    // The partial frame is still archived and its features remain incomplete.
+    bool expire(std::uint64_t timestamp_us);
     void abort();
 
     const PiezoWaveformConfig& config() const { return config_; }
@@ -57,6 +63,8 @@ class PiezoWaveformCapture {
   private:
     void snapshot_pre_trigger();
     bool all_post_samples_written() const;
+    void enqueue_current_frame(bool complete);
+    void record_history(std::uint8_t channel, std::int16_t sample);
 
     PiezoWaveformConfig config_;
     std::array<std::vector<std::int16_t>, 2> history_;

@@ -94,6 +94,25 @@ def main() -> None:
             )
             if not output.is_file() or output.stat().st_size == 0:
                 raise RuntimeError(f"OpenSCAD produced no STL for clamp angle {angle}")
+
+        invalid = subprocess.run(
+            [
+                openscad,
+                "-o",
+                str(output_dir / "invalid-angle.stl"),
+                "-D",
+                'PART="left_clamp"',
+                "-D",
+                "clamp_angle_deg=25",
+                str(SOURCE),
+            ],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        if invalid.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted an out-of-range clamp angle")
     geometry_result = validate(read_parameters(openscad))
     print(f"SCAD_OK ({len(PARTS)} parts + SIDE=-1 + motion 10/20 deg; {geometry_result})")
 

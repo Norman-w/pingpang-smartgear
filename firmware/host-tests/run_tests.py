@@ -46,6 +46,15 @@ def main() -> None:
         events.append(event)
     if len(events) != 2:
         raise AssertionError(f"expected 2 schema events, got {len(events)}")
+    invalid_height = dict(events[0])
+    invalid_height["beam_mask"] = 0
+    invalid_height["beam_height_mm"] = [10, 10]
+    if validator.is_valid(invalid_height):
+        raise AssertionError("schema must reject a nonzero height interval without beams")
+    invalid_state = dict(events[1])
+    invalid_state["state"] = "clean_over"
+    if validator.is_valid(invalid_state):
+        raise AssertionError("schema must reject clean_over without a beam hit")
     print(f"JSON_SCHEMA_OK ({len(events)} events)")
 
 

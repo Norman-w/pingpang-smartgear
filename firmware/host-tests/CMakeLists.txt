@@ -15,6 +15,8 @@ add_executable(net_event_tests
     ../main/net_event_aggregator.cpp
     ../main/sensor_self_test.cpp
     ../main/feedback.cpp
+    ../main/net_event_transport.cpp
+    ../main/sensor_board_hooks.cpp
 )
 target_include_directories(net_event_tests PRIVATE ../main)
 target_compile_options(net_event_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)

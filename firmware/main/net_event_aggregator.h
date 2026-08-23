@@ -28,6 +28,8 @@ class NetEventAggregator {
     // 数据完整，healthy_mask 再表达各通道是否通过。未配置时不替代旧业务行为。
     void set_beam_health(std::uint16_t healthy_mask, bool valid);
     void set_piezo_baseline(bool valid);
+    // The GPIO ISR queue dropped an edge; the next event must be fail-closed.
+    void mark_input_overflow();
     void on_beam(const BeamObservation& observation);
     void on_touch(const PiezoObservation& observation);
     void poll(std::uint64_t timestamp_us);
@@ -41,7 +43,7 @@ class NetEventAggregator {
     NetEvent build_event(const std::optional<BeamObservation>& beam,
                          const std::optional<PiezoObservation>& touch,
                          NetState state,
-                         std::string extra_quality_flag = {}) const;
+                         std::string extra_quality_flag = {});
     void emit_pending_beam(NetState state);
     void emit_pending_touch(NetState state);
     void clear_beam_pending();
@@ -56,6 +58,7 @@ class NetEventAggregator {
     std::uint16_t beam_healthy_mask_ = 0;
     bool piezo_baseline_configured_ = false;
     bool piezo_baseline_valid_ = false;
+    bool input_overflow_ = false;
     std::optional<BeamObservation> pending_beam_;
     std::optional<PiezoObservation> pending_touch_;
     std::uint64_t pending_beam_deadline_us_ = 0;

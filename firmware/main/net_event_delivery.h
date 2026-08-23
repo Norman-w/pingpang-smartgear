@@ -32,6 +32,9 @@ class NetEventDelivery {
             if (send_(json.c_str(), context_)) {
                 return true;
             }
+            // A failed send is a transport boundary failure. Keep the event
+            // in RAM and wait for the connection hook to re-arm delivery.
+            connected_ = false;
         }
         cache_.push(event);
         return false;
@@ -46,6 +49,7 @@ class NetEventDelivery {
         while (cache_.peek(event)) {
             const std::string json = net_event_to_json(event);
             if (!send_(json.c_str(), context_)) {
+                connected_ = false;
                 break;
             }
             cache_.discard();
@@ -56,6 +60,7 @@ class NetEventDelivery {
 
     std::size_t cached_count() const { return cache_.size(); }
     std::size_t dropped_count() const { return cache_.dropped_count(); }
+    bool connected() const { return connected_ && send_ != nullptr; }
 
   private:
     bool connected_ = false;
