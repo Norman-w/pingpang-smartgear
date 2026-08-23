@@ -23,7 +23,9 @@ esp_err_t PiezoAdcContinuous::init(const PiezoAdcContinuousConfig& config,
     }
     if (config.conversion_frame_bytes == 0 ||
         config.conversion_frame_bytes > kReadBufferCapacityBytes ||
-        config.max_store_buffer_bytes < config.conversion_frame_bytes) {
+        config.max_store_buffer_bytes < config.conversion_frame_bytes ||
+        SOC_ADC_DIGI_RESULT_BYTES == 0 ||
+        config.conversion_frame_bytes % SOC_ADC_DIGI_RESULT_BYTES != 0) {
         return ESP_ERR_INVALID_ARG;
     }
 
