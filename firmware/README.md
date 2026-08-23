@@ -18,8 +18,8 @@
 
 - ESP32-S3：在 ESP-IDF 环境中从 `firmware/` 运行 `idf.py build`；
 - 主机业务测试：运行 `python3 host-tests/run_tests.py`；
-- 主机测试覆盖光栅位图/安静结束/超时、PVDF 双通道归并、完整与不完整波形特征/归档、传感器自检质量门、GPIO 队列溢出 fail-closed、四种事件状态、端到端传感器归并、传输恢复和 JSON Schema。
+- 主机测试覆盖光栅位图/安静结束/超时、PVDF 双通道归并、完整与不完整波形特征/归档、传感器自检质量门、GPIO 队列溢出 fail-closed、四种事件状态、端到端传感器归并、传输恢复、JSON Schema 和 CSV 轨迹回放。
 
-SmartPaddle 连接层实现 `net_event_transport.h` 中的两个 hook 即可接入已有 WebSocket/连接管理；`sensor_board_hooks.h` 的健康快照 hook 用于注入校准 ID、10 路光栅健康位图和 PVDF 安静基线。hook 未实现或返回失败时固件保持 `unknown`，不生成未经验证的有效事件。
+SmartPaddle 连接层实现 `net_event_transport.h` 中的两个 hook 即可接入已有 WebSocket/连接管理；`sensor_board_hooks.h` 的健康快照 hook 用于注入校准 ID、10 路光栅健康位图和 PVDF 安静基线；`piezo_waveform_hook.h` 可把完整/不完整原始帧同步复制到既有回放存储。健康 hook 未实现或返回失败时固件保持 `unknown`，不生成未经验证的有效事件；波形 hook 未实现时仍保留本地 RAM 归档。
 
 硬件 GPIO 映射在 `main/net_sensor_config.h` 中明确标为首轮占位，不能在最终 PCB 未复核前视为量产引脚表。

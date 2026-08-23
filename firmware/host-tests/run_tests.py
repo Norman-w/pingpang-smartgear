@@ -14,6 +14,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 BUILD = HERE / "build"
 SCHEMA = REPO / "docs" / "net-event-v0.1.schema.json"
+TRACE = HERE / "fixtures" / "net_trace_v0.1.csv"
 
 
 def run(command: list[str]) -> subprocess.CompletedProcess[str]:
@@ -56,6 +57,27 @@ def main() -> None:
     if validator.is_valid(invalid_state):
         raise AssertionError("schema must reject clean_over without a beam hit")
     print(f"JSON_SCHEMA_OK ({len(events)} events)")
+
+    trace_result = subprocess.run(
+        [str(BUILD / "net_event_trace"), str(TRACE)],
+        cwd=HERE,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    trace_events = []
+    for line in trace_result.stdout.splitlines():
+        if line.startswith("TRACE_EVENT "):
+            event = json.loads(line.removeprefix("TRACE_EVENT "))
+            validator.validate(event)
+            trace_events.append(event)
+    expected_states = ["clean_over", "touch_over", "touch_no_cross"]
+    if [event["state"] for event in trace_events] != expected_states:
+        raise AssertionError(
+            "trace states mismatch: "
+            f"{[event['state'] for event in trace_events]}"
+        )
+    print(f"TRACE_SCHEMA_OK ({len(trace_events)} events)")
 
 
 if __name__ == "__main__":

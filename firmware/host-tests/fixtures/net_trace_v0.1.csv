@@ -1,0 +1,14 @@
+# timestamp_us,kind,channel,value
+# Clean over: one optical beam is blocked and then released.
+10000,beam,2,1
+11000,beam,2,0
+16001,tick,0,0
+261002,tick,0,0
+# Touch over: PVDF candidate followed by a beam event.
+300000,touch,0,1
+305000,beam,1,1
+306000,beam,1,0
+311001,tick,0,0
+# Touch without crossing the optical window.
+500000,touch,1,1
+640001,tick,0,0

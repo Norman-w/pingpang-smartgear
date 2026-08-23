@@ -9,11 +9,12 @@
 | X 型夹具 CAD | `hardware/cad/net_post_x_clamp.scad` 支持左右镜像、10°…20° 运动参数、Ø8 轴孔、M8 螺杆/滚柱/压盖、方杆、10 路导轨和参考线端座；`validate_scad.py` 编译 9 个 PART、镜像件、10°/20° 端点，并拒绝 25° 越界参数。 |
 | CAD 几何关系 | `validate_geometry.py` 从 OpenSCAD 参数探针读取唯一参数源，检查 X 臂共线、内侧 V 槽到 Ø25 mm 立柱的包络、轴孔间隙、M8 行程和 10 mm 档位。 |
 | 光栅业务 | 10 位 `beam_mask`、最低/最高命中光束、安静结束、超时边界、逐通道位图和高度区间均有主机测试。 |
-| PVDF 业务 | 双通道合并、20 ms 预触发、80 ms 后触发、峰值/能量/持续时间、完整/不完整波形归档和超时释放均有主机测试。 |
+| PVDF 业务 | 双通道合并、20 ms 预触发、80 ms 后触发、峰值/能量/持续时间、完整/不完整波形归档和超时释放均有主机测试；`piezo_waveform_hook.h` 为既有回放存储提供同步复制边界。 |
 | 状态与质量 | `clean_over`、`touch_over`、`touch_no_cross`、`unknown`，以及标定、光栅健康、PVDF 基线、波形不完整和 GPIO 队列溢出门均有测试。 |
 | 传输边界 | `NetEventDelivery` 支持断链缓存、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层。 |
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
 | 契约与回归 | JSON Schema 正例/反例、CMake/CTest、ASan/UBSan 主机测试和可视预览均通过。 |
+| 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/事件归并并输出 3 个 Schema 合法事件；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
 
 ## 仍必须用实物证明
 

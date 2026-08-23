@@ -13,9 +13,37 @@
 #include "net_event_delivery.h"
 #include "piezo_capture.h"
 #include "piezo_waveform_archive.h"
+#include "piezo_waveform_hook.h"
 #include "piezo_waveform.h"
 #include "ring_buffer.h"
 #include "sensor_self_test.h"
+
+namespace {
+
+bool g_waveform_hook_called = false;
+bool g_waveform_hook_complete = false;
+std::size_t g_waveform_hook_left_count = 0;
+std::size_t g_waveform_hook_right_count = 0;
+
+}  // namespace
+
+extern "C" bool smartgear_board_on_piezo_waveform(
+    const char* reference,
+    const std::uint64_t trigger_us,
+    const std::size_t pre_trigger_samples,
+    const std::int16_t* left_samples,
+    const std::size_t left_count,
+    const std::int16_t* right_samples,
+    const std::size_t right_count,
+    const bool complete) {
+    g_waveform_hook_called = reference != nullptr && trigger_us == 1234 &&
+                             pre_trigger_samples == 2 && left_samples != nullptr &&
+                             right_samples != nullptr;
+    g_waveform_hook_left_count = left_count;
+    g_waveform_hook_right_count = right_count;
+    g_waveform_hook_complete = complete;
+    return g_waveform_hook_called;
+}
 
 namespace {
 
@@ -415,6 +443,19 @@ void test_waveform_archive() {
             "waveform archive must evict the oldest frame at capacity");
 }
 
+void test_waveform_hook_contract() {
+    const std::int16_t left[] = {1, 2, 3};
+    const std::int16_t right[] = {4, 5};
+    g_waveform_hook_called = false;
+    require(smartgear_board_on_piezo_waveform(
+                "wave-hook", 1'234, 2, left, 3, right, 2, false),
+            "waveform adapter hook must accept a synchronous frame");
+    require(g_waveform_hook_called && !g_waveform_hook_complete &&
+                g_waveform_hook_left_count == 3 &&
+                g_waveform_hook_right_count == 2,
+            "waveform adapter hook contract must preserve frame metadata");
+}
+
 void test_sensor_health_quality_flags() {
     smartgear::NetEventAggregator healthy;
     healthy.set_calibration("cal-test", true);
@@ -641,6 +682,7 @@ int main() {
         test_waveform_timeout_flush();
         test_piezo_feature_extraction();
         test_waveform_archive();
+        test_waveform_hook_contract();
         test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
         test_sensor_pipeline_end_to_end();

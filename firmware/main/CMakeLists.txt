@@ -11,6 +11,7 @@ idf_component_register(
         "feedback.cpp"
         "feedback_gpio.cpp"
         "piezo_adc_continuous.cpp"
+        "piezo_waveform_hook.cpp"
         "net_event_transport.cpp"
         "sensor_board_hooks.cpp"
     INCLUDE_DIRS "."

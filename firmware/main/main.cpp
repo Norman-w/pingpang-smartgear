@@ -9,6 +9,7 @@
 #include "piezo_adc_continuous.h"
 #include "piezo_waveform.h"
 #include "piezo_waveform_archive.h"
+#include "piezo_waveform_hook.h"
 #include "sensor_board_hooks.h"
 
 #ifdef ESP_PLATFORM
@@ -271,6 +272,11 @@ extern "C" void app_main() {
             const auto features =
                 extract_piezo_features(*frame, config::kPiezoSampleRateHz);
             const std::string reference = frame->reference;
+            smartgear_board_on_piezo_waveform(
+                frame->reference.c_str(), frame->trigger_us,
+                frame->pre_trigger_samples, frame->samples[0].data(),
+                frame->samples[0].size(), frame->samples[1].data(),
+                frame->samples[1].size(), frame->complete);
             waveform_archive.store(std::move(*frame));
             piezo_capture.on_waveform_ready(reference, features);
         }

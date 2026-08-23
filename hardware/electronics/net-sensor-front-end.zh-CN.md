@@ -55,3 +55,5 @@ PVDF
 3. 光电二极管有效距离、调制频率、接收增益和阳光/室内灯抗扰；
 4. 10 根光束之间的串扰和实际球体遮挡宽度；
 5. 采样缓存、GPIO 中断负载和最终板级引脚复用。
+
+板级 hook、逻辑通道顺序、fail-closed 规则和可运行 CSV 回放见 [`docs/sensor-interface-v0.1.zh-CN.md`](../../docs/sensor-interface-v0.1.zh-CN.md)；实物装配、逐光束自检、PVDF 原始波形和断链补发按 [`docs/field-validation-record-template.zh-CN.md`](../../docs/field-validation-record-template.zh-CN.md) 留档。
