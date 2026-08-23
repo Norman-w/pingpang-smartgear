@@ -11,6 +11,7 @@
 //   PART="rod"          方杆与固定桥件
 //   PART="guide"        连续光栅导轨
 //   PART="calibration_gauge"  打印式光栅/参考线标定规
+//   PART="parameter_probe"    输出几何验证所需的单一参数源
 //   SIDE=1/-1            单夹具镜像选择
 //
 // 重要：螺纹、金属光轴、滚柱、软垫为装配占位几何；打印前要按实际
@@ -27,7 +28,7 @@ post_radius = post_nominal_d / 2;
 v_angle = 90;
 jaw_clearance = 1.2;
 soft_pad_t = 2.0;
-jaw_length = 22;
+jaw_length = 26;
 jaw_width = 9;
 jaw_height = 17;
 
@@ -36,6 +37,11 @@ arm_length_outer = 90;
 arm_length_inner = 60;
 arm_outer_y = 24;
 arm_inner_y = 16;
+// 夹具运动参数：两根 X 臂绕中心轴同步转动。
+// 外侧旋钮顶开滚柱时提高该角度，内侧 V 槽随同一角度移动。
+clamp_angle_deg = 15;
+clamp_angle_min_deg = 10;
+clamp_angle_max_deg = 20;
 arm_width = 14;
 arm_height = 16;
 pivot_d = 8;
@@ -84,16 +90,39 @@ assert(beam_count == 10, "first prototype uses 10 optical channels");
 assert(beam_first_height == 10, "first effective beam starts at +10 mm");
 assert(beam_last_height == 100, "first prototype ends at +100 mm");
 assert(rod_w == 12 && rod_h == 12 && rod_len == 130, "first rod is 12 x 12 x 130 mm");
+assert(clamp_angle_deg >= clamp_angle_min_deg && clamp_angle_deg <= clamp_angle_max_deg,
+       "clamp angle must stay inside the printable motion range");
+assert(clamp_angle_min_deg > 0 && clamp_angle_max_deg < 30,
+       "motion range must leave a stable X crossing");
 
 function point_x(p) = p[0];
 function point_y(p) = p[1];
 function segment_length(p1, p2) = sqrt(pow(point_x(p2) - point_x(p1), 2) + pow(point_y(p2) - point_y(p1), 2));
 function segment_angle(p1, p2) = atan2(point_y(p2) - point_y(p1), point_x(p2) - point_x(p1));
+function cross_2d(p1, p2) = point_x(p1) * point_y(p2) - point_y(p1) * point_x(p2);
+function distance_2d(p1, p2) = sqrt(pow(point_x(p2) - point_x(p1), 2) + pow(point_y(p2) - point_y(p1), 2));
 function post_x() = arm_length_inner + 5;
-function inner_jaw_offset() = post_radius + jaw_clearance + jaw_length / 2;
+function outer_radius() = sqrt(pow(arm_length_outer, 2) + pow(arm_outer_y, 2));
+function inner_radius() = sqrt(pow(arm_length_inner, 2) + pow(arm_inner_y, 2));
+function outer_point(sign = 1) = [-outer_radius() * cos(clamp_angle_deg), sign * outer_radius() * sin(clamp_angle_deg)];
+function inner_point(sign = 1) = [inner_radius() * cos(clamp_angle_deg), -sign * inner_radius() * sin(clamp_angle_deg)];
+function jaw_to_post_gap() = distance_2d(inner_point(1), [post_x(), 0]);
 function bridge_rod_x() = post_x() + 4;
 function guide_x() = bridge_rod_x() + rod_w / 2 + guide_t / 2 + 2;
 function beam_z(h) = bridge_z + h;
+
+// 这些断言验证 X 线、内端夹持距离和外侧螺杆包络，而不是只验证语法。
+assert(abs(cross_2d(outer_point(1), inner_point(1))) < 0.01,
+       "upper scissor arm must pass through the pivot");
+assert(abs(cross_2d(outer_point(-1), inner_point(-1))) < 0.01,
+       "lower scissor arm must pass through the pivot");
+assert(jaw_to_post_gap() < jaw_length,
+       "inner V jaw must reach the nominal post at every selected angle");
+assert(screw_span / 2 >= outer_radius() * sin(clamp_angle_deg) + roller_d / 2,
+       "M8 screw span must cover both outer rollers");
+assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&
+           (reference_height - beam_first_height) % beam_pitch == 0,
+       "reference line must land on a 10 mm optical detent");
 
 module beam_between_2d(p1, p2, width, height) {
     translate([(point_x(p1) + point_x(p2)) / 2, (point_y(p1) + point_y(p2)) / 2, height / 2])
@@ -118,10 +147,18 @@ module metal_pivot_shaft() {
 
 module scissor_arm(p1, p2, label = "arm") {
     color("darkorange") {
-        beam_between_2d(p1, p2, arm_width, arm_height);
-        // 中心局部加厚，表示箱型截面/三角肋区域。
-        translate([0, 0, arm_height / 2])
-            cylinder(d = arm_width + 8, h = arm_height + 4, center = true);
+        difference() {
+            union() {
+                beam_between_2d(p1, p2, arm_width, arm_height);
+                // 中心局部加厚，表示箱型截面/三角肋区域。
+                translate([0, 0, arm_height / 2])
+                    cylinder(d = arm_width + 8, h = arm_height + 4, center = true);
+            }
+            // Ø8 金属光轴的打印间隙孔；光轴由装配件穿过两根活动臂。
+            translate([0, 0, -1])
+                cylinder(d = pivot_d + pivot_clearance * 2,
+                         h = arm_height + 2);
+        }
     }
     // 小型限位柱，首样用于限制过开和过夹。
     color("dimgray")
@@ -129,11 +166,11 @@ module scissor_arm(p1, p2, label = "arm") {
             cylinder(d = arm_limit_d, h = 5);
 }
 
-module v_jaw(center, opening_direction = 1) {
+module v_jaw(center, opening_angle = 0) {
     // 两根 45 度肋形成 90 度 V 槽；V 的尖端朝向 center。
     color("orange")
         translate([point_x(center), point_y(center), arm_height / 2])
-            rotate([0, 0, opening_direction > 0 ? 0 : 180]) {
+            rotate([0, 0, opening_angle]) {
                 for (a = [-45, 45])
                     rotate([0, 0, a])
                         translate([jaw_length / 2, 0, 0])
@@ -143,7 +180,7 @@ module v_jaw(center, opening_direction = 1) {
     // 可替换 TPU/硅胶软垫占位，颜色只用于装配预览。
     color("deepskyblue")
         translate([point_x(center), point_y(center), arm_height / 2])
-            rotate([0, 0, opening_direction > 0 ? 0 : 180])
+            rotate([0, 0, opening_angle])
                 for (a = [-45, 45])
                     rotate([0, 0, a])
                         translate([jaw_length / 2 - soft_pad_t, 0, 0])
@@ -186,17 +223,17 @@ module u_roller_mount(p, has_dimple = false) {
 module rounded_screw_rod() {
     // 横向 M8×1.25 金属螺杆占位；真实螺纹由标准件提供。
     color("silver")
-        translate([-arm_length_outer, 0, arm_height / 2])
+        translate([outer_point(1)[0], 0, arm_height / 2])
             rotate([90, 0, 0])
                 cylinder(d = screw_d, h = screw_span, center = true);
     color("silver")
-        translate([-arm_length_outer, screw_span / 2, arm_height / 2])
+        translate([outer_point(1)[0], screw_span / 2, arm_height / 2])
             sphere(d = screw_d + 2);
 }
 
 module printed_knob() {
     color("firebrick")
-        translate([-arm_length_outer, -screw_span / 2 - knob_t / 2 + 2, arm_height / 2])
+        translate([outer_point(1)[0], -screw_span / 2 - knob_t / 2 + 2, arm_height / 2])
             rotate([90, 0, 0])
                 difference() {
                     cylinder(d = knob_d, h = knob_t, center = true);
@@ -284,6 +321,35 @@ module calibration_gauge() {
             cube([42, 4, 2], center = true);
 }
 
+module parameter_probe() {
+    // 供 validate_geometry.py 读取；几何计算不复制一套 CAD 参数。
+    echo(str("SMARTGEAR_PARAM ",
+             "post_nominal_d=", post_nominal_d,
+             ";jaw_clearance=", jaw_clearance,
+             ";jaw_length=", jaw_length,
+             ";v_angle=", v_angle,
+             ";arm_length_outer=", arm_length_outer,
+             ";arm_length_inner=", arm_length_inner,
+             ";arm_outer_y=", arm_outer_y,
+             ";arm_inner_y=", arm_inner_y,
+             ";clamp_angle_deg=", clamp_angle_deg,
+             ";clamp_angle_min_deg=", clamp_angle_min_deg,
+             ";clamp_angle_max_deg=", clamp_angle_max_deg,
+             ";arm_width=", arm_width,
+             ";pivot_d=", pivot_d,
+             ";pivot_clearance=", pivot_clearance,
+             ";roller_d=", roller_d,
+             ";screw_d=", screw_d,
+             ";screw_span=", screw_span,
+             ";rod_len=", rod_len,
+             ";beam_count=", beam_count,
+             ";beam_first_height=", beam_first_height,
+             ";beam_pitch=", beam_pitch,
+             ";beam_last_height=", beam_last_height,
+             ";reference_height=", reference_height));
+    cube([0.1, 0.1, 0.1]);
+}
+
 module net_post() {
     color([0.45, 0.45, 0.48, 0.65])
         translate([post_x(), 0, -4])
@@ -291,19 +357,19 @@ module net_post() {
 }
 
 module clamp_assembly() {
-    // 两条共面、相反斜率的臂，端点比例保证两条中心线穿过 pivot。
-    arm_a_outer = [-arm_length_outer, arm_outer_y];
-    arm_a_inner = [arm_length_inner, -arm_inner_y];
-    arm_b_outer = [-arm_length_outer, -arm_outer_y];
-    arm_b_inner = [arm_length_inner, arm_inner_y];
+    // 两条共面、相反斜率的臂，端点由同一夹具角度生成并穿过 pivot。
+    arm_a_outer = outer_point(1);
+    arm_a_inner = inner_point(1);
+    arm_b_outer = outer_point(-1);
+    arm_b_inner = inner_point(-1);
 
     net_post();
     scissor_arm(arm_a_outer, arm_a_inner, "arm_a");
     scissor_arm(arm_b_outer, arm_b_inner, "arm_b");
 
-    // 两个相向的 90 度 V 槽，首样按 Ø25 圆柱立柱。
-    v_jaw([post_x() - inner_jaw_offset(), 0], 1);
-    v_jaw([post_x() + inner_jaw_offset(), 0], -1);
+    // 两个分别固定在活动臂内端的相向 90 度 V 槽，首样按 Ø25 圆柱立柱。
+    v_jaw(arm_a_inner, atan2(-arm_a_inner[1], post_x() - arm_a_inner[0]));
+    v_jaw(arm_b_inner, atan2(-arm_b_inner[1], post_x() - arm_b_inner[0]));
 
     // 外侧两个竖直滚柱：上侧承接螺杆圆头，下侧容纳螺母/螺纹件。
     u_roller_mount([-arm_length_outer, arm_outer_y], true);
@@ -346,10 +412,10 @@ if (PART == "assembly") {
 } else if (PART == "right_clamp") {
     oriented_clamp(-1);
 } else if (PART == "arm") {
-    scissor_arm([-arm_length_outer, arm_outer_y], [arm_length_inner, -arm_inner_y]);
+    scissor_arm(outer_point(1), inner_point(1));
 } else if (PART == "roller") {
-    u_roller_mount([-arm_length_outer, arm_outer_y], true);
-    u_roller_mount([-arm_length_outer, -arm_outer_y], false);
+    u_roller_mount(outer_point(1), true);
+    u_roller_mount(outer_point(-1), false);
 } else if (PART == "knob") {
     rounded_screw_rod();
     printed_knob();
@@ -361,6 +427,8 @@ if (PART == "assembly") {
     reference_line_carriage();
 } else if (PART == "calibration_gauge") {
     calibration_gauge();
+} else if (PART == "parameter_probe") {
+    parameter_probe();
 } else {
-    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, knob, rod, guide, or calibration_gauge.");
+    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, knob, rod, guide, calibration_gauge, or parameter_probe.");
 }
