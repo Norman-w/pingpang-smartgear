@@ -85,8 +85,8 @@ class TraceReplay {
             }
             if (waveform_started) {
                 for (std::uint64_t sample = 0; sample < 3; ++sample) {
-                    const auto sample_timestamp =
-                        row.timestamp_us + sample * 1'000ULL;
+                    const std::uint64_t sample_timestamp =
+                        row.timestamp_us + sample * 1'000U;
                     waveform_capture_.feed_sample(
                         0, static_cast<std::int16_t>(110 + sample),
                         sample_timestamp);

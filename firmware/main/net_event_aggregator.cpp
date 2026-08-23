@@ -29,7 +29,7 @@ std::string make_event_id(const std::uint64_t timestamp_us,
                   "%08" PRIx32 "-%04" PRIx16 "-4000-8000-%012" PRIx64,
                   sequence,
                   static_cast<std::uint16_t>(sequence & 0xffffU),
-                  timestamp_us & 0xffffffffffffULL);
+                  static_cast<std::uint64_t>(timestamp_us & UINT64_C(0xffffffffffff)));
     return buffer;
 }
 
