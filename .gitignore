@@ -1,0 +1,30 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# JavaScript / TypeScript
+node_modules/
+dist/
+build/
+
+# Generated data and local calibration artifacts
+data/raw/
+data/recordings/
+data/exports/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.bag
+
+# CAD exports and local slicer output
+hardware/cad/exports/
+hardware/prints/
