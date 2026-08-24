@@ -72,6 +72,8 @@ class PiezoWaveformCapture {
     void record_history(std::uint8_t channel,
                         std::int16_t sample,
                         std::uint64_t timestamp_us);
+    void observe_frame_sample_timestamp(std::uint8_t channel,
+                                        std::uint64_t timestamp_us);
     void record_history_sample(std::uint8_t channel,
                                std::int16_t sample,
                                std::uint64_t timestamp_us);

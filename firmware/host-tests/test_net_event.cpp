@@ -516,6 +516,35 @@ void test_waveform_window() {
                 delayed_frame->samples[1][4] == 201,
             "pre-trigger history must exclude samples at or after the trigger");
 
+    smartgear::PiezoWaveformCapture delayed_out_of_order({1'000, 5, 5});
+    for (int sample = 0; sample < 5; ++sample) {
+        delayed_out_of_order.feed_sample(
+            0, static_cast<std::int16_t>(500 + sample),
+            100 + static_cast<std::uint64_t>(sample));
+        delayed_out_of_order.feed_sample(
+            1, static_cast<std::int16_t>(600 + sample),
+            100 + static_cast<std::uint64_t>(sample));
+    }
+    require(delayed_out_of_order.start_capture(102,
+                                               "wave-delayed-out-of-order"),
+            "delayed out-of-order waveform should start");
+    // This sample is still inside the pre-trigger window, but older than the
+    // newest sample already captured by the start snapshot. It is a genuine
+    // reordered DMA delivery and must invalidate the frame.
+    delayed_out_of_order.feed_sample(0, 499, 99);
+    for (int sample = 0; sample < 5; ++sample) {
+        delayed_out_of_order.feed_sample(
+            0, static_cast<std::int16_t>(700 + sample),
+            102 + static_cast<std::uint64_t>(sample));
+        delayed_out_of_order.feed_sample(
+            1, static_cast<std::int16_t>(800 + sample),
+            102 + static_cast<std::uint64_t>(sample));
+    }
+    const auto delayed_out_of_order_frame = delayed_out_of_order.take_ready();
+    require(delayed_out_of_order_frame.has_value() &&
+                !delayed_out_of_order_frame->sample_timestamps_valid,
+            "in-window DMA samples older than the snapshot must invalidate evidence");
+
     smartgear::PiezoWaveformCapture cold_start({1'000, 5, 5});
     require(cold_start.start_capture(3'000, "wave-cold-start"),
             "cold-start waveform should begin without history");
@@ -576,6 +605,7 @@ void test_waveform_window() {
     auto stale_frame = stale_dma.take_ready();
     require(stale_frame.has_value() &&
                 stale_frame->pre_samples_available == std::array<std::size_t, 2>{0, 0} &&
+                stale_frame->sample_timestamps_valid &&
                 stale_frame->samples[0][4] == 0,
             "stale DMA samples must not be treated as pre-trigger evidence");
     require(!smartgear::extract_piezo_features(*stale_frame, 1'000).complete,

@@ -108,18 +108,6 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
         return;
     }
 
-    if (frame_) {
-        if (frame_has_sample_timestamp_[channel] &&
-            timestamp_us < frame_last_sample_timestamp_[channel]) {
-            // A DMA adapter is expected to dispatch each channel in
-            // timestamp order. Preserve the sample for diagnostics, but do
-            // not let a reordered stream become valid waveform evidence.
-            frame_->sample_timestamps_valid = false;
-        }
-        frame_last_sample_timestamp_[channel] = timestamp_us;
-        frame_has_sample_timestamp_[channel] = true;
-    }
-
     // ADC DMA may deliver samples that were already buffered before the
     // comparator edge. They belong to the pre-trigger history, but may arrive
     // after start_capture() has already snapshotted the rolling buffer. Keep
@@ -132,6 +120,7 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
             const std::uint64_t pre_trigger_window_us =
                 static_cast<std::uint64_t>(config_.pre_trigger_ms) * 1'000ULL;
             if (age_us <= pre_trigger_window_us) {
+                observe_frame_sample_timestamp(channel, timestamp_us);
                 append_late_pre_trigger_sample(channel, sample);
                 record_history_sample(channel, sample, timestamp_us);
             } else {
@@ -158,6 +147,7 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
         record_history_sample(channel, sample, timestamp_us);
         return;
     }
+    observe_frame_sample_timestamp(channel, timestamp_us);
     frame_->samples[channel][config_.pre_trigger_samples() + post_written_[channel]] =
         sample;
     ++post_written_[channel];
@@ -205,6 +195,8 @@ void PiezoWaveformCapture::snapshot_pre_trigger() {
             (history_cursor_[channel] + channel_history.size() -
              history_count_[channel]) % channel_history.size();
         std::size_t available = 0;
+        std::uint64_t latest_timestamp_us = 0;
+        bool has_latest_timestamp = false;
         for (std::size_t offset = 0; offset < history_count_[channel]; ++offset) {
             const std::size_t chronological_index =
                 (oldest + offset) % channel_history.size();
@@ -217,6 +209,8 @@ void PiezoWaveformCapture::snapshot_pre_trigger() {
             }
             frame_->samples[channel][available++] =
                 channel_history[chronological_index];
+            latest_timestamp_us = timestamp_us;
+            has_latest_timestamp = true;
         }
 
         frame_->pre_samples_available[channel] =
@@ -230,6 +224,10 @@ void PiezoWaveformCapture::snapshot_pre_trigger() {
         }
         for (std::size_t index = 0; index < missing; ++index) {
             frame_->samples[channel][index] = 0;
+        }
+        if (has_latest_timestamp) {
+            frame_last_sample_timestamp_[channel] = latest_timestamp_us;
+            frame_has_sample_timestamp_[channel] = true;
         }
     }
 }
@@ -336,6 +334,23 @@ void PiezoWaveformCapture::record_history_sample(
     record_history(channel, sample, timestamp_us);
     history_last_sample_timestamp_[channel] = timestamp_us;
     history_has_timestamp_[channel] = true;
+}
+
+void PiezoWaveformCapture::observe_frame_sample_timestamp(
+    const std::uint8_t channel,
+    const std::uint64_t timestamp_us) {
+    if (!frame_) {
+        return;
+    }
+    if (frame_has_sample_timestamp_[channel] &&
+        timestamp_us < frame_last_sample_timestamp_[channel]) {
+        // A DMA adapter is expected to dispatch each in-window sample in
+        // timestamp order. Preserve the sample for diagnostics, but do not
+        // let a reordered stream become valid waveform evidence.
+        frame_->sample_timestamps_valid = false;
+    }
+    frame_last_sample_timestamp_[channel] = timestamp_us;
+    frame_has_sample_timestamp_[channel] = true;
 }
 
 void PiezoWaveformCapture::append_late_pre_trigger_sample(
