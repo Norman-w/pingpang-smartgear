@@ -28,7 +28,14 @@ def find_openscad() -> str:
     )
 
 
-def render(openscad: str, part: str, output: Path, width: int, height: int) -> None:
+def render(
+    openscad: str,
+    part: str,
+    output: Path,
+    width: int,
+    height: int,
+    definitions: tuple[str, ...] = (),
+) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     openscad_command = [
         openscad,
@@ -42,8 +49,10 @@ def render(openscad: str, part: str, output: Path, width: int, height: int) -> N
         "--imgsize",
         f"{width},{height}",
         "--colorscheme=Tomorrow",
-        str(SOURCE),
     ]
+    for definition in definitions:
+        openscad_command.extend(["-D", definition])
+    openscad_command.append(str(SOURCE))
     command = openscad_command
     if not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
         command = [
@@ -117,6 +126,14 @@ def main() -> None:
         args.output_dir / "openscad-optical-bank.png",
         1200,
         1000,
+    )
+    render(
+        openscad,
+        "optical_bank",
+        args.output_dir / "openscad-optical-bank-mirror.png",
+        1200,
+        1000,
+        definitions=("SIDE=-1",),
     )
     render(
         openscad,

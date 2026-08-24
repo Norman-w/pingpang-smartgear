@@ -15,7 +15,7 @@
 | 传输边界 | `NetEventDelivery` 支持断链缓存、有界覆盖、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层；具体 `/ws` 适配示例与当前引脚冲突见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。 |
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
 | 契约与回归 | JSON Schema 正例/反例、CMake/CTest、ASan/UBSan 主机测试和可视预览均通过。 Schema 还限制 UUID-like `event_id`、10 mm 离散高度档位、每个 1…1023 光栅位图与最低/最高命中档位及球底间隔的对应关系、`touch_no_cross` 无光栅命中及擦网状态与传感器位图一致；主机测试遍历全部 1…1023 光栅位图。 |
-| 实体几何可视证据 | `hardware/cad/render_openscad_preview.py` 从同一份 SCAD 直接渲染双侧装配、左侧夹具、V 槽硬体、V 槽软垫、滚柱 U 槽/螺母捕获、可拆压盖、光学模块包络、参考线端座、端座可打印本体和标定规；左侧夹具单件为 manifold/no-error，十个视图均渲染成功，CI 将十张 PNG 作为独立 artifact 保存。 |
+| 实体几何可视证据 | `hardware/cad/render_openscad_preview.py` 从同一份 SCAD 直接渲染双侧装配、左侧夹具、V 槽硬体、V 槽软垫、滚柱 U 槽/螺母捕获、可拆压盖、默认与 `SIDE=-1` 镜像的光学模块包络、参考线端座、端座可打印本体和标定规；左侧夹具单件为 manifold/no-error，十一张视图均渲染成功，CI 将 PNG 作为独立 artifact 保存。 |
 | 现场证据门 | `docs/field-validation-record-v0.1.schema.json` 与 `tools/validate_field_record.py` 要求全部 M/B/S/T/E 编号存在；只有 `pending` 可以没有证据，`pass/fail` 必须引用 `evidence_root` 下真实文件；模板当前 19 项全部保持 `pending`，不冒充实机通过；逐项主机覆盖与实物缺口见 [`validation-coverage-v0.1.zh-CN.md`](validation-coverage-v0.1.zh-CN.md)。 |
 | 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/短波形采集/事件归并并输出 3 个 Schema 合法事件，`touch_over` 保留波形引用和持续时间；主机单元测试另覆盖“比较器先到、DMA 迟到预触发/后触发、完整帧回填后归并为 `touch_over`”的整条顺序路径；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
 | 外部回放关联工具 | `tools/correlate_net_events.py` 支持 NetEvent JSONL/`JSON_EVENT` 行、外部时间标记 CSV、明确的微秒偏移和包含边界的匹配窗口；`tools/test_correlate_net_events.py` 覆盖偏移、窗口边界、默认元数据和畸形输入。它只做时间戳关联，不把外部视频结果当作本体判定。 |
