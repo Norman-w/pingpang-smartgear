@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 from jsonschema import Draft202012Validator
 
@@ -21,7 +22,7 @@ REQUIRED_TEST_IDS = (
 SCHEMA = Path(__file__).resolve().parents[1] / "docs" / "field-validation-record-v0.1.schema.json"
 
 
-def fail(message: str) -> "NoReturn":
+def fail(message: str) -> NoReturn:
     raise ValueError(message)
 
 
