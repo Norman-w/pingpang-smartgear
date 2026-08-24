@@ -48,11 +48,11 @@ BLE、Wi-Fi、WebSocket、MQTT、SSE、配网和 App 多设备基础设施不在
 
 - 立柱主体：从桌下夹持区域一直延伸到最高光栅模块上方，顶部承载网顶承载条和光学导轨；为适配常见打印幅面，当前拆成两段约 `153 mm` 的 `post_segment`，接缝用 `post_joint_sleeve` 外套筒和 `post_joint_key` 内芯定位；下段单独导出时保留台面上方的局部箱型承载加厚；
 - 传统桌下夹持：固定 C 形夹体跨过台面边缘，上夹板压住台面上表面，台底可动压块由下方 M8 螺杆顶起并夹紧；螺杆始终位于台面下方，不穿过球台，整个支架免打孔安装；接触软垫、螺纹件和夹紧力仍需实测；
-- 网顶承载条：连接左右立柱，首轮拆成 3 段约 `524 mm` 的搭接件，接缝下方用 2 片带 M3 孔的 `net_rail_splice` 拼接片锁紧（或替换为同接口铝型材），支撑真实网布/白边；网布在装配时就属于本支架的一部分；
+- 网顶承载条：连接左右立柱，首轮拆成 3 段约 `524 mm` 的搭接件，接缝下方用 2 片带 M3 孔的 `net_rail_splice` 拼接片锁紧（或替换为同接口铝型材），两端落在 `net_rail_saddle` 承托座上并由立柱侧端挡限位，支撑真实网布/白边；网布在装配时就属于本支架的一部分；
 - PVDF 安装座：左右各一处，固定在网顶承载条附近；`pvdf_film` 由两侧可拆压片夹持，薄膜可替换，线束沿立柱走线；
-- 光学导轨：左右立柱内侧安装发射/接收模块包络，带每 10 mm 贯穿孔和刻度；`reference_carriage`/`reference_pin` 在校准时锁定参考线，装配时再用标定规校准。
+- 光学导轨：左右立柱内侧安装发射/接收模块包络，带每 10 mm 贯穿孔和刻度；每个模块由独立的 `optical_module_carrier` 中性 U 形载台包住，后壁带正交调节长孔，提供有限俯仰/偏航预调；`reference_carriage`/`reference_pin` 在校准时锁定参考线，装配时再用标定规校准。
 
-OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于装配检查，`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`optical_strip`、`sensor_mount` 和 `calibration_gauge` 用于分件检查/导出。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件。
+OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于单侧结构装配检查，PVDF 座位于全宽网顶承载条中段，单独由 `sensor_mount` 或完整 `assembly` 检查；`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`net_rail_saddle`、`optical_strip`、`optical_module_carrier` 和 `calibration_gauge` 用于分件检查/导出。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件。
 
 ### 3.2 光栅与参考线
 
@@ -60,7 +60,7 @@ OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stan
 - 10 路持续并行工作，不采用逐路低速轮询；
 - 光束高度固定为网顶以上 `+10、+20、…、+100 mm`；
 - 每个通道独立自检、记录对准质量和遮挡状态；
-- 当前光学导轨提供每 `10 mm` 一个实际贯穿定位孔和刻度标记，参考线端座/标定规只允许停在这些档位，用于机械高度和光轴对准；
+- 当前光学导轨提供每 `10 mm` 一个实际贯穿定位孔和刻度标记，参考线端座/标定规只允许停在这些档位；模块载台的正交长孔只表达有限的俯仰/偏航调节边界，最终收发器安装角度、锁紧力和光轴精度仍必须用实物光路收敛；
 - 光栅输出高度区间，不输出连续毫米高度；完全高于 `+100 mm` 的球路不生成事件。
 
 机械首样首先确认：台面厚度是否适配、上下夹持面是否压稳、立柱是否倾斜或滑移、网布张力是否拉偏支架、左右光学模块是否平行。
@@ -88,7 +88,7 @@ PVDF → 输入保护/偏置 → 放大与带通滤波 ──→ 可调阈值比
 
 - 左右内置立柱分别承载发射端和接收端；
 - 每通道使用前置放大、滤波和比较器，独立输出到 ESP32-S3 GPIO/中断；
-- 光学模块固定在当前支架的连续导轨上，通过机械参考线和标定规完成俯仰、偏航与零点确认；
+- 光学模块安装在当前支架连续导轨的 `optical_module_carrier` 中，通过正交长孔完成有限俯仰/偏航预调，再用机械参考线和标定规完成零点确认；
 - 光栅结果保存 `beam_mask`、最低/最高命中光束、`beam_height_mm`、`ball_bottom_gap_mm`、校准版本和质量标记。
 
 调制红外 beam-break 是成熟的对射检测架构，但本工程不把低速遥控器接收头直接当作光栅接收器。参考资料：[Vishay 调制红外 beam-break 资料](https://www.vishay.com/docs/82729/tsspagcpsensor.pdf)。

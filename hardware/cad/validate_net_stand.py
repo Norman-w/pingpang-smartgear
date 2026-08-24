@@ -30,7 +30,9 @@ PARTS = (
     "net_rail",
     "net_rail_segment",
     "net_rail_splice",
+    "net_rail_saddle",
     "optical_strip",
+    "optical_module_carrier",
     "sensor_mount",
     "pvdf_film",
     "sensor_clamp_lip",
@@ -91,6 +93,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "net_rail_splice_overlap",
         "net_rail_splice_plate_length",
         "net_rail_splice_hole_d",
+        "net_rail_saddle_overlap",
+        "net_rail_saddle_width",
+        "net_rail_saddle_depth",
+        "net_rail_saddle_height",
         "post_top",
         "sensor_x",
         "sensor_film_length",
@@ -105,6 +111,19 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pressure_pad_bottom_z",
         "optical_locating_hole_d",
         "optical_rail_width",
+        "optical_module_depth",
+        "optical_module_width",
+        "optical_module_height",
+        "optical_carrier_clearance",
+        "optical_carrier_wall",
+        "optical_carrier_z_wall",
+        "optical_carrier_back_depth",
+        "optical_carrier_front_depth",
+        "optical_carrier_width",
+        "optical_carrier_height",
+        "optical_carrier_slot_d",
+        "optical_carrier_slot_length",
+        "optical_module_index",
         "reference_pin_d",
     }
     missing = required - parameters.keys()
@@ -145,8 +164,24 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["net_rail_splice_hole_d"] > 0
     ):
         raise RuntimeError(f"unexpected printable rail segmentation: {parameters}")
+    if not (
+        parameters["net_rail_saddle_width"] > parameters["net_rail_saddle_overlap"] > 0
+        and parameters["net_rail_saddle_depth"] > parameters["net_rail_depth"]
+        and parameters["net_rail_saddle_height"] > 0
+    ):
+        raise RuntimeError(f"unexpected rail saddle geometry: {parameters}")
     if not (0 < parameters["optical_locating_hole_d"] < parameters["optical_rail_width"]):
         raise RuntimeError(f"invalid optical locating hole diameter: {parameters}")
+    if not (
+        parameters["optical_carrier_front_depth"] > parameters["optical_module_depth"]
+        and parameters["optical_carrier_width"] > parameters["optical_module_width"]
+        and parameters["optical_carrier_height"] > parameters["optical_module_height"]
+        and parameters["optical_carrier_height"] < parameters["beam_pitch"]
+        and parameters["optical_carrier_slot_length"] > parameters["optical_carrier_slot_d"]
+    ):
+        raise RuntimeError(f"optical module carrier does not leave an adjustment envelope: {parameters}")
+    if parameters["optical_module_index"] != 0:
+        raise RuntimeError(f"parameter probe must use the default optical module index: {parameters}")
     if not (0 < parameters["reference_pin_d"] < parameters["optical_locating_hole_d"]):
         raise RuntimeError(f"reference pin cannot fit the locating hole: {parameters}")
     if not (
@@ -182,7 +217,9 @@ def main() -> None:
             "clamp_pressure_pad",
             "clamp_screw",
             "clamp_knob",
+            "net_rail_saddle",
             "optical_strip",
+            "optical_module_carrier",
             "sensor_mount",
             "pvdf_film",
             "sensor_clamp_lip",
@@ -224,6 +261,8 @@ def main() -> None:
         film_bounds = stl_bounds(output_dir / "pvdf_film.stl")
         film_lip_bounds = stl_bounds(output_dir / "sensor_clamp_lip.stl")
         reference_bounds = stl_bounds(output_dir / "reference_carriage.stl")
+        saddle_bounds = stl_bounds(output_dir / "net_rail_saddle.stl")
+        carrier_bounds = stl_bounds(output_dir / "optical_module_carrier.stl")
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
@@ -245,6 +284,21 @@ def main() -> None:
                 f"segmented net rail does not cover the full span: rail={rail_bounds}, "
                 f"segment={rail_segment_bounds}"
             )
+        inner_face = parameters["post_center_x"] - parameters["post_body_width"] / 2
+        if not (
+            saddle_bounds[0] < inner_face < saddle_bounds[1]
+            and saddle_bounds[3] - saddle_bounds[2] > parameters["net_rail_depth"]
+            and abs(saddle_bounds[5] - parameters["net_height"]) < 0.01
+        ):
+            raise RuntimeError(f"rail saddle does not support/stop the net rail: {saddle_bounds}")
+        carrier_center_z = (carrier_bounds[4] + carrier_bounds[5]) / 2
+        if not (
+            carrier_bounds[1] - carrier_bounds[0] > parameters["optical_module_depth"]
+            and carrier_bounds[3] - carrier_bounds[2] > parameters["optical_module_width"]
+            and carrier_bounds[5] - carrier_bounds[4] > parameters["optical_module_height"]
+            and abs(carrier_center_z - (parameters["net_height"] + parameters["beam_first_height"])) < 0.01
+        ):
+            raise RuntimeError(f"optical module carrier envelope is not centered on channel 0: {carrier_bounds}")
         expected_reference_z = parameters["net_height"] + 50
         if not (
             reference_bounds[4] < expected_reference_z < reference_bounds[5]
@@ -325,6 +379,27 @@ def main() -> None:
                 detent,
                 f"reference_height={height}",
             )
+
+        for index in range(10):
+            carrier = output_dir / f"optical-carrier-{index}.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    carrier,
+                    'PART="optical_module_carrier"',
+                    f"optical_module_index={index}",
+                ),
+                carrier,
+                f"optical_module_index={index}",
+            )
+        invalid_carrier = run_openscad(
+            openscad,
+            output_dir / "invalid-optical-carrier.stl",
+            'PART="optical_module_carrier"',
+            "optical_module_index=10",
+        )
+        if invalid_carrier.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a non-existent optical module index")
 
         for index in range(3):
             segment = output_dir / f"net-rail-segment-{index}.stl"

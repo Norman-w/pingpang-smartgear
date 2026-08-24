@@ -4,8 +4,8 @@
 //
 // 预览/导出：
 //   PART="assembly"          含球台截面、网、双侧支架和传感器的装配预览
-//   PART="left_stand"         左侧完整桌下夹持支架
-//   PART="right_stand"        右侧完整桌下夹持支架
+//   PART="left_stand"         左侧立柱/桌下夹持/光学导轨结构检查件
+//   PART="right_stand"        右侧立柱/桌下夹持/光学导轨结构检查件
 //   PART="post"               单侧立柱主体
 //   PART="post_segment"       单段可打印立柱（由 post_segment_index 选择）
 //   PART="post_joint_sleeve"  立柱中部外套筒
@@ -19,7 +19,9 @@
 //   PART="net_rail"           网顶承载条
 //   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
 //   PART="net_rail_splice"    网顶承载条拼接片（由 rail_splice_index 选择）
+//   PART="net_rail_saddle"    立柱内侧网顶承托/端部限位座
 //   PART="optical_strip"      单侧 10 路红外模块导轨与模块包络
+//   PART="optical_module_carrier" 单个光学模块中性载台/调节槽（由 optical_module_index 选择）
 //   PART="sensor_mount"       单侧网顶 PVDF 夹片安装座
 //   PART="pvdf_film"          PVDF 薄膜包络（非打印件）
 //   PART="sensor_clamp_lip"   PVDF 薄膜两侧可拆压片
@@ -69,6 +71,13 @@ optical_rail_depth = 8;
 optical_rail_width = 24;
 optical_rail_margin = 8;
 optical_locating_hole_d = 4;
+optical_carrier_clearance = 0.6;
+optical_carrier_wall = 3;
+optical_carrier_z_wall = 1.5;
+optical_carrier_back_depth = 5;
+optical_carrier_slot_d = 3.4;
+optical_carrier_slot_length = 4;
+optical_module_index = 0;
 scale_tick_width = 8;
 scale_tick_height = 1.5;
 sensor_count = 2;
@@ -130,7 +139,19 @@ net_rail_splice_plate_depth = net_rail_depth + 4;
 net_rail_splice_plate_t = 4;
 net_rail_splice_hole_d = 3.2;
 rail_splice_index = 0;
-optical_center_x = post_center_x - post_body_width / 2 - optical_module_depth / 2;
+net_rail_saddle_overlap = 6;
+net_rail_saddle_width = 12;
+net_rail_saddle_depth = net_rail_depth + 6;
+net_rail_saddle_height = 4;
+net_rail_saddle_stop_t = 3;
+optical_rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
+// 模块本体贴在导轨内侧；镜头朝向球台中心，避免模块实体嵌进导轨。
+optical_center_x = optical_rail_x - optical_module_depth / 2;
+optical_carrier_front_depth = optical_module_depth + 2 * optical_carrier_clearance;
+optical_carrier_front_x = optical_rail_x - optical_carrier_front_depth;
+optical_carrier_width = optical_module_width + 2 * optical_carrier_wall;
+optical_carrier_height = optical_module_height + 2 * optical_carrier_z_wall;
+optical_carrier_slot_offset = optical_module_width / 4 + optical_carrier_wall / 2;
 sensor_x = sensor_x_fraction * net_span / 2;
 clamp_pad_x = table_edge_x - clamp_reach_inboard;
 clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
@@ -168,6 +189,20 @@ assert(optical_locating_hole_d > 0 && optical_locating_hole_d < optical_rail_wid
        "10 mm optical locating holes must fit through the rail");
 assert(scale_tick_width > 0 && scale_tick_height > 0 && scale_tick_width < optical_rail_width,
        "height scale ticks must fit on the optical rail");
+assert(optical_carrier_clearance > 0 && optical_carrier_wall >= 2 &&
+           optical_carrier_z_wall > 0 &&
+           optical_carrier_back_depth > 0 &&
+           optical_carrier_front_depth > optical_module_depth &&
+           optical_carrier_width > optical_module_width &&
+           optical_carrier_height > optical_module_height &&
+           optical_carrier_height < beam_pitch,
+       "optical module carrier must leave a printable clearance pocket and rear wall");
+assert(optical_carrier_slot_d > 0 &&
+           optical_carrier_slot_length > optical_carrier_slot_d &&
+           optical_carrier_slot_length < optical_carrier_width,
+       "optical carrier adjustment slots must be printable");
+assert(optical_module_index >= 0 && optical_module_index < beam_count,
+       "optical_module_index must select an existing 10 mm channel");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
 assert(net_rail_segment_count >= 2 && net_rail_segment_count <= 5 &&
            net_rail_segment_length > 100 && net_rail_splice_overlap > 0 &&
@@ -178,6 +213,13 @@ assert(net_rail_splice_plate_length > net_rail_splice_overlap * 2 &&
            net_rail_splice_plate_t > 0 && net_rail_splice_hole_d > 0 &&
            rail_splice_index >= 0 && rail_splice_index < net_rail_segment_count - 1,
        "each rail seam needs a printable splice plate and valid index");
+assert(net_rail_saddle_overlap > 0 &&
+           net_rail_saddle_width > net_rail_saddle_overlap &&
+           net_rail_saddle_depth > net_rail_depth &&
+           net_rail_saddle_height > 0 &&
+           net_rail_saddle_stop_t > 0 &&
+           net_rail_saddle_stop_t < net_rail_saddle_width,
+       "each upright needs a printable rail saddle and end stop");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
 assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
@@ -339,6 +381,55 @@ module post_positive() {
     post_joint_key_positive();
 }
 
+module slot_through_x_y(y_center, z_center) {
+    hull() {
+        for (y_position = [y_center - optical_carrier_slot_length / 2,
+                           y_center + optical_carrier_slot_length / 2]) {
+            translate([optical_rail_x - 1, y_position, z_center])
+                rotate([0, 90, 0])
+                    cylinder(d = optical_carrier_slot_d,
+                             h = optical_carrier_back_depth + 2);
+        }
+    }
+}
+
+module slot_through_x_z(y_center, z_center) {
+    hull() {
+        for (z_position = [z_center - optical_carrier_slot_length / 2,
+                           z_center + optical_carrier_slot_length / 2]) {
+            translate([optical_rail_x - 1, y_center, z_position])
+                rotate([0, 90, 0])
+                    cylinder(d = optical_carrier_slot_d,
+                             h = optical_carrier_back_depth + 2);
+        }
+    }
+}
+
+module optical_module_carrier_positive(height) {
+    z0 = beam_z(height);
+    // 载台是一个包住电子模块的中性 U 形框。后壁与连续导轨重合，
+    // 两个正交长孔给 M3 紧固件留下有限俯仰/偏航调节余量；最终角度
+    // 和锁紧力仍需在真实发射/接收器上实测，不把包络当成光学精度承诺。
+    color("teal")
+        difference() {
+            translate([optical_carrier_front_x,
+                       -optical_carrier_width / 2,
+                       z0 - optical_carrier_height / 2])
+                cube([optical_carrier_front_depth + optical_carrier_back_depth,
+                      optical_carrier_width, optical_carrier_height]);
+            translate([optical_carrier_front_x - 1,
+                       -optical_module_width / 2 - optical_carrier_clearance,
+                       z0 - optical_module_height / 2 - optical_carrier_clearance])
+                cube([optical_carrier_front_depth + 1,
+                      optical_module_width + 2 * optical_carrier_clearance,
+                      optical_module_height + 2 * optical_carrier_clearance]);
+            // y 向槽用于偏航微调，z 向槽用于俯仰微调；槽位落在后壁/侧耳，
+            // 不切穿模块包络的中心区域。
+            slot_through_x_y(0, z0 - optical_carrier_height / 4);
+            slot_through_x_z(optical_carrier_slot_offset, z0);
+        }
+}
+
 module optical_module_positive(height) {
     z0 = beam_z(height);
     color("royalblue")
@@ -354,16 +445,15 @@ module optical_module_positive(height) {
 }
 
 module optical_strip_positive() {
-    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
     color("goldenrod")
         difference() {
-            translate([rail_x, -optical_rail_width / 2,
+            translate([optical_rail_x, -optical_rail_width / 2,
                        net_height - optical_rail_margin])
                 cube([optical_rail_depth, optical_rail_width,
                       post_top - net_height + optical_rail_margin]);
             // 每个 10 mm 档位都有实际贯穿孔；参考线/标定销可以使用这些孔。
             for (i = [0:beam_count - 1]) {
-                translate([rail_x + optical_rail_depth / 2, 0,
+                translate([optical_rail_x + optical_rail_depth / 2, 0,
                            beam_z(beam_first_height + i * beam_pitch)])
                     rotate([90, 0, 0])
                         cylinder(d = optical_locating_hole_d,
@@ -374,12 +464,13 @@ module optical_strip_positive() {
 
     color("white")
         for (i = [0:beam_count - 1]) {
-            translate([rail_x - 0.5, -scale_tick_width / 2,
+            translate([optical_rail_x - 0.5, -scale_tick_width / 2,
                        beam_z(beam_first_height + i * beam_pitch) - scale_tick_height / 2])
                 cube([1, scale_tick_width, scale_tick_height]);
         }
 
     for (i = [0:beam_count - 1]) {
+        optical_module_carrier_positive(beam_first_height + i * beam_pitch);
         optical_module_positive(beam_first_height + i * beam_pitch);
     }
 }
@@ -467,6 +558,27 @@ module net_rail_splice_positive(index = 0) {
         }
 }
 
+module net_rail_saddle_positive() {
+    inner_face_x = post_center_x - post_body_width / 2;
+    base_x = inner_face_x - net_rail_saddle_overlap;
+    base_z = net_height - net_rail_height - net_rail_saddle_height;
+    color("lightgray") {
+        // 承托座向内伸入网顶承载条，并向外与立柱相交，形成明确的受力路径。
+        translate([base_x, -net_rail_saddle_depth / 2, base_z])
+            cube([net_rail_saddle_width, net_rail_saddle_depth,
+                  net_rail_saddle_height]);
+        // 立柱侧端挡住承载条，限制沿 x 方向滑出；不改变网顶高度基准。
+        translate([inner_face_x, -net_rail_saddle_depth / 2,
+                   net_height - net_rail_height])
+            cube([net_rail_saddle_stop_t, net_rail_saddle_depth,
+                  net_rail_height]);
+    }
+}
+
+module net_rail_saddle(side = 1) {
+    sided(side) net_rail_saddle_positive();
+}
+
 module net_rail() {
     // 三段带 20 mm 搭接，打印长度约 524 mm；实际装配时用下方拼接片/螺钉
     // 或铝型材替代件把搭接处锁紧。整体 PART 仍用于连续网顶关系预览。
@@ -500,9 +612,8 @@ module reference_line() {
 }
 
 module reference_pin_positive() {
-    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
     color("black")
-        translate([rail_x + optical_rail_depth / 2, 0,
+        translate([optical_rail_x + optical_rail_depth / 2, 0,
                    beam_z(reference_height)])
             rotate([90, 0, 0])
                 cylinder(d = reference_pin_d,
@@ -511,8 +622,7 @@ module reference_pin_positive() {
 }
 
 module reference_carriage_positive() {
-    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
-    carriage_center_x = rail_x + optical_rail_depth / 2;
+    carriage_center_x = optical_rail_x + optical_rail_depth / 2;
     carriage_z = beam_z(reference_height) - reference_carriage_height / 2;
     color("seagreen") {
         // 端座位于导轨前侧，定位销穿过对应 10 mm 孔；它是校准附件，
@@ -566,8 +676,8 @@ module stand(side = 1) {
     sided(side) {
         post_positive();
         table_clamp_positive();
+        net_rail_saddle_positive();
         optical_strip_positive();
-        sensor_mount_positive(sensor_x);
     }
 }
 
@@ -594,6 +704,10 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM net_rail_splice_overlap=", net_rail_splice_overlap));
     echo(str("NETSTAND_PARAM net_rail_splice_plate_length=", net_rail_splice_plate_length));
     echo(str("NETSTAND_PARAM net_rail_splice_hole_d=", net_rail_splice_hole_d));
+    echo(str("NETSTAND_PARAM net_rail_saddle_overlap=", net_rail_saddle_overlap));
+    echo(str("NETSTAND_PARAM net_rail_saddle_width=", net_rail_saddle_width));
+    echo(str("NETSTAND_PARAM net_rail_saddle_depth=", net_rail_saddle_depth));
+    echo(str("NETSTAND_PARAM net_rail_saddle_height=", net_rail_saddle_height));
     echo(str("NETSTAND_PARAM post_top=", post_top));
     echo(str("NETSTAND_PARAM sensor_x=", sensor_x));
     echo(str("NETSTAND_PARAM sensor_film_length=", sensor_film_length));
@@ -608,6 +722,19 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_pressure_pad_bottom_z=", clamp_pressure_pad_bottom_z));
     echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
     echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
+    echo(str("NETSTAND_PARAM optical_module_depth=", optical_module_depth));
+    echo(str("NETSTAND_PARAM optical_module_width=", optical_module_width));
+    echo(str("NETSTAND_PARAM optical_module_height=", optical_module_height));
+    echo(str("NETSTAND_PARAM optical_carrier_clearance=", optical_carrier_clearance));
+    echo(str("NETSTAND_PARAM optical_carrier_wall=", optical_carrier_wall));
+    echo(str("NETSTAND_PARAM optical_carrier_z_wall=", optical_carrier_z_wall));
+    echo(str("NETSTAND_PARAM optical_carrier_back_depth=", optical_carrier_back_depth));
+    echo(str("NETSTAND_PARAM optical_carrier_front_depth=", optical_carrier_front_depth));
+    echo(str("NETSTAND_PARAM optical_carrier_width=", optical_carrier_width));
+    echo(str("NETSTAND_PARAM optical_carrier_height=", optical_carrier_height));
+    echo(str("NETSTAND_PARAM optical_carrier_slot_d=", optical_carrier_slot_d));
+    echo(str("NETSTAND_PARAM optical_carrier_slot_length=", optical_carrier_slot_length));
+    echo(str("NETSTAND_PARAM optical_module_index=", optical_module_index));
     echo(str("NETSTAND_PARAM reference_pin_d=", reference_pin_d));
     cube([0.2, 0.2, 0.2]);
 }
@@ -618,6 +745,9 @@ if (PART == "assembly") {
     net_rail();
     stand(1);
     stand(-1);
+    // PVDF 座位于全宽网顶承载条的中段，只有在完整装配中才有真实承载关系。
+    sensor_mount(1);
+    sensor_mount(-1);
     beam_markers();
     reference_line();
     reference_carriage(1);
@@ -652,8 +782,14 @@ if (PART == "assembly") {
     net_rail_segment_positive(rail_segment_index);
 } else if (PART == "net_rail_splice") {
     net_rail_splice_positive(rail_splice_index);
+} else if (PART == "net_rail_saddle") {
+    net_rail_saddle(default_side);
 } else if (PART == "optical_strip") {
     sided(default_side) optical_strip_positive();
+} else if (PART == "optical_module_carrier") {
+    sided(default_side)
+        optical_module_carrier_positive(
+            beam_first_height + optical_module_index * beam_pitch);
 } else if (PART == "sensor_mount") {
     sensor_mount(default_side);
 } else if (PART == "pvdf_film") {

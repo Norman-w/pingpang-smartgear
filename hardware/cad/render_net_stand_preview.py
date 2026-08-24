@@ -135,6 +135,14 @@ def main() -> None:
         1200,
         definitions=("SIDE=-1",),
     )
+    render(
+        openscad,
+        "optical_module_carrier",
+        args.output_dir / "net-stand-optical-module-carrier.png",
+        900,
+        700,
+        definitions=("optical_module_index=4",),
+    )
     render(openscad, "sensor_mount", args.output_dir / "net-stand-sensor-mount.png", 1000, 800)
     render(openscad, "pvdf_film", args.output_dir / "net-stand-pvdf-film.png", 800, 600)
     render(
@@ -166,6 +174,13 @@ def main() -> None:
         900,
         600,
         definitions=("rail_splice_index=0",),
+    )
+    render(
+        openscad,
+        "net_rail_saddle",
+        args.output_dir / "net-stand-net-rail-saddle.png",
+        900,
+        700,
     )
     render(openscad, "calibration_gauge", args.output_dir / "net-stand-calibration-gauge.png", 900, 1000)
     print(f"NET_STAND_PREVIEWS_OK ({args.output_dir})")
