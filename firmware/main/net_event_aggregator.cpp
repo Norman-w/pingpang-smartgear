@@ -81,6 +81,22 @@ std::string make_event_id(const std::uint64_t timestamp_us,
 NetEventAggregator::NetEventAggregator(NetEventAggregatorConfig config)
     : config_(config) {}
 
+bool NetEventAggregator::observe_input_timestamp(const std::uint64_t timestamp_us,
+                                                 const bool beam_stream) {
+    auto& last_timestamp = beam_stream ? last_beam_input_timestamp_us_
+                                       : last_touch_input_timestamp_us_;
+    auto& has_timestamp = beam_stream ? has_beam_input_timestamp_
+                                      : has_touch_input_timestamp_;
+    if (has_timestamp && timestamp_us < last_timestamp) {
+        return false;
+    }
+    if (!has_timestamp || timestamp_us > last_timestamp) {
+        last_timestamp = timestamp_us;
+        has_timestamp = true;
+    }
+    return true;
+}
+
 void NetEventAggregator::set_calibration(std::string calibration_id,
                                          const bool valid) {
     const bool has_id = !calibration_id.empty();
@@ -290,6 +306,15 @@ void NetEventAggregator::on_beam(const BeamObservation& observation) {
         return;
     }
 
+    // Compare event starts, not ends: two ball paths may overlap in time and
+    // still arrive with monotonically increasing start boundaries.
+    if (!observe_input_timestamp(observation.start_us, true)) {
+        auto out_of_order = observation;
+        out_of_order.valid = false;
+        on_beam(out_of_order);
+        return;
+    }
+
     // 首版明确不处理重叠多球：已有未完成边界时，先标为 unknown，再接收新事件。
     if (pending_beam_) {
         emit_pending_beam(NetState::kUnknown);
@@ -335,6 +360,13 @@ void NetEventAggregator::on_touch(const PiezoObservation& observation) {
                                       NetState::kUnknown,
                                       "touch_shape_invalid"));
         ++event_sequence_;
+        return;
+    }
+
+    if (!observe_input_timestamp(observation.first_trigger_us, false)) {
+        auto out_of_order = observation;
+        out_of_order.valid = false;
+        on_touch(out_of_order);
         return;
     }
 

@@ -52,6 +52,8 @@ class NetEventAggregator {
     void clear_touch_pending();
     void clear_pending();
     void clear_health_change_if_idle();
+    bool observe_input_timestamp(std::uint64_t timestamp_us,
+                                 bool beam_stream);
 
     NetEventAggregatorConfig config_;
     std::string calibration_id_ = "uncalibrated";
@@ -62,6 +64,13 @@ class NetEventAggregator {
     bool piezo_baseline_configured_ = false;
     bool piezo_baseline_valid_ = false;
     bool input_overflow_ = false;
+    // Beam and PVDF observations complete asynchronously. Keep a boundary per
+    // sensor stream: a single global boundary would reject a valid PVDF hit
+    // that occurred before a beam observation but was delivered afterward.
+    std::uint64_t last_beam_input_timestamp_us_ = 0;
+    std::uint64_t last_touch_input_timestamp_us_ = 0;
+    bool has_beam_input_timestamp_ = false;
+    bool has_touch_input_timestamp_ = false;
     // Health is polled asynchronously from the board layer. If it changes
     // while either candidate is waiting for its association boundary, the
     // candidate must not be reinterpreted with the new snapshot.

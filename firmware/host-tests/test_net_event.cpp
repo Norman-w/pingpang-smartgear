@@ -102,7 +102,10 @@ smartgear::NetEvent pop_one(smartgear::NetEventAggregator& aggregator) {
     smartgear::NetEvent event;
     require(aggregator.pop_event(event), "expected one NetEvent");
     require(aggregator.pending_output_count() == 0,
-            "expected the output queue to be drained");
+            "expected the output queue to be drained; remaining=" +
+                std::to_string(aggregator.pending_output_count()) +
+                " first_state=" + smartgear::net_state_name(event.state) +
+                " first_timestamp=" + std::to_string(event.timestamp_us));
     return event;
 }
 
@@ -1205,6 +1208,26 @@ void test_input_shape_and_deadline_safety() {
     pending_boundary.poll(300'000);
     require(pending_boundary.pending_output_count() == 0,
             "malformed beam boundary must not leave a duplicate pending event");
+
+    smartgear::NetEventAggregator stale_beam;
+    stale_beam.set_calibration("cal-stale", true);
+    stale_beam.on_beam(beam(100'000, 101'000, 1, 0, 0));
+    stale_beam.poll(356'001);
+    static_cast<void>(pop_one(stale_beam));
+    stale_beam.on_beam(beam(90'000, 91'000, 1U << 1, 1, 1));
+    const auto stale_beam_event = pop_one(stale_beam);
+    require(stale_beam_event.state == smartgear::NetState::kUnknown,
+            "aggregator must reject an out-of-order beam observation");
+
+    smartgear::NetEventAggregator stale_touch;
+    stale_touch.set_calibration("cal-stale-touch", true);
+    stale_touch.on_touch(touch(120'000, 120'500, 1));
+    stale_touch.poll(260'501);
+    static_cast<void>(pop_one(stale_touch));
+    stale_touch.on_touch(touch(110'000, 110'500, 2));
+    const auto stale_touch_event = pop_one(stale_touch);
+    require(stale_touch_event.state == smartgear::NetState::kUnknown,
+            "aggregator must reject an out-of-order touch observation");
 }
 
 struct DeliverySink {
