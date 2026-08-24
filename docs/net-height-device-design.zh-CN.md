@@ -110,6 +110,8 @@ PVDF → 输入保护/偏置 → 放大与带通滤波 ──→ 可调阈值比
 
 启动自检或安装标定未通过时，设备不把事件伪装成有效标定结果：事件状态保持 `unknown`（由校准门控制），并可附加 `beam_self_test_invalid`、`beam_channel_unhealthy` 或 `piezo_baseline_invalid` 质量标记。自检测量值由板级适配层注入业务层，当前仓库不虚构没有接入的发射器/接收器测量。
 
+健康快照由板级层周期刷新；如果光栅/PVDF 候选尚在待决归并窗口内而健康快照发生变化，聚合器会附加 `sensor_health_changed_during_event` 并强制输出 `unknown`，避免用新标定状态解释旧输入。
+
 ## 6. 事件状态机
 
 事件归并只面向单球、事件可分离场景：

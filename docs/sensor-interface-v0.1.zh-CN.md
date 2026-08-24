@@ -67,6 +67,11 @@ ESP32 任务不会各自复制一套校验逻辑。hook 不可用时调用
 `apply_sensor_health_unavailable()`，聚合器会固定进入不可放行状态并保留
 `health-snapshot-unavailable` 诊断 ID。
 
+健康快照在事件归并期间发生变化也不会追溯覆盖旧候选：只要待决的光栅或
+PVDF 候选跨过一次实际健康状态变化，最终事件会带
+`sensor_health_changed_during_event` 并保持 `unknown`；重复提交完全相同的快照
+不会触发该标记。
+
 ### 3.3 原始 PVDF 波形
 
 如 SmartPaddle 已有诊断/回放存储，可实现以下同步 hook：
