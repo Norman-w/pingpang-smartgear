@@ -257,9 +257,12 @@ extern "C" void app_main() {
         const std::uint64_t now_us =
             static_cast<std::uint64_t>(esp_timer_get_time());
         if (consume_sensor_queue_overflow()) {
-            // Dropped edges invalidate the current boundaries. Keep any
-            // pending business observation but force its eventual event to
-            // unknown, and allow fresh sensor edges to establish a new frame.
+            // Dropped edges invalidate the current boundaries. Discard every
+            // edge that was already queued before the overflow as well;
+            // otherwise stale pre-overflow edges could be combined with fresh
+            // input into a plausible but false event. The aggregator retains
+            // the overflow marker so the next emitted boundary is unknown.
+            xQueueReset(s_sensor_queue);
             beam_capture.reset();
             piezo_capture.reset();
             waveform_capture.abort();
