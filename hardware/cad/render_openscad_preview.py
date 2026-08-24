@@ -99,6 +99,13 @@ def main() -> None:
     )
     render(
         openscad,
+        "reference_carriage_body",
+        args.output_dir / "openscad-reference-carriage-body.png",
+        1000,
+        800,
+    )
+    render(
+        openscad,
         "calibration_gauge",
         args.output_dir / "openscad-calibration-gauge.png",
         1000,

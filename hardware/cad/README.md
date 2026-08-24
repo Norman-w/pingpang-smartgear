@@ -4,11 +4,14 @@
 
 - `PART="assembly"`：双侧装配预览；
 - `PART="left_clamp"` / `PART="right_clamp"`：左右镜像夹具装配导出（不包含装配预览用的立柱实体）；
-- `PART="arm"`、`"roller"`、`"roller_mount"`、`"roller_cap"`、`"knob"`、`"screw_rod"`、`"rod"`、`"bridge"`、`"guide"`、`"reference_carriage"`：单件检查/导出；
+- `PART="arm"`、`"jaw"`、`"jaw_pad"`、`"roller"`、`"roller_mount"`、`"roller_cap"`、`"knob"`、`"screw_rod"`、`"rod"`、`"bridge"`、`"guide"`、`"reference_carriage"`：单件/装配检查；其中 `jaw` 为 PETG V 槽硬体，`jaw_pad` 为 TPU/硅胶替换软垫占位；
+- `PART="reference_carriage_body"`、`"reference_pin"`：参考线端座的可打印本体与定位销占位分离导出；打印时只导出本体，定位销使用实物标准件；
 - `PART="optical_bank"`：10 路发射/接收模块包络占位，`SIDE=-1` 为镜像接收侧；
 - `PART="calibration_gauge"`：打印式 10 mm 光栅/参考线标定规；
 - `PART="parameter_probe"`：由验证脚本读取的参数清单，不是打印件；
 - `SIDE=0`：按 `PART` 的默认左右方向；`SIDE=1/-1`：显式覆盖单件镜像选择。
+
+打印数量、标准件和哪些导出包含装配占位见 [`print-manifest.zh-CN.md`](print-manifest.zh-CN.md)。
 
 使用 OpenSCAD GUI 或命令行覆盖参数，例如：
 
@@ -25,4 +28,4 @@ openscad -D 'PART="left_clamp"' -D 'SIDE=1' -o left-clamp.stl net_post_x_clamp.s
 
 若本机安装了 OpenSCAD，可运行 `python3 validate_scad.py` 编译全部 `PART`、左右镜像覆盖和临时 STL，并读取 OpenSCAD 参数源验证 X 臂共轴、内侧 V 槽包络、M8 螺杆行程、轴孔间隙和 10 mm 光栅档位；它还会用 STL 包围盒检查左右方向相反，确认 10°/20° 两个运动端点可编译、25° 越界角度会被断言拒绝。该命令不把导出物写入仓库。单独运行 `python3 validate_geometry.py` 可只做参数/运动断言。
 
-若需要直接检查实体几何外观，可运行 `python3 render_openscad_preview.py`；它从同一份 SCAD 生成双侧装配、左侧夹具、10 路光学模块包络、参考线端座和标定规五张 PNG，输出到 `rendered/`，与 `preview.py` 的意图图分开。CI 会把这些 OpenSCAD 渲染图作为 `smartgear-openscad-previews` artifact 保存。
+若需要直接检查实体几何外观，可运行 `python3 render_openscad_preview.py`；它从同一份 SCAD 生成双侧装配、左侧夹具、10 路光学模块包络、参考线端座、端座可打印本体和标定规六张 PNG，输出到 `rendered/`，与 `preview.py` 的意图图分开。CI 会把这些 OpenSCAD 渲染图作为 `smartgear-openscad-previews` artifact 保存。

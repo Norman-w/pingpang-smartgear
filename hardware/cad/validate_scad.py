@@ -20,6 +20,8 @@ PARTS = (
     "left_clamp",
     "right_clamp",
     "arm",
+    "jaw",
+    "jaw_pad",
     "roller",
     "roller_mount",
     "roller_cap",
@@ -29,6 +31,8 @@ PARTS = (
     "bridge",
     "guide",
     "reference_carriage",
+    "reference_carriage_body",
+    "reference_pin",
     "optical_bank",
     "calibration_gauge",
 )

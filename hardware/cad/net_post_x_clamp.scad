@@ -6,6 +6,8 @@
 //   PART="left_clamp"  左侧夹具
 //   PART="right_clamp" 右侧夹具
 //   PART="arm"         活动臂
+//   PART="jaw"         90° V 槽硬体
+//   PART="jaw_pad"     可替换 TPU/硅胶软垫占位
 //   PART="roller"      竖直滚柱与轴
 //   PART="roller_mount" 滚柱 U 槽侧壁与螺母捕获
 //   PART="roller_cap"   可拆滚柱压盖
@@ -14,7 +16,9 @@
 //   PART="rod"          方杆
 //   PART="bridge"       固定桥件
 //   PART="guide"        连续光栅导轨
-//   PART="reference_carriage" 参考线端座与定位销
+//   PART="reference_carriage" 参考线端座与定位销装配预览
+//   PART="reference_carriage_body" 可打印参考线端座本体
+//   PART="reference_pin"         弹簧定位销占位/标准件检查
 //   PART="optical_bank" 光栅发射/接收模块装配占位
 //   PART="calibration_gauge"  打印式光栅/参考线标定规
 //   PART="parameter_probe"    输出几何验证所需的单一参数源
@@ -244,7 +248,7 @@ module scissor_arm(p1, p2, z0 = 0, label = "arm") {
             cylinder(d = arm_limit_d, h = 5);
 }
 
-module v_jaw(center, opening_angle = 0, z0 = 0) {
+module v_jaw_body(center, opening_angle = 0, z0 = 0) {
     // 两根 45 度肋形成 90 度 V 槽；V 的尖端朝向 center。
     color("orange")
         translate([point_x(center), point_y(center), z0 + arm_layer_thickness / 2])
@@ -257,7 +261,9 @@ module v_jaw(center, opening_angle = 0, z0 = 0) {
                         translate([jaw_length / 2 - jaw_mount_overlap, 0, 0])
                             cube([jaw_length, jaw_width, jaw_height], center = true);
             }
+}
 
+module v_jaw_pad(center, opening_angle = 0, z0 = 0) {
     // 可替换 TPU/硅胶软垫占位，颜色只用于装配预览。
     color("deepskyblue")
         translate([point_x(center), point_y(center), z0 + arm_layer_thickness / 2])
@@ -266,6 +272,11 @@ module v_jaw(center, opening_angle = 0, z0 = 0) {
                     rotate([0, 0, a])
                         translate([jaw_length / 2 - soft_pad_t, 0, 0])
                             cube([soft_pad_t, jaw_width + 1, jaw_height - 4], center = true);
+}
+
+module v_jaw(center, opening_angle = 0, z0 = 0) {
+    v_jaw_body(center, opening_angle, z0);
+    v_jaw_pad(center, opening_angle, z0);
 }
 
 module dimpled_vertical_roller(p, has_dimple = false, z0 = 0) {
@@ -393,7 +404,7 @@ module optical_guide() {
     }
 }
 
-module reference_line_carriage() {
+module reference_carriage_body() {
     h = reference_height;
     color("limegreen")
         difference() {
@@ -408,7 +419,10 @@ module reference_line_carriage() {
                              h = guide_width + 8,
                              center = true);
         }
+}
 
+module reference_pin() {
+    h = reference_height;
     // 弹簧定位销占位：只允许插入 10 mm 光栅档位的孔；长度覆盖端座
     // 外侧、导轨和另一侧余量，避免只停留在端座外壳中。
     color("silver")
@@ -417,6 +431,11 @@ module reference_line_carriage() {
                    beam_z(h)])
             rotate([90, 0, 0])
                 cylinder(d = 3.2, h = reference_pin_length, center = true);
+}
+
+module reference_line_carriage() {
+    reference_carriage_body();
+    reference_pin();
 }
 
 module optical_module_bank(kind = "emitter") {
@@ -587,6 +606,12 @@ if (PART == "assembly") {
     oriented_clamp(resolved_side(-1), false);
 } else if (PART == "arm") {
     scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
+} else if (PART == "jaw") {
+    v_jaw_body(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
+    v_jaw_body(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
+} else if (PART == "jaw_pad") {
+    v_jaw_pad(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
+    v_jaw_pad(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
 } else if (PART == "roller") {
     dimpled_vertical_roller(outer_point(1), true, arm_lower_z);
     dimpled_vertical_roller(outer_point(-1), false, arm_upper_z);
@@ -609,6 +634,10 @@ if (PART == "assembly") {
     optical_guide();
 } else if (PART == "reference_carriage") {
     reference_line_carriage();
+} else if (PART == "reference_carriage_body") {
+    reference_carriage_body();
+} else if (PART == "reference_pin") {
+    reference_pin();
 } else if (PART == "optical_bank") {
     oriented_optical_bank(resolved_side(1), SIDE < 0 ? "receiver" : "emitter");
 } else if (PART == "calibration_gauge") {
@@ -616,5 +645,5 @@ if (PART == "assembly") {
 } else if (PART == "parameter_probe") {
     parameter_probe();
 } else {
-    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, roller_mount, roller_cap, knob, screw_rod, rod, bridge, guide, reference_carriage, optical_bank, calibration_gauge, or parameter_probe.");
+    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, jaw, jaw_pad, roller, roller_mount, roller_cap, knob, screw_rod, rod, bridge, guide, reference_carriage, reference_carriage_body, reference_pin, optical_bank, calibration_gauge, or parameter_probe.");
 }
