@@ -1262,12 +1262,16 @@ void test_input_shape_and_deadline_safety() {
 struct DeliverySink {
     std::vector<std::string> messages;
     bool accepting = true;
+    std::size_t sends_before_failure = std::numeric_limits<std::size_t>::max();
 };
 
 bool delivery_sink(const char* json, void* context) {
     auto* sink = static_cast<DeliverySink*>(context);
-    if (!sink->accepting) {
+    if (!sink->accepting || sink->sends_before_failure == 0) {
         return false;
+    }
+    if (sink->sends_before_failure != std::numeric_limits<std::size_t>::max()) {
+        --sink->sends_before_failure;
     }
     sink->messages.emplace_back(json);
     return true;
@@ -1316,6 +1320,36 @@ void test_delivery_recovery_and_feedback() {
                 flaky_sink.messages.size() == 1 &&
                 flaky_sink.messages[0].find("failed-send") != std::string::npos,
             "re-arming transport must flush the failed event exactly once");
+
+    DeliverySink mid_flush_sink;
+    mid_flush_sink.sends_before_failure = 1;
+    smartgear::NetEventDelivery mid_flush_delivery;
+    smartgear::NetEvent queued_first;
+    queued_first.event_id = "queued-first";
+    smartgear::NetEvent queued_second;
+    queued_second.event_id = "queued-second";
+    require(!mid_flush_delivery.publish(queued_first) &&
+                !mid_flush_delivery.publish(queued_second),
+            "mid-flush events must begin in the disconnected cache");
+    mid_flush_delivery.set_transport(true, delivery_sink, &mid_flush_sink);
+    require(!mid_flush_delivery.connected() &&
+                mid_flush_delivery.cached_count() == 1 &&
+                mid_flush_sink.messages.size() == 1 &&
+                mid_flush_sink.messages[0].find("queued-first") != std::string::npos,
+            "a flush failure must retain the first unsent cached event");
+    smartgear::NetEvent queued_after_failure;
+    queued_after_failure.event_id = "queued-after-failure";
+    require(!mid_flush_delivery.publish(queued_after_failure) &&
+                mid_flush_delivery.cached_count() == 2,
+            "new events must follow a cached flush failure");
+    mid_flush_sink.sends_before_failure = std::numeric_limits<std::size_t>::max();
+    mid_flush_delivery.set_transport(true, delivery_sink, &mid_flush_sink);
+    require(mid_flush_delivery.cached_count() == 0 &&
+                mid_flush_sink.messages.size() == 3 &&
+                mid_flush_sink.messages[1].find("queued-second") != std::string::npos &&
+                mid_flush_sink.messages[2].find("queued-after-failure") !=
+                    std::string::npos,
+            "recovery must resume cached delivery without reordering or duplication");
 
     smartgear::NetEventDelivery bounded;
     for (std::size_t index = 0;
