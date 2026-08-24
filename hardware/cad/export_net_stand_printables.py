@@ -211,7 +211,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-knob",
             "PETG",
             "旋钮平面朝下；六角螺母捕获窝朝上。",
-            "打印旋钮；必须装入标准 M8 捕获螺母，不使用 PETG 内螺纹。",
+            "打印旋钮；必须装入预先对锁的两枚标准 M8 螺母，不使用 PETG 内螺纹。",
         )
     )
     specs.extend(_indexed_rail_specs())

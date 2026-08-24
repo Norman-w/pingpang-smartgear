@@ -200,7 +200,11 @@ def require_stl(
 
 
 def validate_no_drill_thickness(
-    openscad: str, output_dir: Path, table_thickness: int, top_pad_t: float
+    openscad: str,
+    output_dir: Path,
+    table_thickness: int,
+    top_pad_t: float,
+    knob_nut_stack_depth: float,
 ) -> None:
     """Compile the under-table pressure path for a first-pass thickness matrix."""
 
@@ -265,6 +269,8 @@ def validate_no_drill_thickness(
         and knob_nut_bounds[5] < tabletop_bottom
         and knob_nut_bounds[4] >= knob_bounds[4] - 0.01
         and knob_nut_bounds[5] <= knob_bounds[5] + 0.01
+        and knob_nut_bounds[5] - knob_nut_bounds[4]
+        >= knob_nut_stack_depth - 0.01
     ):
         raise RuntimeError(
             "no-drill under-table path reaches the tabletop for "
@@ -335,10 +341,18 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_nut_clearance",
         "clamp_nut_pocket_af",
         "clamp_nut_pocket_depth",
+        "clamp_knob_nut_gap",
+        "clamp_knob_nut_stack_depth",
+        "clamp_knob_nut_pocket_depth",
         "clamp_body_nut_z",
+        "clamp_knob_h",
         "clamp_knob_top_z",
         "clamp_knob_bottom_z",
         "clamp_knob_nut_z",
+        "clamp_knob_drive_nut_z",
+        "clamp_knob_lock_nut_z",
+        "clamp_knob_nut_bottom_z",
+        "clamp_knob_nut_top_z",
         "clamp_lower_arm_bottom_z",
         "clamp_lower_arm_top_z",
         "clamp_pressure_pad_top_z",
@@ -409,6 +423,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_screw_top_z"] <= parameters["clamp_pressure_pad_bottom_z"]
         and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_top_z"]
+        and parameters["clamp_screw_bottom_z"] > parameters["clamp_knob_bottom_z"]
         and parameters["clamp_knob_bottom_z"] < parameters["clamp_knob_top_z"]
         and parameters["clamp_pressure_pad_bottom_z"] <
         parameters["clamp_pressure_pad_top_z"]
@@ -423,6 +438,18 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         < parameters["clamp_threaded_boss_d"]
         and parameters["clamp_nut_pocket_depth"] >= parameters["clamp_nut_h"]
         and parameters["clamp_nut_pocket_depth"] < parameters["clamp_threaded_boss_h"]
+        and parameters["clamp_knob_nut_gap"] >= 0
+        and parameters["clamp_knob_nut_stack_depth"]
+        == 2 * parameters["clamp_nut_h"] + parameters["clamp_knob_nut_gap"]
+        and parameters["clamp_knob_nut_pocket_depth"]
+        > parameters["clamp_knob_nut_stack_depth"]
+        and parameters["clamp_knob_nut_pocket_depth"]
+        < parameters["clamp_knob_h"]
+        and parameters["clamp_knob_nut_bottom_z"] >= parameters["clamp_knob_bottom_z"]
+        and parameters["clamp_knob_nut_top_z"] <= parameters["clamp_knob_top_z"]
+        and parameters["clamp_knob_drive_nut_z"] > parameters["clamp_knob_lock_nut_z"]
+        and parameters["clamp_screw_top_z"] > parameters["clamp_knob_nut_top_z"]
+        and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_nut_bottom_z"]
     ):
         raise RuntimeError(f"M8 nut capture dimensions are inconsistent: {parameters}")
     if parameters["net_span"] <= parameters["table_width"]:
@@ -736,7 +763,11 @@ def main() -> None:
 
         for table_thickness in NO_DRILL_TABLE_THICKNESSES:
             validate_no_drill_thickness(
-                openscad, output_dir, table_thickness, parameters["clamp_top_pad_t"]
+                openscad,
+                output_dir,
+                table_thickness,
+                parameters["clamp_top_pad_t"],
+                parameters["clamp_knob_nut_stack_depth"],
             )
 
         invalid_grid = run_openscad(
