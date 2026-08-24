@@ -77,6 +77,19 @@ jobs:
       - name: Validate current integrated net stand
         run: python hardware/cad/validate_net_stand.py
 
+      - name: Export and validate printable net-stand package
+        run: |
+          python hardware/cad/export_net_stand_printables.py \
+            --output-dir "$RUNNER_TEMP/pingpang-smartgear-net-stand-export"
+          python hardware/cad/test_export_net_stand_printables.py \
+            --manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-export/manifest.json"
+
+      - name: Upload printable net-stand package
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartgear-net-stand-print-package
+          path: ${{ runner.temp }}/pingpang-smartgear-net-stand-export
+
       - name: Validate historical X-clamp parts and mirrors
         run: python hardware/cad/validate_scad.py
 
