@@ -135,6 +135,17 @@ function category(entry) {
   return COLORS[categoryKey(entry)] || COLORS.other;
 }
 
+function materialGroup(entry) {
+  const explicit = String(entry?.material_group || "").trim();
+  if (explicit) return explicit;
+  const material = String(entry?.material || "");
+  return material.toUpperCase().includes("TPU") || material.includes("硅胶") ? "TPU/柔性" : "PETG";
+}
+
+function materialClass(group) {
+  return String(group).toUpperCase().includes("TPU") ? "material-tpu" : "material-petg";
+}
+
 function sourceSize(entry) {
   if (Array.isArray(entry?.source_size_mm)) return entry.source_size_mm.map(number);
   if (Array.isArray(entry?.source_bounds) && entry.source_bounds.length === 2) {
@@ -157,7 +168,7 @@ function sourcePathFor(entry) {
 }
 
 function partSearchText(entry) {
-  return [entry?.name_zh, entry?.name_en, entry?.part, entry?.file, entry?.side, entry?.material]
+  return [entry?.name_zh, entry?.name_en, entry?.part, entry?.file, entry?.side, entry?.material, materialGroup(entry)]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -172,12 +183,26 @@ function generatedLayoutFromManifest(manifest) {
     schema_version: manifest.schema_version,
     generated: true,
     print_bed: { ...manifest.print_bed },
-    plates: (manifest.plates || []).map((plate) => ({
-      ...plate,
-      parts: (plate.parts || []).map((entry) => ({ ...entry })),
+    plates: (manifest.plates || []).map((plate) => {
+      const parts = (plate.parts || []).map((entry) => ({
+        ...entry,
+        material_group: entry.material_group || materialGroup(entry),
+      }));
+      return {
+        ...plate,
+        material_group: plate.material_group || materialGroup(parts[0]),
+        parts,
+      };
+    }),
+    oversized: (manifest.oversized || []).map((entry) => ({
+      ...entry,
+      material_group: entry.material_group || materialGroup(entry),
     })),
-    oversized: (manifest.oversized || []).map((entry) => ({ ...entry })),
-    parts: (manifest.parts || []).map((entry) => ({ ...entry })),
+    parts: (manifest.parts || []).map((entry) => ({
+      ...entry,
+      material_group: entry.material_group || materialGroup(entry),
+    })),
+    material_groups: [...(manifest.material_groups || [])],
     assembly_components: (manifest.assembly_components || []).map((entry) => ({ ...entry })),
   };
 }
@@ -223,105 +248,125 @@ function packPreview() {
     return;
   }
 
-  const ordered = [...(state.manifest.parts || [])].sort((left, right) => {
-    const leftSize = sourceSize(left);
-    const rightSize = sourceSize(right);
-    const leftMax = Math.max(leftSize[0], leftSize[1]);
-    const rightMax = Math.max(rightSize[0], rightSize[1]);
-    return rightMax - leftMax || (rightSize[0] * rightSize[1] - leftSize[0] * leftSize[1]) || String(left.file).localeCompare(String(right.file));
-  });
+  const groupedParts = new Map();
+  for (const entry of state.manifest.parts || []) {
+    const group = materialGroup(entry);
+    if (!groupedParts.has(group)) groupedParts.set(group, []);
+    groupedParts.get(group).push({ ...entry, material_group: group });
+  }
+  const materialGroups = [...groupedParts.keys()].sort((left, right) => (
+    (left === "PETG" ? 0 : 1) - (right === "PETG" ? 0 : 1) || left.localeCompare(right)
+  ));
 
   const plates = [];
   const rowsByPlate = [];
   const oversized = [];
-  const startPlate = () => {
+  const startPlate = (group) => {
+    const nextNumber = plates.length + 1;
     plates.push({
-      id: `plate-${String(plates.length + 1).padStart(2, "0")}`,
-      label: `浏览器预览拼盘 ${String(plates.length + 1).padStart(2, "0")}`,
-      description: "按当前参数在浏览器中排版；不会生成或覆盖 STL 文件。",
+      id: `plate-${String(nextNumber).padStart(2, "0")}`,
+      label: `浏览器预览 · ${group} 拼盘 ${String(nextNumber).padStart(2, "0")}`,
+      material_group: group,
+      description: "按当前参数在浏览器中排版；不同材料不混盘，不会生成或覆盖 STL 文件。",
       part_count: 0,
       parts: [],
     });
     rowsByPlate.push([]);
   };
-  startPlate();
+  for (const group of materialGroups) {
+    startPlate(group);
+    const ordered = groupedParts.get(group).sort((left, right) => {
+      const leftSize = sourceSize(left);
+      const rightSize = sourceSize(right);
+      const leftMax = Math.max(leftSize[0], leftSize[1]);
+      const rightMax = Math.max(rightSize[0], rightSize[1]);
+      return rightMax - leftMax || (rightSize[0] * rightSize[1] - leftSize[0] * leftSize[1]) || String(left.file).localeCompare(String(right.file));
+    });
 
-  for (const entry of ordered) {
-    const size = sourceSize(entry);
-    const candidates = [0, 90]
-      .map((angle) => ({ angle, size: dimensionsForAngle(size, angle) }))
-      .filter(({ size: candidate }) => (
-        candidate[0] <= bed.width_mm - bed.edge_margin_mm * 2 + 1e-6
-        && candidate[1] <= bed.depth_mm - bed.edge_margin_mm * 2 + 1e-6
-        && candidate[2] <= bed.height_mm + 1e-6
-      ));
-    if (!candidates.length) {
-      oversized.push({
-        ...entry,
-        status: "oversized",
-        source_size_mm: size,
-        reason: "XY 或 Z 尺寸超过当前打印床（预览未缩放、未裁切）",
-      });
-      continue;
+    for (const entry of ordered) {
+      const size = sourceSize(entry);
+      const candidates = [0, 90]
+        .map((angle) => ({ angle, size: dimensionsForAngle(size, angle) }))
+        .filter(({ size: candidate }) => (
+          candidate[0] <= bed.width_mm - bed.edge_margin_mm * 2 + 1e-6
+          && candidate[1] <= bed.depth_mm - bed.edge_margin_mm * 2 + 1e-6
+          && candidate[2] <= bed.height_mm + 1e-6
+        ));
+      if (!candidates.length) {
+        oversized.push({
+          ...entry,
+          status: "oversized",
+          material_group: group,
+          source_size_mm: size,
+          reason: "XY 或 Z 尺寸超过当前打印床（预览未缩放、未裁切）",
+        });
+        continue;
+      }
+
+      let placed = false;
+      while (!placed) {
+        const plate = plates[plates.length - 1];
+        const rows = rowsByPlate[rowsByPlate.length - 1];
+        const row = rows[rows.length - 1] || null;
+        let best = null;
+        if (row) {
+          for (const candidate of candidates) {
+            const [width, depth] = candidate.size;
+            const x = row.x;
+            const y = row.y;
+            if (x + width > bed.width_mm - bed.edge_margin_mm + 1e-6 || y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
+            const score = [Math.max(row.height, depth), candidate.angle, width, x, y];
+            if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
+              best = { ...candidate, x, y, score };
+            }
+          }
+        }
+        if (!best) {
+          const rowY = row ? row.y + row.height + bed.part_gap_mm : bed.edge_margin_mm;
+          for (const candidate of candidates) {
+            const [width, depth] = candidate.size;
+            const x = bed.edge_margin_mm;
+            const y = rowY;
+            if (y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
+            const score = [depth, candidate.angle, width, x, y];
+            if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
+              best = { ...candidate, x, y, score };
+            }
+          }
+          if (best) {
+            rows.push({ x: best.x + best.size[0] + bed.part_gap_mm, y: best.y, height: best.size[1] });
+          } else {
+            startPlate(group);
+            continue;
+          }
+        } else {
+          row.x = best.x + best.size[0] + bed.part_gap_mm;
+          row.height = Math.max(row.height, best.size[1]);
+        }
+
+        const placedBounds = [
+          [best.x, best.y, 0],
+          [best.x + best.size[0], best.y + best.size[1], best.size[2]],
+        ];
+        plate.parts.push({
+          ...entry,
+          status: "placed",
+          material_group: group,
+          plate_id: plate.id,
+          rotation_z_deg: best.angle,
+          x_mm: best.x,
+          y_mm: best.y,
+          source_size_mm: size,
+          placed_bounds: placedBounds,
+        });
+        plate.part_count = plate.parts.length;
+        placed = true;
+      }
     }
 
-    let placed = false;
-    while (!placed) {
-      const plate = plates[plates.length - 1];
-      const rows = rowsByPlate[rowsByPlate.length - 1];
-      const row = rows[rows.length - 1] || null;
-      let best = null;
-      if (row) {
-        for (const candidate of candidates) {
-          const [width, depth] = candidate.size;
-          const x = row.x;
-          const y = row.y;
-          if (x + width > bed.width_mm - bed.edge_margin_mm + 1e-6 || y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
-          const score = [Math.max(row.height, depth), candidate.angle, width, x, y];
-          if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
-            best = { ...candidate, x, y, score };
-          }
-        }
-      }
-      if (!best) {
-        const rowY = row ? row.y + row.height + bed.part_gap_mm : bed.edge_margin_mm;
-        for (const candidate of candidates) {
-          const [width, depth] = candidate.size;
-          const x = bed.edge_margin_mm;
-          const y = rowY;
-          if (y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
-          const score = [depth, candidate.angle, width, x, y];
-          if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
-            best = { ...candidate, x, y, score };
-          }
-        }
-        if (best) {
-          rows.push({ x: best.x + best.size[0] + bed.part_gap_mm, y: best.y, height: best.size[1] });
-        } else {
-          startPlate();
-          continue;
-        }
-      } else {
-        row.x = best.x + best.size[0] + bed.part_gap_mm;
-        row.height = Math.max(row.height, best.size[1]);
-      }
-
-      const placedBounds = [
-        [best.x, best.y, 0],
-        [best.x + best.size[0], best.y + best.size[1], best.size[2]],
-      ];
-      plate.parts.push({
-        ...entry,
-        status: "placed",
-        plate_id: plate.id,
-        rotation_z_deg: best.angle,
-        x_mm: best.x,
-        y_mm: best.y,
-        source_size_mm: size,
-        placed_bounds: placedBounds,
-      });
-      plate.part_count = plate.parts.length;
-      placed = true;
+    if (plates.length && !plates[plates.length - 1].parts.length) {
+      plates.pop();
+      rowsByPlate.pop();
     }
   }
 
@@ -333,6 +378,7 @@ function packPreview() {
     plates: usablePlates,
     oversized,
     parts: usablePlates.flatMap((plate) => plate.parts).concat(oversized),
+    material_groups: materialGroups,
     assembly_components: (state.manifest.assembly_components || []).map((entry) => ({ ...entry })),
   };
   state.generated = false;
@@ -393,7 +439,13 @@ function renderTabs() {
     const strong = document.createElement("strong");
     strong.textContent = String(index + 1).padStart(2, "0");
     const label = document.createElement("span");
-    label.textContent = `${plate.label} · ${plate.parts.length} 件`;
+    label.className = "plate-tab-label";
+    const material = document.createElement("b");
+    material.className = `plate-material ${materialClass(materialGroup(plate))}`;
+    material.textContent = materialGroup(plate);
+    const count = document.createElement("span");
+    count.textContent = `${plate.parts.length} 件`;
+    label.append(material, count);
     tab.append(strong, label);
     tab.addEventListener("click", () => {
       state.activePlateIndex = index;
@@ -456,7 +508,7 @@ function renderPartList() {
     name.textContent = partName(entry);
     const sub = document.createElement("div");
     sub.className = "part-sub";
-    sub.textContent = `${entry.file || entry.part || "STL"}${entry.side ? ` · ${entry.side}` : ""}${entry.index !== null && entry.index !== undefined ? ` · #${entry.index}` : ""}`;
+    sub.textContent = `${entry.file || entry.part || "STL"}${entry.side ? ` · ${entry.side}` : ""}${entry.index !== null && entry.index !== undefined ? ` · #${entry.index}` : ""} · 材料组：${materialGroup(entry)}`;
     info.append(name, sub);
     const dim = document.createElement("span");
     dim.className = "part-dim";
@@ -499,7 +551,7 @@ function renderOversized() {
     const title = document.createElement("strong");
     title.textContent = partName(entry);
     const reason = document.createElement("span");
-    reason.textContent = entry.reason || "需要更大打印床或再次拆分";
+    reason.textContent = `${materialGroup(entry)} · ${entry.reason || "需要更大打印床或再次拆分"}`;
     info.append(title, reason);
     const meta = document.createElement("div");
     const size = document.createElement("b");

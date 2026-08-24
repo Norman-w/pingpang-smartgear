@@ -65,6 +65,9 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
         raise AssertionError("至少应生成一张拼盘")
     placed_files: set[str] = set()
     for plate in plates:
+        plate_group = plate.get("material_group")
+        if not isinstance(plate_group, str) or not plate_group:
+            raise AssertionError(f"{plate['id']} 缺少材料组")
         plate_file = path.parent / str(plate["file"])
         mesh = load_binary_stl(plate_file)
         size = tuple(mesh.bounds[1][axis] - mesh.bounds[0][axis] for axis in range(3))
@@ -75,6 +78,10 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
             raise AssertionError(f"{plate['id']} 没有排版零件")
         for item in parts:
             filename = str(item["file"])
+            if item.get("material_group") != plate_group:
+                raise AssertionError(
+                    f"{plate['id']} 混入不同材料组: {filename} -> {item.get('material_group')}"
+                )
             if not item.get("name_zh"):
                 raise AssertionError(f"拼盘条目缺少中文名称: {filename}")
             _assert_source_file(path, item)
@@ -105,6 +112,8 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
     if placed_files | oversized_files != expected_files:
         raise AssertionError("不是所有源零件都得到 placed/oversized 结论")
     for item in oversized:
+        if not item.get("material_group"):
+            raise AssertionError(f"超尺寸条目缺少材料组: {item.get('file')}")
         if not item.get("name_zh"):
             raise AssertionError(f"超尺寸条目缺少中文名称: {item.get('file')}")
         _assert_source_file(path, item)
@@ -117,8 +126,11 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 2 or sum(p["part_count"] for p in data["plates"]) != 47:
+    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 47:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化")
+    groups = [plate.get("material_group") for plate in data["plates"]]
+    if groups != ["PETG", "PETG", "TPU/柔性"]:
+        raise AssertionError(f"默认拼盘材料组发生变化: {groups}")
     oversized = {item["file"] for item in data["oversized"]}
     if oversized != {f"net-rail-segment-{index}.stl" for index in range(3)}:
         raise AssertionError(f"默认超尺寸清单发生变化: {oversized}")

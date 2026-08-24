@@ -145,6 +145,7 @@ select.control-input { appearance: auto; }
 .tiny-button { display: inline-flex; align-items: center; justify-content: center; padding: 0 9px; color: var(--cyan); font-size: 10px; text-decoration: none; }
 .primary-button:hover, .secondary-button:hover, .tiny-button:hover { transform: translateY(-1px); border-color: var(--cyan); }
 .primary-button:hover { box-shadow: 0 8px 24px rgba(98, 228, 209, 0.2); }
+.control-help { margin-top: 9px; color: var(--faint); font-size: 10px; line-height: 1.5; }
 
 .check-row { gap: 8px; color: var(--muted); font-size: 11px; margin: 9px 0; }
 .check-row input { accent-color: var(--cyan); }
@@ -178,6 +179,10 @@ select.control-input { appearance: auto; }
 .plate-tab:hover { color: var(--text); border-color: var(--cyan); background: rgba(98, 228, 209, 0.1); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, .2); }
 .plate-tab[aria-selected="true"] { border-color: rgba(98, 228, 209, 0.6); color: var(--cyan); background: var(--cyan-soft); }
 .plate-tab strong { color: inherit; font-size: 13px; }
+.plate-tab-label { display: inline-flex; align-items: center; gap: 7px; }
+.plate-material { display: inline-flex; align-items: center; min-height: 20px; padding: 0 6px; border-radius: 99px; font-size: 9px; letter-spacing: .02em; }
+.material-petg { color: var(--blue); background: rgba(116, 167, 255, .12); }
+.material-tpu { color: #d99bff; background: rgba(217, 155, 255, .13); }
 
 .visual-grid { display: grid; grid-template-columns: minmax(0, 1.16fr) minmax(390px, 0.84fr); gap: 14px; }
 .visual-card { min-width: 0; overflow: hidden; }

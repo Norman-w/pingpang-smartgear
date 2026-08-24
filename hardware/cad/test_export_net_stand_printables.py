@@ -13,6 +13,7 @@ from export_net_stand_printables import (
     DEFAULT_OUTPUT,
     EXPORT_SPECS,
     SOURCE,
+    material_group_for,
 )
 
 
@@ -133,6 +134,11 @@ def validate_manifest(path: Path) -> None:
             raise AssertionError(f"manifest 缺少中文名称: {filename}")
         if entry.get("printable") is not True:
             raise AssertionError(f"打印清单条目必须标记 printable=true: {filename}")
+        expected_material_group = material_group_for(spec.material)
+        if entry.get("material_group") != expected_material_group:
+            raise AssertionError(
+                f"材料组不符合分盘策略: {filename} -> {entry.get('material_group')}"
+            )
         if entry.get("definitions") != list(spec.definitions):
             raise AssertionError(f"manifest definitions mismatch for {filename}")
         if entry.get("units") != "mm":

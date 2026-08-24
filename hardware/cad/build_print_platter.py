@@ -218,6 +218,18 @@ def part_sort_key(item: dict[str, object], mesh: BinaryStl):
     return (-max(size[0], size[1]), -(size[0] * size[1]), str(item["file"]))
 
 
+def material_group_for(item: dict[str, object]) -> str:
+    """Resolve the material group, with a safe fallback for older manifests."""
+    explicit = str(item.get("material_group") or "").strip()
+    if explicit:
+        return explicit
+    material = str(item.get("material") or "PETG")
+    normalized = material.upper()
+    if "TPU" in normalized or "硅胶" in material:
+        return "TPU/柔性"
+    return "PETG"
+
+
 def pack_parts(
     parts: list[dict[str, object]],
     meshes: dict[str, BinaryStl],
@@ -233,89 +245,107 @@ def pack_parts(
     if bed_width <= 2 * margin or bed_depth <= 2 * margin:
         raise ValueError("打印床尺寸必须大于两倍边缘安全余量")
 
-    ordered = sorted(parts, key=lambda item: part_sort_key(item, meshes[str(item["file"])]))
+    grouped_parts: dict[str, list[dict[str, object]]] = {}
+    for item in parts:
+        grouped_parts.setdefault(material_group_for(item), []).append(item)
+    material_groups = sorted(
+        grouped_parts,
+        key=lambda group: (group != "PETG", group),
+    )
     plates: list[list[Placement]] = []
     rows: list[list[dict[str, float]]] = []
     unplaced: list[dict[str, object]] = []
 
-    def start_plate() -> None:
+    def start_plate(material_group: str) -> None:
         plates.append([])
         rows.append([])
 
-    start_plate()
+    for current_material_group in material_groups:
+        ordered = sorted(
+            grouped_parts[current_material_group],
+            key=lambda item: part_sort_key(item, meshes[str(item["file"])]),
+        )
+        start_plate(current_material_group)
 
-    for item in ordered:
-        filename = str(item["file"])
-        mesh = meshes[filename]
-        candidates = fit_orientations(mesh, bed_width, bed_depth, bed_height, margin)
-        if not candidates:
-            oversized_entry = {
-                "file": filename,
-                "part": item.get("part"),
-                "side": item.get("side"),
-                "index": item.get("index"),
-                "status": "oversized",
-                "reason": "XY 或 Z 尺寸超过当前打印床（未缩放、未裁切）",
-                "source_bounds": [list(value) for value in mesh.bounds],
-                "source_size_mm": list(dimensions(mesh.bounds)),
-            }
-            for key in ("name_zh", "name_en", "component_kind", "printable", "material", "orientation", "notes"):
-                if key in item:
-                    oversized_entry[key] = item[key]
-            unplaced.append(oversized_entry)
-            continue
+        for item in ordered:
+            filename = str(item["file"])
+            mesh = meshes[filename]
+            candidates = fit_orientations(mesh, bed_width, bed_depth, bed_height, margin)
+            if not candidates:
+                oversized_entry = {
+                    "file": filename,
+                    "part": item.get("part"),
+                    "side": item.get("side"),
+                    "index": item.get("index"),
+                    "status": "oversized",
+                    "reason": "XY 或 Z 尺寸超过当前打印床（未缩放、未裁切）",
+                    "source_bounds": [list(value) for value in mesh.bounds],
+                    "source_size_mm": list(dimensions(mesh.bounds)),
+                    "material_group": current_material_group,
+                }
+                for key in ("name_zh", "name_en", "component_kind", "printable", "material", "orientation", "notes"):
+                    if key in item:
+                        oversized_entry[key] = item[key]
+                unplaced.append(oversized_entry)
+                continue
 
-        placed = False
-        while not placed:
-            current_rows = rows[-1]
-            # Keep a strict shelf frontier.  Back-filling an earlier row can
-            # make a later row overlap when the earlier row grows taller, so
-            # rows are never revisited after the frontier moves on.
-            best: tuple[float, int, tuple[tuple[float, float, float], tuple[float, float, float]], float, float] | None = None
-            row = current_rows[-1] if current_rows else None
-            if row is not None:
-                for angle, rotated in candidates:
-                    rotated_size = dimensions(rotated)
-                    x = row["x"]
-                    y = row["y"]
-                    if x + rotated_size[0] > bed_width - margin + 1e-6:
-                        continue
-                    if y + rotated_size[1] > bed_depth - margin + 1e-6:
-                        continue
-                    score = (max(row["height"], rotated_size[1]), angle, rotated_size[0], x, y)
-                    if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
-                        best = (score[0], angle, rotated, x, y)
+            placed = False
+            while not placed:
+                current_rows = rows[-1]
+                # Keep a strict shelf frontier.  Back-filling an earlier row can
+                # make a later row overlap when the earlier row grows taller, so
+                # rows are never revisited after the frontier moves on.
+                best: tuple[float, int, tuple[tuple[float, float, float], tuple[float, float, float]], float, float] | None = None
+                row = current_rows[-1] if current_rows else None
+                if row is not None:
+                    for angle, rotated in candidates:
+                        rotated_size = dimensions(rotated)
+                        x = row["x"]
+                        y = row["y"]
+                        if x + rotated_size[0] > bed_width - margin + 1e-6:
+                            continue
+                        if y + rotated_size[1] > bed_depth - margin + 1e-6:
+                            continue
+                        score = (max(row["height"], rotated_size[1]), angle, rotated_size[0], x, y)
+                        if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
+                            best = (score[0], angle, rotated, x, y)
 
-            if best is None:
-                row_y = margin if row is None else row["y"] + row["height"] + gap
-                for angle, rotated in candidates:
-                    rotated_size = dimensions(rotated)
-                    x = margin
-                    y = row_y
-                    if y + rotated_size[1] > bed_depth - margin + 1e-6:
+                if best is None:
+                    row_y = margin if row is None else row["y"] + row["height"] + gap
+                    for angle, rotated in candidates:
+                        rotated_size = dimensions(rotated)
+                        x = margin
+                        y = row_y
+                        if y + rotated_size[1] > bed_depth - margin + 1e-6:
+                            continue
+                        score = (rotated_size[1], angle, rotated_size[0], x, y)
+                        if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
+                            best = (score[0], angle, rotated, x, y)
+                    if best is not None:
+                        _, angle, rotated, x, y = best
+                        rotated_size = dimensions(rotated)
+                        current_rows.append({"x": x + rotated_size[0] + gap, "y": y, "height": rotated_size[1]})
+                    else:
+                        start_plate(current_material_group)
                         continue
-                    score = (rotated_size[1], angle, rotated_size[0], x, y)
-                    if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
-                        best = (score[0], angle, rotated, x, y)
-                if best is not None:
+                else:
                     _, angle, rotated, x, y = best
                     rotated_size = dimensions(rotated)
-                    current_rows.append({"x": x + rotated_size[0] + gap, "y": y, "height": rotated_size[1]})
-                else:
-                    start_plate()
-                    continue
-            else:
-                _, angle, rotated, x, y = best
-                rotated_size = dimensions(rotated)
-                row["x"] = x + rotated_size[0] + gap
-                row["height"] = max(row["height"], rotated_size[1])
+                    row["x"] = x + rotated_size[0] + gap
+                    row["height"] = max(row["height"], rotated_size[1])
 
-            # Keep the unshifted, rotated source bounds here.  The final bed
-            # bounds are derived from x/y; using final_bounds as the transform
-            # origin would leave the source CAD's absolute coordinates in the
-            # combined STL.
-            plates[-1].append(Placement(item, mesh, angle, x, y, rotated))
-            placed = True
+                # Keep the unshifted, rotated source bounds here.  The final bed
+                # bounds are derived from x/y; using final_bounds as the transform
+                # origin would leave the source CAD's absolute coordinates in the
+                # combined STL.
+                plates[-1].append(Placement(item, mesh, angle, x, y, rotated))
+                placed = True
+
+        # A material group containing only oversized parts should not leave an
+        # empty STL plate in the output package.
+        if plates and not plates[-1]:
+            plates.pop()
+            rows.pop()
 
     # Empty plates can only appear if every remaining part was oversized.
     if plates and not plates[-1]:
@@ -377,6 +407,7 @@ def build_manifest(
                 "component_kind": item.get("component_kind", "打印件"),
                 "printable": item.get("printable", True),
                 "material": item.get("material"),
+                "material_group": material_group_for(item),
                 "orientation": item.get("orientation"),
                 "notes": item.get("notes"),
                 "side": item.get("side"),
@@ -402,10 +433,11 @@ def build_manifest(
         )
         plate_entries.append({
             "id": plate_id,
-            "label": f"拼盘 {index:02d}",
+            "label": f"{material_group_for(plate[0].source)} 拼盘 {index:02d}",
+            "material_group": material_group_for(plate[0].source),
             "file": output_path.name,
             "path": output_path.name,
-            "description": "独立零件刚体排版；导入切片器后仍需确认支撑、壁数和首层。",
+            "description": f"{material_group_for(plate[0].source)} 独立零件刚体排版；不同材料不混盘，导入切片器后仍需确认支撑、壁数和首层。",
             "part_count": len(placement_entries),
             "parts": placement_entries,
             "sha256": sha256_file(output_path),
@@ -427,6 +459,12 @@ def build_manifest(
             {
                 "file": filename,
                 "part": item.get("part"),
+                "name_zh": item.get("name_zh"),
+                "name_en": item.get("name_en"),
+                "component_kind": item.get("component_kind", "打印件"),
+                "printable": item.get("printable", True),
+                "material": item.get("material"),
+                "material_group": material_group_for(item),
                 "status": "missing",
             },
         )))
@@ -453,6 +491,11 @@ def build_manifest(
             "scaling": False,
             "remeshing": False,
             "boolean_union": False,
+            "separate_material_groups": True,
+            "material_groups": sorted(
+                {material_group_for(item) for item in source_manifest.get("parts", [])},
+                key=lambda group: (group != "PETG", group),
+            ),
         },
         "plates": plate_entries,
         "oversized": oversized_entries,
@@ -461,6 +504,7 @@ def build_manifest(
             "拼盘 STL 由多个互相独立的封闭零件组成，不是装配件，也不改变源零件尺寸。",
             "超出当前打印床的零件不会被裁切或缩放；网顶长件需要换大床、进一步拆分或改用铝型材。",
             "STL 不保存切片参数；导入切片器时仍需确认 1:1 单位、支撑、壁数、填充和首层。",
+            "不同材料组严格分盘：TPU/柔性件不会与 PETG 零件进入同一张拼盘；混合材料标注的试样按柔性材料盘处理。",
         ],
     }
 

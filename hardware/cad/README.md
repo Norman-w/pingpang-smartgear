@@ -57,7 +57,7 @@ python3 test_export_net_stand_printables.py
 
 ## 打印拼盘与预览页
 
-拼盘脚本只对已经导出的独立 STL 做 0/90° 旋转和平移，不缩放、不裁切、不把零件布尔合并。默认按 `256 × 256 × 256 mm` 打印床、边缘余量 `5 mm`、零件间距 `5 mm` 生成合并拼盘 STL；当前首样结果是 2 张拼盘、47 件已排版，3 段约 `537 × 18 × 10 mm` 的网顶承载条明确列为超尺寸件。
+拼盘脚本只对已经导出的独立 STL 做 0/90° 旋转和平移，不缩放、不裁切、不把零件布尔合并。默认按 `256 × 256 × 256 mm` 打印床、边缘余量 `5 mm`、零件间距 `5 mm` 生成合并拼盘 STL；不同 `material_group` 严格分盘，当前首样结果为 3 张：PETG 2 张、TPU/柔性 1 张，共 47 件已排版，3 段约 `537 × 18 × 10 mm` 的网顶承载条明确列为超尺寸件。
 
 ```text
 python3 hardware/cad/export_net_stand_printables.py --clean
@@ -65,7 +65,7 @@ python3 hardware/cad/build_print_platter.py --clean
 python3 hardware/cad/test_build_print_platter.py --default
 ```
 
-生成物位于被 Git 忽略的 `hardware/cad/exports/net-stand-v0.1/`。其中 `print-platter-256/manifest.json` 记录打印床、板次、源 STL、实际包围盒和超尺寸原因；`plate-*.stl` 是可以导入切片器的拼盘文件。使用更大打印床时可以选择内置预设，或传入 `--bed-width`、`--bed-depth`、`--bed-height`。
+生成物位于被 Git 忽略的 `hardware/cad/exports/net-stand-v0.1/`。其中 `print-platter-256/manifest.json` 记录打印床、板次、材料组、源 STL、实际包围盒和超尺寸原因；`plate-*.stl` 是可以导入切片器的拼盘文件。使用更大打印床时可以选择内置预设，或传入 `--bed-width`、`--bed-depth`、`--bed-height`。材料不同不能共用一张板，即使某个零件标注为 `PETG/TPU 试样`，首样也按 TPU/柔性盘隔离。
 
 独立预览页是 `hardware/cad/preview/index.html`，它参考 SmartPaddle 的拼盘操作方式，提供打印床切换、间距/余量调节、自动重新排版、板次切换、零件筛选、俯视图点击选件、Three.js STL 预览、源 STL/拼盘 STL 下载和布局 JSON 下载。页面内的调参只是浏览器预览，只有再次运行 Python 拼盘脚本才会生成对应的合并 STL。
 

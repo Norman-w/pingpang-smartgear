@@ -45,6 +45,20 @@ PART_NAMES_ZH = {
 }
 
 
+def material_group_for(material: str) -> str:
+    """Return the print-bed material group for a printable part.
+
+    A part that may be printed in TPU (or replaced by silicone) is deliberately
+    kept out of the PETG platter.  This also treats ``PETG/TPU 试样`` as a
+    flexible-material sample so a mixed-material decision cannot accidentally
+    become a mixed platter.
+    """
+    normalized = str(material).upper()
+    if "TPU" in normalized or "硅胶" in str(material):
+        return "TPU/柔性"
+    return "PETG"
+
+
 def part_name_zh(part: str, side: str | None = None, index: int | None = None) -> str:
     base = PART_NAMES_ZH.get(part, part)
     if part == "net_rail_segment" and index is not None:
@@ -465,6 +479,7 @@ def _manifest_entry(output: Path, spec: ExportSpec) -> dict[str, object]:
         "index": spec.index,
         "units": "mm",
         "material": spec.material,
+        "material_group": material_group_for(spec.material),
         "orientation": spec.orientation,
         "notes": spec.notes,
         "bounds": {
@@ -531,6 +546,8 @@ def main() -> None:
         "units": "mm",
         "install_model": "整体替换式球网支架；两侧传统桌下 C 形夹，免打孔。",
         "print_process": "FDM 首样；材料、喷嘴、层高、支撑和壁厚仍需按实物/切片器复核。",
+        "material_groups": ["PETG", "TPU/柔性"],
+        "material_policy": "不同 material_group 不进入同一张打印拼盘；TPU/硅胶优先件单独排入柔性材料盘。",
         "preview_parts_excluded": [
             "assembly",
             "left_stand",

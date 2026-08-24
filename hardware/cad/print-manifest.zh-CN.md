@@ -14,8 +14,8 @@
 | `post_joint_sleeve` | 2 | PETG；左右各一件，跨接两段立柱接缝 |
 | `post_joint_key` | 2 | PETG；左右各一件，插入外套筒内部并定位接缝 |
 | `table_clamp` | 2 | 装配预览，不建议直接作为单件打印；包含固定夹体、台底压块、M8×1.25 螺杆和旋钮边界 |
-| `clamp_top_pad` | 2 | TPU/硅胶优先；左右各一件，位于固定上夹板与台面之间的可替换保护垫，不承担 C 形夹结构力路 |
-| `clamp_pressure_pad` | 2 | TPU/硅胶/耐磨软垫优先，也可先用 PETG 几何样件；左右各一件，独立位于台底 |
+| `clamp_top_pad` | 2 | TPU/硅胶优先，归入 `TPU/柔性` 打印盘；左右各一件，位于固定上夹板与台面之间的可替换保护垫，不承担 C 形夹结构力路 |
+| `clamp_pressure_pad` | 2 | TPU/硅胶/耐磨软垫优先，归入 `TPU/柔性` 打印盘；即使先打 PETG 几何样件，也不与 PETG 结构件共盘，左右各一件，独立位于台底 |
 | `clamp_screw` | 2 | 非打印件；M8×1.25 竖直金属螺杆/圆头顶端，完全在台面下方，圆头只接触台底可动压块，不穿球台或压块 |
 | `clamp_body_nut` | 2 | 非打印件；左右各 1 枚 M8 六角螺母，捕获在固定下臂的螺母座内，避免依赖 PETG 螺纹 |
 | `clamp_knob` | 2 | PETG 打印旋钮；左右各一件，含 M8 通孔和两枚对锁螺母捕获窝，旋钮随螺杆转动 |
@@ -29,7 +29,7 @@
 | `optical_module_carrier` | 20 | PETG；每侧 10 枚，按 `optical_module_index=0…9` 导出；U 形载台后壁带正交调节长孔，M3 紧固件为标准件 |
 | `sensor_mount` | 2 | 装配预览，不直接打印；包含座体、PVDF 薄膜和可拆压片的关系 |
 | `sensor_mount_body` | 2 | PETG；左右各一枚，只打印安装座本体，薄膜和压片另装 |
-| `sensor_clamp_lip` | 2 | PETG/TPU；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
+| `sensor_clamp_lip` | 2 | PETG/TPU 试样，首样归入 `TPU/柔性` 打印盘；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
 | `pvdf_film` | 2 | 非打印件；PVDF 薄膜包络，首样按实物裁切并保留可替换性 |
 | `reference_carriage` | 2 | 装配预览，不直接打印；包含端座和标准定位销关系 |
 | `reference_carriage_body` | 2 | PETG；左右各一枚，带打印间隙贯穿销孔，作为校准时的参考线端座，不永久挡住光栅 |
@@ -81,7 +81,7 @@ python3 export_net_stand_printables.py --clean
 python3 test_export_net_stand_printables.py
 ```
 
-默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧/档位、单位、包围盒和封闭拓扑摘要；`--clean` 只清理该目录中不属于当前 50 件清单的旧 STL，避免旧外挂/独立桌夹零件混入打印包；它只导出独立打印件，不把球台、网布、PVDF 薄膜、标准定位销或组合装配预览误当作 PETG 单件。
+默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧/档位、单位、材料组、包围盒和封闭拓扑摘要；`--clean` 只清理该目录中不属于当前 50 件清单的旧 STL，避免旧外挂/独立桌夹零件混入打印包；它只导出独立打印件，不把球台、网布、PVDF 薄膜、标准定位销或组合装配预览误当作 PETG 单件。
 
 打印后先做无网桌下夹持检查，再装网布、网顶 PVDF 和光学模块。M8 螺杆按 `M8×1.25` 标准件采购或确认，不能用 PETG 内螺纹替代。没有 M-01/M-02/M-03 的照片、量具读数和记录文件时，现场记录状态必须保持 `pending`。
 
