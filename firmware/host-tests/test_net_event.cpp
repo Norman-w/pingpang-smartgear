@@ -782,6 +782,64 @@ void test_sensor_pipeline_end_to_end() {
             "pipeline must retain completed waveform evidence");
 }
 
+void test_trigger_before_dma_dispatch_pipeline() {
+    constexpr std::uint64_t trigger_us = 10'000;
+    constexpr char waveform_reference[] = "wave-trigger-first";
+
+    smartgear::PiezoCapture piezo_capture(5'000, 20'000);
+    smartgear::PiezoWaveformCapture waveform_capture({1'000, 5, 5});
+    smartgear::NetEventAggregator aggregator;
+    aggregator.set_calibration("cal-trigger-first", true);
+    aggregator.set_beam_health(1U, true);
+    aggregator.set_piezo_baseline(true);
+
+    // This is the ordering used by the ESP32 task: consume the comparator
+    // edge first, then dispatch the ADC DMA batch containing late pre-trigger
+    // samples and the post-trigger window.
+    require(waveform_capture.start_capture(trigger_us, waveform_reference),
+            "trigger-first pipeline must start its waveform frame");
+    require(!piezo_capture.on_trigger(0, trigger_us, 0.0F, 0.0F,
+                                      waveform_reference),
+            "the first comparator edge must only create a pending candidate");
+    for (int sample = 0; sample < 5; ++sample) {
+        waveform_capture.feed_sample(
+            0, static_cast<std::int16_t>(70 + sample),
+            trigger_us - 5'000 + static_cast<std::uint64_t>(sample) * 1'000U);
+        waveform_capture.feed_sample(
+            1, static_cast<std::int16_t>(80 + sample),
+            trigger_us - 5'000 + static_cast<std::uint64_t>(sample) * 1'000U);
+    }
+    for (int sample = 0; sample < 5; ++sample) {
+        waveform_capture.feed_sample(
+            0, static_cast<std::int16_t>(90 + sample),
+            trigger_us + static_cast<std::uint64_t>(sample) * 1'000U);
+        waveform_capture.feed_sample(
+            1, static_cast<std::int16_t>(100 + sample),
+            trigger_us + static_cast<std::uint64_t>(sample) * 1'000U);
+    }
+
+    auto frame = waveform_capture.take_ready();
+    require(frame.has_value() && frame->complete &&
+                frame->pre_samples_available == std::array<std::size_t, 2>{5, 5},
+            "trigger-first DMA dispatch must produce a complete frame");
+    const auto features = smartgear::extract_piezo_features(*frame, 1'000);
+    require(features.complete,
+            "trigger-first DMA dispatch must retain complete waveform evidence");
+    piezo_capture.on_waveform_ready(frame->reference, features);
+    const auto touch_observation = piezo_capture.poll(trigger_us + 5'001);
+    require(touch_observation.has_value() && touch_observation->features_ready &&
+                touch_observation->waveform_ref == waveform_reference,
+            "completed DMA frame must close the comparator candidate");
+    aggregator.on_touch(*touch_observation);
+
+    aggregator.on_beam(beam(trigger_us + 2'000, trigger_us + 3'000, 1, 0, 0));
+    const auto event = pop_one(aggregator);
+    require(event.state == smartgear::NetState::kTouchOver &&
+                event.net_touch.waveform_ref == waveform_reference &&
+                event.net_touch.sensor_mask == 1,
+            "trigger-first pipeline must produce touch_over with waveform evidence");
+}
+
 void test_input_shape_and_deadline_safety() {
     smartgear::NetEventAggregator malformed_beam;
     malformed_beam.set_calibration("cal-shape", true);
@@ -1013,6 +1071,7 @@ int main() {
         test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
         test_sensor_pipeline_end_to_end();
+        test_trigger_before_dma_dispatch_pipeline();
         test_input_shape_and_deadline_safety();
         test_delivery_recovery_and_feedback();
         test_ring_buffer();
