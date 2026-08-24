@@ -144,6 +144,8 @@ assert(screw_span / 2 >= outer_radius() * sin(clamp_angle_deg) + roller_d / 2,
 assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&
            (reference_height - beam_first_height) % beam_pitch == 0,
        "reference line must land on a 10 mm optical detent");
+assert(locating_hole_d > 0 && locating_hole_d < guide_width,
+       "locating holes must pass through the optical guide");
 
 module beam_between_2d(p1, p2, width, height, z0 = 0) {
     translate([(point_x(p1) + point_x(p2)) / 2,
@@ -311,8 +313,21 @@ module square_extension_rod() {
 
 module optical_guide() {
     color("slateblue")
-        translate([guide_x(), -guide_width / 2, bridge_z + bridge_h / 2])
-            cube([guide_t, guide_width, rod_len]);
+        difference() {
+            translate([guide_x(), -guide_width / 2, bridge_z + bridge_h / 2])
+                cube([guide_t, guide_width, rod_len]);
+
+            // These are real through-holes for the spring detent, not
+            // positive cylinders that would accidentally print as posts.
+            for (i = [0 : beam_count - 1]) {
+                h = beam_first_height + i * beam_pitch;
+                translate([guide_x() + guide_t / 2, 0, beam_z(h)])
+                    rotate([90, 0, 0])
+                        cylinder(d = locating_hole_d,
+                                 h = guide_width + 4,
+                                 center = true);
+            }
+        }
 
     // 每个光束高度的横向参考标记与定位孔。
     for (i = [0 : beam_count - 1]) {
@@ -320,22 +335,21 @@ module optical_guide() {
         color("white")
             translate([guide_x() - 1, -guide_width / 2 - 4, beam_z(h)])
                 cube([guide_t + 2, guide_width + 8, 1.5], center = true);
-        color("dimgray")
-            translate([guide_x() + guide_t / 2, 0, beam_z(h)])
-                rotate([90, 0, 0])
-                    cylinder(d = locating_hole_d, h = guide_width + 4, center = true);
     }
 }
 
 module reference_line_carriage() {
     h = reference_height;
     color("limegreen")
-        translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
-            cube([12, guide_width + 6, 8], center = true);
-    color("dimgray")
-        translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
-            rotate([90, 0, 0])
-                cylinder(d = locating_hole_d, h = guide_width + 8, center = true);
+        difference() {
+            translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
+                cube([12, guide_width + 6, 8], center = true);
+            translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
+                rotate([90, 0, 0])
+                    cylinder(d = locating_hole_d,
+                             h = guide_width + 8,
+                             center = true);
+        }
 
     // 弹簧定位销占位：只允许插入 10 mm 光栅档位的孔。
     color("silver")
@@ -411,7 +425,7 @@ module net_post() {
             cylinder(d = post_nominal_d, h = bridge_z + bridge_h + 4);
 }
 
-module clamp_assembly() {
+module clamp_assembly(include_post = true) {
     // 两条相反斜率的臂在俯视形成 X，并在同一 Ø8 光轴上上下错层；
     // 端点由同一夹具角度生成，避免把两个打印臂建模成互相穿透的实体。
     arm_a_outer = outer_point(1);
@@ -419,7 +433,10 @@ module clamp_assembly() {
     arm_b_outer = outer_point(-1);
     arm_b_inner = inner_point(-1);
 
-    net_post();
+    // The nominal post is assembly-preview geometry only; it must not be
+    // included in a printable left/right clamp export.
+    if (include_post)
+        net_post();
     scissor_arm(arm_a_outer, arm_a_inner, arm_lower_z, "arm_a_lower");
     scissor_arm(arm_b_outer, arm_b_inner, arm_upper_z, "arm_b_upper");
 
@@ -440,11 +457,11 @@ module clamp_assembly() {
     reference_line_carriage();
 }
 
-module oriented_clamp(side = 1) {
+module oriented_clamp(side = 1, include_post = true) {
     if (side >= 0)
-        clamp_assembly();
+        clamp_assembly(include_post);
     else
-        mirror([1, 0, 0]) clamp_assembly();
+        mirror([1, 0, 0]) clamp_assembly(include_post);
 }
 
 function resolved_side(default_side) = SIDE == 0 ? default_side : SIDE;
@@ -453,8 +470,8 @@ module assembly_preview() {
     left_x = -assembly_span / 2;
     right_x = assembly_span / 2;
 
-    translate([left_x, 0, 0]) oriented_clamp(1);
-    translate([right_x, 0, 0]) oriented_clamp(-1);
+    translate([left_x, 0, 0]) oriented_clamp(1, true);
+    translate([right_x, 0, 0]) oriented_clamp(-1, true);
     reference_line_between(assembly_span);
 
     // 仅用于查看双侧关系的透明球网面，不是打印件。
@@ -466,9 +483,9 @@ module assembly_preview() {
 if (PART == "assembly") {
     assembly_preview();
 } else if (PART == "left_clamp") {
-    oriented_clamp(resolved_side(1));
+    oriented_clamp(resolved_side(1), false);
 } else if (PART == "right_clamp") {
-    oriented_clamp(resolved_side(-1));
+    oriented_clamp(resolved_side(-1), false);
 } else if (PART == "arm") {
     scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
 } else if (PART == "roller") {
