@@ -54,6 +54,9 @@ optical_lens_depth = 3;
 optical_rail_depth = 8;
 optical_rail_width = 24;
 optical_rail_margin = 8;
+optical_locating_hole_d = 4;
+scale_tick_width = 8;
+scale_tick_height = 1.5;
 sensor_count = 2;
 sensor_length = 46;
 sensor_depth = 10;
@@ -94,6 +97,10 @@ assert(beam_last_height == 100,
        "first optical window ends at +100 mm above the net top");
 assert(post_top > net_height + beam_last_height + optical_module_height / 2,
        "upright must clear the highest optical module");
+assert(optical_locating_hole_d > 0 && optical_locating_hole_d < optical_rail_width,
+       "10 mm optical locating holes must fit through the rail");
+assert(scale_tick_width > 0 && scale_tick_height > 0 && scale_tick_width < optical_rail_width,
+       "height scale ticks must fit on the optical rail");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
@@ -104,6 +111,7 @@ assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
        "first clamp uses an M8 vertical tightening screw");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
        "two PVDF mounts must fit on the net top without crossing the center");
+assert(sensor_front_offset > 0, "PVDF mount front offset must leave a printable connection bridge");
 assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&
            (reference_height - beam_first_height) % beam_pitch == 0,
        "reference line must land on a 10 mm optical detent");
@@ -192,12 +200,30 @@ module optical_module_positive(height) {
 }
 
 module optical_strip_positive() {
+    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
     color("goldenrod")
-        translate([post_center_x - post_body_width / 2 - optical_rail_depth,
-                   -optical_rail_width / 2,
-                   net_height - optical_rail_margin])
-            cube([optical_rail_depth, optical_rail_width,
-                  post_top - net_height + optical_rail_margin]);
+        difference() {
+            translate([rail_x, -optical_rail_width / 2,
+                       net_height - optical_rail_margin])
+                cube([optical_rail_depth, optical_rail_width,
+                      post_top - net_height + optical_rail_margin]);
+            // 每个 10 mm 档位都有实际贯穿孔；参考线/标定销可以使用这些孔。
+            for (i = [0:beam_count - 1]) {
+                translate([rail_x + optical_rail_depth / 2, 0,
+                           beam_z(beam_first_height + i * beam_pitch)])
+                    rotate([90, 0, 0])
+                        cylinder(d = optical_locating_hole_d,
+                                 h = optical_rail_width + 2,
+                                 center = true);
+            }
+        }
+
+    color("white")
+        for (i = [0:beam_count - 1]) {
+            translate([rail_x - 0.5, -scale_tick_width / 2,
+                       beam_z(beam_first_height + i * beam_pitch) - scale_tick_height / 2])
+                cube([1, scale_tick_width, scale_tick_height]);
+        }
 
     for (i = [0:beam_count - 1]) {
         optical_module_positive(beam_first_height + i * beam_pitch);
@@ -210,6 +236,12 @@ module sensor_mount_positive(x_position) {
                    -net_rail_depth / 2 - sensor_front_offset - sensor_depth,
                    net_height - 1])
             cube([sensor_length, sensor_depth, sensor_height]);
+    // 连接夹臂跨过前向间隙，把传感器座真正接到网顶承载条前侧。
+    color("mediumpurple")
+        translate([x_position - 8,
+                   -net_rail_depth / 2 - sensor_front_offset,
+                   net_height - 1])
+            cube([16, sensor_front_offset, sensor_height]);
     color("black")
         translate([x_position - sensor_length / 2 + 5,
                    -net_rail_depth / 2 - sensor_front_offset - sensor_depth - 2,
@@ -287,6 +319,8 @@ module stand(side = 1) {
 module parameter_probe() {
     echo(str("NETSTAND_PARAM table_width=", table_width));
     echo(str("NETSTAND_PARAM net_height=", net_height));
+    echo(str("NETSTAND_PARAM net_rail_height=", net_rail_height));
+    echo(str("NETSTAND_PARAM net_rail_depth=", net_rail_depth));
     echo(str("NETSTAND_PARAM beam_count=", beam_count));
     echo(str("NETSTAND_PARAM beam_first_height=", beam_first_height));
     echo(str("NETSTAND_PARAM beam_last_height=", beam_last_height));
@@ -296,6 +330,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM post_top=", post_top));
     echo(str("NETSTAND_PARAM sensor_x=", sensor_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
+    echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
+    echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
     cube([0.2, 0.2, 0.2]);
 }
 

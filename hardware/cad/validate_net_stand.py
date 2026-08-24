@@ -3,9 +3,7 @@
 
 from __future__ import annotations
 
-import os
 import re
-import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -60,6 +58,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     required = {
         "table_width",
         "net_height",
+        "net_rail_height",
+        "net_rail_depth",
         "beam_count",
         "beam_first_height",
         "beam_last_height",
@@ -69,6 +69,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "post_top",
         "sensor_x",
         "clamp_screw_x",
+        "optical_locating_hole_d",
+        "optical_rail_width",
     }
     missing = required - parameters.keys()
     if missing:
@@ -81,6 +83,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         raise RuntimeError(f"clamp screw is not outside tabletop edge: {parameters}")
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
+    if not (0 < parameters["optical_locating_hole_d"] < parameters["optical_rail_width"]):
+        raise RuntimeError(f"invalid optical locating hole diameter: {parameters}")
     return parameters
 
 
@@ -98,38 +102,56 @@ def main() -> None:
                 f"PART={part}",
             )
 
-        mirrored = output_dir / "optical-strip-mirror.stl"
-        require_stl(
-            run_openscad(
-                openscad,
+        mirrored_paths: dict[str, Path] = {}
+        for part in ("post", "table_clamp", "optical_strip", "sensor_mount"):
+            mirrored = output_dir / f"{part}-mirror.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    mirrored,
+                    f'PART="{part}"',
+                    "SIDE=-1",
+                ),
                 mirrored,
-                'PART="optical_strip"',
-                "SIDE=-1",
-            ),
-            mirrored,
-            "PART=optical_strip SIDE=-1",
-        )
+                f"PART={part} SIDE=-1",
+            )
+            mirrored_paths[part] = mirrored
 
         left_center = stl_x_center(output_dir / "left_stand.stl")
         right_center = stl_x_center(output_dir / "right_stand.stl")
-        optical_center = stl_x_center(output_dir / "optical_strip.stl")
-        optical_mirror_center = stl_x_center(mirrored)
         if not (left_center < 0 < right_center):
             raise RuntimeError(
                 f"integrated stand sides are not separated: left={left_center}, right={right_center}"
             )
-        if not (optical_center > 0 and optical_mirror_center < 0):
-            raise RuntimeError(
-                "optical strip SIDE=-1 did not produce the opposite side geometry"
-            )
+        for part, mirrored in mirrored_paths.items():
+            default_center = stl_x_center(output_dir / f"{part}.stl")
+            mirror_center = stl_x_center(mirrored)
+            if not (default_center > 0 and mirror_center < 0):
+                raise RuntimeError(f"{part} SIDE=-1 did not produce opposite geometry")
 
         net_bounds = stl_bounds(output_dir / "net.stl")
         rail_bounds = stl_bounds(output_dir / "net_rail.stl")
+        clamp_bounds = stl_bounds(output_dir / "table_clamp.stl")
+        sensor_bounds = stl_bounds(output_dir / "sensor_mount.stl")
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
             raise RuntimeError(f"net rail is not centered across the table: {rail_bounds}")
+        if abs(net_bounds[5] - (parameters["net_height"] - parameters["net_rail_height"])) > 0.01:
+            raise RuntimeError(f"net panel top does not meet the net rail datum: {net_bounds}")
+        if abs(rail_bounds[5] - parameters["net_height"]) > 0.01:
+            raise RuntimeError(f"net rail top does not match net height: {rail_bounds}")
+        if not (
+            clamp_bounds[0] < parameters["table_width"] / 2 < clamp_bounds[1]
+            and clamp_bounds[1] > parameters["clamp_screw_x"]
+        ):
+            raise RuntimeError(f"clamp does not bridge the table edge and outer screw: {clamp_bounds}")
+        if not (
+            sensor_bounds[2] < -parameters["net_rail_depth"] / 2
+            and abs(sensor_bounds[3] + parameters["net_rail_depth"] / 2) < 0.01
+        ):
+            raise RuntimeError(f"PVDF mount does not reach the net rail front face: {sensor_bounds}")
         if assembly_bounds[2] >= 0 or assembly_bounds[3] <= 0:
             raise RuntimeError(f"assembly does not include the table-depth axis: {assembly_bounds}")
         if assembly_bounds[5] <= parameters["net_height"] + parameters["beam_last_height"]:
@@ -152,6 +174,19 @@ def main() -> None:
         )
         if invalid_reference.returncode == 0:
             raise RuntimeError("OpenSCAD accepted a reference line outside the 10 mm grid")
+
+        for height in range(10, 101, 10):
+            detent = output_dir / f"reference-{height}.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    detent,
+                    'PART="assembly"',
+                    f"reference_height={height}",
+                ),
+                detent,
+                f"reference_height={height}",
+            )
 
     print(
         "NET_STAND_OK "
