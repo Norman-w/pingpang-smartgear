@@ -47,10 +47,11 @@ openscad -D 'PART="reference_carriage_body"' -D 'SIDE=1' -o right-reference-carr
 首样批量导出使用同一参数源：
 
 ```text
-python3 export_net_stand_printables.py
+python3 export_net_stand_printables.py --clean
+python3 test_export_net_stand_printables.py
 ```
 
-脚本把独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、档位、包围盒和封闭拓扑摘要）。`test_export_net_stand_printables.py` 会固定 50 件导出矩阵，并在本地产物存在时核对 manifest 与每个 STL；`assembly`、左右支架、`table_clamp`、`sensor_mount`、`reference_carriage` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
+脚本把独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、档位、包围盒和封闭拓扑摘要）。输出目录若有旧版 STL，必须显式加 `--clean` 才会清理，避免历史外挂夹或独立桌夹混入当前首样；`test_export_net_stand_printables.py` 会固定 50 件导出矩阵，并拒绝清单之外的 STL。`assembly`、左右支架、`table_clamp`、`sensor_mount`、`reference_carriage` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
 
 `preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
 

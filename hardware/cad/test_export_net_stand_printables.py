@@ -139,6 +139,15 @@ def validate_manifest(path: Path) -> None:
         if not (path.parent / filename).is_file():
             raise AssertionError(f"manifest STL missing for {filename}")
 
+    actual_stl = {item.name for item in path.parent.glob("*.stl")}
+    expected_stl = set(expected_by_file)
+    extra_stl = sorted(actual_stl - expected_stl)
+    if extra_stl:
+        raise AssertionError(
+            "print directory contains STL files outside manifest: "
+            + ", ".join(extra_stl)
+        )
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)

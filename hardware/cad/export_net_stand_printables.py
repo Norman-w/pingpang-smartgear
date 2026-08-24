@@ -2,8 +2,9 @@
 """Export the independent first-print parts from the current net-stand source.
 
 The generated STL files and manifest are local artifacts under
-``hardware/cad/exports/``.  This script intentionally does not delete old
-files: rerunning it overwrites only the explicitly generated filenames.
+``hardware/cad/exports/``.  A dedicated export directory must not silently
+contain parts from an older design: stale STL files cause the exporter to
+fail unless the caller explicitly supplies ``--clean``.
 """
 
 from __future__ import annotations
@@ -338,6 +339,14 @@ def _manifest_entry(output: Path, spec: ExportSpec) -> dict[str, object]:
     }
 
 
+def _stale_stl_files(output_dir: Path) -> list[Path]:
+    expected = {spec.filename for spec in EXPORT_SPECS}
+    return sorted(
+        (path for path in output_dir.glob("*.stl") if path.name not in expected),
+        key=lambda path: path.name,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -346,9 +355,25 @@ def main() -> None:
         default=DEFAULT_OUTPUT,
         help="生成 STL 和 manifest.json 的目录（默认位于 Git 忽略的 exports/ 下）",
     )
+    parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="仅清理输出目录中不属于当前 50 件清单的旧 STL；不会删除其它文件",
+    )
     args = parser.parse_args()
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    stale_files = _stale_stl_files(output_dir)
+    if stale_files and not args.clean:
+        names = ", ".join(path.name for path in stale_files)
+        raise RuntimeError(
+            "输出目录包含不属于当前打印清单的旧 STL："
+            f" {names}；如确认这些是旧生成物，请重新运行并加 --clean"
+        )
+    for stale_file in stale_files:
+        stale_file.unlink()
+        print(f"CLEANED_STALE_STL {stale_file.name}")
 
     openscad = find_openscad()
     entries: list[dict[str, object]] = []

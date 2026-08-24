@@ -80,6 +80,7 @@ jobs:
       - name: Export and validate printable net-stand package
         run: |
           python hardware/cad/export_net_stand_printables.py \
+            --clean \
             --output-dir "$RUNNER_TEMP/pingpang-smartgear-net-stand-export"
           python hardware/cad/test_export_net_stand_printables.py \
             --manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-export/manifest.json"

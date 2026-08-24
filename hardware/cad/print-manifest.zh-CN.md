@@ -77,10 +77,11 @@ openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 批量导出首样打印包：
 
 ```text
-python3 export_net_stand_printables.py
+python3 export_net_stand_printables.py --clean
+python3 test_export_net_stand_printables.py
 ```
 
-默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧/档位、单位、包围盒和封闭拓扑摘要；它只导出独立打印件，不把球台、网布、PVDF 薄膜、标准定位销或组合装配预览误当作 PETG 单件。
+默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧/档位、单位、包围盒和封闭拓扑摘要；`--clean` 只清理该目录中不属于当前 50 件清单的旧 STL，避免旧外挂/独立桌夹零件混入打印包；它只导出独立打印件，不把球台、网布、PVDF 薄膜、标准定位销或组合装配预览误当作 PETG 单件。
 
 打印后先做无网桌下夹持检查，再装网布、网顶 PVDF 和光学模块。M8 螺杆按 `M8×1.25` 标准件采购或确认，不能用 PETG 内螺纹替代。没有 M-01/M-02/M-03 的照片、量具读数和记录文件时，现场记录状态必须保持 `pending`。
 
