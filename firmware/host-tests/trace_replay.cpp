@@ -60,6 +60,25 @@ class TraceReplay {
         waveform_capture_.feed_sample(1, 201, 1'000);
     }
 
+    void seed_waveform_prehistory(const std::uint64_t trigger_us) {
+        constexpr std::uint64_t kFirstSampleOffsetUs = 2'000U;
+        constexpr std::uint64_t kSecondSampleOffsetUs = 1'000U;
+        if (trigger_us < kFirstSampleOffsetUs) {
+            // There is no representable two-sample prehistory before this
+            // trace timestamp. Leave the rolling history untouched so the
+            // resulting frame remains explicitly incomplete.
+            return;
+        }
+        waveform_capture_.feed_sample(0, 100,
+                                       trigger_us - kFirstSampleOffsetUs);
+        waveform_capture_.feed_sample(1, 200,
+                                       trigger_us - kFirstSampleOffsetUs);
+        waveform_capture_.feed_sample(0, 101,
+                                       trigger_us - kSecondSampleOffsetUs);
+        waveform_capture_.feed_sample(1, 201,
+                                       trigger_us - kSecondSampleOffsetUs);
+    }
+
     void apply(const TraceRow& row) {
         require(row.timestamp_us >= last_timestamp_us_,
                 "trace timestamps must be monotonic");
@@ -80,14 +99,7 @@ class TraceReplay {
                 // edge instead of reusing history from an earlier, unrelated
                 // event. This keeps the replay's pre-trigger evidence inside
                 // the waveform capture time window.
-                waveform_capture_.feed_sample(
-                    0, 100, row.timestamp_us - 2'000U);
-                waveform_capture_.feed_sample(
-                    1, 200, row.timestamp_us - 2'000U);
-                waveform_capture_.feed_sample(
-                    0, 101, row.timestamp_us - 1'000U);
-                waveform_capture_.feed_sample(
-                    1, 201, row.timestamp_us - 1'000U);
+                seed_waveform_prehistory(row.timestamp_us);
             }
             const bool waveform_started =
                 should_start_waveform &&
