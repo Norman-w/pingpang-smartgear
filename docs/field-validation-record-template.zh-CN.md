@@ -19,6 +19,12 @@
 
 建议文件名统一为：`<记录编号>-<测试编号>-<序号>.<ext>`，例如 `run-01-B06-03.json`、`run-01-S01-left-raw.csv`、`run-01-M03.jpg`。
 
+也可以使用 [`field-validation-record.example.json`](field-validation-record.example.json)
+作为机器可校验的记录起点。运行
+`python tools/validate_field_record.py <记录文件>.json` 会要求全部 M/B/S/T/E
+编号都存在；`pass`/`fail` 必须绑定 `evidence_root` 下真实存在的证据文件，只有
+`pending` 才允许暂时没有证据。模板记录默认全部为 `pending`，不代表实机通过。
+
 ## 1. 机械与标定记录
 
 ### M-01 重复安装

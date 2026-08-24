@@ -16,6 +16,7 @@
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
 | 契约与回归 | JSON Schema 正例/反例、CMake/CTest、ASan/UBSan 主机测试和可视预览均通过。 Schema 还限制 UUID-like `event_id`、10 mm 离散高度档位、每个 1…1023 光栅位图与最低/最高命中档位及球底间隔的对应关系、`touch_no_cross` 无光栅命中及擦网状态与传感器位图一致；主机测试遍历全部 1…1023 光栅位图。 |
 | 实体几何可视证据 | `hardware/cad/render_openscad_preview.py` 从同一份 SCAD 直接渲染双侧装配、左侧夹具和光学模块包络；左侧夹具单件为 manifold/no-error，双侧装配和光学模块均渲染成功，CI 将三张 PNG 作为独立 artifact 保存。 |
+| 现场证据门 | `docs/field-validation-record-v0.1.schema.json` 与 `tools/validate_field_record.py` 要求全部 M/B/S/T/E 编号存在；只有 `pending` 可以没有证据，`pass/fail` 必须引用 `evidence_root` 下真实文件；模板当前 19 项全部保持 `pending`，不冒充实机通过。 |
 | 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/短波形采集/事件归并并输出 3 个 Schema 合法事件，`touch_over` 保留波形引用和持续时间；主机单元测试另覆盖“比较器先到、DMA 迟到预触发/后触发、完整帧回填后归并为 `touch_over`”的整条顺序路径；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
 | 接板操作边界 | `hardware/electronics/bring-up-v0.1.zh-CN.md` 固化上电、逐光栅、ADC、PVDF 基线和健康快照放行顺序；光栅发射、接收、清空基线、遮挡响应四个字段均会参与通道放行；该文档是现场执行清单，不被主机测试替代。 |
 | 自动化入口 | `.github/workflows/validation.yml` 已配置主机/CTest/ASan/UBSan/Schema/预览、OpenSCAD 和 ESP32-S3/ESP-IDF 5.5.1 三个 job；最近一次推送的 GitHub Actions 结果以当前 commit 为准。 |

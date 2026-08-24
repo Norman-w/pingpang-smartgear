@@ -1,0 +1,32 @@
+{
+  "record_id": "run-template-01",
+  "created_at": "pending",
+  "firmware_commit": "pending",
+  "cad_commit": "pending",
+  "board_version": "pending",
+  "net_model": "pending",
+  "calibration_id": "pending",
+  "evidence_root": "evidence/run-template-01",
+  "notes": "模板记录：没有实物证据的项目保持 pending。",
+  "results": {
+    "M-01": {"status": "pending", "evidence": []},
+    "M-02": {"status": "pending", "evidence": []},
+    "M-03": {"status": "pending", "evidence": []},
+    "B-01": {"status": "pending", "evidence": []},
+    "B-02": {"status": "pending", "evidence": []},
+    "B-03": {"status": "pending", "evidence": []},
+    "B-04": {"status": "pending", "evidence": []},
+    "B-05": {"status": "pending", "evidence": []},
+    "B-06": {"status": "pending", "evidence": []},
+    "B-07": {"status": "pending", "evidence": []},
+    "B-08": {"status": "pending", "evidence": []},
+    "B-09": {"status": "pending", "evidence": []},
+    "S-01": {"status": "pending", "evidence": []},
+    "S-02": {"status": "pending", "evidence": []},
+    "S-03": {"status": "pending", "evidence": []},
+    "T-01": {"status": "pending", "evidence": []},
+    "T-02": {"status": "pending", "evidence": []},
+    "T-03": {"status": "pending", "evidence": []},
+    "E-01": {"status": "pending", "evidence": []}
+  }
+}
