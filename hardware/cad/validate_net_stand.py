@@ -153,6 +153,33 @@ def _stl_topology(path: Path, tolerance: float = 1e-6) -> tuple[bool, str]:
     return ok, details
 
 
+def _stl_mirror_signature(
+    path: Path, *, reflect_x: bool, tolerance: float = 1e-5
+) -> set[tuple[int, int, int]]:
+    """Return an orientation-independent unique-vertex signature for mirrors."""
+
+    signature: set[tuple[int, int, int]] = set()
+
+    def vertex_key(point: tuple[float, float, float]) -> tuple[int, int, int]:
+        x, y, z = point
+        if reflect_x:
+            x = -x
+        return (
+            int(round(x / tolerance)),
+            int(round(y / tolerance)),
+            int(round(z / tolerance)),
+        )
+
+    for triangle in _stl_triangles(path):
+        # STL export order and winding are not semantic. Compare the complete
+        # unique vertex set and triangle count instead of triangle grouping:
+        # OpenSCAD is allowed to choose the other diagonal when triangulating
+        # a mirrored planar quad, while the generated solid remains identical.
+        for point in triangle:
+            signature.add(vertex_key(point))
+    return signature
+
+
 def require_stl(
     result: subprocess.CompletedProcess[str],
     output: Path,
@@ -459,6 +486,18 @@ def main() -> None:
             mirror_center = stl_x_center(mirrored)
             if not (default_center > 0 and mirror_center < 0):
                 raise RuntimeError(f"{part} SIDE=-1 did not produce opposite geometry")
+            default_signature = _stl_mirror_signature(
+                output_dir / f"{part}.stl", reflect_x=False
+            )
+            mirror_signature = _stl_mirror_signature(mirrored, reflect_x=True)
+            if (
+                default_signature != mirror_signature
+                or len(_stl_triangles(output_dir / f"{part}.stl"))
+                != len(_stl_triangles(mirrored))
+            ):
+                raise RuntimeError(
+                    f"{part} SIDE=-1 is not a vertex-set X mirror"
+                )
 
         net_bounds = stl_bounds(output_dir / "net.stl")
         rail_bounds = stl_bounds(output_dir / "net_rail.stl")
