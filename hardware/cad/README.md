@@ -14,11 +14,11 @@
 - `post`：单侧立柱主体装配预览；`post_segment`：两段约 153 mm 的可打印立柱，`post_segment_index=1` 是首样上段；`lower_stand_segment`：把 `post_segment_index=0` 下段与固定 C 形夹一体打印，避免首样装配时两个实体相互干涉；`post_joint_sleeve` / `post_joint_key`：接缝外套筒与内芯；`table_clamp`：单侧桌下夹持装配预览；`table_clamp_body`：固定 C 形夹体和下臂 M8 螺母捕获窝的几何检查件；`clamp_top_pad`：固定上夹板与桌面之间的可替换 TPU/硅胶保护垫；`clamp_pressure_pad`：台底可动压块/软垫占位；`clamp_screw`：带圆头的 M8×1.25 标准螺杆占位；`clamp_body_nut`：固定下臂中的标准 M8 螺母；`clamp_knob`：带 M8 通孔和顶部六角螺母捕获窝的手拧旋钮；`clamp_knob_nut`：旋钮内捕获的标准 M8 螺母；
 - `net`：网布装配占位，不是 PETG 打印件；`net_rail`：三段带搭接和拼接片的网顶承载条装配预览；`net_rail_segment`：约 536 mm 的可打印单段；`net_rail_splice`：带 M3 孔的拼接片；`net_rail_saddle`：两侧立柱内侧的承托/端部限位座；
 - `optical_rail`：单侧可打印连续光学导轨、10 个贯穿定位孔和刻度；`optical_strip`：导轨、10 个模块包络和 10 个中性载台的装配预览，不作为单件打印；`optical_module_carrier`：单个模块的可打印 U 形载台，带正交调节长孔，`optical_module_index=0…9` 选择 10 mm 档位；
-- `sensor_mount`：单侧网顶 PVDF 夹片装配预览；`sensor_mount_body`：不含薄膜和压片包络的可打印 PETG 座体；`pvdf_film` / `sensor_clamp_lip`：可拆薄膜和两侧压片包络；`reference_carriage`：参考线端座与定位销装配预览；`reference_carriage_body`：不含定位销的可打印 PETG 端座；`reference_pin`：锁定到 10 mm 孔位的标准弹簧定位销；
+- `sensor_mount`：单侧网顶 PVDF 夹片装配预览；`sensor_mount_body`：不含薄膜和压片包络的可打印 PETG 座体；`pvdf_film` / `sensor_clamp_lip`：可拆薄膜和两侧压片包络；`reference_carriage`：参考线端座与定位销装配预览；`reference_carriage_body`：带打印间隙贯穿销孔、但不含定位销的可打印 PETG 端座；`reference_pin`：沿 y 方向贯穿端座和光学导轨、锁定到 10 mm 孔位的标准弹簧定位销；
 - `calibration_gauge`：+10…+100 mm 高度档位标定规；
 - `parameter_probe`：验证脚本读取的参数清单，不是打印件。
 
-首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、光栅窗口 `+10…+100 mm`、10 mm 档位、两侧 `M8×1.25` 竖直夹紧螺杆。立柱外置 `37 mm`，让光学导轨位于台边与立柱内缘之间的开放空间，镜头光轴覆盖球台边缘；当前光学导轨已经包含每 `10 mm` 一个实际贯穿定位孔和可视刻度标记，参考线端座用 `reference_pin` 锁到这些孔位；每个光学模块由中性 U 形载台包住，后壁提供有限俯仰/偏航调节长孔，最终锁紧角度仍需真实收发器和光路实测；网顶承载条拆成 3 段、每段约 `536 mm`、搭接 `20 mm`，便于常见打印幅面或改用铝型材。夹紧受力路径明确为固定下臂 M8 螺母、圆头 M8×1.25 螺杆、顶部捕获 M8 螺母的打印旋钮和独立台底压块；不使用 PETG 内螺纹。球网、光学器件、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性或光学精度验收。
+首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、光栅窗口 `+10…+100 mm`、10 mm 档位、两侧 `M8×1.25` 竖直夹紧螺杆。立柱外置 `37 mm`，让光学导轨位于台边与立柱内缘之间的开放空间，镜头光轴覆盖球台边缘；当前光学导轨已经包含每 `10 mm` 一个实际贯穿定位孔和可视刻度标记，参考线端座本体有 `reference_pin_bore_d` 打印间隙孔，定位销沿 y 方向同时穿过端座和导轨，只能锁到这些孔位；每个光学模块由中性 U 形载台包住，后壁提供有限俯仰/偏航调节长孔，最终锁紧角度仍需真实收发器和光路实测；网顶承载条拆成 3 段、每段约 `536 mm`、搭接 `20 mm`，便于常见打印幅面或改用铝型材。夹紧受力路径明确为固定下臂 M8 螺母、圆头 M8×1.25 螺杆、顶部捕获 M8 螺母的打印旋钮和独立台底压块；不使用 PETG 内螺纹。球网、光学器件、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性或光学精度验收。
 
 导出示例：
 

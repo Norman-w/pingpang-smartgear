@@ -32,8 +32,8 @@
 | `sensor_clamp_lip` | 2 | PETG/TPU；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
 | `pvdf_film` | 2 | 非打印件；PVDF 薄膜包络，首样按实物裁切并保留可替换性 |
 | `reference_carriage` | 2 | 装配预览，不直接打印；包含端座和标准定位销关系 |
-| `reference_carriage_body` | 2 | PETG；左右各一枚，作为校准时的参考线端座，不永久挡住光栅 |
-| `reference_pin` | 2 | 非打印件；约 Ø3 mm 弹簧定位销，插入导轨 Ø4 mm 孔 |
+| `reference_carriage_body` | 2 | PETG；左右各一枚，带打印间隙贯穿销孔，作为校准时的参考线端座，不永久挡住光栅 |
+| `reference_pin` | 2 | 非打印件；约 Ø3 mm 弹簧定位销，沿 y 方向贯穿端座并插入导轨 Ø4 mm 孔 |
 | `calibration_gauge` | 1 | PETG；共享的 +10…+100 mm 十档高度标定规 |
 | `net` | 1 | 非打印件；使用真实球网/网布装配，OpenSCAD 只显示占位几何 |
 

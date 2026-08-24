@@ -105,9 +105,11 @@ sensor_clamp_tab_height = 4;
 reference_height = 50;
 reference_line_d = 1.5;
 reference_pin_d = 3;
+reference_pin_bore_d = reference_pin_d + 0.4;
 reference_carriage_width = 20;
 reference_carriage_depth = 8;
 reference_carriage_height = 10;
+reference_pin_length = optical_rail_width + reference_carriage_depth + 4;
 rail_segment_index = 0;
 
 // 传统桌下夹持结构
@@ -318,6 +320,10 @@ assert(reference_height >= beam_first_height && reference_height <= beam_last_he
 assert(reference_line_d > 0, "reference line diameter must be positive");
 assert(reference_pin_d > 0 && reference_pin_d < optical_locating_hole_d,
        "reference pin must fit the 10 mm locating holes");
+assert(reference_pin_bore_d > reference_pin_d &&
+           reference_pin_bore_d < optical_locating_hole_d &&
+           reference_pin_length > optical_rail_width + reference_carriage_depth,
+       "reference carriage pin bore must leave print clearance and span the rail");
 assert(reference_carriage_width > 0 && reference_carriage_depth > 0 &&
            reference_carriage_height > 0,
        "reference carriage dimensions must be positive");
@@ -805,11 +811,11 @@ module reference_line() {
 
 module reference_pin_positive() {
     color("black")
-        translate([optical_rail_x + optical_rail_depth / 2, 0,
+        translate([optical_rail_x + optical_rail_depth / 2,
+                   -reference_carriage_depth / 2,
                    beam_z(reference_height)])
             rotate([90, 0, 0])
-                cylinder(d = reference_pin_d,
-                         h = optical_rail_width + reference_carriage_depth + 4,
+                cylinder(d = reference_pin_d, h = reference_pin_length,
                          center = true);
 }
 
@@ -817,18 +823,30 @@ module reference_carriage_body_positive() {
     carriage_center_x = optical_rail_x + optical_rail_depth / 2;
     carriage_z = beam_z(reference_height) - reference_carriage_height / 2;
     color("seagreen") {
-        // 端座位于导轨前侧，定位销穿过对应 10 mm 孔；它是校准附件，
-        // 不作为光学模块的永久遮挡件。
-        translate([carriage_center_x - reference_carriage_width / 2,
-                   -optical_rail_width / 2 - reference_carriage_depth,
-                   carriage_z])
-            cube([reference_carriage_width, reference_carriage_depth,
-                  reference_carriage_height]);
-        // 小桥把线端带到网面前侧的参考线位置。
-        translate([carriage_center_x - 4,
-                   -optical_rail_width / 2 - reference_carriage_depth,
-                   beam_z(reference_height) - 1.5])
-            cube([8, optical_rail_width / 2 + reference_carriage_depth - 1.1, 3]);
+        difference() {
+            union() {
+                // 端座位于导轨前侧；可拆销从端座前表面穿过端座和导轨，
+                // 只能落在光学导轨的 10 mm 贯穿孔档位。
+                translate([carriage_center_x - reference_carriage_width / 2,
+                           -optical_rail_width / 2 - reference_carriage_depth,
+                           carriage_z])
+                    cube([reference_carriage_width, reference_carriage_depth,
+                          reference_carriage_height]);
+                // 小桥把线端带到网面前侧的参考线位置，并与销孔保持一体。
+                translate([carriage_center_x - 4,
+                           -optical_rail_width / 2 - reference_carriage_depth,
+                           beam_z(reference_height) - 1.5])
+                    cube([8, optical_rail_width / 2 + reference_carriage_depth - 1.1, 3]);
+            }
+            // 打印间隙孔沿 y 方向贯穿端座/桥件；光学导轨本体的孔由
+            // optical_rail_positive() 提供，装配后两孔共轴。
+            translate([carriage_center_x, -reference_carriage_depth / 2,
+                       beam_z(reference_height)])
+                rotate([90, 0, 0])
+                    cylinder(d = reference_pin_bore_d,
+                             h = reference_pin_length + 2,
+                             center = true);
+        }
     }
 }
 
@@ -964,6 +982,9 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM optical_carrier_slot_length=", optical_carrier_slot_length));
     echo(str("NETSTAND_PARAM optical_module_index=", optical_module_index));
     echo(str("NETSTAND_PARAM reference_pin_d=", reference_pin_d));
+    echo(str("NETSTAND_PARAM reference_pin_bore_d=", reference_pin_bore_d));
+    echo(str("NETSTAND_PARAM reference_pin_length=", reference_pin_length));
+    echo(str("NETSTAND_PARAM reference_carriage_depth=", reference_carriage_depth));
     cube([0.2, 0.2, 0.2]);
 }
 

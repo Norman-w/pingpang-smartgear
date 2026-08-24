@@ -363,6 +363,9 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "optical_carrier_slot_length",
         "optical_module_index",
         "reference_pin_d",
+        "reference_pin_bore_d",
+        "reference_pin_length",
+        "reference_carriage_depth",
         "clamp_pad_depth",
     }
     missing = required - parameters.keys()
@@ -450,8 +453,16 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         raise RuntimeError(f"optical module carrier does not leave an adjustment envelope: {parameters}")
     if parameters["optical_module_index"] != 0:
         raise RuntimeError(f"parameter probe must use the default optical module index: {parameters}")
-    if not (0 < parameters["reference_pin_d"] < parameters["optical_locating_hole_d"]):
-        raise RuntimeError(f"reference pin cannot fit the locating hole: {parameters}")
+    if not (
+        0 < parameters["reference_pin_d"]
+        < parameters["reference_pin_bore_d"]
+        < parameters["optical_locating_hole_d"]
+        and parameters["reference_pin_length"]
+        > parameters["optical_rail_width"] + parameters["reference_carriage_depth"]
+    ):
+        raise RuntimeError(
+            f"reference pin/bore cannot span the locating hole with print clearance: {parameters}"
+        )
     if not (
         parameters["sensor_film_length"] > parameters["sensor_clamp_tab_width"] > 0
         and parameters["sensor_film_depth"] > 0
@@ -555,7 +566,10 @@ def main() -> None:
         sensor_bounds = stl_bounds(output_dir / "sensor_mount.stl")
         film_bounds = stl_bounds(output_dir / "pvdf_film.stl")
         film_lip_bounds = stl_bounds(output_dir / "sensor_clamp_lip.stl")
-        reference_bounds = stl_bounds(output_dir / "reference_carriage.stl")
+        # Use the body-only envelope for pin span checks; the combined preview
+        # intentionally contains the pin itself and would hide an absent bore.
+        reference_bounds = stl_bounds(output_dir / "reference_carriage_body.stl")
+        reference_pin_bounds = stl_bounds(output_dir / "reference_pin.stl")
         saddle_bounds = stl_bounds(output_dir / "net_rail_saddle.stl")
         optical_rail_bounds = stl_bounds(output_dir / "optical_rail.stl")
         carrier_bounds = stl_bounds(output_dir / "optical_module_carrier.stl")
@@ -607,6 +621,23 @@ def main() -> None:
             reference_bounds[4] < expected_reference_z < reference_bounds[5]
         ):
             raise RuntimeError(f"reference carriage is not at the selected detent: {reference_bounds}")
+        reference_pin_axis_x = (
+            parameters["optical_rail_x"] + parameters["optical_rail_depth"] / 2
+        )
+        if not (
+            abs((reference_pin_bounds[0] + reference_pin_bounds[1]) / 2 - reference_pin_axis_x)
+            < 0.01
+            and abs((reference_pin_bounds[4] + reference_pin_bounds[5]) / 2 - expected_reference_z)
+            < 0.01
+            and reference_pin_bounds[2] < reference_bounds[2]
+            and reference_pin_bounds[3] > reference_bounds[3]
+            and reference_pin_bounds[2] < -parameters["optical_rail_width"] / 2
+            and reference_pin_bounds[3] > parameters["optical_rail_width"] / 2
+        ):
+            raise RuntimeError(
+                "reference pin does not span the carriage and optical rail on the selected detent: "
+                f"carriage={reference_bounds}, pin={reference_pin_bounds}"
+            )
         if not (
             clamp_body_bounds[0] < parameters["table_width"] / 2 < clamp_body_bounds[1]
             and clamp_body_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
@@ -725,6 +756,15 @@ def main() -> None:
         )
         if invalid_reference.returncode == 0:
             raise RuntimeError("OpenSCAD accepted a reference line outside the 10 mm grid")
+
+        invalid_reference_bore = run_openscad(
+            openscad,
+            output_dir / "invalid-reference-bore.stl",
+            'PART="reference_carriage_body"',
+            "reference_pin_bore_d=3",
+        )
+        if invalid_reference_bore.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a reference pin bore without print clearance")
 
         for height in range(10, 101, 10):
             detent = output_dir / f"reference-{height}.stl"
