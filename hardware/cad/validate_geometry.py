@@ -125,6 +125,9 @@ def validate(parameters: dict[str, float]) -> str:
         "optical_module_height",
         "optical_lens_d",
         "optical_lens_depth",
+        "optical_bank_clearance",
+        "reference_pin_length",
+        "guide_width",
     }
     require(required <= parameters.keys(), "CAD parameter manifest is incomplete")
 
@@ -188,6 +191,24 @@ def validate(parameters: dict[str, float]) -> str:
     require(
         parameters["optical_module_height"] < parameters["beam_pitch"],
         "optical module placeholder must fit between beam heights",
+    )
+    reference_carriage_half_y = (parameters["guide_width"] + 6.0) / 2.0
+    optical_bank_y = (
+        parameters["guide_width"] / 2.0
+        + parameters["optical_module_width"] / 2.0
+        + parameters["optical_bank_clearance"]
+    )
+    require(parameters["optical_bank_clearance"] > 0,
+            "optical bank must have a positive side clearance")
+    require(
+        optical_bank_y - parameters["optical_module_width"] / 2.0
+        > reference_carriage_half_y,
+        "optical bank envelope overlaps the reference carriage",
+    )
+    require(
+        parameters["reference_pin_length"]
+        > parameters["guide_width"] / 2.0 + reference_carriage_half_y,
+        "reference pin must pass through the carriage and guide",
     )
 
     for angle in (min_angle, selected_angle, max_angle):

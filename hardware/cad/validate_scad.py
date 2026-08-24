@@ -61,6 +61,36 @@ def stl_x_center(path: Path) -> float:
     return (min(vertices) + max(vertices)) / 2.0
 
 
+def stl_bounds(path: Path) -> tuple[float, float, float, float, float, float]:
+    """Return min/max X, Y and Z for an STL export."""
+
+    data = path.read_bytes()
+    vertices: list[tuple[float, float, float]] = []
+    if len(data) >= 84:
+        triangle_count = struct.unpack_from("<I", data, 80)[0]
+        expected_size = 84 + triangle_count * 50
+        if expected_size == len(data):
+            for triangle in range(triangle_count):
+                base = 84 + triangle * 50 + 12
+                for vertex in range(3):
+                    vertices.append(
+                        struct.unpack_from("<fff", data, base + vertex * 12)
+                    )
+    if not vertices:
+        text = data.decode("ascii", errors="ignore")
+        vertices = [
+            (float(match.group(1)), float(match.group(2)), float(match.group(3)))
+            for match in re.finditer(
+                r"\bvertex\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)",
+                text,
+            )
+        ]
+    if not vertices:
+        raise RuntimeError(f"cannot read STL vertices from {path}")
+    xs, ys, zs = zip(*vertices)
+    return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
+
+
 def find_openscad() -> str:
     candidates = [
         os.environ.get("OPENSCAD", ""),
@@ -161,6 +191,13 @@ def main() -> None:
         ):
             raise RuntimeError(
                 "SIDE override did not produce opposite left/right or optical STL geometry"
+            )
+
+        carriage_bounds = stl_bounds(output_dir / "reference_carriage.stl")
+        optical_bounds = stl_bounds(output_dir / "optical_bank.stl")
+        if carriage_bounds[3] >= optical_bounds[2]:
+            raise RuntimeError(
+                "reference carriage and optical bank envelopes overlap in Y"
             )
 
         for angle in (10, 20):

@@ -100,6 +100,8 @@ optical_module_width = 14;
 optical_module_height = 6;
 optical_lens_d = 4;
 optical_lens_depth = 3;
+optical_bank_clearance = 4;
+reference_pin_length = 31;
 
 // 双侧预览间距（不是球桌最终规格）
 assembly_span = 700;
@@ -147,6 +149,9 @@ function bridge_rod_x() = post_x() + 4;
 function guide_x() = bridge_rod_x() + rod_w / 2 + guide_t / 2 + 2;
 function beam_z(h) = bridge_z + h;
 function screw_tip_y() = outer_point(1)[1] + roller_d / 2;
+function guide_center_x() = guide_x() + guide_t / 2;
+function optical_bank_y() = guide_width / 2 + optical_module_width / 2 + optical_bank_clearance;
+function reference_carriage_half_y() = (guide_width + 6) / 2;
 
 // 这些断言验证 X 线、内端夹持距离和外侧螺杆包络，而不是只验证语法。
 assert(abs(cross_2d(outer_point(1), inner_point(1))) < 0.01,
@@ -168,6 +173,12 @@ assert(optical_module_depth > 0 && optical_module_width > 0 &&
        "optical module placeholder dimensions must be positive");
 assert(optical_module_height < beam_pitch,
        "each optical module must fit between adjacent beam heights");
+assert(optical_bank_clearance > 0,
+       "optical bank must have a positive side clearance");
+assert(optical_bank_y() - optical_module_width / 2 > reference_carriage_half_y(),
+       "optical bank must clear the reference carriage envelope");
+assert(reference_pin_length > guide_width / 2 + reference_carriage_half_y(),
+       "reference pin must pass through the carriage and guide");
 
 module beam_between_2d(p1, p2, width, height, z0 = 0) {
     translate([(point_x(p1) + point_x(p2)) / 2,
@@ -386,22 +397,26 @@ module reference_line_carriage() {
     h = reference_height;
     color("limegreen")
         difference() {
-            translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
+            // The pin axis must be coincident with the guide hole axis. The
+            // carriage overlaps the guide in X so the removable pin can
+            // actually pass through both parts.
+            translate([guide_center_x(), 0, beam_z(h)])
                 cube([12, guide_width + 6, 8], center = true);
-            translate([guide_x() + guide_t / 2 + 4, 0, beam_z(h)])
+            translate([guide_center_x(), 0, beam_z(h)])
                 rotate([90, 0, 0])
                     cylinder(d = locating_hole_d,
                              h = guide_width + 8,
                              center = true);
         }
 
-    // 弹簧定位销占位：只允许插入 10 mm 光栅档位的孔。
+    // 弹簧定位销占位：只允许插入 10 mm 光栅档位的孔；长度覆盖端座
+    // 外侧、导轨和另一侧余量，避免只停留在端座外壳中。
     color("silver")
-        translate([guide_x() + guide_t / 2 + 4,
-                   -(guide_width + 6) / 2 - 4,
+        translate([guide_center_x(),
+                   -reference_carriage_half_y() - 2 + reference_pin_length / 2,
                    beam_z(h)])
             rotate([90, 0, 0])
-                cylinder(d = 3.2, h = 10, center = true);
+                cylinder(d = 3.2, h = reference_pin_length, center = true);
 }
 
 module optical_module_bank(kind = "emitter") {
@@ -412,13 +427,13 @@ module optical_module_bank(kind = "emitter") {
         h = beam_first_height + i * beam_pitch;
         color(module_color)
             translate([guide_x() + guide_t / 2 + optical_module_depth / 2,
-                       0, beam_z(h)])
+                       optical_bank_y(), beam_z(h)])
                 cube([optical_module_depth, optical_module_width,
                       optical_module_height], center = true);
         color("white")
             translate([guide_x() + guide_t / 2 + optical_module_depth +
                            optical_lens_depth / 2,
-                       0, beam_z(h)])
+                       optical_bank_y(), beam_z(h)])
                 rotate([0, 90, 0])
                     cylinder(d = optical_lens_d, h = optical_lens_depth,
                              center = true);
@@ -494,7 +509,10 @@ module parameter_probe() {
              ";optical_module_width=", optical_module_width,
              ";optical_module_height=", optical_module_height,
              ";optical_lens_d=", optical_lens_d,
-             ";optical_lens_depth=", optical_lens_depth));
+             ";optical_lens_depth=", optical_lens_depth,
+             ";optical_bank_clearance=", optical_bank_clearance,
+             ";reference_pin_length=", reference_pin_length,
+             ";guide_width=", guide_width));
     cube([0.1, 0.1, 0.1]);
 }
 
