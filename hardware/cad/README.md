@@ -1,31 +1,45 @@
 # OpenSCAD CAD
 
-`net_post_x_clamp.scad` 是首轮唯一参数源，支持：
+当前机械主线是 `net_stand.scad`：直接做出一套替换传统球网的内置式球网支架，网布和网顶 PVDF 振动监测预装在支架上，左右端通过传统的桌下上下夹持面固定到球台。它不再依赖原球网立柱，也不再使用外挂式 X 夹具。
 
-- `PART="assembly"`：双侧装配预览；
-- `PART="left_clamp"` / `PART="right_clamp"`：左右镜像夹具装配导出（不包含装配预览用的立柱实体）；
-- `PART="arm"`、`"jaw"`、`"jaw_pad"`、`"roller"`、`"roller_mount"`、`"roller_cap"`、`"knob"`、`"screw_rod"`、`"rod"`、`"bridge"`、`"guide"`、`"reference_carriage"`：单件/装配检查；其中 `jaw` 为 PETG V 槽硬体，`jaw_pad` 为 TPU/硅胶替换软垫占位；
-- `PART="reference_carriage_body"`、`"reference_pin"`：参考线端座的可打印本体与定位销占位分离导出；打印时只导出本体，定位销使用实物标准件；
-- `PART="optical_bank"`：10 路发射/接收模块包络占位，`SIDE=-1` 为镜像接收侧；
-- `PART="calibration_gauge"`：打印式 10 mm 光栅/参考线标定规；
-- `PART="parameter_probe"`：由验证脚本读取的参数清单，不是打印件；
-- `SIDE=0`：按 `PART` 的默认左右方向；`SIDE=1/-1`：显式覆盖组合件和所有侧向单件的镜像选择；标定规不依赖侧向。
+## 当前参数源：`net_stand.scad`
 
-打印数量、标准件和哪些导出包含装配占位见 [`print-manifest.zh-CN.md`](print-manifest.zh-CN.md)。
+支持以下 `PART`：
 
-使用 OpenSCAD GUI 或命令行覆盖参数，例如：
+- `assembly`：含球台截面、网布、网顶承载条、双侧立柱、桌下夹持、10 路光栅模块、PVDF 网顶安装座和参考线的装配预览；
+- `left_stand` / `right_stand`：左右完整的内置式支架，包含立柱、传统桌下夹持、单侧光学模块和 PVDF 安装座；
+- `post`：单侧立柱主体；`table_clamp`：单侧桌下夹持机构；
+- `net`：网布装配占位，不是 PETG 打印件；`net_rail`：网顶承载条；
+- `optical_strip`：单侧连续光学导轨和 10 个模块包络，`SIDE=-1` 可生成镜像侧；
+- `sensor_mount`：单侧网顶 PVDF 夹片安装座；
+- `calibration_gauge`：+10…+100 mm 高度档位标定规；
+- `parameter_probe`：验证脚本读取的参数清单，不是打印件。
+
+首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、光栅窗口 `+10…+100 mm`、10 mm 档位、两侧 `M8` 竖直夹紧螺杆。球网、光学器件、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性或光学精度验收。
+
+导出示例：
 
 ```text
-openscad -D 'PART="assembly"' -o assembly.stl net_post_x_clamp.scad
-openscad -D 'PART="left_clamp"' -D 'SIDE=1' -o left-clamp.stl net_post_x_clamp.scad
+openscad -D 'PART="assembly"' -o net-stand-assembly.stl net_stand.scad
+openscad -D 'PART="right_stand"' -o right-stand.stl net_stand.scad
+openscad -D 'PART="left_stand"' -o left-stand.stl net_stand.scad
+openscad -D 'PART="optical_strip"' -D 'SIDE=-1' -o optical-strip-left.stl net_stand.scad
+openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 ```
 
-模型中的螺纹杆、光轴、滚柱、压盖、光学模块和软垫是装配/器件占位几何。打印前需要按实际标准件、打印方向和 PETG 收缩率补偿孔径；不要把 `left_clamp`/`right_clamp` 的组合导出直接当作单个打印件，滚柱、压盖、螺杆和光学模块应按独立 PART 或实物件装配。
+`preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
 
-`clamp_angle_deg` 是 X 夹具的运动参数，首轮允许 `10°…20°`，默认 `15°`；两根活动臂分别为 `7 mm` 厚，中间保留 `2 mm` 间隙，共用 Ø8 光轴并在垂直方向错层，避免两个打印臂互相穿透。每层从中心向内外臂段实际生成三角肋，中心另有局部加厚；外侧滚柱、内侧 V 槽和螺杆位置随同一角度生成，活动臂中心包含 Ø8 轴孔和打印间隙。V 槽根部额外保留 `jaw_mount_overlap=2 mm` 的实体搭接，避免导出件只在端面相切。光学导轨的 10 mm 定位孔和参考线端座孔均为实际减料通孔；参考线端座同时提供参考线贯穿孔，孔轴与导轨定位销孔正交，弹簧销长度覆盖端座和导轨；光学模块包络放在导轨另一侧并保留独立侧向净距，避免在参考高度与端座相撞。装配预览才额外显示名义立柱。当前仍需实物确认旋钮行程、夹紧力和 V 槽软垫的真实接触。
+本机安装 OpenSCAD 后运行：
 
-`preview.py` 在没有 OpenSCAD 渲染器时生成俯视/正视结构预览，用于检查 X 交叉、左右镜像、方杆、光栅高度和参考线档位关系。它不是 STL 几何验证器。
+```text
+python3 validate_net_stand.py
+python3 render_net_stand_preview.py
+```
 
-若本机安装了 OpenSCAD，可运行 `python3 validate_scad.py` 编译全部 `PART`、左右镜像覆盖和临时 STL，并读取 OpenSCAD 参数源验证 X 臂共轴、内侧 V 槽包络、M8 螺杆行程、轴孔间隙和 10 mm 光栅档位；它还会用 STL 包围盒检查左右方向相反，确认参考线端座可在 `+10…+100 mm` 全部十个档位编译、`+55 mm` 越界高度被拒绝、10°/20° 两个运动端点可编译、25° 越界角度会被断言拒绝。该命令不把导出物写入仓库。单独运行 `python3 validate_geometry.py` 可只做参数/运动断言。
+前者编译当前 `PART`、左右支架、光学镜像、参数探针和非法参数路径；后者从同一份参数源渲染当前装配、左右支架、桌下夹持、光学导轨镜像、PVDF 座和标定规，输出到 `rendered/net-stand-*.png`。CI 会把当前和历史两套渲染证据分别保存。
 
-若需要直接检查实体几何外观，可运行 `python3 render_openscad_preview.py`；它从同一份 SCAD 生成双侧装配、左侧夹具、V 槽硬体、V 槽软垫、滚柱 U 槽/螺母捕获、可拆压盖、默认与 `SIDE=-1` 镜像的 10 路光学模块包络、参考线端座、端座可打印本体和标定规十一张 PNG，输出到 `rendered/`，与 `preview.py` 的意图图分开。CI 会把这些 OpenSCAD 渲染图作为 `smartgear-openscad-previews` artifact 保存。
+## 历史方案
+
+`net_post_x_clamp.scad` 是前一轮外挂式 X 型立柱夹具。它被明确保留在 [`legacy/README.md`](legacy/README.md) 所述的历史边界内，用于设计回溯和旧几何回归；旧验证脚本 `validate_scad.py`、`validate_geometry.py`、`render_openscad_preview.py` 不应再被当作当前机械参数源。
+
+当前与历史方案都暂不承诺比赛级裁判准确率。先打印内置支架的机械样件，确认球台厚度、夹持范围、网布张力、传感器安装和光学对准，再收敛尺寸与材料。

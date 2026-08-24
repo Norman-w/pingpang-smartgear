@@ -1,160 +1,214 @@
-"""Generate a lightweight visual preview of the first CAD parameter set.
+"""Generate a lightweight visual preview of the current integrated net stand.
 
-This deliberately mirrors only the design intent of the OpenSCAD source: it is
-not an STL parser or a replacement for OpenSCAD. It is useful in CI and on
-machines where the OpenSCAD GUI/CLI is not installed.
+This mirrors the intent of ``net_stand.scad`` without parsing STL files.  It is
+useful in CI and on machines where the OpenSCAD GUI/CLI is not installed; it is
+not a replacement for OpenSCAD geometry validation or a strength calculation.
 """
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Rectangle, Polygon
+from matplotlib.patches import Rectangle
 
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "preview.png"
 
-POST_D = 25
-OUTER_RADIUS = math.hypot(90, 24)
-INNER_RADIUS = math.hypot(60, 16)
-INNER_NOMINAL_X = 60
-CLAMP_ANGLE_DEG = 15
-JAW_LENGTH = 26
-POST_X = INNER_NOMINAL_X + 5
-ROD_LEN = 130
-BEAM_FIRST = 10
+TABLE_WIDTH = 1525.0
+TABLE_THICKNESS = 25.0
+TABLE_EDGE = TABLE_WIDTH / 2
+POST_OFFSET = 18.0
+POST_WIDTH = 28.0
+POST_CENTER = TABLE_EDGE + POST_OFFSET
+POST_BOTTOM = -43.0
+NET_HEIGHT = 152.5
+NET_RAIL_HEIGHT = 10.0
+BEAM_FIRST = 10.0
 BEAM_COUNT = 10
-BEAM_PITCH = 10
-REFERENCE_HEIGHT = 50
-ASSEMBLY_SPAN = 700
+BEAM_PITCH = 10.0
+BEAM_LAST = BEAM_FIRST + (BEAM_COUNT - 1) * BEAM_PITCH
+POST_TOP = NET_HEIGHT + BEAM_LAST + 3.0 + 18.0
+NET_SPAN = 2 * (POST_CENTER - POST_WIDTH / 2)
+REFERENCE_HEIGHT = 50.0
+SENSOR_X = 0.32 * NET_SPAN / 2
 
 
-def outer_point(sign: int, angle_deg: float = CLAMP_ANGLE_DEG) -> tuple[float, float]:
-    angle = math.radians(angle_deg)
-    return (-OUTER_RADIUS * math.cos(angle), sign * OUTER_RADIUS * math.sin(angle))
-
-
-def inner_point(sign: int, angle_deg: float = CLAMP_ANGLE_DEG) -> tuple[float, float]:
-    angle = math.radians(angle_deg)
-    return (INNER_RADIUS * math.cos(angle), -sign * INNER_RADIUS * math.sin(angle))
-
-
-def draw_v_jaw(ax, center: tuple[float, float], post: tuple[float, float]) -> None:
-    angle = math.atan2(post[1] - center[1], post[0] - center[0])
-    endpoints = []
-    for offset in (-math.pi / 4, math.pi / 4):
-        endpoint_angle = angle + offset
-        endpoints.append(
-            (
-                center[0] + JAW_LENGTH * math.cos(endpoint_angle),
-                center[1] + JAW_LENGTH * math.sin(endpoint_angle),
-            )
-        )
+def draw_front(ax) -> None:
     ax.add_patch(
-        Polygon(
-            [center, endpoints[0], endpoints[1]],
-            closed=True,
-            facecolor="#f39c12",
-            alpha=0.8,
+        Rectangle(
+            (-TABLE_EDGE, -TABLE_THICKNESS),
+            TABLE_WIDTH,
+            TABLE_THICKNESS,
+            facecolor="#a8adb3",
+            edgecolor="#4d535a",
+            alpha=0.55,
+            label="tabletop section",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (-NET_SPAN / 2, 0),
+            NET_SPAN,
+            NET_HEIGHT - NET_RAIL_HEIGHT,
+            facecolor="#dfe3e8",
+            edgecolor="#777d85",
+            alpha=0.35,
+            label="installed net",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (-NET_SPAN / 2, NET_HEIGHT - NET_RAIL_HEIGHT),
+            NET_SPAN,
+            NET_RAIL_HEIGHT,
+            facecolor="#f3f4f5",
+            edgecolor="#53585f",
+            label="net top rail",
         )
     )
 
-
-def draw_motion_envelope(ax, x_offset: float, mirror: int) -> None:
-    def p(x: float, y: float) -> tuple[float, float]:
-        return (x_offset + mirror * x, y)
-
-    for angle in (10, 20):
-        outer_a = outer_point(1, angle)
-        outer_b = outer_point(-1, angle)
-        inner_a = inner_point(1, angle)
-        inner_b = inner_point(-1, angle)
-        color = "#6baed6" if angle == 10 else "#fb6a4a"
-        for arm_index, (first, second) in enumerate(
-            ((outer_a, inner_a), (outer_b, inner_b))
-        ):
-            label = (
-                f"motion envelope {angle}°"
-                if arm_index == 0 and x_offset < 0
-                else "_nolegend_"
-            )
-            first_plot = p(*first)
-            second_plot = p(*second)
-            ax.plot(
-                [first_plot[0], second_plot[0]],
-                [first_plot[1], second_plot[1]],
-                color=color,
-                linewidth=2,
-                linestyle="--",
-                alpha=0.65,
+    for x, label in (
+        (-POST_CENTER, "left integrated post"),
+        (POST_CENTER, "right integrated post"),
+    ):
+        ax.add_patch(
+            Rectangle(
+                (x - POST_WIDTH / 2, POST_BOTTOM),
+                POST_WIDTH,
+                POST_TOP - POST_BOTTOM,
+                facecolor="#e67e22",
+                edgecolor="#8d4c13",
+                alpha=0.88,
                 label=label,
             )
+        )
+
+    for index in range(BEAM_COUNT):
+        height = BEAM_FIRST + index * BEAM_PITCH
+        ax.plot(
+            [-NET_SPAN / 2 + POST_WIDTH / 2 + 8, NET_SPAN / 2 - POST_WIDTH / 2 - 8],
+            [NET_HEIGHT + height, NET_HEIGHT + height],
+            color="#4c78a8",
+            linewidth=1.2,
+            alpha=0.8,
+            label="10 optical beam levels" if index == 0 else "_nolegend_",
+        )
+        ax.text(
+            NET_SPAN / 2 + 22,
+            NET_HEIGHT + height,
+            f"+{height:g}",
+            va="center",
+            fontsize=7,
+        )
+
+    for x in (-SENSOR_X, SENSOR_X):
+        ax.add_patch(
+            Rectangle(
+                (x - 23, NET_HEIGHT - 1),
+                46,
+                8,
+                facecolor="#9467bd",
+                edgecolor="#4c2b68",
+                label="PVDF net-top mounts" if x < 0 else "_nolegend_",
+            )
+        )
+
+    reference_z = NET_HEIGHT + REFERENCE_HEIGHT
+    ax.plot(
+        [-NET_SPAN / 2, NET_SPAN / 2],
+        [reference_z, reference_z],
+        color="#31a354",
+        linewidth=2.4,
+        label="reference line (+50 mm detent)",
+    )
+    ax.annotate(
+        "net-top datum +0",
+        xy=(0, NET_HEIGHT),
+        xytext=(0, NET_HEIGHT - 30),
+        ha="center",
+        arrowprops={"arrowstyle": "->", "color": "#444"},
+        fontsize=8,
+    )
+    ax.set_xlim(-POST_CENTER - 90, POST_CENTER + 110)
+    ax.set_ylim(POST_BOTTOM - 12, POST_TOP + 20)
+    ax.set_title("Integrated net stand: front intent")
+    ax.set_xlabel("table width / mm")
+    ax.set_ylabel("height above net top / mm")
+    ax.grid(True, alpha=0.22)
+    handles, labels = ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+    ax.legend(unique.values(), unique.keys(), loc="upper center", fontsize=7, ncol=2)
 
 
-def draw_clamp(ax, x_offset: float, mirror: int, label: str) -> None:
-    def p(x: float, y: float) -> tuple[float, float]:
-        return (x_offset + mirror * x, y)
-
-    outer_a = outer_point(1)
-    outer_b = outer_point(-1)
-    inner_a = inner_point(1)
-    inner_b = inner_point(-1)
-    arm_a = [p(*outer_a), p(*inner_a)]
-    arm_b = [p(*outer_b), p(*inner_b)]
-    for arm in (arm_a, arm_b):
-        ax.plot([arm[0][0], arm[1][0]], [arm[0][1], arm[1][1]], color="#e67e22", linewidth=8, solid_capstyle="round")
-
-    post = p(POST_X, 0)
-    ax.add_patch(Circle(post, POST_D / 2, facecolor="#777b80", edgecolor="#30343b", alpha=0.8))
-
-    for point in (outer_a, outer_b):
-        roller = p(*point)
-        ax.add_patch(Circle(roller, 8, facecolor="#bbc0c7", edgecolor="#444", linewidth=1.5))
-
-    draw_v_jaw(ax, p(*inner_a), post)
-    draw_v_jaw(ax, p(*inner_b), post)
-    ax.text(x_offset, -45, label, ha="center", va="top", fontsize=9)
+def draw_side(ax) -> None:
+    # 以右侧台边为 x=0，正方向是桌外；画出传统网架式上下夹持面。
+    ax.add_patch(
+        Rectangle(
+            (-62, -TABLE_THICKNESS),
+            62,
+            TABLE_THICKNESS,
+            facecolor="#a8adb3",
+            edgecolor="#4d535a",
+            alpha=0.55,
+            label="tabletop edge",
+        )
+    )
+    ax.add_patch(Rectangle((-62, 0), 108, 8, facecolor="#69727b", label="upper clamp pad"))
+    ax.add_patch(Rectangle((-62, -33), 108, 8, facecolor="#69727b", label="lower clamp pad"))
+    ax.add_patch(
+        Rectangle(
+            (POST_OFFSET, POST_BOTTOM),
+            POST_WIDTH,
+            POST_TOP - POST_BOTTOM,
+            facecolor="#e67e22",
+            edgecolor="#8d4c13",
+            alpha=0.88,
+            label="integrated upright",
+        )
+    )
+    screw_x = -34
+    ax.plot([screw_x, screw_x], [-47, 9], color="#444", linewidth=3, label="M8 tightening screw")
+    ax.add_patch(Rectangle((screw_x - 18, -59), 36, 12, facecolor="#30343b", label="hand knob"))
+    ax.axhline(NET_HEIGHT, color="#ffffff", linewidth=2, label="traditional net top 152.5 mm")
+    ax.axhline(NET_HEIGHT + REFERENCE_HEIGHT, color="#31a354", linewidth=2, label="reference line +50 mm")
+    for index in range(BEAM_COUNT):
+        height = BEAM_FIRST + index * BEAM_PITCH
+        ax.plot(
+            [POST_OFFSET - 8, POST_OFFSET + POST_WIDTH + 4],
+            [NET_HEIGHT + height, NET_HEIGHT + height],
+            color="#4c78a8",
+            linewidth=1.0,
+        )
+    ax.add_patch(
+        Rectangle(
+            (POST_OFFSET - 20, NET_HEIGHT - 1),
+            12,
+            8,
+            facecolor="#9467bd",
+            label="PVDF mount on net top",
+        )
+    )
+    ax.set_xlim(-82, 78)
+    ax.set_ylim(-70, POST_TOP + 20)
+    ax.set_title("Traditional under-table clamp: side intent")
+    ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
+    ax.set_ylabel("z / mm")
+    ax.grid(True, alpha=0.22)
+    handles, labels = ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+    ax.legend(unique.values(), unique.keys(), loc="upper left", fontsize=7)
 
 
 def make_preview() -> None:
-    fig, (top, front) = plt.subplots(1, 2, figsize=(14, 6), constrained_layout=True)
-
-    draw_motion_envelope(top, -ASSEMBLY_SPAN / 2, 1)
-    draw_motion_envelope(top, ASSEMBLY_SPAN / 2, -1)
-    draw_clamp(top, -ASSEMBLY_SPAN / 2, 1, "LEFT X CLAMP (TOP)")
-    draw_clamp(top, ASSEMBLY_SPAN / 2, -1, "RIGHT X CLAMP (MIRROR)")
-    top.plot([-ASSEMBLY_SPAN / 2 + POST_X, ASSEMBLY_SPAN / 2 - POST_X], [0, 0], color="#31a354", linewidth=2, label="reference-line axis")
-    top.set_aspect("equal")
-    top.set_xlim(-420, 420)
-    top.set_ylim(-75, 75)
-    top.set_title("True scissor X and bilateral mirror")
-    top.set_xlabel("table width / mm")
-    top.set_ylabel("clamp top view / mm")
-    top.grid(True, alpha=0.25)
-    top.legend(loc="upper center", fontsize=8)
-
-    # 正视图：两根方杆、10 个有效光束档位和参考线。
-    left = -ASSEMBLY_SPAN / 2 + POST_X
-    right = ASSEMBLY_SPAN / 2 - POST_X
-    front.plot([left, left], [0, ROD_LEN], color="#d4af37", linewidth=10, solid_capstyle="butt")
-    front.plot([right, right], [0, ROD_LEN], color="#d4af37", linewidth=10, solid_capstyle="butt")
-    for i in range(BEAM_COUNT):
-        h = BEAM_FIRST + i * BEAM_PITCH
-        front.plot([left, right], [h, h], color="#4c78a8", linewidth=1.4, alpha=0.8)
-        front.text(right + 18, h, f"+{h} mm", va="center", fontsize=8)
-    front.plot([left, right], [REFERENCE_HEIGHT, REFERENCE_HEIGHT], color="#31a354", linewidth=2, label="reference line (10 mm detent)")
-    front.set_xlim(left - 80, right + 85)
-    front.set_ylim(-10, ROD_LEN + 10)
-    front.set_title("Continuous beam guide and height detents (front)")
-    front.set_xlabel("table width / mm")
-    front.set_ylabel("above net top / mm")
-    front.grid(True, alpha=0.25)
-    front.legend(fontsize=8)
-
-    fig.suptitle("Pingpang SmartGear CAD intent preview (not STL validation)", fontsize=14)
+    fig, (front, side) = plt.subplots(1, 2, figsize=(16, 8), constrained_layout=True)
+    draw_front(front)
+    draw_side(side)
+    fig.suptitle(
+        "Pingpang SmartGear: integrated net stand and height grid (intent, not STL validation)",
+        fontsize=14,
+    )
     fig.savefig(OUT, dpi=160)
     print(OUT)
 

@@ -15,9 +15,9 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 
 | 编号 | 当前软件证据 | 能证明什么 | 仍缺什么 |
 | --- | --- | --- | --- |
-| M-01 | 无 | 现场记录格式可校验 | 立柱重复拆装、滑移和软垫损伤记录 |
-| M-02 | `hardware/cad/validate_scad.py`；OpenSCAD CI 19 个导出和 10°/20° 运动端点 | 参数、导出和镜像几何可编译 | 打印件全行程、滚柱防脱、螺杆圆头实际受力 |
-| M-03 | `validate_geometry.py`；`render_openscad_preview.py` | 方杆/导轨/参考线的参数关系和可视布局 | 双侧实物平行度、参考线张力和夹具滑移 |
+| M-01 | 无；`tools/validate_field_record.py` 可校验现场记录格式 | 记录项完整性和证据路径安全 | 内置支架重复从桌下夹紧、安装位置、滑移和软垫损伤记录 |
+| M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件与非法参数路径 | 传统桌下上下夹持的参数关系、M8 螺杆包络和左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、立柱倾斜和螺杆行程 |
+| M-03 | `validate_net_stand.py`；`preview.py`；`render_net_stand_preview.py` | `152.5 mm` 网顶、双侧支架、网顶承载条、10 mm 光栅档位和 PVDF/光学安装位的参数与可视关系 | 真实网布张力、左右立柱平行度、网顶高度和光学/PVDF 实物安装记录 |
 | B-01 | `test_clean_over_and_height_interval()`、`test_every_beam_mask_interval()` | `clean_over`、位图、离散高度和球底间隔契约 | 真实光束与球体遮挡 |
 | B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征和 `touch_over` | PVDF 前端与真实过网动作 |
 | B-03 | `test_touch_no_cross_and_unknown()`、`net_event_trace` | 擦网无光栅时的 `touch_no_cross` 和质量标记 | 真实擦网未过网动作 |

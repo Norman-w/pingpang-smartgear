@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Render visual evidence for the current integrated net stand."""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+HERE = Path(__file__).resolve().parent
+SOURCE = HERE / "net_stand.scad"
+
+
+def find_openscad() -> str:
+    candidates = (
+        os.environ.get("OPENSCAD", ""),
+        shutil.which("openscad") or "",
+        "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD",
+    )
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return candidate
+    raise RuntimeError(
+        "OpenSCAD executable not found; set OPENSCAD to render integrated net-stand previews"
+    )
+
+
+def render(
+    openscad: str,
+    part: str,
+    output: Path,
+    width: int,
+    height: int,
+    definitions: tuple[str, ...] = (),
+) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    openscad_command = [
+        openscad,
+        "-o",
+        str(output),
+        "-D",
+        f'PART="{part}"',
+        "--render",
+        "--viewall",
+        "--projection=ortho",
+        "--imgsize",
+        f"{width},{height}",
+        "--colorscheme=Tomorrow",
+    ]
+    for definition in definitions:
+        openscad_command.extend(["-D", definition])
+    openscad_command.append(str(SOURCE))
+    command = openscad_command
+    if not os.environ.get("DISPLAY") and shutil.which("xvfb-run"):
+        command = [
+            "xvfb-run",
+            "-a",
+            "--server-args=-screen 0 1920x1200x24",
+            *openscad_command,
+        ]
+    print("$", " ".join(command))
+    subprocess.run(command, check=True)
+    if not output.is_file() or output.stat().st_size < 1_024:
+        raise RuntimeError(f"OpenSCAD produced no usable PNG for PART={part}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=HERE / "rendered",
+        help="directory receiving generated PNG evidence",
+    )
+    args = parser.parse_args()
+
+    openscad = find_openscad()
+    render(openscad, "assembly", args.output_dir / "net-stand-assembly.png", 1800, 1000)
+    render(openscad, "left_stand", args.output_dir / "net-stand-left.png", 1200, 1000)
+    render(openscad, "right_stand", args.output_dir / "net-stand-right.png", 1200, 1000)
+    render(openscad, "table_clamp", args.output_dir / "net-stand-table-clamp.png", 1200, 900)
+    render(openscad, "optical_strip", args.output_dir / "net-stand-optical-strip.png", 1000, 1200)
+    render(
+        openscad,
+        "optical_strip",
+        args.output_dir / "net-stand-optical-strip-mirror.png",
+        1000,
+        1200,
+        definitions=("SIDE=-1",),
+    )
+    render(openscad, "sensor_mount", args.output_dir / "net-stand-sensor-mount.png", 1000, 800)
+    render(openscad, "calibration_gauge", args.output_dir / "net-stand-calibration-gauge.png", 900, 1000)
+    print(f"NET_STAND_PREVIEWS_OK ({args.output_dir})")
+
+
+if __name__ == "__main__":
+    main()

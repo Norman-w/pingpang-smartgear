@@ -33,7 +33,7 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir firmware/host-tests/build-sanitize --output-on-failure
 
       - name: Compile Python validation scripts
-        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py
+        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/validate_net_stand.py hardware/cad/preview.py hardware/cad/render_net_stand_preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py
 
       - name: Validate field record template
         run: python tools/validate_field_record.py docs/field-validation-record.example.json
@@ -71,13 +71,19 @@ jobs:
       - name: Install OpenSCAD package
         run: sudo apt-get install --no-install-recommends -y openscad xvfb
 
-      - name: Validate OpenSCAD parts and mirrors
+      - name: Validate current integrated net stand
+        run: python hardware/cad/validate_net_stand.py
+
+      - name: Validate historical X-clamp parts and mirrors
         run: python hardware/cad/validate_scad.py
 
-      - name: Validate shared CAD parameter geometry
+      - name: Validate historical X-clamp parameter geometry
         run: python hardware/cad/validate_geometry.py
 
-      - name: Render OpenSCAD visual evidence
+      - name: Render current integrated net-stand visual evidence
+        run: python hardware/cad/render_net_stand_preview.py
+
+      - name: Render historical X-clamp visual evidence
         run: python hardware/cad/render_openscad_preview.py
 
       - name: Upload OpenSCAD visual evidence
