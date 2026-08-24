@@ -106,6 +106,8 @@ def validate(parameters: dict[str, float]) -> str:
         "arm_height",
         "arm_layer_thickness",
         "arm_layer_gap",
+        "arm_gusset_length",
+        "arm_gusset_base",
         "pivot_d",
         "pivot_clearance",
         "roller_d",
@@ -151,6 +153,11 @@ def validate(parameters: dict[str, float]) -> str:
         parameters["arm_layer_thickness"] > 0
         and parameters["arm_layer_gap"] > 0,
         "scissor arm layers must have positive thickness and separation",
+    )
+    require(
+        0 < parameters["arm_gusset_length"] < parameters["arm_length_inner"]
+        and parameters["arm_gusset_base"] > parameters["arm_width"],
+        "triangular arm gussets must widen the pivot transition within the inner span",
     )
     require(parameters["beam_count"] == 10, "height grid must contain 10 beams")
     expected_last = parameters["beam_first_height"] + (

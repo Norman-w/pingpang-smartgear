@@ -54,6 +54,8 @@ arm_layer_thickness = 7;
 arm_layer_gap = 2;
 arm_lower_z = 0;
 arm_upper_z = arm_layer_thickness + arm_layer_gap;
+arm_gusset_length = 30;
+arm_gusset_base = arm_width + 8;
 pivot_d = 8;
 pivot_clearance = 0.35;
 pivot_head_d = 16;
@@ -114,6 +116,10 @@ assert(clamp_angle_min_deg > 0 && clamp_angle_max_deg < 30,
        "motion range must leave a stable X crossing");
 assert(jaw_mount_overlap > 0 && jaw_mount_overlap < jaw_length / 2,
        "V jaw must overlap the arm endpoint without crossing its full length");
+assert(arm_gusset_length > 0 && arm_gusset_length < arm_length_inner,
+       "triangular arm gussets must stay inside the inner arm span");
+assert(arm_gusset_base > arm_width,
+       "triangular arm gussets must widen the printed arm around the pivot");
 
 function point_x(p) = p[0];
 function point_y(p) = p[1];
@@ -170,6 +176,22 @@ module metal_pivot_shaft() {
     }
 }
 
+module triangular_arm_gusset(endpoint, z0 = 0) {
+    // A real in-plane triangular rib widens the pivot-to-arm transition while
+    // remaining inside the individual 7 mm scissor layer. The two arm layers
+    // therefore keep their 2 mm separation instead of using a visual-only
+    // intersection at the pivot.
+    color("darkorange")
+        rotate([0, 0, segment_angle([0, 0], endpoint)])
+            translate([0, 0, z0])
+                linear_extrude(height = arm_layer_thickness)
+                    polygon(points = [
+                        [0, -arm_gusset_base / 2],
+                        [0, arm_gusset_base / 2],
+                        [arm_gusset_length, 0]
+                    ]);
+}
+
 module scissor_arm(p1, p2, z0 = 0, label = "arm") {
     color("darkorange") {
         difference() {
@@ -180,6 +202,8 @@ module scissor_arm(p1, p2, z0 = 0, label = "arm") {
                     cylinder(d = arm_width + 8,
                              h = arm_layer_thickness,
                              center = true);
+                triangular_arm_gusset(p1, z0);
+                triangular_arm_gusset(p2, z0);
             }
             // Ø8 金属光轴的打印间隙孔；光轴由装配件穿过两根活动臂。
             translate([0, 0, z0 - 1])
@@ -404,6 +428,8 @@ module parameter_probe() {
              ";arm_height=", arm_height,
              ";arm_layer_thickness=", arm_layer_thickness,
              ";arm_layer_gap=", arm_layer_gap,
+             ";arm_gusset_length=", arm_gusset_length,
+             ";arm_gusset_base=", arm_gusset_base,
              ";pivot_d=", pivot_d,
              ";pivot_clearance=", pivot_clearance,
              ";roller_d=", roller_d,
