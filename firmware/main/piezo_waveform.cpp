@@ -168,7 +168,7 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
 
 bool PiezoWaveformCapture::start_capture(const std::uint64_t trigger_us,
                                          const std::string& reference) {
-    if (active_ || config_.pre_trigger_samples() == 0 ||
+    if (active_ || reference.empty() || config_.pre_trigger_samples() == 0 ||
         config_.post_trigger_samples() == 0) {
         return false;
     }
@@ -248,6 +248,10 @@ void PiezoWaveformCapture::abort() {
     post_written_ = {0, 0};
     frame_last_sample_timestamp_ = {0, 0};
     frame_has_sample_timestamp_ = {false, false};
+    clear_history();
+}
+
+void PiezoWaveformCapture::clear_history() {
     history_cursor_ = {0, 0};
     history_count_ = {0, 0};
     for (auto& channel_history : history_) {
@@ -259,6 +263,7 @@ void PiezoWaveformCapture::enqueue_current_frame(const bool complete) {
     if (!frame_) {
         return;
     }
+    const bool history_is_safe = frame_->sample_timestamps_valid;
     frame_->post_samples = post_written_;
     frame_->complete = complete && frame_->sample_timestamps_valid;
     active_ = false;
@@ -268,6 +273,12 @@ void PiezoWaveformCapture::enqueue_current_frame(const bool complete) {
     }
     ready_frames_.push_back(std::move(*frame_));
     frame_.reset();
+    if (!history_is_safe) {
+        // Do not let an out-of-order DMA frame become the pre-trigger history
+        // of a later event. The next frame must rebuild history from ordered
+        // samples and will remain incomplete until it has enough evidence.
+        clear_history();
+    }
 }
 
 void PiezoWaveformCapture::record_history(const std::uint8_t channel,

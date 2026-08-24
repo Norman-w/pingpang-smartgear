@@ -404,6 +404,8 @@ void test_sequential_and_overlapping_events() {
 
 void test_waveform_window() {
     smartgear::PiezoWaveformCapture capture({1'000, 20, 30});
+    require(!capture.start_capture(0, ""),
+            "waveform capture must reject an empty replay reference");
     require(capture.config().pre_trigger_samples() == 20,
             "pre-trigger sample count is wrong");
     require(capture.config().post_trigger_samples() == 30,
@@ -539,6 +541,19 @@ void test_waveform_window() {
     require(!smartgear::extract_piezo_features(*out_of_order_frame, 1'000)
                  .complete,
             "out-of-order ADC features must remain incomplete");
+    require(out_of_order.start_capture(21'000, "wave-after-out-of-order"),
+            "out-of-order frame must release the capture state");
+    for (int sample = 0; sample < 5; ++sample) {
+        out_of_order.feed_sample(0, static_cast<std::int16_t>(350 + sample),
+                                 21'000 + static_cast<std::uint64_t>(sample));
+        out_of_order.feed_sample(1, static_cast<std::int16_t>(450 + sample),
+                                 21'000 + static_cast<std::uint64_t>(sample));
+    }
+    const auto after_out_of_order = out_of_order.take_ready();
+    require(after_out_of_order.has_value() &&
+                after_out_of_order->pre_samples_available ==
+                    std::array<std::size_t, 2>{0, 0},
+            "out-of-order samples must not pollute the next pre-trigger history");
 
     smartgear::PiezoWaveformCapture outside_window({1'000, 5, 5});
     for (int sample = 0; sample < 5; ++sample) {
