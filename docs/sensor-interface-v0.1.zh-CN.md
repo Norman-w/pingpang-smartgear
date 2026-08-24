@@ -54,6 +54,13 @@ bool smartgear_board_read_sensor_health(
 
 `healthy_beam_mask` 的 bit 顺序必须与 `BEAM_BLOCKED[i]` 一致。健康快照不可用、校准 ID 为空/未终止，或健康位图包含第 10 路以外的 bit 时，固件会主动设置无效标记并让后续事件进入 `unknown`。
 
+板级实现可直接复用 `firmware/main/sensor_self_test.h` 中的
+`evaluate_beam_self_test()`、`piezo_baseline_is_quiet()` 和
+`make_sensor_health_snapshot()`：逐路光学检查先生成 `pass_mask/fail_mask`，
+PVDF 安静基线单独判定，机械参考线/安装标定由 `mechanical_calibration_valid`
+提供。组合器允许光栅部分失败但只放行健康 bit；报告形状、校准 ID、非有限阈值
+或机械标定失败都会 fail-closed，不会把不完整快照写成有效校准。
+
 ### 3.3 原始 PVDF 波形
 
 如 SmartPaddle 已有诊断/回放存储，可实现以下同步 hook：

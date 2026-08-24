@@ -810,6 +810,43 @@ void test_channel_self_test_and_baseline() {
     const smartgear::PiezoQuietBaseline invalid{{-0.1F, 0.3F}, {0.1F, 0.1F}, 1600};
     require(!smartgear::piezo_baseline_is_quiet(invalid, 0.5F, 0.2F),
             "negative PVDF baseline values must fail validation");
+    require(!smartgear::piezo_baseline_is_quiet(quiet,
+                                                std::numeric_limits<float>::quiet_NaN(),
+                                                0.2F) &&
+                !smartgear::piezo_baseline_is_quiet(quiet, 0.5F,
+                                                    std::numeric_limits<float>::infinity()),
+            "non-finite PVDF baseline thresholds must fail validation");
+
+    auto all_pass_checks = checks;
+    all_pass_checks[7].receiver_ok = true;
+    const auto complete_report =
+        smartgear::evaluate_beam_self_test(all_pass_checks);
+    require(smartgear::beam_self_test_report_is_well_formed(complete_report),
+            "complete optical self-test report should be well formed");
+    const char health_id[] = "cal-health-v1";
+    const auto complete_snapshot = smartgear::make_sensor_health_snapshot(
+        complete_report, quiet, 0.5F, 0.2F, health_id, sizeof(health_id), true);
+    require(complete_snapshot.healthy_beam_mask == 0x03ffU &&
+                complete_snapshot.beam_health_valid &&
+                complete_snapshot.piezo_baseline_valid &&
+                complete_snapshot.calibration_valid,
+            "complete self-test inputs must compose into a valid health snapshot");
+
+    const auto partial_snapshot = smartgear::make_sensor_health_snapshot(
+        report, quiet, 0.5F, 0.2F, health_id, sizeof(health_id), true);
+    require(partial_snapshot.beam_health_valid &&
+                (partial_snapshot.healthy_beam_mask & (1U << 7)) == 0 &&
+                partial_snapshot.calibration_valid,
+            "partial optical failure must preserve a valid partial health mask");
+
+    auto malformed_report = complete_report;
+    malformed_report.pass_mask = 0x0400U;
+    const auto malformed_snapshot = smartgear::make_sensor_health_snapshot(
+        malformed_report, quiet, 0.5F, 0.2F, health_id, sizeof(health_id), true);
+    require(!malformed_snapshot.beam_health_valid &&
+                malformed_snapshot.healthy_beam_mask == 0 &&
+                !malformed_snapshot.calibration_valid,
+            "malformed optical report must fail closed at health composition");
 
     const char valid_id[] = "cal-v1";
     require(smartgear::sensor_health_snapshot_is_well_formed(

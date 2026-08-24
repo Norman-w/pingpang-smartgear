@@ -24,6 +24,8 @@ struct BeamSelfTestReport {
 BeamSelfTestReport evaluate_beam_self_test(
     const std::array<BeamChannelCheck, config::kBeamCount>& checks);
 
+bool beam_self_test_report_is_well_formed(const BeamSelfTestReport& report);
+
 struct PiezoQuietBaseline {
     std::array<float, 2> peak = {0.0F, 0.0F};
     std::array<float, 2> rms = {0.0F, 0.0F};
@@ -33,6 +35,26 @@ struct PiezoQuietBaseline {
 bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
                              float max_peak,
                              float max_rms);
+
+struct SensorHealthSnapshot {
+    std::uint16_t healthy_beam_mask = 0;
+    bool beam_health_valid = false;
+    bool piezo_baseline_valid = false;
+    bool calibration_valid = false;
+};
+
+// Compose the board hook's fail-closed health fields from the separately
+// measured optical self-test, PVDF quiet baseline and mechanical calibration.
+// Partial optical failure is still a valid health snapshot: only channels in
+// healthy_beam_mask may authorize a height result.
+SensorHealthSnapshot make_sensor_health_snapshot(
+    const BeamSelfTestReport& beam_report,
+    const PiezoQuietBaseline& baseline,
+    float max_peak,
+    float max_rms,
+    const char* calibration_id,
+    std::size_t calibration_id_capacity,
+    bool mechanical_calibration_valid);
 
 // Validate the shape of the board health snapshot before it reaches the
 // event state machine. A false calibration flag is allowed, because it is a

@@ -25,10 +25,24 @@ BeamSelfTestReport evaluate_beam_self_test(
     return report;
 }
 
+bool beam_self_test_report_is_well_formed(
+    const BeamSelfTestReport& report) {
+    const auto all_mask = config::kAllBeamMask;
+    const auto covered = static_cast<std::uint16_t>(
+        report.pass_mask | report.fail_mask);
+    const auto overlap = static_cast<std::uint16_t>(
+        report.pass_mask & report.fail_mask);
+    return (report.pass_mask & static_cast<std::uint16_t>(~all_mask)) == 0 &&
+           (report.fail_mask & static_cast<std::uint16_t>(~all_mask)) == 0 &&
+           overlap == 0 && covered == all_mask &&
+           report.all_pass == (report.fail_mask == 0);
+}
+
 bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
                              const float max_peak,
                              const float max_rms) {
-    if (baseline.sample_count == 0 || max_peak < 0.0F || max_rms < 0.0F) {
+    if (baseline.sample_count == 0 || !std::isfinite(max_peak) ||
+        !std::isfinite(max_rms) || max_peak < 0.0F || max_rms < 0.0F) {
         return false;
     }
     for (std::size_t channel = 0; channel < 2; ++channel) {
@@ -40,6 +54,29 @@ bool piezo_baseline_is_quiet(const PiezoQuietBaseline& baseline,
         }
     }
     return true;
+}
+
+SensorHealthSnapshot make_sensor_health_snapshot(
+    const BeamSelfTestReport& beam_report,
+    const PiezoQuietBaseline& baseline,
+    const float max_peak,
+    const float max_rms,
+    const char* calibration_id,
+    const std::size_t calibration_id_capacity,
+    const bool mechanical_calibration_valid) {
+    SensorHealthSnapshot snapshot;
+    const bool beam_report_valid = beam_self_test_report_is_well_formed(beam_report);
+    snapshot.beam_health_valid = beam_report_valid;
+    snapshot.healthy_beam_mask =
+        beam_report_valid ? beam_report.pass_mask : static_cast<std::uint16_t>(0);
+    snapshot.piezo_baseline_valid =
+        piezo_baseline_is_quiet(baseline, max_peak, max_rms);
+    snapshot.calibration_valid =
+        mechanical_calibration_valid && beam_report_valid &&
+        sensor_health_snapshot_is_well_formed(
+            calibration_id, calibration_id_capacity, snapshot.healthy_beam_mask,
+            snapshot.beam_health_valid, true);
+    return snapshot;
 }
 
 bool sensor_health_snapshot_is_well_formed(
