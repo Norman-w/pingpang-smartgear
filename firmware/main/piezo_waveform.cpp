@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
+#include <utility>
 
 namespace smartgear {
 
@@ -106,9 +107,15 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
     }
 
     // ADC DMA may deliver samples that were already buffered before the
-    // comparator edge.  They belong to the pre-trigger history, which was
-    // snapshotted at start_capture(), and must not consume post-trigger slots.
+    // comparator edge. They belong to the pre-trigger history, but may arrive
+    // after start_capture() has already snapshotted the rolling buffer. Keep
+    // them in the history and also backfill the current frame's newest
+    // pre-trigger slots; otherwise a valid DMA backlog would be silently
+    // omitted from the 20 ms evidence window.
     if (!frame_ || timestamp_us < frame_->trigger_us) {
+        if (frame_ && timestamp_us < frame_->trigger_us) {
+            append_late_pre_trigger_sample(channel, sample);
+        }
         record_history(channel, sample);
         return;
     }
@@ -235,6 +242,33 @@ void PiezoWaveformCapture::record_history(const std::uint8_t channel,
     history_count_[channel] = std::min(
         history_count_[channel] + static_cast<std::size_t>(1),
         channel_history.size());
+}
+
+void PiezoWaveformCapture::append_late_pre_trigger_sample(
+    const std::uint8_t channel,
+    const std::int16_t sample) {
+    if (!frame_ || channel >= frame_->samples.size()) {
+        return;
+    }
+    const std::size_t pre_samples = config_.pre_trigger_samples();
+    if (pre_samples == 0 || frame_->samples[channel].size() < pre_samples) {
+        return;
+    }
+
+    const std::size_t available = std::min(
+        frame_->pre_samples_available[channel], pre_samples);
+    const std::size_t known_begin = pre_samples - available;
+    if (available > 0) {
+        // The known samples occupy the right-hand tail of the pre-trigger
+        // region. A later DMA-backlog sample shifts that tail left by one;
+        // zero-filled unknown history remains on the left.
+        std::move(frame_->samples[channel].begin() + known_begin + 1,
+                  frame_->samples[channel].begin() + pre_samples,
+                  frame_->samples[channel].begin() + known_begin);
+    }
+    frame_->samples[channel][pre_samples - 1] = sample;
+    frame_->pre_samples_available[channel] =
+        std::min(pre_samples, available + static_cast<std::size_t>(1));
 }
 
 }  // namespace smartgear

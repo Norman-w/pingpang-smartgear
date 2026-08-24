@@ -65,6 +65,8 @@ class PiezoWaveformCapture {
     bool all_post_samples_written() const;
     void enqueue_current_frame(bool complete);
     void record_history(std::uint8_t channel, std::int16_t sample);
+    void append_late_pre_trigger_sample(std::uint8_t channel,
+                                        std::int16_t sample);
 
     PiezoWaveformConfig config_;
     std::array<std::vector<std::int16_t>, 2> history_;

@@ -470,6 +470,32 @@ void test_waveform_window() {
         smartgear::extract_piezo_features(*cold_frame, 1'000);
     require(!cold_features.complete,
             "missing pre-trigger history must keep features incomplete");
+
+    smartgear::PiezoWaveformCapture dma_backlog({1'000, 5, 5});
+    require(dma_backlog.start_capture(100, "wave-dma-backlog"),
+            "DMA backlog waveform should begin without prehistory");
+    for (int sample = 0; sample < 5; ++sample) {
+        dma_backlog.feed_sample(0, static_cast<std::int16_t>(70 + sample),
+                                95 + sample);
+        dma_backlog.feed_sample(1, static_cast<std::int16_t>(80 + sample),
+                                95 + sample);
+    }
+    for (int sample = 0; sample < 5; ++sample) {
+        dma_backlog.feed_sample(0, static_cast<std::int16_t>(90 + sample),
+                                100 + sample);
+        dma_backlog.feed_sample(1, static_cast<std::int16_t>(100 + sample),
+                                100 + sample);
+    }
+    auto dma_frame = dma_backlog.take_ready();
+    require(dma_frame.has_value() &&
+                dma_frame->pre_samples_available == std::array<std::size_t, 2>{5, 5} &&
+                dma_frame->samples[0][4] == 74 &&
+                dma_frame->samples[0][5] == 90,
+            "late pre-trigger DMA samples must backfill the current frame");
+    const auto dma_features =
+        smartgear::extract_piezo_features(*dma_frame, 1'000);
+    require(dma_features.complete,
+            "a fully recovered DMA pre-trigger window must become complete evidence");
 }
 
 void test_waveform_timeout_flush() {
