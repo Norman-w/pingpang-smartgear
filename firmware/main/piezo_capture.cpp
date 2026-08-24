@@ -26,6 +26,21 @@ std::optional<PiezoObservation> PiezoCapture::on_trigger(
         return std::nullopt;
     }
 
+    const bool timestamp_in_order =
+        !stream_has_timestamp_ || timestamp_us >= stream_last_timestamp_us_;
+    if (!timestamp_in_order) {
+        if (pending_) {
+            // A comparator edge older than the last observed stream boundary
+            // cannot be assigned to the current candidate or a new one.
+            pending_observation_.valid = false;
+            return std::nullopt;
+        }
+    } else if (!stream_has_timestamp_ ||
+               timestamp_us > stream_last_timestamp_us_) {
+        stream_last_timestamp_us_ = timestamp_us;
+        stream_has_timestamp_ = true;
+    }
+
     const bool trigger_features_valid = finite_nonnegative(peak) &&
                                         finite_nonnegative(energy);
 
@@ -50,7 +65,7 @@ std::optional<PiezoObservation> PiezoCapture::on_trigger(
     if (!pending_) {
         pending_ = true;
         pending_observation_ = PiezoObservation{};
-        pending_observation_.valid = true;
+        pending_observation_.valid = timestamp_in_order;
         pending_observation_.triggered = true;
         pending_observation_.first_trigger_us = timestamp_us;
         // A comparator edge is only a candidate. Without a non-empty frame
@@ -113,6 +128,9 @@ void PiezoCapture::on_waveform_ready(const std::string& waveform_ref,
 
 bool PiezoCapture::will_start_new_observation(
     const std::uint64_t timestamp_us) const {
+    if (stream_has_timestamp_ && timestamp_us < stream_last_timestamp_us_) {
+        return false;
+    }
     if (!pending_) {
         return true;
     }
@@ -128,6 +146,16 @@ bool PiezoCapture::will_start_new_observation(
 
 std::optional<PiezoObservation> PiezoCapture::poll(
     const std::uint64_t timestamp_us) {
+    if (stream_has_timestamp_ && timestamp_us < stream_last_timestamp_us_) {
+        if (pending_) {
+            pending_observation_.valid = false;
+        }
+        return std::nullopt;
+    }
+    if (!stream_has_timestamp_ || timestamp_us > stream_last_timestamp_us_) {
+        stream_last_timestamp_us_ = timestamp_us;
+        stream_has_timestamp_ = true;
+    }
     if (!pending_ || timestamp_us < pending_observation_.last_trigger_us ||
         timestamp_us - pending_observation_.last_trigger_us < merge_window_us_ ||
         (!pending_observation_.features_ready &&

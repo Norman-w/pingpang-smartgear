@@ -226,6 +226,22 @@ void test_piezo_merge() {
     const auto invalid_order = out_of_order.poll(35'001);
     require(invalid_order.has_value() && !invalid_order->valid,
             "out-of-order PVDF timestamps must fail closed");
+
+    smartgear::PiezoCapture late_after_boundary(5'000, 5'000);
+    late_after_boundary.on_trigger(0, 4'000, 0.0F, 0.0F, "wave-first-touch");
+    smartgear::PiezoFeatureSummary first_features;
+    first_features.peak = {1.0F, 0.0F};
+    first_features.energy = {2.0F, 0.0F};
+    first_features.complete = true;
+    late_after_boundary.on_waveform_ready("wave-first-touch", first_features);
+    require(late_after_boundary.poll(9'001).has_value(),
+            "first PVDF boundary should close before testing late input");
+    require(!late_after_boundary.will_start_new_observation(3'000),
+            "late PVDF edge must not start a new valid observation");
+    late_after_boundary.on_trigger(0, 3'000, 0.0F, 0.0F, "wave-late-touch");
+    const auto late_touch = late_after_boundary.poll(14'001);
+    require(late_touch.has_value() && !late_touch->valid,
+            "a late PVDF edge after a closed boundary must be invalid");
 }
 
 void test_clean_over_and_height_interval() {

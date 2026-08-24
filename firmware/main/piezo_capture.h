@@ -47,6 +47,10 @@ class PiezoCapture {
 
     std::uint64_t merge_window_us_;
     std::uint64_t waveform_timeout_us_;
+    // Preserve the comparator stream boundary across candidate resets so a
+    // late edge cannot become a fresh valid touch candidate.
+    std::uint64_t stream_last_timestamp_us_ = 0;
+    bool stream_has_timestamp_ = false;
     bool pending_ = false;
     PiezoObservation pending_observation_;
 };

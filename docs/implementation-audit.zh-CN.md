@@ -10,7 +10,7 @@
 | CAD 几何关系 | `validate_geometry.py` 从 OpenSCAD 参数探针读取唯一参数源，检查 X 臂共线、内侧 V 槽到 Ø25 mm 立柱的包络、轴孔间隙、M8 行程和 10 mm 档位。 |
 | 光栅业务 | 10 位 `beam_mask`、最低/最高命中光束、安静结束、超时边界、逐通道位图和高度区间均有主机测试；采集器保留跨事件时间边界，事件结束后迟到的旧边沿会形成 invalid/unknown，不会伪造新的有效高度。 |
 | PVDF 业务 | 双通道合并、20 ms 预触发、80 ms 后触发、峰值/能量/持续时间、完整/不完整波形归档和超时释放均有主机测试；冷启动时预触发历史不足即使后窗口采满也保持 incomplete；ESP32 主循环先处理比较器边沿再派发下一批 ADC，且 DMA 时间戳仍早于触发点的 backlog 样本会回填当前帧预触发尾部；迟到的旧样本、乱序样本和落在 80 ms 窗口外的样本不会被当作完整证据，乱序帧入队后还会清空滚动历史；空引用不会创建可回放帧；`piezo_waveform_hook.h` 为既有回放存储提供同步复制边界。 |
-| 状态与质量 | `clean_over`、`touch_over`、`touch_no_cross`、`unknown`，以及标定、光栅健康、PVDF 基线、波形不完整、空/非有限波形特征、乱序时间戳、健康快照在待决事件期间变化和 GPIO 队列溢出门均有测试；`sensor_self_test` 提供逐光栅报告、PVDF 安静基线和机械标定的 fail-closed 健康快照组合器，`sensor_health_gate` 还把板级快照实际应用到聚合器并覆盖可用、部分失败、不可用和坏 ID 路径；聚合器边界自身还会拒绝空校准 ID/越界健康位图，并在坏的光栅边界到达时收口旧 pending 事件。 |
+| 状态与质量 | `clean_over`、`touch_over`、`touch_no_cross`、`unknown`，以及标定、光栅健康、PVDF 基线、波形不完整、空/非有限波形特征、光栅/PVDF 跨事件乱序时间戳、健康快照在待决事件期间变化和 GPIO 队列溢出门均有测试；`sensor_self_test` 提供逐光栅报告、PVDF 安静基线和机械标定的 fail-closed 健康快照组合器，`sensor_health_gate` 还把板级快照实际应用到聚合器并覆盖可用、部分失败、不可用和坏 ID 路径；聚合器边界自身还会拒绝空校准 ID/越界健康位图，并在坏的光栅边界到达时收口旧 pending 事件。 |
 | 输入边界保护 | 聚合器会拒绝非法 beam 位图/边界索引/反向时间边界、非法 PVDF sensor mask/时间顺序/非有限特征，并对极限时间戳使用饱和加法；ESP32 队列溢出时任务侧会丢弃溢出前残留边沿，聚合器同时清空旧 pending 候选并让下一条新事件保持 `unknown`，避免与新输入拼接；ADC DMA 只允许落在当前预触发时间窗内的迟到样本回填，窗口外旧样本和已闭合事件之后的旧样本不会进入下一帧滚动历史；直接 JSON 序列化也不会输出 `NaN`/负浮点字面量。反例已加入主机测试。 |
 | 传输边界 | `NetEventDelivery` 支持断链缓存、有界覆盖、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层；具体 `/ws` 适配示例与当前引脚冲突见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。 |
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
