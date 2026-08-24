@@ -6,6 +6,7 @@
 
 - `cad/`：当前内置式球网支架的参数化 OpenSCAD、左右镜像件和装配预览；
 - `electronics/`：PVDF AFE、调制红外光栅和板级接口边界；
+- [`first-article-bom.zh-CN.md`](first-article-bom.zh-CN.md)：首样采购数量、免打孔装配顺序和未冻结的实物边界；
 
 当前打印件由 `cad/net_stand.scad` 这一份参数源统一导出：它包含左右两段式立柱、下段与传统桌下 C 形夹一体的 `lower_stand_segment`、接缝外套筒/内芯、固定上夹板与桌面之间的可替换保护垫、台底可动压块、网顶承载条、光学模块安装位和 PVDF 夹片安装位。打印数量、标准件和非打印装配边界见 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md)。
 
