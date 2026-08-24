@@ -46,11 +46,21 @@ PARTS = (
     "reference_pin",
     "calibration_gauge",
 )
-# The complete assembly deliberately contains overlapping visual envelopes
-# (table slab, net cloth, sensor/optical placeholders and both stands).  It is
-# rendered as PNG evidence and is never a printable STL.  All other successful
-# exports are checked for closed edge topology below.
-PREVIEW_ONLY_PARTS = {"assembly"}
+# These PARTs deliberately combine multiple overlapping visual envelopes. They
+# are rendered as PNG evidence or used for assembly/fit inspection, not handed
+# to a slicer as one printable STL.  Only standalone print parts are checked
+# for closed edge topology below.
+PREVIEW_ONLY_PARTS = {
+    "assembly",
+    "left_stand",
+    "right_stand",
+    "post",
+    "table_clamp_section",
+    "table_clamp",
+    "net",
+    "net_rail",
+    "optical_strip",
+}
 NO_DRILL_TABLE_THICKNESSES = (18, 25, 30)
 
 
