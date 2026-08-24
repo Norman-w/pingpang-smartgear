@@ -9,7 +9,7 @@
 - `PART="optical_bank"`：10 路发射/接收模块包络占位，`SIDE=-1` 为镜像接收侧；
 - `PART="calibration_gauge"`：打印式 10 mm 光栅/参考线标定规；
 - `PART="parameter_probe"`：由验证脚本读取的参数清单，不是打印件；
-- `SIDE=0`：按 `PART` 的默认左右方向；`SIDE=1/-1`：显式覆盖单件镜像选择。
+- `SIDE=0`：按 `PART` 的默认左右方向；`SIDE=1/-1`：显式覆盖组合件和所有侧向单件的镜像选择；标定规不依赖侧向。
 
 打印数量、标准件和哪些导出包含装配占位见 [`print-manifest.zh-CN.md`](print-manifest.zh-CN.md)。
 

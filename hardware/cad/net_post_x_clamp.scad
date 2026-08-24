@@ -582,6 +582,13 @@ module oriented_clamp(side = 1, include_post = true, optical_kind = "none") {
         mirror([1, 0, 0]) clamp_assembly(include_post, optical_kind);
 }
 
+module oriented_part(side = 1) {
+    if (side >= 0)
+        children();
+    else
+        mirror([1, 0, 0]) children();
+}
+
 function resolved_side(default_side) = SIDE == 0 ? default_side : SIDE;
 
 module assembly_preview() {
@@ -605,39 +612,50 @@ if (PART == "assembly") {
 } else if (PART == "right_clamp") {
     oriented_clamp(resolved_side(-1), false);
 } else if (PART == "arm") {
-    scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
+    oriented_part(resolved_side(1))
+        scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
 } else if (PART == "jaw") {
-    v_jaw_body(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
-    v_jaw_body(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
+    oriented_part(resolved_side(1)) {
+        v_jaw_body(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
+        v_jaw_body(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
+    }
 } else if (PART == "jaw_pad") {
-    v_jaw_pad(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
-    v_jaw_pad(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
+    oriented_part(resolved_side(1)) {
+        v_jaw_pad(inner_point(1), atan2(-inner_point(1)[1], post_x() - inner_point(1)[0]), arm_lower_z);
+        v_jaw_pad(inner_point(-1), atan2(-inner_point(-1)[1], post_x() - inner_point(-1)[0]), arm_upper_z);
+    }
 } else if (PART == "roller") {
-    dimpled_vertical_roller(outer_point(1), true, arm_lower_z);
-    dimpled_vertical_roller(outer_point(-1), false, arm_upper_z);
+    oriented_part(resolved_side(1)) {
+        dimpled_vertical_roller(outer_point(1), true, arm_lower_z);
+        dimpled_vertical_roller(outer_point(-1), false, arm_upper_z);
+    }
 } else if (PART == "roller_mount") {
-    u_roller_cheeks(outer_point(1), arm_lower_z);
-    u_roller_cheeks(outer_point(-1), arm_upper_z);
-    m8_nut_capture(outer_point(-1), arm_upper_z);
+    oriented_part(resolved_side(1)) {
+        u_roller_cheeks(outer_point(1), arm_lower_z);
+        u_roller_cheeks(outer_point(-1), arm_upper_z);
+        m8_nut_capture(outer_point(-1), arm_upper_z);
+    }
 } else if (PART == "roller_cap") {
-    removable_roller_cap(outer_point(1), arm_lower_z);
-    removable_roller_cap(outer_point(-1), arm_upper_z);
+    oriented_part(resolved_side(1)) {
+        removable_roller_cap(outer_point(1), arm_lower_z);
+        removable_roller_cap(outer_point(-1), arm_upper_z);
+    }
 } else if (PART == "knob") {
-    printed_knob();
+    oriented_part(resolved_side(1)) printed_knob();
 } else if (PART == "screw_rod") {
-    rounded_screw_rod();
+    oriented_part(resolved_side(1)) rounded_screw_rod();
 } else if (PART == "rod") {
-    square_extension_rod();
+    oriented_part(resolved_side(1)) square_extension_rod();
 } else if (PART == "bridge") {
-    fixed_bridge();
+    oriented_part(resolved_side(1)) fixed_bridge();
 } else if (PART == "guide") {
-    optical_guide();
+    oriented_part(resolved_side(1)) optical_guide();
 } else if (PART == "reference_carriage") {
-    reference_line_carriage();
+    oriented_part(resolved_side(1)) reference_line_carriage();
 } else if (PART == "reference_carriage_body") {
-    reference_carriage_body();
+    oriented_part(resolved_side(1)) reference_carriage_body();
 } else if (PART == "reference_pin") {
-    reference_pin();
+    oriented_part(resolved_side(1)) reference_pin();
 } else if (PART == "optical_bank") {
     oriented_optical_bank(resolved_side(1), SIDE < 0 ? "receiver" : "emitter");
 } else if (PART == "calibration_gauge") {
