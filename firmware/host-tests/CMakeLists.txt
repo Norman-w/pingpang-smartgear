@@ -16,6 +16,7 @@ add_executable(net_event_tests
     ../main/piezo_waveform_archive.cpp
     ../main/net_event_aggregator.cpp
     ../main/sensor_self_test.cpp
+    ../main/sensor_health_gate.cpp
     ../main/feedback.cpp
     ../main/piezo_waveform_hook.cpp
     ../main/net_event_transport.cpp

@@ -11,6 +11,7 @@
 #include "piezo_waveform_archive.h"
 #include "piezo_waveform_hook.h"
 #include "sensor_board_hooks.h"
+#include "sensor_health_gate.h"
 #include "sensor_self_test.h"
 
 #ifdef ESP_PLATFORM
@@ -176,25 +177,17 @@ void sync_sensor_health(smartgear::NetEventAggregator& aggregator) {
     if (!smartgear_board_read_sensor_health(
             calibration_id, sizeof(calibration_id), &healthy_beam_mask,
             &beam_health_valid, &piezo_baseline_valid, &calibration_valid)) {
-        aggregator.set_calibration("health-snapshot-unavailable", false);
-        aggregator.set_beam_health(0, false);
-        aggregator.set_piezo_baseline(false);
+        smartgear::apply_sensor_health_unavailable(aggregator);
         return;
     }
-    if (!smartgear::sensor_health_snapshot_is_well_formed(
-            calibration_id, sizeof(calibration_id), healthy_beam_mask,
-            beam_health_valid, calibration_valid)) {
-        aggregator.set_calibration("health-snapshot-invalid", false);
-        aggregator.set_beam_health(0, false);
-        aggregator.set_piezo_baseline(false);
-        return;
-    }
-    if (!beam_health_valid) {
-        healthy_beam_mask = 0;
-    }
-    aggregator.set_calibration(calibration_id, calibration_valid);
-    aggregator.set_beam_health(healthy_beam_mask, beam_health_valid);
-    aggregator.set_piezo_baseline(piezo_baseline_valid);
+    const smartgear::SensorHealthSnapshot snapshot{
+        healthy_beam_mask,
+        beam_health_valid,
+        piezo_baseline_valid,
+        calibration_valid,
+    };
+    smartgear::apply_sensor_health_snapshot(
+        aggregator, calibration_id, sizeof(calibration_id), snapshot);
 }
 
 }  // namespace

@@ -21,10 +21,15 @@ PARTS = (
     "right_clamp",
     "arm",
     "roller",
+    "roller_mount",
+    "roller_cap",
     "knob",
+    "screw_rod",
     "rod",
     "bridge",
     "guide",
+    "reference_carriage",
+    "optical_bank",
     "calibration_gauge",
 )
 
@@ -104,6 +109,26 @@ def main() -> None:
         if not output.is_file() or output.stat().st_size == 0:
             raise RuntimeError("OpenSCAD produced no STL for SIDE=-1")
 
+        output = output_dir / "optical-bank-mirror.stl"
+        subprocess.run(
+            [
+                openscad,
+                "-o",
+                str(output),
+                "-D",
+                'PART="optical_bank"',
+                "-D",
+                "SIDE=-1",
+                str(SOURCE),
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        if not output.is_file() or output.stat().st_size == 0:
+            raise RuntimeError("OpenSCAD produced no STL for mirrored optical bank")
+
         output = output_dir / "left-side-explicit.stl"
         subprocess.run(
             [
@@ -127,12 +152,15 @@ def main() -> None:
         left_default_center = stl_x_center(output_dir / "left_clamp.stl")
         right_default_center = stl_x_center(output_dir / "right_clamp.stl")
         left_override_center = stl_x_center(output_dir / "left-side-explicit.stl")
+        optical_default_center = stl_x_center(output_dir / "optical_bank.stl")
+        optical_mirror_center = stl_x_center(output_dir / "optical-bank-mirror.stl")
         if (
             left_default_center * right_default_center >= 0
             or left_override_center * right_default_center >= 0
+            or optical_default_center * optical_mirror_center >= 0
         ):
             raise RuntimeError(
-                "SIDE override did not produce opposite left/right STL geometry"
+                "SIDE override did not produce opposite left/right or optical STL geometry"
             )
 
         for angle in (10, 20):
@@ -195,7 +223,7 @@ def main() -> None:
             raise RuntimeError("OpenSCAD accepted intersecting scissor arm layers")
     geometry_result = validate(read_parameters(openscad))
     print(
-        f"SCAD_OK ({len(PARTS)} parts + SIDE=±1 mirror geometry + motion 10/20 deg; "
+        f"SCAD_OK ({len(PARTS)} exports + SIDE=±1 mirror geometry + motion 10/20 deg; "
         f"{geometry_result})"
     )
 

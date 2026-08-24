@@ -19,6 +19,7 @@
 #include "piezo_waveform.h"
 #include "ring_buffer.h"
 #include "net_sensor_config.h"
+#include "sensor_health_gate.h"
 #include "sensor_self_test.h"
 
 namespace {
@@ -865,6 +866,58 @@ void test_channel_self_test_and_baseline() {
             "health snapshot must reject an unterminated calibration ID");
 }
 
+void test_sensor_health_gate_pipeline() {
+    const char calibration_id[] = "cal-gate-v1";
+    smartgear::SensorHealthSnapshot partial{
+        static_cast<std::uint16_t>(smartgear::config::kAllBeamMask & ~(1U << 7)),
+        true,
+        true,
+        true,
+    };
+    smartgear::NetEventAggregator aggregator;
+    require(smartgear::apply_sensor_health_snapshot(
+                aggregator, calibration_id, sizeof(calibration_id), partial),
+            "valid partial health snapshot must be accepted by the gate");
+
+    aggregator.on_beam(beam(40'000, 41'000, 1U << 2, 2, 2));
+    aggregator.poll(291'001);
+    const auto healthy_channel_event = pop_one(aggregator);
+    require(healthy_channel_event.state == smartgear::NetState::kCleanOver &&
+                !has_quality_flag(healthy_channel_event,
+                                  "beam_channel_unhealthy"),
+            "a healthy channel from a partial snapshot must authorize height");
+
+    aggregator.on_beam(beam(42'000, 43'000, 1U << 7, 7, 7));
+    aggregator.poll(293'001);
+    const auto failed_channel_event = pop_one(aggregator);
+    require(failed_channel_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(failed_channel_event, "beam_channel_unhealthy"),
+            "a failed channel from a partial snapshot must fail closed");
+
+    smartgear::NetEventAggregator unavailable;
+    smartgear::apply_sensor_health_unavailable(unavailable);
+    unavailable.on_beam(beam(44'000, 45'000, 1, 0, 0));
+    unavailable.poll(295'001);
+    const auto unavailable_event = pop_one(unavailable);
+    require(unavailable_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(unavailable_event, "calibration_invalid") &&
+                has_quality_flag(unavailable_event, "beam_self_test_invalid"),
+            "an unavailable health hook must fail closed through the gate");
+
+    const char malformed_id[] = {'c', 'a', 'l'};
+    smartgear::NetEventAggregator malformed;
+    require(!smartgear::apply_sensor_health_snapshot(
+                malformed, malformed_id, sizeof(malformed_id), partial),
+            "unterminated calibration ID must be rejected by the gate");
+    malformed.on_beam(beam(46'000, 47'000, 1, 0, 0));
+    malformed.poll(297'001);
+    const auto malformed_event = pop_one(malformed);
+    require(malformed_event.state == smartgear::NetState::kUnknown &&
+                malformed_event.calibration_id == "health-snapshot-invalid" &&
+                has_quality_flag(malformed_event, "beam_self_test_invalid"),
+            "malformed health input must leave a deterministic fail-closed marker");
+}
+
 void test_sensor_pipeline_end_to_end() {
     smartgear::BeamCapture beam_capture(5, 250'000);
     smartgear::PiezoCapture piezo_capture(5'000, 120'000);
@@ -1190,6 +1243,7 @@ int main() {
         test_waveform_hook_contract();
         test_sensor_health_quality_flags();
         test_channel_self_test_and_baseline();
+        test_sensor_health_gate_pipeline();
         test_sensor_pipeline_end_to_end();
         test_trigger_before_dma_dispatch_pipeline();
         test_input_shape_and_deadline_safety();

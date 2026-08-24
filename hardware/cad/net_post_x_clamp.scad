@@ -6,11 +6,16 @@
 //   PART="left_clamp"  左侧夹具
 //   PART="right_clamp" 右侧夹具
 //   PART="arm"         活动臂
-//   PART="roller"      竖直滚柱与压盖
+//   PART="roller"      竖直滚柱与轴
+//   PART="roller_mount" 滚柱 U 槽侧壁与螺母捕获
+//   PART="roller_cap"   可拆滚柱压盖
 //   PART="knob"        M8 旋钮/螺杆占位
+//   PART="screw_rod"   M8 金属螺杆占位
 //   PART="rod"          方杆
 //   PART="bridge"       固定桥件
 //   PART="guide"        连续光栅导轨
+//   PART="reference_carriage" 参考线端座与定位销
+//   PART="optical_bank" 光栅发射/接收模块装配占位
 //   PART="calibration_gauge"  打印式光栅/参考线标定规
 //   PART="parameter_probe"    输出几何验证所需的单一参数源
 //   SIDE=0               按 PART 的默认左右方向
@@ -90,6 +95,11 @@ beam_last_height = beam_first_height + (beam_count - 1) * beam_pitch;
 reference_height = 50;
 reference_line_d = 1.5;
 locating_hole_d = 4;
+optical_module_depth = 8;
+optical_module_width = 14;
+optical_module_height = 6;
+optical_lens_d = 4;
+optical_lens_depth = 3;
 
 // 双侧预览间距（不是球桌最终规格）
 assembly_span = 700;
@@ -152,6 +162,12 @@ assert(reference_height >= beam_first_height && reference_height <= beam_last_he
        "reference line must land on a 10 mm optical detent");
 assert(locating_hole_d > 0 && locating_hole_d < guide_width,
        "locating holes must pass through the optical guide");
+assert(optical_module_depth > 0 && optical_module_width > 0 &&
+           optical_module_height > 0 && optical_lens_d > 0 &&
+           optical_lens_depth > 0,
+       "optical module placeholder dimensions must be positive");
+assert(optical_module_height < beam_pitch,
+       "each optical module must fit between adjacent beam heights");
 
 module beam_between_2d(p1, p2, width, height, z0 = 0) {
     translate([(point_x(p1) + point_x(p2)) / 2,
@@ -270,7 +286,15 @@ module removable_roller_cap(p, z0 = 0) {
 }
 
 module u_roller_mount(p, has_dimple = false, z0 = 0) {
-    // 两侧 cheek 代表可打印 U 槽，压盖单独显示以便检查防脱空间。
+    u_roller_cheeks(p, z0);
+    dimpled_vertical_roller(p, has_dimple, z0);
+    removable_roller_cap(p, z0);
+    if (!has_dimple)
+        m8_nut_capture(p, z0);
+}
+
+module u_roller_cheeks(p, z0 = 0) {
+    // 两侧 cheek 代表可打印 U 槽；压盖、滚柱和螺母捕获件可分别导出。
     color("darkorange") {
         translate([point_x(p), point_y(p) - (roller_d + 6) / 2,
                    z0 + arm_layer_thickness / 2])
@@ -279,10 +303,6 @@ module u_roller_mount(p, has_dimple = false, z0 = 0) {
                    z0 + arm_layer_thickness / 2])
             cube([roller_d + 12, 4, roller_h + 8], center = true);
     }
-    dimpled_vertical_roller(p, has_dimple, z0);
-    removable_roller_cap(p, z0);
-    if (!has_dimple)
-        m8_nut_capture(p, z0);
 }
 
 module m8_nut_capture(p, z0 = 0) {
@@ -384,6 +404,34 @@ module reference_line_carriage() {
                 cylinder(d = 3.2, h = 10, center = true);
 }
 
+module optical_module_bank(kind = "emitter") {
+    // 仅表示两侧 PCB/光学头的安装包络；调制器、光电二极管、TIA 和
+    // 比较器属于电子装配，不把这几个占位块误当作最终器件模型。
+    module_color = kind == "emitter" ? "red" : "cyan";
+    for (i = [0 : beam_count - 1]) {
+        h = beam_first_height + i * beam_pitch;
+        color(module_color)
+            translate([guide_x() + guide_t / 2 + optical_module_depth / 2,
+                       0, beam_z(h)])
+                cube([optical_module_depth, optical_module_width,
+                      optical_module_height], center = true);
+        color("white")
+            translate([guide_x() + guide_t / 2 + optical_module_depth +
+                           optical_lens_depth / 2,
+                       0, beam_z(h)])
+                rotate([0, 90, 0])
+                    cylinder(d = optical_lens_d, h = optical_lens_depth,
+                             center = true);
+    }
+}
+
+module oriented_optical_bank(side = 1, kind = "emitter") {
+    if (side >= 0)
+        optical_module_bank(kind);
+    else
+        mirror([1, 0, 0]) optical_module_bank(kind);
+}
+
 module reference_line_between(span) {
     color("limegreen")
         translate([0, 0, beam_z(reference_height)])
@@ -441,7 +489,12 @@ module parameter_probe() {
              ";beam_first_height=", beam_first_height,
              ";beam_pitch=", beam_pitch,
              ";beam_last_height=", beam_last_height,
-             ";reference_height=", reference_height));
+             ";reference_height=", reference_height,
+             ";optical_module_depth=", optical_module_depth,
+             ";optical_module_width=", optical_module_width,
+             ";optical_module_height=", optical_module_height,
+             ";optical_lens_d=", optical_lens_d,
+             ";optical_lens_depth=", optical_lens_depth));
     cube([0.1, 0.1, 0.1]);
 }
 
@@ -451,7 +504,7 @@ module net_post() {
             cylinder(d = post_nominal_d, h = bridge_z + bridge_h + 4);
 }
 
-module clamp_assembly(include_post = true) {
+module clamp_assembly(include_post = true, optical_kind = "none") {
     // 两条相反斜率的臂在俯视形成 X，并在同一 Ø8 光轴上上下错层；
     // 端点由同一夹具角度生成，避免把两个打印臂建模成互相穿透的实体。
     arm_a_outer = outer_point(1);
@@ -481,13 +534,15 @@ module clamp_assembly(include_post = true) {
     square_extension_rod();
     optical_guide();
     reference_line_carriage();
+    if (optical_kind != "none")
+        optical_module_bank(optical_kind);
 }
 
-module oriented_clamp(side = 1, include_post = true) {
+module oriented_clamp(side = 1, include_post = true, optical_kind = "none") {
     if (side >= 0)
-        clamp_assembly(include_post);
+        clamp_assembly(include_post, optical_kind);
     else
-        mirror([1, 0, 0]) clamp_assembly(include_post);
+        mirror([1, 0, 0]) clamp_assembly(include_post, optical_kind);
 }
 
 function resolved_side(default_side) = SIDE == 0 ? default_side : SIDE;
@@ -496,8 +551,8 @@ module assembly_preview() {
     left_x = -assembly_span / 2;
     right_x = assembly_span / 2;
 
-    translate([left_x, 0, 0]) oriented_clamp(1, true);
-    translate([right_x, 0, 0]) oriented_clamp(-1, true);
+    translate([left_x, 0, 0]) oriented_clamp(1, true, "emitter");
+    translate([right_x, 0, 0]) oriented_clamp(-1, true, "receiver");
     reference_line_between(assembly_span);
 
     // 仅用于查看双侧关系的透明球网面，不是打印件。
@@ -515,22 +570,33 @@ if (PART == "assembly") {
 } else if (PART == "arm") {
     scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
 } else if (PART == "roller") {
-    u_roller_mount(outer_point(1), true, arm_lower_z);
-    u_roller_mount(outer_point(-1), false, arm_upper_z);
+    dimpled_vertical_roller(outer_point(1), true, arm_lower_z);
+    dimpled_vertical_roller(outer_point(-1), false, arm_upper_z);
+} else if (PART == "roller_mount") {
+    u_roller_cheeks(outer_point(1), arm_lower_z);
+    u_roller_cheeks(outer_point(-1), arm_upper_z);
+    m8_nut_capture(outer_point(-1), arm_upper_z);
+} else if (PART == "roller_cap") {
+    removable_roller_cap(outer_point(1), arm_lower_z);
+    removable_roller_cap(outer_point(-1), arm_upper_z);
 } else if (PART == "knob") {
-    rounded_screw_rod();
     printed_knob();
+} else if (PART == "screw_rod") {
+    rounded_screw_rod();
 } else if (PART == "rod") {
     square_extension_rod();
 } else if (PART == "bridge") {
     fixed_bridge();
 } else if (PART == "guide") {
     optical_guide();
+} else if (PART == "reference_carriage") {
     reference_line_carriage();
+} else if (PART == "optical_bank") {
+    oriented_optical_bank(resolved_side(1), SIDE < 0 ? "receiver" : "emitter");
 } else if (PART == "calibration_gauge") {
     calibration_gauge();
 } else if (PART == "parameter_probe") {
     parameter_probe();
 } else {
-    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, knob, rod, bridge, guide, calibration_gauge, or parameter_probe.");
+    echo("Unknown PART; use assembly, left_clamp, right_clamp, arm, roller, roller_mount, roller_cap, knob, screw_rod, rod, bridge, guide, reference_carriage, optical_bank, calibration_gauge, or parameter_probe.");
 }

@@ -83,6 +83,13 @@ def main() -> None:
         1200,
         1000,
     )
+    render(
+        openscad,
+        "optical_bank",
+        args.output_dir / "openscad-optical-bank.png",
+        1200,
+        1000,
+    )
     print(f"OPENSCAD_PREVIEWS_OK ({args.output_dir})")
 
 

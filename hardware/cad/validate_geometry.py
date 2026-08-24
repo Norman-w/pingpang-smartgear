@@ -120,6 +120,11 @@ def validate(parameters: dict[str, float]) -> str:
         "beam_pitch",
         "beam_last_height",
         "reference_height",
+        "optical_module_depth",
+        "optical_module_width",
+        "optical_module_height",
+        "optical_lens_d",
+        "optical_lens_depth",
     }
     require(required <= parameters.keys(), "CAD parameter manifest is incomplete")
 
@@ -172,6 +177,18 @@ def validate(parameters: dict[str, float]) -> str:
             "reference line must land on a beam detent")
     require(parameters["rod_len"] >= parameters["beam_last_height"],
             "extension rod is shorter than the optical grid")
+    require(
+        parameters["optical_module_depth"] > 0
+        and parameters["optical_module_width"] > 0
+        and parameters["optical_module_height"] > 0
+        and parameters["optical_lens_d"] > 0
+        and parameters["optical_lens_depth"] > 0,
+        "optical module placeholder dimensions must be positive",
+    )
+    require(
+        parameters["optical_module_height"] < parameters["beam_pitch"],
+        "optical module placeholder must fit between beam heights",
+    )
 
     for angle in (min_angle, selected_angle, max_angle):
         upper_outer = point(outer_radius, angle, 1, inner=False)

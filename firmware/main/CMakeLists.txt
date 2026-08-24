@@ -8,6 +8,7 @@ idf_component_register(
         "piezo_waveform_archive.cpp"
         "net_event_aggregator.cpp"
         "sensor_self_test.cpp"
+        "sensor_health_gate.cpp"
         "feedback.cpp"
         "feedback_gpio.cpp"
         "piezo_adc_continuous.cpp"

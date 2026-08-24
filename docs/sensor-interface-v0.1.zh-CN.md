@@ -61,6 +61,12 @@ PVDF 安静基线单独判定，机械参考线/安装标定由 `mechanical_cali
 提供。组合器允许光栅部分失败但只放行健康 bit；报告形状、校准 ID、非有限阈值
 或机械标定失败都会 fail-closed，不会把不完整快照写成有效校准。
 
+运行时通过 `sensor_health_gate.h` 的
+`apply_sensor_health_snapshot()` 统一执行这一步：健康快照 hook、主机回放和
+ESP32 任务不会各自复制一套校验逻辑。hook 不可用时调用
+`apply_sensor_health_unavailable()`，聚合器会固定进入不可放行状态并保留
+`health-snapshot-unavailable` 诊断 ID。
+
 ### 3.3 原始 PVDF 波形
 
 如 SmartPaddle 已有诊断/回放存储，可实现以下同步 hook：
