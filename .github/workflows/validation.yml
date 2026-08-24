@@ -33,7 +33,7 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir firmware/host-tests/build-sanitize --output-on-failure
 
       - name: Compile Python validation scripts
-        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/validate_net_stand.py hardware/cad/export_net_stand_printables.py hardware/cad/test_export_net_stand_printables.py hardware/cad/preview.py hardware/cad/test_preview_consistency.py hardware/cad/render_net_stand_preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py
+        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/validate_net_stand.py hardware/cad/export_net_stand_printables.py hardware/cad/test_export_net_stand_printables.py hardware/cad/build_print_platter.py hardware/cad/test_build_print_platter.py hardware/cad/preview.py hardware/cad/test_preview_consistency.py hardware/cad/render_net_stand_preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py
 
       - name: Check lightweight preview consistency
         run: python hardware/cad/test_preview_consistency.py
@@ -88,11 +88,24 @@ jobs:
           python hardware/cad/test_export_net_stand_printables.py \
             --manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-export/manifest.json"
 
+      - name: Build and validate printable net-stand platter
+        run: |
+          python hardware/cad/build_print_platter.py \
+            --manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-export/manifest.json" \
+            --output-dir "$RUNNER_TEMP/pingpang-smartgear-net-stand-platter-256" \
+            --clean
+          python hardware/cad/test_build_print_platter.py \
+            --manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-platter-256/manifest.json" \
+            --source-manifest "$RUNNER_TEMP/pingpang-smartgear-net-stand-export/manifest.json" \
+            --default
+
       - name: Upload printable net-stand package
         uses: actions/upload-artifact@v4
         with:
           name: smartgear-net-stand-print-package
-          path: ${{ runner.temp }}/pingpang-smartgear-net-stand-export
+          path: |
+            ${{ runner.temp }}/pingpang-smartgear-net-stand-export
+            ${{ runner.temp }}/pingpang-smartgear-net-stand-platter-256
 
       - name: Validate historical X-clamp parts and mirrors
         run: python hardware/cad/validate_scad.py

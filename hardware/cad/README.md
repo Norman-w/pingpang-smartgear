@@ -55,6 +55,27 @@ python3 test_export_net_stand_printables.py
 
 `preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
 
+## 打印拼盘与预览页
+
+拼盘脚本只对已经导出的独立 STL 做 0/90° 旋转和平移，不缩放、不裁切、不把零件布尔合并。默认按 `256 × 256 × 256 mm` 打印床、边缘余量 `5 mm`、零件间距 `5 mm` 生成合并拼盘 STL；当前首样结果是 2 张拼盘、47 件已排版，3 段约 `537 × 18 × 10 mm` 的网顶承载条明确列为超尺寸件。
+
+```text
+python3 hardware/cad/export_net_stand_printables.py --clean
+python3 hardware/cad/build_print_platter.py --clean
+python3 hardware/cad/test_build_print_platter.py --default
+```
+
+生成物位于被 Git 忽略的 `hardware/cad/exports/net-stand-v0.1/`。其中 `print-platter-256/manifest.json` 记录打印床、板次、源 STL、实际包围盒和超尺寸原因；`plate-*.stl` 是可以导入切片器的拼盘文件。使用更大打印床时可以选择内置预设，或传入 `--bed-width`、`--bed-depth`、`--bed-height`。
+
+独立预览页是 `hardware/cad/preview/index.html`，它参考 SmartPaddle 的拼盘操作方式，提供打印床切换、间距/余量调节、自动重新排版、板次切换、零件筛选、俯视图点击选件、Three.js STL 预览、源 STL/拼盘 STL 下载和布局 JSON 下载。页面内的调参只是浏览器预览，只有再次运行 Python 拼盘脚本才会生成对应的合并 STL。
+
+```text
+python3 -m http.server 8000
+打开 http://127.0.0.1:8000/hardware/cad/preview/index.html
+```
+
+页面默认读取 `exports/net-stand-v0.1/print-platter-256/manifest.json`；如果页面显示清单读取失败，先执行上面的导出和拼盘命令。Three.js 从 CDN 加载，网络不可用时俯视图、自动排版和 JSON 下载仍可用，但 3D STL 检查器会降级为提示。
+
 本机安装 OpenSCAD 后运行：
 
 ```text
