@@ -15,7 +15,7 @@
 | `bridge` | 1 | PETG；固定桥件 |
 | `rod` | 1 | PETG；12×12×130 mm 方杆 |
 | `guide` | 1 | PETG；连续导轨、刻度标记和 10 mm 定位通孔 |
-| `reference_carriage_body` | 1 | PETG；只打印端座本体 |
+| `reference_carriage_body` | 1 | PETG；只打印端座本体，包含参考线贯穿孔 |
 
 `left_clamp`/`right_clamp` 是装配检查导出，不是单个可直接打印的组合件。`reference_carriage` 包含定位销装配占位，打印时使用 `reference_carriage_body`；`reference_pin`、`screw_rod`、Ø8 光轴、滚柱、滚柱轴和螺母使用实物标准件。`optical_bank` 是电子模块包络，不打印成最终光学件。
 

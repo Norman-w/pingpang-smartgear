@@ -184,6 +184,48 @@ def main() -> None:
             if not output.is_file() or output.stat().st_size == 0:
                 raise RuntimeError(f"OpenSCAD produced no mirrored STL for PART={part}")
 
+        for height in range(10, 101, 10):
+            output = output_dir / f"reference-carriage-{height}.stl"
+            subprocess.run(
+                [
+                    openscad,
+                    "-o",
+                    str(output),
+                    "-D",
+                    'PART="reference_carriage_body"',
+                    "-D",
+                    f"reference_height={height}",
+                    str(SOURCE),
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            if not output.is_file() or output.stat().st_size == 0:
+                raise RuntimeError(
+                    f"OpenSCAD produced no reference carriage for height {height} mm"
+                )
+
+        invalid_detent = subprocess.run(
+            [
+                openscad,
+                "-o",
+                str(output_dir / "invalid-reference-height.stl"),
+                "-D",
+                'PART="reference_carriage_body"',
+                "-D",
+                "reference_height=55",
+                str(SOURCE),
+            ],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        if invalid_detent.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a reference height outside the 10 mm grid")
+
         output = output_dir / "left-side-explicit.stl"
         subprocess.run(
             [
@@ -291,7 +333,7 @@ def main() -> None:
             raise RuntimeError("OpenSCAD accepted intersecting scissor arm layers")
     geometry_result = validate(read_parameters(openscad))
     print(
-        f"SCAD_OK ({len(PARTS)} exports + SIDE=±1 mirror geometry + motion 10/20 deg; "
+        f"SCAD_OK ({len(PARTS)} exports + SIDE=±1 mirror geometry + reference detents 10..100 mm + motion 10/20 deg; "
         f"{geometry_result})"
     )
 

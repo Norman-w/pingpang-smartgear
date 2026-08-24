@@ -98,6 +98,7 @@ beam_pitch = 10;
 beam_last_height = beam_first_height + (beam_count - 1) * beam_pitch;
 reference_height = 50;
 reference_line_d = 1.5;
+reference_line_clearance = 0.4;
 locating_hole_d = 4;
 optical_module_depth = 8;
 optical_module_width = 14;
@@ -169,6 +170,9 @@ assert(screw_span / 2 >= outer_radius() * sin(clamp_angle_deg) + roller_d / 2,
 assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&
            (reference_height - beam_first_height) % beam_pitch == 0,
        "reference line must land on a 10 mm optical detent");
+assert(reference_line_d > 0 && reference_line_clearance >= 0 &&
+           reference_line_d + reference_line_clearance < bridge_h,
+       "reference line bore must fit inside the carriage body");
 assert(locating_hole_d > 0 && locating_hole_d < guide_width,
        "locating holes must pass through the optical guide");
 assert(optical_module_depth > 0 && optical_module_width > 0 &&
@@ -418,6 +422,15 @@ module reference_carriage_body() {
                     cylinder(d = locating_hole_d,
                              h = guide_width + 8,
                              center = true);
+            // The reference line runs across the table in X. This is a real
+            // through-bore in the carriage, so the line is mechanically
+            // captured by the end seat instead of visually passing through
+            // a solid block in the assembly preview.
+            translate([guide_center_x(), 0, beam_z(h)])
+                rotate([0, 90, 0])
+                    cylinder(d = reference_line_d + reference_line_clearance,
+                             h = 20,
+                             center = true);
         }
 }
 
@@ -518,12 +531,15 @@ module parameter_probe() {
              ";screw_d=", screw_d,
              ";screw_pitch=", screw_pitch,
              ";screw_span=", screw_span,
+             ";bridge_h=", bridge_h,
              ";rod_len=", rod_len,
              ";beam_count=", beam_count,
              ";beam_first_height=", beam_first_height,
              ";beam_pitch=", beam_pitch,
              ";beam_last_height=", beam_last_height,
              ";reference_height=", reference_height,
+             ";reference_line_d=", reference_line_d,
+             ";reference_line_clearance=", reference_line_clearance,
              ";optical_module_depth=", optical_module_depth,
              ";optical_module_width=", optical_module_width,
              ";optical_module_height=", optical_module_height,

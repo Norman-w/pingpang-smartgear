@@ -114,12 +114,15 @@ def validate(parameters: dict[str, float]) -> str:
         "screw_d",
         "screw_pitch",
         "screw_span",
+        "bridge_h",
         "rod_len",
         "beam_count",
         "beam_first_height",
         "beam_pitch",
         "beam_last_height",
         "reference_height",
+        "reference_line_d",
+        "reference_line_clearance",
         "optical_module_depth",
         "optical_module_width",
         "optical_module_height",
@@ -178,6 +181,13 @@ def validate(parameters: dict[str, float]) -> str:
     ) / parameters["beam_pitch"]
     require(math.isclose(detent_index, round(detent_index), abs_tol=1e-6),
             "reference line must land on a beam detent")
+    require(
+        parameters["reference_line_d"] > 0
+        and parameters["reference_line_clearance"] >= 0
+        and parameters["reference_line_d"] + parameters["reference_line_clearance"]
+        < parameters["bridge_h"],
+        "reference line bore must fit inside the carriage body",
+    )
     require(parameters["rod_len"] >= parameters["beam_last_height"],
             "extension rod is shorter than the optical grid")
     require(
