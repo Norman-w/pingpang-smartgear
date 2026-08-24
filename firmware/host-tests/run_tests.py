@@ -53,6 +53,12 @@ def main() -> None:
     invalid_height["beam_height_mm"] = [10, 10]
     if validator.is_valid(invalid_height):
         raise AssertionError("schema must reject a nonzero height interval without beams")
+    inconsistent_mask_height = deepcopy(events[0])
+    inconsistent_mask_height["beam_mask"] = 1
+    inconsistent_mask_height["beam_height_mm"] = [100, 100]
+    inconsistent_mask_height["ball_bottom_gap_mm"] = [90, 100]
+    if validator.is_valid(inconsistent_mask_height):
+        raise AssertionError("schema must tie beam height to the beam mask")
     invalid_state = dict(events[1])
     invalid_state["state"] = "clean_over"
     if validator.is_valid(invalid_state):
@@ -101,6 +107,8 @@ def main() -> None:
         raise AssertionError("schema must reject a gap outside the adjacent 10 mm interval")
     for lowest_height in range(10, 101, 10):
         valid_relation = deepcopy(trace_events[0])
+        lowest_index = lowest_height // 10 - 1
+        valid_relation["beam_mask"] = (1 << lowest_index) | (1 << 9)
         valid_relation["beam_height_mm"] = [lowest_height, 100]
         valid_relation["ball_bottom_gap_mm"] = [lowest_height - 10, lowest_height]
         validator.validate(valid_relation)
