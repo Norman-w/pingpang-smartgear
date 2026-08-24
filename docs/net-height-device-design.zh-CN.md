@@ -50,9 +50,9 @@ BLE、Wi-Fi、WebSocket、MQTT、SSE、配网和 App 多设备基础设施不在
 - 传统桌下夹持：固定 C 形夹体跨过台面边缘，上夹板压住台面上表面，台底可动压块由下方 M8 螺杆顶起并夹紧；螺杆始终位于台面下方，不穿过球台，整个支架免打孔安装；接触软垫、螺纹件和夹紧力仍需实测；
 - 网顶承载条：连接左右立柱，首轮拆成 3 段约 `524 mm` 的搭接件，接缝下方用 2 片带 M3 孔的 `net_rail_splice` 拼接片锁紧（或替换为同接口铝型材），两端落在 `net_rail_saddle` 承托座上并由立柱侧端挡限位，支撑真实网布/白边；网布在装配时就属于本支架的一部分；
 - PVDF 安装座：左右各一处，固定在网顶承载条附近；`pvdf_film` 由两侧可拆压片夹持，薄膜可替换，线束沿立柱走线；
-- 光学导轨：左右立柱内侧安装发射/接收模块包络，带每 10 mm 贯穿孔和刻度；每个模块由独立的 `optical_module_carrier` 中性 U 形载台包住，后壁带正交调节长孔，提供有限俯仰/偏航预调；`reference_carriage`/`reference_pin` 在校准时锁定参考线，装配时再用标定规校准。
+- 光学导轨：左右立柱内侧安装可打印的 `optical_rail`，带每 10 mm 贯穿孔和刻度；`optical_strip` 只用于把导轨、模块包络和载台合并预览，不直接作为打印件；每个模块由独立的 `optical_module_carrier` 中性 U 形载台包住，后壁带正交调节长孔，提供有限俯仰/偏航预调；`reference_carriage`/`reference_pin` 在校准时锁定参考线，装配时再用标定规校准。
 
-OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于单侧结构装配检查，PVDF 座位于全宽网顶承载条中段，单独由 `sensor_mount` 或完整 `assembly` 检查；`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`net_rail_saddle`、`optical_strip`、`optical_module_carrier` 和 `calibration_gauge` 用于分件检查/导出。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件。
+OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于单侧结构装配检查，PVDF 座位于全宽网顶承载条中段，单独由 `sensor_mount` 或完整 `assembly` 检查；`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`net_rail_saddle`、`optical_rail`、`optical_strip`、`optical_module_carrier` 和 `calibration_gauge` 用于分件检查/导出，其中 `optical_strip` 仅为装配预览。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件。
 
 ### 3.2 光栅与参考线
 

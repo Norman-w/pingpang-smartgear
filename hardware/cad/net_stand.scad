@@ -20,7 +20,8 @@
 //   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
 //   PART="net_rail_splice"    网顶承载条拼接片（由 rail_splice_index 选择）
 //   PART="net_rail_saddle"    立柱内侧网顶承托/端部限位座
-//   PART="optical_strip"      单侧 10 路红外模块导轨与模块包络
+//   PART="optical_rail"       单侧可打印 10 路红外模块导轨、定位孔与刻度
+//   PART="optical_strip"      单侧 10 路红外模块导轨与模块装配预览
 //   PART="optical_module_carrier" 单个光学模块中性载台/调节槽（由 optical_module_index 选择）
 //   PART="sensor_mount"       单侧网顶 PVDF 夹片安装座
 //   PART="pvdf_film"          PVDF 薄膜包络（非打印件）
@@ -444,7 +445,7 @@ module optical_module_positive(height) {
                 cylinder(d = optical_lens_d, h = optical_lens_depth, center = true);
 }
 
-module optical_strip_positive() {
+module optical_rail_positive() {
     color("goldenrod")
         difference() {
             translate([optical_rail_x, -optical_rail_width / 2,
@@ -468,7 +469,10 @@ module optical_strip_positive() {
                        beam_z(beam_first_height + i * beam_pitch) - scale_tick_height / 2])
                 cube([1, scale_tick_width, scale_tick_height]);
         }
+}
 
+module optical_strip_positive() {
+    optical_rail_positive();
     for (i = [0:beam_count - 1]) {
         optical_module_carrier_positive(beam_first_height + i * beam_pitch);
         optical_module_positive(beam_first_height + i * beam_pitch);
@@ -784,6 +788,8 @@ if (PART == "assembly") {
     net_rail_splice_positive(rail_splice_index);
 } else if (PART == "net_rail_saddle") {
     net_rail_saddle(default_side);
+} else if (PART == "optical_rail") {
+    sided(default_side) optical_rail_positive();
 } else if (PART == "optical_strip") {
     sided(default_side) optical_strip_positive();
 } else if (PART == "optical_module_carrier") {

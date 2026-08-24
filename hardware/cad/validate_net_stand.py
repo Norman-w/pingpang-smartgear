@@ -31,6 +31,7 @@ PARTS = (
     "net_rail_segment",
     "net_rail_splice",
     "net_rail_saddle",
+    "optical_rail",
     "optical_strip",
     "optical_module_carrier",
     "sensor_mount",
@@ -218,6 +219,7 @@ def main() -> None:
             "clamp_screw",
             "clamp_knob",
             "net_rail_saddle",
+            "optical_rail",
             "optical_strip",
             "optical_module_carrier",
             "sensor_mount",
@@ -262,6 +264,7 @@ def main() -> None:
         film_lip_bounds = stl_bounds(output_dir / "sensor_clamp_lip.stl")
         reference_bounds = stl_bounds(output_dir / "reference_carriage.stl")
         saddle_bounds = stl_bounds(output_dir / "net_rail_saddle.stl")
+        optical_rail_bounds = stl_bounds(output_dir / "optical_rail.stl")
         carrier_bounds = stl_bounds(output_dir / "optical_module_carrier.stl")
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         post_bounds = stl_bounds(output_dir / "post.stl")
@@ -299,6 +302,12 @@ def main() -> None:
             and abs(carrier_center_z - (parameters["net_height"] + parameters["beam_first_height"])) < 0.01
         ):
             raise RuntimeError(f"optical module carrier envelope is not centered on channel 0: {carrier_bounds}")
+        if not (
+            optical_rail_bounds[3] - optical_rail_bounds[2] <= parameters["optical_rail_width"] + 0.01
+            and optical_rail_bounds[4] < parameters["net_height"]
+            and optical_rail_bounds[5] > parameters["net_height"] + parameters["beam_last_height"]
+        ):
+            raise RuntimeError(f"printable optical rail envelope is not a standalone guide: {optical_rail_bounds}")
         expected_reference_z = parameters["net_height"] + 50
         if not (
             reference_bounds[4] < expected_reference_z < reference_bounds[5]
