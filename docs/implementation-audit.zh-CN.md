@@ -9,7 +9,7 @@
 | X 型夹具 CAD | `hardware/cad/net_post_x_clamp.scad` 支持左右镜像、`SIDE=±1` 覆盖、10°…20° 运动参数、Ø8 轴孔、M8×1.25 螺杆/滚柱/压盖/螺母捕获、方杆、独立固定桥件、10 路导轨和参考线端座；`validate_scad.py` 编译 10 个 PART、检查左右 STL 包围盒镜像、10°/20° 端点，并拒绝 25° 越界参数。 |
 | CAD 几何关系 | `validate_geometry.py` 从 OpenSCAD 参数探针读取唯一参数源，检查 X 臂共线、内侧 V 槽到 Ø25 mm 立柱的包络、轴孔间隙、M8 行程和 10 mm 档位。 |
 | 光栅业务 | 10 位 `beam_mask`、最低/最高命中光束、安静结束、超时边界、逐通道位图和高度区间均有主机测试。 |
-| PVDF 业务 | 双通道合并、20 ms 预触发、80 ms 后触发、峰值/能量/持续时间、完整/不完整波形归档和超时释放均有主机测试；`piezo_waveform_hook.h` 为既有回放存储提供同步复制边界。 |
+| PVDF 业务 | 双通道合并、20 ms 预触发、80 ms 后触发、峰值/能量/持续时间、完整/不完整波形归档和超时释放均有主机测试；冷启动时预触发历史不足即使后窗口采满也保持 incomplete；`piezo_waveform_hook.h` 为既有回放存储提供同步复制边界。 |
 | 状态与质量 | `clean_over`、`touch_over`、`touch_no_cross`、`unknown`，以及标定、光栅健康、PVDF 基线、波形不完整、空/非有限波形特征、乱序时间戳和 GPIO 队列溢出门均有测试。 |
 | 输入边界保护 | 聚合器会拒绝非法 beam 位图/边界索引、非法 PVDF sensor mask/时间顺序/非有限特征，并对极限时间戳使用饱和加法；直接 JSON 序列化也不会输出 `NaN`/负浮点字面量。反例已加入主机测试。 |
 | 传输边界 | `NetEventDelivery` 支持断链缓存、有界覆盖、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层；具体 `/ws` 适配示例与当前引脚冲突见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。 |

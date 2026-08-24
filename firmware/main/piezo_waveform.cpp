@@ -29,10 +29,14 @@ PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
                                 ? frame.pre_trigger_samples
                                 : static_cast<std::size_t>(sample_rate_hz) * 20U /
                                       1'000U);
-        const std::size_t recorded_pre =
-            frame.complete && frame.pre_samples_available[channel] == 0
-                ? pre_samples
-                : frame.pre_samples_available[channel];
+        const std::size_t recorded_pre = frame.pre_samples_available[channel];
+        if (frame.complete && recorded_pre < pre_samples) {
+            // A just-booted device may have a complete post-trigger window
+            // before its rolling history has filled. Keep the frame for
+            // diagnostics, but do not turn zero-filled history into valid
+            // baseline evidence.
+            features.complete = false;
+        }
         const std::size_t available_pre = std::min(pre_samples, recorded_pre);
         const std::size_t baseline_begin = pre_samples - available_pre;
         const float baseline = std::accumulate(

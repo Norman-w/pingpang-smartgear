@@ -452,6 +452,24 @@ void test_waveform_window() {
                 partial_frame->samples[0][3] == 11 &&
                 partial_frame->samples[0][4] == 12,
             "partial pre-trigger history must be zero-filled chronologically");
+
+    smartgear::PiezoWaveformCapture cold_start({1'000, 5, 5});
+    require(cold_start.start_capture(3'000, "wave-cold-start"),
+            "cold-start waveform should begin without history");
+    for (int sample = 0; sample < 5; ++sample) {
+        cold_start.feed_sample(0, static_cast<std::int16_t>(50 + sample),
+                               3'000 + sample);
+        cold_start.feed_sample(1, static_cast<std::int16_t>(60 + sample),
+                               3'000 + sample);
+    }
+    auto cold_frame = cold_start.take_ready();
+    require(cold_frame.has_value() && cold_frame->complete &&
+                cold_frame->pre_samples_available == std::array<std::size_t, 2>{0, 0},
+            "cold-start waveform must retain its missing pre-trigger evidence");
+    const auto cold_features =
+        smartgear::extract_piezo_features(*cold_frame, 1'000);
+    require(!cold_features.complete,
+            "missing pre-trigger history must keep features incomplete");
 }
 
 void test_waveform_timeout_flush() {
