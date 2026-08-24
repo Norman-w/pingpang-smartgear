@@ -21,6 +21,7 @@ EXPECTED_COUNTS = {
     "post_joint_sleeve": 2,
     "post_joint_key": 2,
     "table_clamp_body": 2,
+    "clamp_top_pad": 2,
     "clamp_pressure_pad": 2,
     "clamp_knob": 2,
     "net_rail_segment": 3,
@@ -48,8 +49,8 @@ PREVIEW_ONLY_PARTS = {
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 50:
-        raise AssertionError(f"expected 50 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 52:
+        raise AssertionError(f"expected 52 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -151,9 +152,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (50 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (52 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (50 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (52 specs, manifest not present)")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@
 - `assembly`：含球台截面、网布、网顶承载条、双侧立柱、桌下夹持、10 路光栅模块、PVDF 网顶安装座和参考线的装配预览；
 - `left_stand` / `right_stand`：左右单侧结构检查件，包含立柱、传统桌下夹持、网顶承托座和单侧光学模块；PVDF 座位于全宽网顶承载条中段，在 `assembly` 或 `sensor_mount` 中检查；
 - `table_clamp_section`：桌板剖面可视校验件，明确显示桌板上下表面、独立台底压块、圆头 M8 螺杆、固定下臂螺母和旋钮捕获螺母；它只是证据预览，不是打印件；
-- `post`：单侧立柱主体装配预览；`post_segment`：两段约 153 mm 的可打印立柱，`post_segment_index=0` 的下段包含台面上方承载加厚；`post_joint_sleeve` / `post_joint_key`：接缝外套筒与内芯；`table_clamp`：单侧桌下夹持装配预览；`table_clamp_body`：固定 C 形夹体和下臂 M8 螺母捕获窝；`clamp_pressure_pad`：台底可动压块/软垫占位；`clamp_screw`：带圆头的 M8 标准螺杆占位；`clamp_body_nut`：固定下臂中的标准 M8 螺母；`clamp_knob`：带 M8 通孔和顶部六角螺母捕获窝的手拧旋钮；`clamp_knob_nut`：旋钮内捕获的标准 M8 螺母；
+- `post`：单侧立柱主体装配预览；`post_segment`：两段约 153 mm 的可打印立柱，`post_segment_index=0` 的下段包含台面上方承载加厚；`post_joint_sleeve` / `post_joint_key`：接缝外套筒与内芯；`table_clamp`：单侧桌下夹持装配预览；`table_clamp_body`：固定 C 形夹体和下臂 M8 螺母捕获窝；`clamp_top_pad`：固定上夹板与桌面之间的可替换 TPU/硅胶保护垫；`clamp_pressure_pad`：台底可动压块/软垫占位；`clamp_screw`：带圆头的 M8 标准螺杆占位；`clamp_body_nut`：固定下臂中的标准 M8 螺母；`clamp_knob`：带 M8 通孔和顶部六角螺母捕获窝的手拧旋钮；`clamp_knob_nut`：旋钮内捕获的标准 M8 螺母；
 - `net`：网布装配占位，不是 PETG 打印件；`net_rail`：三段带搭接和拼接片的网顶承载条装配预览；`net_rail_segment`：约 524 mm 的可打印单段；`net_rail_splice`：带 M3 孔的拼接片；`net_rail_saddle`：两侧立柱内侧的承托/端部限位座；
 - `optical_rail`：单侧可打印连续光学导轨、10 个贯穿定位孔和刻度；`optical_strip`：导轨、10 个模块包络和 10 个中性载台的装配预览，不作为单件打印；`optical_module_carrier`：单个模块的可打印 U 形载台，带正交调节长孔，`optical_module_index=0…9` 选择 10 mm 档位；
 - `sensor_mount`：单侧网顶 PVDF 夹片装配预览；`sensor_mount_body`：不含薄膜和压片包络的可打印 PETG 座体；`pvdf_film` / `sensor_clamp_lip`：可拆薄膜和两侧压片包络；`reference_carriage`：参考线端座与定位销装配预览；`reference_carriage_body`：不含定位销的可打印 PETG 端座；`reference_pin`：锁定到 10 mm 孔位的标准弹簧定位销；
@@ -28,6 +28,7 @@ openscad -D 'PART="right_stand"' -o right-stand.stl net_stand.scad
 openscad -D 'PART="left_stand"' -o left-stand.stl net_stand.scad
 openscad -D 'PART="table_clamp_body"' -D 'SIDE=1' -o right-clamp-body.stl net_stand.scad
 openscad -D 'PART="table_clamp_section"' -D 'SIDE=1' -o right-clamp-section.stl net_stand.scad
+openscad -D 'PART="clamp_top_pad"' -D 'SIDE=1' -o right-clamp-top-pad.stl net_stand.scad
 openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=1' -o right-pressure-pad.stl net_stand.scad
 openscad -D 'PART="clamp_body_nut"' -D 'SIDE=1' -o right-clamp-body-nut.stl net_stand.scad
 openscad -D 'PART="clamp_screw"' -D 'SIDE=1' -o right-clamp-screw.stl net_stand.scad
@@ -49,7 +50,7 @@ openscad -D 'PART="reference_carriage_body"' -D 'SIDE=1' -o right-reference-carr
 python3 export_net_stand_printables.py
 ```
 
-脚本把独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、档位、包围盒和封闭拓扑摘要）。`test_export_net_stand_printables.py` 会固定 50 件导出矩阵，并在本地产物存在时核对 manifest 与每个 STL；`assembly`、左右支架、`sensor_mount`、`reference_carriage` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
+脚本把独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、档位、包围盒和封闭拓扑摘要）。`test_export_net_stand_printables.py` 会固定 52 件导出矩阵，并在本地产物存在时核对 manifest 与每个 STL；`assembly`、左右支架、`sensor_mount`、`reference_carriage` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
 
 `preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
 

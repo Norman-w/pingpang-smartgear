@@ -128,6 +128,13 @@ def main() -> None:
     )
     render(
         openscad,
+        "clamp_top_pad",
+        args.output_dir / "net-stand-clamp-top-pad.png",
+        900,
+        700,
+    )
+    render(
+        openscad,
         "clamp_pressure_pad",
         args.output_dir / "net-stand-clamp-pressure-pad.png",
         900,

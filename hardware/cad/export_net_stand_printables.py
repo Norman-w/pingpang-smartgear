@@ -186,6 +186,15 @@ def build_export_specs() -> list[ExportSpec]:
     )
     specs.extend(
         _side_specs(
+            "clamp_top_pad",
+            "clamp-top-pad",
+            "TPU/硅胶优先",
+            "接触桌面的一面朝下；也可用同厚度硅胶片替代。",
+            "固定上夹板与桌面之间的可替换保护垫；不承担 C 形夹结构力路。",
+        )
+    )
+    specs.extend(
+        _side_specs(
             "clamp_pressure_pad",
             "clamp-pressure-pad",
             "TPU/硅胶优先，PETG 仅作几何样件",

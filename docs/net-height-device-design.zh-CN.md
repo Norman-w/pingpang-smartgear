@@ -47,12 +47,12 @@ BLE、Wi-Fi、WebSocket、MQTT、SSE、配网和 App 多设备基础设施不在
 每侧支架由以下部分组成：
 
 - 立柱主体：从桌下夹持区域一直延伸到最高光栅模块上方，顶部承载网顶承载条和光学导轨；为适配常见打印幅面，当前拆成两段约 `153 mm` 的 `post_segment`，接缝用 `post_joint_sleeve` 外套筒和 `post_joint_key` 内芯定位；下段单独导出时保留台面上方的局部箱型承载加厚；
-- 传统桌下夹持：固定 C 形夹体跨过台面边缘，上夹板压住台面上表面，台底可动压块由下方 M8 圆头螺杆顶起并夹紧；固定下臂捕获一枚 M8 螺母，打印旋钮再捕获一枚 M8 螺母，避免依赖 PETG 内螺纹；螺杆圆头只接触压块底面，始终位于台面下方，不穿过球台或压块，整个支架免打孔安装；接触软垫、标准件防松和夹紧力仍需实测；
+- 传统桌下夹持：固定 C 形夹体跨过台面边缘，上夹板通过可替换 TPU/硅胶保护垫压住台面上表面，台底可动压块由下方 M8 圆头螺杆顶起并夹紧；固定下臂捕获一枚 M8 螺母，打印旋钮再捕获一枚 M8 螺母，避免依赖 PETG 内螺纹；螺杆圆头只接触压块底面，始终位于台面下方，不穿过球台或压块，整个支架免打孔安装；保护垫、接触软垫、标准件防松和夹紧力仍需实测；
 - 网顶承载条：连接左右立柱，首轮拆成 3 段约 `524 mm` 的搭接件，接缝下方用 2 片带 M3 孔的 `net_rail_splice` 拼接片锁紧（或替换为同接口铝型材），两端落在 `net_rail_saddle` 承托座上并由立柱侧端挡限位，支撑真实网布/白边；网布在装配时就属于本支架的一部分；
 - PVDF 安装座：左右各一处，固定在网顶承载条附近；`pvdf_film` 由两侧可拆压片夹持，薄膜可替换，线束沿立柱走线；
 - 光学导轨：左右立柱内侧安装可打印的 `optical_rail`，带每 10 mm 贯穿孔和刻度；`optical_strip` 只用于把导轨、模块包络和载台合并预览，不直接作为打印件；每个模块由独立的 `optical_module_carrier` 中性 U 形载台包住，后壁带正交调节长孔，提供有限俯仰/偏航预调；`reference_carriage`/`reference_pin` 在校准时锁定参考线，装配时再用标定规校准。
 
-OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于单侧结构装配检查，PVDF 座位于全宽网顶承载条中段，单独由 `sensor_mount` 或完整 `assembly` 检查；`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`net_rail_saddle`、`optical_rail`、`optical_strip`、`optical_module_carrier` 和 `calibration_gauge` 用于分件检查/导出，其中 `optical_strip` 仅为装配预览。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件。
+OpenSCAD 的 `assembly` 只用于整体关系预览；`left_stand`、`right_stand`、`post` 用于单侧结构装配检查，PVDF 座位于全宽网顶承载条中段，单独由 `sensor_mount` 或完整 `assembly` 检查；`post_segment`、`post_joint_sleeve`、`post_joint_key`、`table_clamp_body`、`clamp_top_pad`、`clamp_pressure_pad`、`clamp_knob`、`net_rail`、`net_rail_saddle`、`optical_rail`、`optical_strip`、`optical_module_carrier` 和 `calibration_gauge` 用于分件检查/导出，其中 `optical_strip` 仅为装配预览。球网、光学器件、PVDF 薄膜、线束、M8 螺杆和软垫不被误认为打印件；`clamp_top_pad` 是接触保护界面，不承担 C 形夹结构力路。
 
 ### 3.2 光栅与参考线
 

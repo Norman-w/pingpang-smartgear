@@ -13,6 +13,7 @@
 //   PART="table_clamp"        单侧传统桌下夹持机构装配预览
 //   PART="table_clamp_section" 桌板剖面/免打孔夹紧受力路径预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
+//   PART="clamp_top_pad"     台面上表面可替换保护垫（TPU/硅胶占位）
 //   PART="clamp_pressure_pad" 台底可动压块/软垫占位
 //   PART="clamp_screw"        M8 螺杆占位（非打印件，顶端圆头）
 //   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母（标准件）
@@ -128,6 +129,9 @@ clamp_outer_wall_width = 22;
 clamp_lower_arm_t = clamp_pad_t;
 clamp_threaded_boss_d = 22;
 clamp_threaded_boss_h = 12;
+clamp_top_pad_width = 96;
+clamp_top_pad_depth = 48;
+clamp_top_pad_t = 2;
 clamp_pressure_pad_width = 42;
 clamp_pressure_pad_depth = 44;
 clamp_pressure_pad_t = 2;
@@ -170,6 +174,7 @@ clamp_pad_x = table_edge_x - clamp_reach_inboard;
 clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
 clamp_outer_wall_x = post_center_x + post_body_width / 2;
 clamp_screw_x = table_edge_x - clamp_screw_inset;
+clamp_top_pad_x = clamp_pad_x + 8;
 clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
 clamp_lower_arm_bottom_z = clamp_lower_arm_top_z - clamp_lower_arm_t;
 clamp_pressure_pad_top_z = -table_thickness - clamp_clearance;
@@ -254,6 +259,12 @@ assert(clamp_lower_arm_bottom_z < clamp_lower_arm_top_z &&
 assert(clamp_pressure_pad_x > clamp_pad_x &&
            clamp_pressure_pad_x + clamp_pressure_pad_width < table_edge_x,
        "the movable pressure pad must contact the underside inside the table edge");
+assert(clamp_top_pad_t > 0 && clamp_top_pad_width > 0 &&
+           clamp_top_pad_depth > 0 &&
+           clamp_top_pad_x >= clamp_pad_x &&
+           clamp_top_pad_x + clamp_top_pad_width <= clamp_pad_outer_x &&
+           clamp_top_pad_depth <= clamp_pad_depth,
+       "replaceable upper protective pad must fit under the fixed jaw");
 assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
        "outer wall width must connect the post to the outer clamp edge");
 assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
@@ -319,13 +330,14 @@ module table_clamp_body_positive() {
     color("slategray")
         difference() {
             union() {
-                translate([clamp_pad_x, -clamp_pad_depth / 2, 0])
+                translate([clamp_pad_x, -clamp_pad_depth / 2, clamp_top_pad_t])
                     cube([clamp_pad_outer_x - clamp_pad_x,
                           clamp_pad_depth, clamp_pad_t]);
                 translate([clamp_outer_wall_x, -clamp_pad_depth / 2,
                            clamp_lower_arm_bottom_z])
                     cube([clamp_outer_wall_width, clamp_pad_depth,
-                          clamp_pad_t + table_thickness + clamp_lower_arm_clearance]);
+                          clamp_pad_t + clamp_top_pad_t + table_thickness +
+                          clamp_lower_arm_clearance]);
                 translate([lower_arm_x, -clamp_pad_depth / 2,
                            clamp_lower_arm_bottom_z])
                     cube([clamp_pad_outer_x - lower_arm_x,
@@ -372,6 +384,14 @@ module clamp_pressure_pad_positive() {
                   clamp_pressure_pad_t]);
 }
 
+module clamp_top_pad_positive() {
+    // 可替换上保护垫位于桌面 z=0 与固定上夹板之间；首样可用 TPU 打印，
+    // 也可直接裁切同厚度硅胶片。它只承担接触保护，不承担 C 形夹结构力路。
+    color("black")
+        translate([clamp_top_pad_x, -clamp_top_pad_depth / 2, 0])
+            cube([clamp_top_pad_width, clamp_top_pad_depth, clamp_top_pad_t]);
+}
+
 module clamp_screw_positive() {
     color("dimgray") {
         translate([clamp_screw_x, 0, clamp_screw_bottom_z])
@@ -408,6 +428,7 @@ module clamp_knob_nut_positive() {
 
 module table_clamp_positive() {
     table_clamp_body_positive();
+    clamp_top_pad_positive();
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
     clamp_screw_positive();
@@ -433,6 +454,10 @@ module table_clamp_section_positive() {
             cube([section_width, 8, table_thickness]);
     intersection() {
         table_clamp_body_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_top_pad_positive();
         table_clamp_section_clip();
     }
     intersection() {
@@ -865,6 +890,10 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_d=", clamp_threaded_boss_d));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_h=", clamp_threaded_boss_h));
+    echo(str("NETSTAND_PARAM clamp_top_pad_x=", clamp_top_pad_x));
+    echo(str("NETSTAND_PARAM clamp_top_pad_width=", clamp_top_pad_width));
+    echo(str("NETSTAND_PARAM clamp_top_pad_depth=", clamp_top_pad_depth));
+    echo(str("NETSTAND_PARAM clamp_top_pad_t=", clamp_top_pad_t));
     echo(str("NETSTAND_PARAM clamp_screw_top_z=", clamp_screw_top_z));
     echo(str("NETSTAND_PARAM clamp_screw_bottom_z=", clamp_screw_bottom_z));
     echo(str("NETSTAND_PARAM clamp_screw_length=", clamp_screw_length));
@@ -933,6 +962,8 @@ if (PART == "assembly") {
     sided(default_side) table_clamp_section_positive();
 } else if (PART == "table_clamp_body") {
     sided(default_side) table_clamp_body_positive();
+} else if (PART == "clamp_top_pad") {
+    sided(default_side) clamp_top_pad_positive();
 } else if (PART == "clamp_pressure_pad") {
     sided(default_side) clamp_pressure_pad_positive();
 } else if (PART == "clamp_screw") {

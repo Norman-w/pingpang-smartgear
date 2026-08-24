@@ -26,6 +26,7 @@ PARTS = (
     "table_clamp",
     "table_clamp_section",
     "table_clamp_body",
+    "clamp_top_pad",
     "clamp_pressure_pad",
     "clamp_screw",
     "clamp_body_nut",
@@ -198,12 +199,13 @@ def require_stl(
 
 
 def validate_no_drill_thickness(
-    openscad: str, output_dir: Path, table_thickness: int
+    openscad: str, output_dir: Path, table_thickness: int, top_pad_t: float
 ) -> None:
     """Compile the under-table pressure path for a first-pass thickness matrix."""
 
     definitions = (f"table_thickness={table_thickness}",)
     body = output_dir / f"table-clamp-body-{table_thickness}.stl"
+    top_pad = output_dir / f"top-pad-{table_thickness}.stl"
     pad = output_dir / f"pressure-pad-{table_thickness}.stl"
     screw = output_dir / f"clamp-screw-{table_thickness}.stl"
     body_nut = output_dir / f"clamp-body-nut-{table_thickness}.stl"
@@ -213,6 +215,11 @@ def validate_no_drill_thickness(
         run_openscad(openscad, body, 'PART="table_clamp_body"', *definitions),
         body,
         f"table clamp body table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, top_pad, 'PART="clamp_top_pad"', *definitions),
+        top_pad,
+        f"upper protective pad table_thickness={table_thickness}",
     )
     require_stl(
         run_openscad(openscad, pad, 'PART="clamp_pressure_pad"', *definitions),
@@ -239,6 +246,7 @@ def validate_no_drill_thickness(
         knob_nut,
         f"captured knob M8 nut table_thickness={table_thickness}",
     )
+    top_pad_bounds = stl_bounds(top_pad)
     pad_bounds = stl_bounds(pad)
     screw_bounds = stl_bounds(screw)
     body_nut_bounds = stl_bounds(body_nut)
@@ -246,7 +254,9 @@ def validate_no_drill_thickness(
     knob_nut_bounds = stl_bounds(knob_nut)
     tabletop_bottom = -float(table_thickness)
     if not (
-        pad_bounds[5] < tabletop_bottom
+        top_pad_bounds[4] >= -0.01
+        and top_pad_bounds[5] <= top_pad_t + 0.01
+        and pad_bounds[5] < tabletop_bottom
         and screw_bounds[5] < tabletop_bottom
         and screw_bounds[5] <= pad_bounds[4] + 0.01
         and body_nut_bounds[5] < tabletop_bottom
@@ -257,7 +267,8 @@ def validate_no_drill_thickness(
     ):
         raise RuntimeError(
             "no-drill under-table path reaches the tabletop for "
-            f"table_thickness={table_thickness}: pad={pad_bounds}, screw={screw_bounds}, "
+            f"table_thickness={table_thickness}: top_pad={top_pad_bounds}, pad={pad_bounds}, "
+            f"screw={screw_bounds}, "
             f"body_nut={body_nut_bounds}, knob={knob_bounds}, knob_nut={knob_nut_bounds}"
         )
 
@@ -307,6 +318,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_screw_d",
         "clamp_threaded_boss_d",
         "clamp_threaded_boss_h",
+        "clamp_top_pad_x",
+        "clamp_top_pad_width",
+        "clamp_top_pad_depth",
+        "clamp_top_pad_t",
         "clamp_screw_top_z",
         "clamp_screw_bottom_z",
         "clamp_screw_length",
@@ -444,6 +459,7 @@ def main() -> None:
             "table_clamp",
             "table_clamp_section",
             "table_clamp_body",
+            "clamp_top_pad",
             "clamp_pressure_pad",
             "clamp_screw",
             "clamp_body_nut",
@@ -504,6 +520,7 @@ def main() -> None:
         rail_segment_bounds = stl_bounds(output_dir / "net_rail_segment.stl")
         clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
         clamp_section_bounds = stl_bounds(output_dir / "table_clamp_section.stl")
+        top_pad_bounds = stl_bounds(output_dir / "clamp_top_pad.stl")
         pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
         screw_bounds = stl_bounds(output_dir / "clamp_screw.stl")
         body_nut_bounds = stl_bounds(output_dir / "clamp_body_nut.stl")
@@ -569,6 +586,23 @@ def main() -> None:
         ):
             raise RuntimeError(f"fixed clamp body does not bridge the table edge: {clamp_body_bounds}")
         if not (
+            abs(top_pad_bounds[0] - parameters["clamp_top_pad_x"]) < 0.01
+            and abs(
+                top_pad_bounds[1]
+                - (parameters["clamp_top_pad_x"] + parameters["clamp_top_pad_width"])
+            )
+            < 0.01
+            and abs(
+                top_pad_bounds[3]
+                - top_pad_bounds[2]
+                - parameters["clamp_top_pad_depth"]
+            )
+            < 0.01
+            and top_pad_bounds[4] >= -0.01
+            and top_pad_bounds[5] <= parameters["clamp_top_pad_t"] + 0.01
+        ):
+            raise RuntimeError(f"upper protective pad envelope is inconsistent: {top_pad_bounds}")
+        if not (
             clamp_section_bounds[0] < parameters["table_width"] / 2 < clamp_section_bounds[1]
             and clamp_section_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
             and clamp_section_bounds[2] < 0 < clamp_section_bounds[3]
@@ -631,7 +665,9 @@ def main() -> None:
             )
 
         for table_thickness in NO_DRILL_TABLE_THICKNESSES:
-            validate_no_drill_thickness(openscad, output_dir, table_thickness)
+            validate_no_drill_thickness(
+                openscad, output_dir, table_thickness, parameters["clamp_top_pad_t"]
+            )
 
         invalid_grid = run_openscad(
             openscad,
