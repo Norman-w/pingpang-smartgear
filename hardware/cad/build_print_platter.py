@@ -249,7 +249,7 @@ def pack_parts(
         mesh = meshes[filename]
         candidates = fit_orientations(mesh, bed_width, bed_depth, bed_height, margin)
         if not candidates:
-            unplaced.append({
+            oversized_entry = {
                 "file": filename,
                 "part": item.get("part"),
                 "side": item.get("side"),
@@ -258,7 +258,11 @@ def pack_parts(
                 "reason": "XY 或 Z 尺寸超过当前打印床（未缩放、未裁切）",
                 "source_bounds": [list(value) for value in mesh.bounds],
                 "source_size_mm": list(dimensions(mesh.bounds)),
-            })
+            }
+            for key in ("name_zh", "name_en", "component_kind", "printable", "material", "orientation", "notes"):
+                if key in item:
+                    oversized_entry[key] = item[key]
+            unplaced.append(oversized_entry)
             continue
 
         placed = False
@@ -368,6 +372,13 @@ def build_manifest(
             entry = {
                 "file": filename,
                 "part": item.get("part"),
+                "name_zh": item.get("name_zh", filename.replace(".stl", "")),
+                "name_en": item.get("name_en", item.get("part")),
+                "component_kind": item.get("component_kind", "打印件"),
+                "printable": item.get("printable", True),
+                "material": item.get("material"),
+                "orientation": item.get("orientation"),
+                "notes": item.get("notes"),
                 "side": item.get("side"),
                 "side_value": item.get("side_value"),
                 "index": item.get("index"),
@@ -435,6 +446,7 @@ def build_manifest(
             "part_gap_mm": gap,
         },
         "install_model": source_manifest.get("install_model"),
+        "assembly_components": source_manifest.get("assembly_components", []),
         "packing": {
             "algorithm": "deterministic shelf packing from actual STL bounds",
             "rigid_transforms_only": True,

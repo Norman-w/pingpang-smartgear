@@ -92,6 +92,12 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
         raise AssertionError("manifest source hash does not match net_stand.scad")
     if data.get("units") != "mm" or "免打孔" not in data.get("install_model", ""):
         raise AssertionError("manifest lost units or no-drill install boundary")
+    components = data.get("assembly_components")
+    if not isinstance(components, list) or not components:
+        raise AssertionError("manifest 缺少装配物料清单")
+    rod = next((item for item in components if item.get("id") == "m8-threaded-rod"), None)
+    if not isinstance(rod, dict) or rod.get("name_zh") != "M8×1.25 金属螺杆" or rod.get("printable") is not False:
+        raise AssertionError("M8 金属螺杆必须作为中文外购/非打印件出现在物料清单")
 
     entries = data.get("parts")
     if not isinstance(entries, list):
@@ -123,6 +129,10 @@ def validate_manifest(path: Path) -> None:
         entry = entries[filename]
         if entry.get("part") != spec.part:
             raise AssertionError(f"manifest PART mismatch for {filename}")
+        if not isinstance(entry.get("name_zh"), str) or not entry["name_zh"]:
+            raise AssertionError(f"manifest 缺少中文名称: {filename}")
+        if entry.get("printable") is not True:
+            raise AssertionError(f"打印清单条目必须标记 printable=true: {filename}")
         if entry.get("definitions") != list(spec.definitions):
             raise AssertionError(f"manifest definitions mismatch for {filename}")
         if entry.get("units") != "mm":

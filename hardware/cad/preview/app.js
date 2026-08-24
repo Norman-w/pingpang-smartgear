@@ -24,6 +24,7 @@ const refs = {
   layoutTitle: $("#layout-title"),
   layoutBadge: $("#layout-badge"),
   bedCanvas: $("#bed-canvas"),
+  canvasHoverLabel: $("#canvas-hover-label"),
   legend: $("#legend"),
   modelTitle: $("#model-title"),
   modelHost: $("#model-host"),
@@ -36,6 +37,7 @@ const refs = {
   partList: $("#part-list"),
   oversizedBadge: $("#oversized-badge"),
   oversizedList: $("#oversized-list"),
+  componentList: $("#component-list"),
   oversizeNoteTitle: $("#oversize-note-title"),
   oversizeNoteText: $("#oversize-note-text"),
 };
@@ -63,6 +65,7 @@ const state = {
   generated: true,
   activePlateIndex: 0,
   selectedFile: null,
+  hoveredFile: null,
   modelMode: "plate",
   canvasTransform: null,
   three: {
@@ -115,11 +118,11 @@ function formatSize(size) {
 }
 
 function partName(entry) {
-  return String(entry?.label || entry?.file || "未命名零件").replace(/\.stl$/i, "");
+  return String(entry?.name_zh || entry?.label || entry?.file || "未命名零件").replace(/\.stl$/i, "");
 }
 
 function categoryKey(entry) {
-  const text = `${entry?.part || ""} ${entry?.file || ""}`.toLowerCase();
+  const text = `${entry?.part || ""} ${entry?.file || ""} ${entry?.name_zh || ""}`.toLowerCase();
   if (text.includes("optical") || text.includes("module") || text.includes("光学")) return "optical";
   if (text.includes("sensor") || text.includes("pvdf") || text.includes("film")) return "sensor";
   if (text.includes("rail") || text.includes("net-rail")) return "rail";
@@ -153,6 +156,13 @@ function sourcePathFor(entry) {
   return new URL(relative, state.manifestUrl).href;
 }
 
+function partSearchText(entry) {
+  return [entry?.name_zh, entry?.name_en, entry?.part, entry?.file, entry?.side, entry?.material]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function assetPath(relative) {
   return new URL(relative, state.manifestUrl).href;
 }
@@ -168,6 +178,7 @@ function generatedLayoutFromManifest(manifest) {
     })),
     oversized: (manifest.oversized || []).map((entry) => ({ ...entry })),
     parts: (manifest.parts || []).map((entry) => ({ ...entry })),
+    assembly_components: (manifest.assembly_components || []).map((entry) => ({ ...entry })),
   };
 }
 
@@ -226,8 +237,8 @@ function packPreview() {
   const startPlate = () => {
     plates.push({
       id: `plate-${String(plates.length + 1).padStart(2, "0")}`,
-      label: `预览拼盘 ${String(plates.length + 1).padStart(2, "0")}`,
-      description: "浏览器内实时排版；需要重新生成脚本才能得到合并 STL。",
+      label: `浏览器预览拼盘 ${String(plates.length + 1).padStart(2, "0")}`,
+      description: "按当前参数在浏览器中排版；不会生成或覆盖 STL 文件。",
       part_count: 0,
       parts: [],
     });
@@ -322,10 +333,12 @@ function packPreview() {
     plates: usablePlates,
     oversized,
     parts: usablePlates.flatMap((plate) => plate.parts).concat(oversized),
+    assembly_components: (state.manifest.assembly_components || []).map((entry) => ({ ...entry })),
   };
   state.generated = false;
   state.activePlateIndex = 0;
   state.selectedFile = null;
+  state.hoveredFile = null;
   state.modelMode = "plate";
   clearError();
   render();
@@ -340,7 +353,7 @@ function render() {
   refs.placedCount.textContent = String(placedCount);
   refs.oversizedCount.textContent = String((state.layout.oversized || []).length);
   refs.oversizedBadge.textContent = `${(state.layout.oversized || []).length} 件`;
-  if (refs.oversizeNoteTitle) refs.oversizeNoteTitle.textContent = `当前有 ${(state.layout.oversized || []).length} 件超尺寸`;
+  if (refs.oversizeNoteTitle) refs.oversizeNoteTitle.textContent = `当前有 ${(state.layout.oversized || []).length} 件需要处理`;
   if (refs.oversizeNoteText) refs.oversizeNoteText.textContent = (state.layout.oversized || []).length
     ? "网顶承载条约 537 mm，不能硬塞进当前打印床。页面会保留它们，等待换大床或再次拆分。"
     : "当前打印床可以容纳源清单中的全部零件。仍需在切片器中复核方向、支撑和首层。";
@@ -353,12 +366,13 @@ function render() {
   refs.layoutBadge.textContent = state.generated ? "已生成 STL" : "仅浏览器预览";
   refs.layoutBadge.classList.toggle("preview-badge", !state.generated);
   refs.modelTitle.textContent = state.modelMode === "part" && state.selectedFile ? partName(findPart(state.selectedFile)) : (plate?.label || "等待选择模型");
-  refs.modelCaption.textContent = state.generated ? "当前显示已生成的合并 STL；源零件仍保持独立尺寸。" : "当前是浏览器实时排版，仅用于比较床面与间距；点击脚本重新生成后才可下载合并 STL。";
+  refs.modelCaption.textContent = state.generated ? "当前显示脚本生成的拼盘 STL；源零件仍保持独立尺寸。" : "当前布局由浏览器按源 STL 计算，仅供核对；如需拼盘 STL，请重新运行拼盘脚本。";
   updateDownloadLink();
   drawBed();
   renderLegend();
   renderPartList();
   renderOversized();
+  renderComponents();
 }
 
 function renderTabs() {
@@ -384,6 +398,7 @@ function renderTabs() {
     tab.addEventListener("click", () => {
       state.activePlateIndex = index;
       state.selectedFile = null;
+      state.hoveredFile = null;
       state.modelMode = "plate";
       render();
       loadModel();
@@ -417,7 +432,7 @@ function renderPartList() {
   refs.partList.textContent = "";
   const plate = currentPlate();
   const query = refs.partFilter.value.trim().toLowerCase();
-  const entries = (plate?.parts || []).filter((entry) => `${entry.file} ${entry.part || ""}`.toLowerCase().includes(query));
+  const entries = (plate?.parts || []).filter((entry) => partSearchText(entry).includes(query));
   if (!entries.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
@@ -428,6 +443,7 @@ function renderPartList() {
   entries.forEach((entry) => {
     const row = document.createElement("div");
     row.className = "part-row";
+    row.dataset.file = entry.file;
     row.tabIndex = 0;
     row.setAttribute("role", "button");
     row.classList.toggle("selected", entry.file === state.selectedFile);
@@ -440,7 +456,7 @@ function renderPartList() {
     name.textContent = partName(entry);
     const sub = document.createElement("div");
     sub.className = "part-sub";
-    sub.textContent = `${entry.part || "part"}${entry.side ? ` · ${entry.side}` : ""}${entry.index !== null && entry.index !== undefined ? ` · #${entry.index}` : ""}`;
+    sub.textContent = `${entry.file || entry.part || "STL"}${entry.side ? ` · ${entry.side}` : ""}${entry.index !== null && entry.index !== undefined ? ` · #${entry.index}` : ""}`;
     info.append(name, sub);
     const dim = document.createElement("span");
     dim.className = "part-dim";
@@ -501,12 +517,53 @@ function renderOversized() {
   });
 }
 
+function renderComponents() {
+  if (!refs.componentList) return;
+  refs.componentList.textContent = "";
+  const entries = state.layout?.assembly_components || state.manifest?.assembly_components || [];
+  if (!entries.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "当前 manifest 没有装配物料清单";
+    refs.componentList.append(empty);
+    return;
+  }
+  entries.forEach((entry) => {
+    const row = document.createElement("div");
+    row.className = "component-row";
+    const name = document.createElement("div");
+    name.className = "component-name";
+    const title = document.createElement("strong");
+    title.textContent = entry.name_zh || entry.name_en || entry.id || "未命名元器件";
+    const english = document.createElement("span");
+    english.textContent = entry.name_en || entry.id || "";
+    name.append(title, english);
+    const kind = document.createElement("span");
+    kind.className = "component-kind";
+    kind.textContent = entry.kind || "装配件";
+    const quantity = document.createElement("span");
+    quantity.className = "component-quantity";
+    quantity.textContent = entry.quantity || "—";
+    const status = document.createElement("span");
+    status.className = `component-status ${entry.printable ? "component-status-print" : "component-status-purchase"}`;
+    status.textContent = entry.status || (entry.printable ? "打印件" : "非打印件");
+    const notes = document.createElement("span");
+    notes.className = "component-notes";
+    notes.textContent = [entry.scad_part ? `SCAD: ${entry.scad_part}` : "", entry.notes || ""]
+      .filter(Boolean)
+      .join(" · ");
+    row.append(name, kind, quantity, status, notes);
+    refs.componentList.append(row);
+  });
+}
+
 function selectPart(file) {
   const entry = findPart(file);
   if (!entry) return;
   const plateIndex = state.layout.plates.findIndex((plate) => plate.parts.some((part) => part.file === file));
   if (plateIndex >= 0) state.activePlateIndex = plateIndex;
   state.selectedFile = file;
+  state.hoveredFile = file;
   state.modelMode = "part";
   render();
   loadModel();
@@ -587,10 +644,11 @@ function drawBed() {
     const h = partDepth * scale;
     const itemColor = category(entry).color;
     const selected = entry.file === state.selectedFile;
-    context.fillStyle = `${itemColor}${selected ? "cc" : "70"}`;
+    const hovered = entry.file === state.hoveredFile;
+    context.fillStyle = `${itemColor}${selected ? "d8" : hovered ? "b0" : "70"}`;
     context.fillRect(x, y, w, h);
-    context.strokeStyle = selected ? "#ffffff" : itemColor;
-    context.lineWidth = selected ? 2 : 1;
+    context.strokeStyle = selected ? "#ffffff" : hovered ? "#ffffff" : itemColor;
+    context.lineWidth = selected ? 2.5 : hovered ? 2 : 1;
     context.strokeRect(x + .5, y + .5, Math.max(1, w - 1), Math.max(1, h - 1));
     if (refs.showLabels.checked && w > 34 && h > 14) {
       context.save();
@@ -618,6 +676,22 @@ function canvasEntryAt(clientX, clientY) {
     const [lo, hi] = entry.placed_bounds;
     return x >= number(lo[0]) && x <= number(hi[0]) && y >= number(lo[1]) && y <= number(hi[1]);
   }) || null;
+}
+
+function updateCanvasHoverLabel(entry, clientX = 0, clientY = 0) {
+  const label = refs.canvasHoverLabel;
+  if (!label) return;
+  if (!entry) {
+    label.hidden = true;
+    return;
+  }
+  const rect = refs.bedCanvas.getBoundingClientRect();
+  label.textContent = `${partName(entry)} · ${formatSize(sourceSize(entry))}`;
+  label.hidden = false;
+  const maxLeft = Math.max(8, rect.width - label.offsetWidth - 8);
+  const maxTop = Math.max(8, rect.height - label.offsetHeight - 8);
+  label.style.left = `${Math.min(maxLeft, Math.max(8, clientX - rect.left + 12))}px`;
+  label.style.top = `${Math.min(maxTop, Math.max(8, clientY - rect.top + 12))}px`;
 }
 
 function updateDownloadLink() {
@@ -753,7 +827,7 @@ async function loadModel() {
       if (requestId !== state.three.loadId) return;
       addGeometryMesh(THREE, geometry, category(entry).color, null, true);
       refs.modelPlaceholder.hidden = true;
-      refs.modelCaption.textContent = `${entry.file} · 源件 ${formatSize(sourceSize(entry))} · 未改变源件尺寸`;
+      refs.modelCaption.textContent = `${entry.file} · 源 STL ${formatSize(sourceSize(entry))} · 未改变源件尺寸`;
       fitThreeCamera();
     } catch (error) {
       setModelPlaceholder("单件 STL 暂不可读", "请确认先运行导出脚本并通过本地 HTTP 服务打开页面");
@@ -773,7 +847,7 @@ async function loadModel() {
       if (requestId !== state.three.loadId) return;
       addGeometryMesh(THREE, geometry, "#62e4d1", null, false);
       refs.modelPlaceholder.hidden = true;
-      refs.modelCaption.textContent = `${plate.path} · ${plate.parts.length} 件独立零件的合并预览`;
+      refs.modelCaption.textContent = `${plate.path} · ${plate.parts.length} 件独立打印件的合并预览`;
       fitThreeCamera();
     } catch (error) {
       setModelPlaceholder("拼盘 STL 暂不可读", "俯视图仍可使用；请检查本地导出目录");
@@ -791,7 +865,7 @@ async function loadModel() {
     }));
     if (requestId !== state.three.loadId) return;
     refs.modelPlaceholder.hidden = true;
-    refs.modelCaption.textContent = `浏览器实时拼盘 · ${plate.parts.length} 件源 STL · 未生成合并文件`;
+    refs.modelCaption.textContent = `浏览器排版预览 · ${plate.parts.length} 件源 STL · 尚未生成拼盘文件`;
     fitThreeCamera();
   } catch (error) {
     setModelPlaceholder("源 STL 暂不可读", "请先执行导出脚本；俯视排版仍可查看");
@@ -878,9 +952,10 @@ async function loadManifest() {
       ? new URL(state.manifest.source_manifest, state.manifestUrl).href
       : new URL("../manifest.json", state.manifestUrl).href;
     refs.sourceManifestLink.href = sourceHref;
-    refs.sourceManifestLink.textContent = "打开源 manifest ↗";
+    refs.sourceManifestLink.textContent = "查看源 manifest ↗";
     clearError();
-    setStatus(`已载入 ${state.layout.parts.length} 件首样清单`, "ok");
+    state.hoveredFile = null;
+    setStatus(`已载入 ${state.layout.parts.length} 个打印清单条目`, "ok");
     render();
     await initThree();
   } catch (error) {
@@ -920,6 +995,7 @@ refs.resetButton.addEventListener("click", () => {
   state.generated = true;
   state.activePlateIndex = 0;
   state.selectedFile = null;
+  state.hoveredFile = null;
   state.modelMode = "plate";
   setBedInputs(state.layout.print_bed);
   clearError();
@@ -931,6 +1007,7 @@ refs.showSafeArea.addEventListener("change", drawBed);
 refs.fitModel.addEventListener("click", fitThreeCamera);
 refs.downloadLayout.addEventListener("click", downloadLayout);
 refs.showPlateModel.addEventListener("click", () => {
+  state.hoveredFile = state.selectedFile;
   state.modelMode = "plate";
   render();
   loadModel();
@@ -948,6 +1025,37 @@ refs.partFilter.addEventListener("input", renderPartList);
 refs.bedCanvas.addEventListener("click", (event) => {
   const entry = canvasEntryAt(event.clientX, event.clientY);
   if (entry) selectPart(entry.file);
+});
+refs.bedCanvas.addEventListener("mousemove", (event) => {
+  const entry = canvasEntryAt(event.clientX, event.clientY);
+  const nextFile = entry?.file || null;
+  if (nextFile !== state.hoveredFile) {
+    state.hoveredFile = nextFile;
+    drawBed();
+  }
+  updateCanvasHoverLabel(entry, event.clientX, event.clientY);
+});
+refs.bedCanvas.addEventListener("mouseleave", () => {
+  if (state.hoveredFile && state.hoveredFile !== state.selectedFile) {
+    state.hoveredFile = null;
+    drawBed();
+  }
+  updateCanvasHoverLabel(null);
+});
+
+refs.partList.addEventListener("mouseover", (event) => {
+  const row = event.target.closest?.(".part-row");
+  if (!row) return;
+  state.hoveredFile = row.dataset.file || null;
+  drawBed();
+});
+refs.partList.addEventListener("mouseout", (event) => {
+  const row = event.target.closest?.(".part-row");
+  if (!row || row.contains(event.relatedTarget)) return;
+  if (state.hoveredFile !== state.selectedFile) {
+    state.hoveredFile = null;
+    drawBed();
+  }
 });
 
 loadManifest();

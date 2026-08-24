@@ -56,6 +56,9 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
     entries = data.get("parts")
     if not isinstance(entries, list) or {str(item["file"]) for item in entries} != expected_files:
         raise AssertionError("拼盘 parts 与 50 件源清单不一致")
+    components = data.get("assembly_components")
+    if not isinstance(components, list) or not components:
+        raise AssertionError("拼盘 manifest 缺少装配物料清单")
 
     plates = data.get("plates")
     if not isinstance(plates, list) or not plates:
@@ -72,6 +75,8 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
             raise AssertionError(f"{plate['id']} 没有排版零件")
         for item in parts:
             filename = str(item["file"])
+            if not item.get("name_zh"):
+                raise AssertionError(f"拼盘条目缺少中文名称: {filename}")
             _assert_source_file(path, item)
             if filename in placed_files:
                 raise AssertionError(f"零件重复排版: {filename}")
@@ -100,6 +105,8 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
     if placed_files | oversized_files != expected_files:
         raise AssertionError("不是所有源零件都得到 placed/oversized 结论")
     for item in oversized:
+        if not item.get("name_zh"):
+            raise AssertionError(f"超尺寸条目缺少中文名称: {item.get('file')}")
         _assert_source_file(path, item)
         if item.get("status") != "oversized":
             raise AssertionError(f"超尺寸条目缺少 oversized 状态: {item}")

@@ -16,8 +16,8 @@
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_top_pad"     台面上表面可替换保护垫（TPU/硅胶占位）
 //   PART="clamp_pressure_pad" 台底可动压块/软垫占位
-//   PART="clamp_screw"        M8 螺杆占位（非打印件，顶端圆头）
-//   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母（标准件）
+//   PART="clamp_screw"        M8×1.25 金属螺杆装配占位（非打印件，顶端圆头）
+//   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母装配占位（标准件）
 //   PART="clamp_knob"         手拧旋钮（含两枚 M8 对锁螺母捕获窝）
 //   PART="clamp_knob_nut"     旋钮内捕获的两枚 M8 对锁螺母（标准件）
 //   PART="net"                球网/网布装配占位（非打印件）
@@ -40,7 +40,9 @@
 //   SIDE=0                    使用默认右侧；SIDE=1/-1 显式选择左右镜像
 //
 // 说明：光学器件、PVDF 薄膜、网布、金属螺杆和夹持软垫均为装配占位或
-// 标准件边界。该文件验证的是当前机械意图与参数关系，不等同于最终
+// 标准件边界。M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示，不能直接
+// 作为 PETG 打印件进入 50 件打印清单；打印件是夹体、旋钮和保护垫。
+// 该文件验证的是当前机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性或光学精度验收。
 
 $fn = 48;
@@ -446,7 +448,9 @@ module clamp_top_pad_positive() {
 }
 
 module clamp_screw_positive() {
-    color("dimgray") {
+    // 这是金属外购螺杆的几何占位。首样不打印螺纹，使用真实 M8×1.25
+    // 螺杆承受夹紧载荷；圆头只用于检查与台底压块的接触位置。
+    color("silver") {
         translate([clamp_screw_x, 0, clamp_screw_bottom_z])
             cylinder(d = clamp_screw_d,
                      h = clamp_screw_length - clamp_screw_tip_radius);

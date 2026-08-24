@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>乒乓智配 · 3D 打印拼盘</title>
+  <title>乒乓智配 · 网架打印与装配检查</title>
   <script type="importmap">
   {
     "imports": {
@@ -20,8 +20,8 @@
     <div class="brand-lockup">
       <div class="brand-mark">配</div>
       <div>
-        <div class="eyebrow">PINGPANG SMARTGEAR / CAD LAB</div>
-        <h1>打印拼盘 <span>·</span> Net Stand v0.1</h1>
+        <div class="eyebrow">乒乓智配 / 内部工程工具</div>
+        <h1>网架打印件与装配清单 <span>·</span> v0.1</h1>
       </div>
     </div>
     <div class="top-meta">
@@ -33,14 +33,14 @@
   <main class="app-shell">
     <aside class="control-rail" aria-label="拼盘控制">
       <section class="intro-block">
-        <div class="section-kicker">PRINT PLATTER / 01</div>
-        <h2>把首样零件<br><em>放上热床</em></h2>
-        <p>按当前 STL 实际包围盒做刚体排版。页面内调参只改变预览，不会缩放或改写源零件。</p>
+        <div class="section-kicker">开发 / 装配 / 切片前检查</div>
+        <h2>网架首样<br><em>打印与装配检查</em></h2>
+        <p>给开发、装配和切片人员使用。页面按源 STL 的实际包围盒排版；这里的参数只改变预览，不会缩放或改写源零件。</p>
       </section>
 
       <section class="control-card">
-        <div class="card-label">打印床</div>
-        <label class="field-label" for="bed-preset">预设</label>
+        <div class="card-label">打印床与排版参数</div>
+        <label class="field-label" for="bed-preset">打印机 / 床面预设</label>
         <select id="bed-preset" class="control-input">
           <option value="256">256 × 256 × 256 mm / X1C 类</option>
           <option value="300">300 × 300 × 300 mm</option>
@@ -55,16 +55,16 @@
         </div>
         <label class="field-label" for="part-gap">零件间距 <output id="gap-output">5</output> mm</label>
         <input id="part-gap" class="range-input" type="range" min="2" max="12" step="0.5" value="5">
-        <button id="repack-button" class="primary-button" type="button">↻ 自动重新拼盘</button>
-        <button id="reset-button" class="secondary-button" type="button">恢复已生成拼盘</button>
+        <button id="repack-button" class="primary-button" type="button">↻ 重新计算排版</button>
+        <button id="reset-button" class="secondary-button" type="button">恢复已生成清单</button>
       </section>
 
       <section class="control-card compact-card">
-        <div class="card-label">视图操作</div>
-        <label class="check-row"><input id="show-labels" type="checkbox" checked><span>显示零件标签</span></label>
-        <label class="check-row"><input id="show-safe-area" type="checkbox" checked><span>显示边缘安全区</span></label>
+        <div class="card-label">检查项与导出</div>
+        <label class="check-row"><input id="show-labels" type="checkbox" checked><span>显示零件名称</span></label>
+        <label class="check-row"><input id="show-safe-area" type="checkbox" checked><span>显示边缘余量</span></label>
         <div class="button-row">
-          <button id="fit-model" class="secondary-button" type="button">适配 3D</button>
+          <button id="fit-model" class="secondary-button" type="button">视图适配</button>
           <button id="download-layout" class="secondary-button" type="button">下载布局 JSON</button>
         </div>
       </section>
@@ -72,13 +72,13 @@
       <section class="note-block">
         <div class="note-icon">!</div>
         <div>
-          <strong id="oversize-note-title">当前有 3 件超尺寸</strong>
-          <p id="oversize-note-text">网顶承载条约 537 mm，不能硬塞进 256 mm 打印床。页面会保留它们，等待换大床或再次拆分。</p>
+          <strong id="oversize-note-title">当前有 3 件需要处理</strong>
+          <p id="oversize-note-text">网顶承载条超过当前打印床，源 STL 会保留在清单中，不缩放、不裁切。</p>
         </div>
       </section>
 
       <div class="rail-footer">
-        <a id="source-manifest-link" href="#" target="_blank" rel="noreferrer">打开源 manifest ↗</a>
+        <a id="source-manifest-link" href="#" target="_blank" rel="noreferrer">查看源 manifest ↗</a>
         <span>STL 单位约定：mm</span>
       </div>
     </aside>
@@ -86,32 +86,33 @@
     <section class="workspace">
       <div class="workspace-head">
         <div>
-          <div class="section-kicker">LAYOUT CONTROL</div>
-          <h2>打印床排版工作台</h2>
+          <div class="section-kicker">当前任务 / 打印布局</div>
+          <h2>STL 打印床排版</h2>
         </div>
         <div class="metrics" aria-live="polite">
-          <div class="metric"><b id="plate-count">—</b><span>拼盘</span></div>
-          <div class="metric"><b id="placed-count">—</b><span>已排版件</span></div>
-          <div class="metric warning-metric"><b id="oversized-count">—</b><span>超尺寸</span></div>
+          <div class="metric"><b id="plate-count">—</b><span>打印床拼盘</span></div>
+          <div class="metric"><b id="placed-count">—</b><span>已放置打印件</span></div>
+          <div class="metric warning-metric"><b id="oversized-count">—</b><span>超出当前床面</span></div>
         </div>
       </div>
 
       <div id="error-banner" class="error-banner" hidden></div>
 
-      <div class="plate-tabs" id="plate-tabs" role="tablist" aria-label="拼盘选择"></div>
+      <div class="plate-tabs" id="plate-tabs" role="tablist" aria-label="打印床拼盘选择"></div>
 
       <div class="visual-grid">
         <section class="visual-card layout-card">
           <div class="visual-card-head">
             <div>
-              <div class="card-label">TOP VIEW / BED MAP</div>
+              <div class="card-label">打印床俯视 / XY</div>
               <h3 id="layout-title">读取中…</h3>
             </div>
             <span id="layout-badge" class="soft-badge">—</span>
           </div>
           <div class="canvas-wrap">
             <canvas id="bed-canvas" aria-label="打印床俯视拼盘图"></canvas>
-            <div class="canvas-hint">点击零件查看单件 3D</div>
+            <div id="canvas-hover-label" class="canvas-hover-label" hidden></div>
+            <div class="canvas-hint">悬停查看名称，点击查看单件模型</div>
           </div>
           <div class="legend" id="legend"></div>
         </section>
@@ -119,20 +120,20 @@
         <section class="visual-card model-card">
           <div class="visual-card-head">
             <div>
-              <div class="card-label">STL INSPECTOR / WEBGL</div>
+              <div class="card-label">STL 几何检查</div>
               <h3 id="model-title">等待选择模型</h3>
             </div>
             <div class="model-actions">
-              <button id="show-plate-model" class="tiny-button" type="button">看整张拼盘</button>
-              <button id="show-part-model" class="tiny-button" type="button">看选中件</button>
-              <a id="download-plate" class="tiny-button" href="#" download hidden>下载当前拼盘 STL</a>
+              <button id="show-plate-model" class="tiny-button" type="button">当前拼盘几何</button>
+              <button id="show-part-model" class="tiny-button" type="button">选中件几何</button>
+              <a id="download-plate" class="tiny-button" href="#" download hidden>下载当前拼盘文件</a>
             </div>
           </div>
           <div id="model-host" class="model-host">
             <div id="model-placeholder" class="model-placeholder">
               <div class="placeholder-orbit">◎</div>
-              <p>选择一张拼盘或一个零件</p>
-              <small>可旋转、缩放、平移查看 STL</small>
+              <p>选择拼盘或打印件</p>
+              <small>可旋转、缩放、平移检查 STL 几何</small>
             </div>
           </div>
           <div id="model-caption" class="model-caption">WebGL 3D 预览正在初始化…</div>
@@ -143,10 +144,10 @@
         <section class="data-card parts-card">
           <div class="data-card-head">
             <div>
-              <div class="card-label">PARTS IN PLATE</div>
-              <h3>当前拼盘零件</h3>
+              <div class="card-label">当前拼盘 / 打印件</div>
+              <h3>当前拼盘包含的打印件</h3>
             </div>
-            <input id="part-filter" class="search-input" type="search" placeholder="筛选文件名 / 类型" aria-label="筛选零件">
+            <input id="part-filter" class="search-input" type="search" placeholder="筛选中文名 / 文件名" aria-label="筛选打印件">
           </div>
           <div id="part-list" class="part-list"></div>
         </section>
@@ -154,22 +155,36 @@
         <section class="data-card oversized-card">
           <div class="data-card-head">
             <div>
-              <div class="card-label">OUTSIDE CURRENT BED</div>
-              <h3>超尺寸待处理</h3>
+              <div class="card-label">打印床边界 / 待处理</div>
+              <h3>无法放入当前打印床</h3>
             </div>
             <span id="oversized-badge" class="danger-badge">—</span>
           </div>
           <div id="oversized-list" class="oversized-list"></div>
           <div class="command-box">
-            <span>重新生成实际拼板：</span>
+            <span>重新生成实际拼盘文件：</span>
             <code>python3 hardware/cad/build_print_platter.py --clean</code>
           </div>
         </section>
       </div>
 
+      <section class="data-card component-card">
+        <div class="data-card-head">
+          <div>
+            <div class="card-label">装配物料 / 与打印件分开管理</div>
+            <h3>打印前准备的外购件与软质接触件</h3>
+          </div>
+          <span class="soft-badge">装配补充清单</span>
+        </div>
+        <div class="component-table-head" aria-hidden="true">
+          <span>元件</span><span>类别</span><span>数量</span><span>处理</span><span>备注</span>
+        </div>
+        <div id="component-list" class="component-list"></div>
+      </section>
+
       <footer class="page-footer">
-        <span>当前页是工艺预览，不替代切片器。</span>
-        <span>打印前请确认 1:1 单位、支撑、壁数、填充与首层。</span>
+        <span>本页只负责首样 STL 的排版与装配核对，不替代切片器。</span>
+        <span>切片前确认 1:1 单位、方向、支撑、壁数、填充和首层。</span>
       </footer>
     </section>
   </main>

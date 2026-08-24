@@ -25,6 +25,142 @@ SOURCE = HERE / "net_stand.scad"
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1"
 
 
+PART_NAMES_ZH = {
+    "post_segment": "立柱上段",
+    "lower_stand_segment": "立柱下段 + 桌下夹体",
+    "post_joint_sleeve": "立柱接缝外套筒",
+    "post_joint_key": "立柱接缝防转内芯",
+    "clamp_top_pad": "台面保护软垫",
+    "clamp_pressure_pad": "台底可动压块",
+    "clamp_knob": "夹紧手拧旋钮",
+    "net_rail_segment": "网顶承载条",
+    "net_rail_splice": "网顶承载条拼接片",
+    "net_rail_saddle": "网顶承托座",
+    "optical_rail": "红外光栅导轨",
+    "optical_module_carrier": "光栅光学模块载台",
+    "sensor_mount_body": "PVDF 网顶传感器座",
+    "sensor_clamp_lip": "PVDF 薄膜压片",
+    "reference_carriage_body": "参考线端座",
+    "calibration_gauge": "过网高度标定规",
+}
+
+
+def part_name_zh(part: str, side: str | None = None, index: int | None = None) -> str:
+    base = PART_NAMES_ZH.get(part, part)
+    if part == "net_rail_segment" and index is not None:
+        base = f"{base}第 {index + 1} 段"
+    elif part == "net_rail_splice" and index is not None:
+        base = f"{base}第 {index + 1} 片"
+    elif part == "optical_module_carrier" and index is not None:
+        base = f"{base} +{10 + index * 10} mm"
+    if side:
+        base = f"{base}（{'右' if side == 'right' else '左'}）"
+    return base
+
+
+ASSEMBLY_COMPONENTS = [
+    {
+        "id": "m8-threaded-rod",
+        "name_zh": "M8×1.25 金属螺杆",
+        "name_en": "M8 × 1.25 threaded rod",
+        "kind": "外购标准件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "2 根",
+        "scad_part": "clamp_screw",
+        "notes": "装配预览中显示圆头占位；实际使用金属螺杆，不打印螺纹。",
+    },
+    {
+        "id": "m8-fixed-nut",
+        "name_zh": "M8 六角螺母（下臂固定）",
+        "name_en": "M8 fixed nut",
+        "kind": "外购标准件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "2 枚",
+        "scad_part": "clamp_body_nut",
+        "notes": "安装在 C 形夹下臂的捕获窝中，形成固定螺纹。",
+    },
+    {
+        "id": "m8-jam-nuts",
+        "name_zh": "M8 六角螺母（旋钮对锁）",
+        "name_en": "M8 jam-nut pair",
+        "kind": "外购标准件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "4 枚",
+        "scad_part": "clamp_knob_nut",
+        "notes": "每侧两枚预先对锁，装入打印旋钮的六角捕获窝。",
+    },
+    {
+        "id": "net-fabric",
+        "name_zh": "乒乓球网布",
+        "name_en": "table-tennis net fabric",
+        "kind": "装配件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "1 套",
+        "scad_part": "net",
+        "notes": "固定在三段网顶承载条与两侧立柱之间。",
+    },
+    {
+        "id": "pvdf-film",
+        "name_zh": "PVDF 压电薄膜",
+        "name_en": "PVDF piezo film",
+        "kind": "传感器件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "2 片",
+        "scad_part": "pvdf_film",
+        "notes": "夹在网顶白边的左右两个可拆传感器座中。",
+    },
+    {
+        "id": "optical-modules",
+        "name_zh": "调制红外发射 / 接收模块",
+        "name_en": "modulated IR emitter / receiver modules",
+        "kind": "光学器件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "10 对",
+        "scad_part": "optical_strip",
+        "notes": "装入两侧导轨的对应高度载台，真实型号和光轴仍需实测。",
+    },
+    {
+        "id": "reference-pins",
+        "name_zh": "Ø3 弹簧定位销",
+        "name_en": "spring locating pins",
+        "kind": "外购标准件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "2 枚",
+        "scad_part": "reference_pin",
+        "notes": "锁定参考线端座和 10 mm 光栅孔位。",
+    },
+    {
+        "id": "m3-hardware",
+        "name_zh": "M3 紧固件",
+        "name_en": "M3 fasteners",
+        "kind": "外购标准件",
+        "status": "外购 / 非打印",
+        "printable": False,
+        "quantity": "按装配",
+        "scad_part": "net_rail_splice / optical_module_carrier",
+        "notes": "用于网顶拼接片、光学载台和传感器压片的锁紧。",
+    },
+    {
+        "id": "contact-pads",
+        "name_zh": "桌面 / 台底保护软垫",
+        "name_en": "table contact pads",
+        "kind": "软质接触件",
+        "status": "TPU 打印样件或硅胶片",
+        "printable": True,
+        "quantity": "4 片",
+        "scad_part": "clamp_top_pad / clamp_pressure_pad",
+        "notes": "首样优先用 TPU 或现成硅胶片；PETG 只用于尺寸样件。",
+    },
+]
+
+
 @dataclass(frozen=True)
 class ExportSpec:
     filename: str
@@ -319,6 +455,10 @@ def _manifest_entry(output: Path, spec: ExportSpec) -> dict[str, object]:
     return {
         "file": output.name,
         "part": spec.part,
+        "name_zh": part_name_zh(spec.part, spec.side, spec.index),
+        "name_en": spec.part,
+        "component_kind": "打印件",
+        "printable": True,
         "definitions": list(spec.definitions),
         "side": spec.side,
         "side_value": spec.side_value,
@@ -402,6 +542,7 @@ def main() -> None:
             "sensor_mount",
             "reference_carriage",
         ],
+        "assembly_components": ASSEMBLY_COMPONENTS,
         "parts": entries,
     }
     manifest_path = output_dir / "manifest.json"
