@@ -487,6 +487,35 @@ void test_waveform_window() {
                 partial_frame->samples[0][4] == 12,
             "partial pre-trigger history must be zero-filled chronologically");
 
+    smartgear::PiezoWaveformCapture delayed_history({1'000, 5, 5});
+    for (int sample = 0; sample < 5; ++sample) {
+        delayed_history.feed_sample(
+            0, static_cast<std::int16_t>(100 + sample),
+            100 + static_cast<std::uint64_t>(sample));
+        delayed_history.feed_sample(
+            1, static_cast<std::int16_t>(200 + sample),
+            100 + static_cast<std::uint64_t>(sample));
+    }
+    require(delayed_history.start_capture(102, "wave-delayed-history"),
+            "delayed-history waveform should start");
+    for (int sample = 0; sample < 5; ++sample) {
+        delayed_history.feed_sample(
+            0, static_cast<std::int16_t>(300 + sample),
+            102 + static_cast<std::uint64_t>(sample));
+        delayed_history.feed_sample(
+            1, static_cast<std::int16_t>(400 + sample),
+            102 + static_cast<std::uint64_t>(sample));
+    }
+    const auto delayed_frame = delayed_history.take_ready();
+    require(delayed_frame.has_value() &&
+                delayed_frame->pre_samples_available ==
+                    std::array<std::size_t, 2>{2, 2} &&
+                delayed_frame->samples[0][3] == 100 &&
+                delayed_frame->samples[0][4] == 101 &&
+                delayed_frame->samples[1][3] == 200 &&
+                delayed_frame->samples[1][4] == 201,
+            "pre-trigger history must exclude samples at or after the trigger");
+
     smartgear::PiezoWaveformCapture cold_start({1'000, 5, 5});
     require(cold_start.start_capture(3'000, "wave-cold-start"),
             "cold-start waveform should begin without history");
@@ -589,9 +618,9 @@ void test_waveform_window() {
     smartgear::PiezoWaveformCapture outside_window({1'000, 5, 5});
     for (int sample = 0; sample < 5; ++sample) {
         outside_window.feed_sample(0, static_cast<std::int16_t>(130 + sample),
-                                   20'000 + static_cast<std::uint64_t>(sample));
+                                   25'000 + static_cast<std::uint64_t>(sample));
         outside_window.feed_sample(1, static_cast<std::int16_t>(230 + sample),
-                                   20'000 + static_cast<std::uint64_t>(sample));
+                                   25'000 + static_cast<std::uint64_t>(sample));
     }
     require(outside_window.start_capture(30'000, "wave-outside-window"),
             "outside-window waveform should begin");

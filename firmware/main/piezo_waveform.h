@@ -69,7 +69,9 @@ class PiezoWaveformCapture {
     bool all_post_samples_written() const;
     void enqueue_current_frame(bool complete);
     void clear_history();
-    void record_history(std::uint8_t channel, std::int16_t sample);
+    void record_history(std::uint8_t channel,
+                        std::int16_t sample,
+                        std::uint64_t timestamp_us);
     void record_history_sample(std::uint8_t channel,
                                std::int16_t sample,
                                std::uint64_t timestamp_us);
@@ -78,6 +80,7 @@ class PiezoWaveformCapture {
 
     PiezoWaveformConfig config_;
     std::array<std::vector<std::int16_t>, 2> history_;
+    std::array<std::vector<std::uint64_t>, 2> history_timestamps_;
     std::array<std::size_t, 2> history_cursor_ = {0, 0};
     std::array<std::size_t, 2> history_count_ = {0, 0};
     std::array<std::uint64_t, 2> history_last_sample_timestamp_ = {0, 0};

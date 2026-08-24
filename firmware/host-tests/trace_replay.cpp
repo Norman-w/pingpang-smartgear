@@ -72,8 +72,25 @@ class TraceReplay {
         } else if (row.kind == "touch") {
             const std::string reference =
                 "trace-wave-" + std::to_string(row.timestamp_us);
+            const bool should_start_waveform =
+                piezo_capture_.will_start_new_observation(row.timestamp_us);
+            if (should_start_waveform) {
+                // The trace represents a continuously sampled ADC stream.
+                // Provide the two samples immediately before this comparator
+                // edge instead of reusing history from an earlier, unrelated
+                // event. This keeps the replay's pre-trigger evidence inside
+                // the waveform capture time window.
+                waveform_capture_.feed_sample(
+                    0, 100, row.timestamp_us - 2'000U);
+                waveform_capture_.feed_sample(
+                    1, 200, row.timestamp_us - 2'000U);
+                waveform_capture_.feed_sample(
+                    0, 101, row.timestamp_us - 1'000U);
+                waveform_capture_.feed_sample(
+                    1, 201, row.timestamp_us - 1'000U);
+            }
             const bool waveform_started =
-                piezo_capture_.will_start_new_observation(row.timestamp_us) &&
+                should_start_waveform &&
                 waveform_capture_.start_capture(row.timestamp_us, reference);
             const std::string effective_reference =
                 waveform_started ? reference : waveform_capture_.active_reference();

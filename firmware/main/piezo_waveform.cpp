@@ -89,8 +89,10 @@ PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
 PiezoWaveformCapture::PiezoWaveformCapture(PiezoWaveformConfig config)
     : config_(config) {
     const std::size_t pre_samples = config_.pre_trigger_samples();
-    for (auto& channel_history : history_) {
+    for (std::size_t channel = 0; channel < history_.size(); ++channel) {
+        auto& channel_history = history_[channel];
         channel_history.assign(pre_samples, 0);
+        history_timestamps_[channel].assign(pre_samples, 0);
     }
 }
 
@@ -192,20 +194,42 @@ bool PiezoWaveformCapture::start_capture(const std::uint64_t trigger_us,
 void PiezoWaveformCapture::snapshot_pre_trigger() {
     for (std::size_t channel = 0; channel < history_.size(); ++channel) {
         const auto& channel_history = history_[channel];
+        const auto& channel_timestamps = history_timestamps_[channel];
         const std::size_t pre_samples = config_.pre_trigger_samples();
-        frame_->pre_samples_available[channel] = history_count_[channel];
-        const std::size_t missing = pre_samples - history_count_[channel];
+        if (pre_samples == 0 || channel_history.empty()) {
+            frame_->pre_samples_available[channel] = 0;
+            continue;
+        }
+
         const std::size_t oldest =
             (history_cursor_[channel] + channel_history.size() -
              history_count_[channel]) % channel_history.size();
-        for (std::size_t index = 0; index < pre_samples; ++index) {
-            if (index < missing) {
-                frame_->samples[channel][index] = 0;
+        std::size_t available = 0;
+        for (std::size_t offset = 0; offset < history_count_[channel]; ++offset) {
+            const std::size_t chronological_index =
+                (oldest + offset) % channel_history.size();
+            const std::uint64_t timestamp_us =
+                channel_timestamps[chronological_index];
+            if (timestamp_us >= frame_->trigger_us ||
+                frame_->trigger_us - timestamp_us >
+                    static_cast<std::uint64_t>(config_.pre_trigger_ms) * 1'000ULL) {
                 continue;
             }
-            const std::size_t chronological_index =
-                (oldest + index - missing) % channel_history.size();
-            frame_->samples[channel][index] = channel_history[chronological_index];
+            frame_->samples[channel][available++] =
+                channel_history[chronological_index];
+        }
+
+        frame_->pre_samples_available[channel] =
+            std::min(available, pre_samples);
+        const std::size_t missing =
+            pre_samples - frame_->pre_samples_available[channel];
+        for (std::size_t index = frame_->pre_samples_available[channel]; index > 0;
+             --index) {
+            frame_->samples[channel][missing + index - 1] =
+                frame_->samples[channel][index - 1];
+        }
+        for (std::size_t index = 0; index < missing; ++index) {
+            frame_->samples[channel][index] = 0;
         }
     }
 }
@@ -255,8 +279,10 @@ void PiezoWaveformCapture::clear_history() {
     history_count_ = {0, 0};
     history_last_sample_timestamp_ = {0, 0};
     history_has_timestamp_ = {false, false};
-    for (auto& channel_history : history_) {
-        std::fill(channel_history.begin(), channel_history.end(), 0);
+    for (std::size_t channel = 0; channel < history_.size(); ++channel) {
+        std::fill(history_[channel].begin(), history_[channel].end(), 0);
+        std::fill(history_timestamps_[channel].begin(),
+                  history_timestamps_[channel].end(), 0);
     }
 }
 
@@ -283,9 +309,12 @@ void PiezoWaveformCapture::enqueue_current_frame(const bool complete) {
 }
 
 void PiezoWaveformCapture::record_history(const std::uint8_t channel,
-                                          const std::int16_t sample) {
+                                          const std::int16_t sample,
+                                          const std::uint64_t timestamp_us) {
     auto& channel_history = history_[channel];
-    channel_history[history_cursor_[channel]] = sample;
+    const std::size_t cursor = history_cursor_[channel];
+    channel_history[cursor] = sample;
+    history_timestamps_[channel][cursor] = timestamp_us;
     history_cursor_[channel] =
         (history_cursor_[channel] + 1) % channel_history.size();
     history_count_[channel] = std::min(
@@ -304,7 +333,7 @@ void PiezoWaveformCapture::record_history_sample(
         // pre-trigger baseline of the next event.
         return;
     }
-    record_history(channel, sample);
+    record_history(channel, sample, timestamp_us);
     history_last_sample_timestamp_[channel] = timestamp_us;
     history_has_timestamp_[channel] = true;
 }
