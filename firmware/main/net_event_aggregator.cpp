@@ -108,6 +108,12 @@ void NetEventAggregator::set_piezo_baseline(const bool valid) {
 }
 
 void NetEventAggregator::mark_input_overflow() {
+    // The capture objects are reset by the ESP32 task at the same boundary.
+    // Do not retain a beam/touch candidate from before the dropped GPIO edge;
+    // otherwise the first post-overflow input could be paired with stale
+    // timestamps and look like a plausible event. The overflow latch is kept
+    // for the next fresh event and is cleared only when that event is built.
+    clear_pending();
     input_overflow_ = true;
 }
 

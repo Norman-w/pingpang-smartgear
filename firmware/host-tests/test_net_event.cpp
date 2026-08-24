@@ -728,6 +728,19 @@ void test_sensor_health_quality_flags() {
                 has_quality_flag(overflow_event, "sensor_queue_overflow"),
             "dropped GPIO edges must produce an explicit unknown event");
 
+    smartgear::NetEventAggregator overflow_pending;
+    overflow_pending.set_calibration("cal-test", true);
+    overflow_pending.on_touch(touch(26'000, 26'500, 1));
+    overflow_pending.mark_input_overflow();
+    overflow_pending.on_beam(beam(35'000, 36'000, 1U << 1, 1, 1));
+    overflow_pending.poll(281'001);
+    const auto post_overflow_event = pop_one(overflow_pending);
+    require(post_overflow_event.timestamp_us == 35'000 &&
+                post_overflow_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(post_overflow_event, "sensor_queue_overflow") &&
+                post_overflow_event.net_touch.sensor_mask == 0,
+            "overflow must discard stale touch candidates before the next event");
+
     smartgear::NetEventAggregator invalid_health;
     invalid_health.set_calibration("cal-test", true);
     invalid_health.set_beam_health(0x0400U, true);
