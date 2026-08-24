@@ -266,6 +266,10 @@ std::string PiezoWaveformCapture::active_reference() const {
 void PiezoWaveformCapture::abort() {
     active_ = false;
     frame_.reset();
+    // An input-boundary failure (for example a GPIO queue overflow) invalidates
+    // every waveform that has not yet been handed to the business layer. Do
+    // not let a pre-overflow ready frame be archived after the next loop turn.
+    ready_frames_.clear();
     post_written_ = {0, 0};
     frame_last_sample_timestamp_ = {0, 0};
     frame_has_sample_timestamp_ = {false, false};

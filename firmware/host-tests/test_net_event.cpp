@@ -718,6 +718,21 @@ void test_waveform_window() {
                 outside_frame->sample_timestamps_valid &&
                 outside_frame->post_samples == std::array<std::size_t, 2>{4, 4},
             "samples after the post window must not fill the waveform frame");
+
+    smartgear::PiezoWaveformCapture aborted_ready({1'000, 2, 2});
+    require(aborted_ready.start_capture(50'000, "wave-before-overflow"),
+            "overflow regression waveform should start");
+    for (int sample = 0; sample < 2; ++sample) {
+        aborted_ready.feed_sample(0, static_cast<std::int16_t>(500 + sample),
+                                  50'000 + static_cast<std::uint64_t>(sample));
+        aborted_ready.feed_sample(1, static_cast<std::int16_t>(600 + sample),
+                                  50'000 + static_cast<std::uint64_t>(sample));
+    }
+    require(aborted_ready.ready_count() == 1,
+            "completed pre-overflow waveform should be queued");
+    aborted_ready.abort();
+    require(!aborted_ready.active() && aborted_ready.ready_count() == 0,
+            "abort must discard ready waveforms across an input boundary");
 }
 
 void test_waveform_timeout_flush() {
