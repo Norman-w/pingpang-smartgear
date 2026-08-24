@@ -19,20 +19,53 @@ OUT = ROOT / "preview.png"
 TABLE_WIDTH = 1525.0
 TABLE_THICKNESS = 25.0
 TABLE_EDGE = TABLE_WIDTH / 2
-POST_OFFSET = 18.0
+POST_OFFSET = 37.0
 POST_WIDTH = 28.0
 CLAMP_OUTER_EXTENSION = 22.0
+CLAMP_REACH_INBOARD = 62.0
+CLAMP_PAD_T = 8.0
+CLAMP_CLEARANCE = 1.5
 POST_CENTER = TABLE_EDGE + POST_OFFSET
 CLAMP_SCREW_INSET = 30.0
+CLAMP_SCREW_D = 8.0
+CLAMP_SCREW_CAPTURE_EXTENSION = 2.0
+CLAMP_KNOB_D = 36.0
+CLAMP_KNOB_H = 20.0
+CLAMP_SCREW_TO_KNOB_TOP = 32.0
+CLAMP_NUT_AF = 13.0
+CLAMP_NUT_H = 6.5
+CLAMP_NUT_CLEARANCE = 0.35
+CLAMP_KNOB_NUT_GAP = 0.4
+CLAMP_KNOB_NUT_STACK = 2 * CLAMP_NUT_H + CLAMP_KNOB_NUT_GAP
+CLAMP_TOP_PAD_X = -CLAMP_REACH_INBOARD + 8.0
+CLAMP_TOP_PAD_WIDTH = 96.0
+CLAMP_TOP_PAD_DEPTH = 48.0
+CLAMP_TOP_PAD_T = 2.0
 CLAMP_LOWER_ARM_CLEARANCE = 10.0
 CLAMP_LOWER_ARM_TOP = -TABLE_THICKNESS - CLAMP_LOWER_ARM_CLEARANCE
-CLAMP_LOWER_ARM_BOTTOM = CLAMP_LOWER_ARM_TOP - 8.0
+CLAMP_LOWER_ARM_BOTTOM = CLAMP_LOWER_ARM_TOP - CLAMP_PAD_T
 CLAMP_PRESSURE_PAD_WIDTH = 42.0
-CLAMP_PRESSURE_PAD_TOP = -TABLE_THICKNESS - 1.5
-CLAMP_PRESSURE_PAD_BOTTOM = CLAMP_PRESSURE_PAD_TOP - 2.0
+CLAMP_PRESSURE_PAD_DEPTH = 44.0
+CLAMP_PRESSURE_PAD_T = 2.0
+CLAMP_PRESSURE_PAD_TOP = -TABLE_THICKNESS - CLAMP_CLEARANCE
+CLAMP_PRESSURE_PAD_BOTTOM = CLAMP_PRESSURE_PAD_TOP - CLAMP_PRESSURE_PAD_T
 CLAMP_SCREW_X = -CLAMP_SCREW_INSET
-CLAMP_SCREW_BOTTOM = CLAMP_PRESSURE_PAD_TOP - 36.0
-CLAMP_KNOB_BOTTOM = CLAMP_SCREW_BOTTOM - 12.0
+CLAMP_PAD_X = -CLAMP_REACH_INBOARD
+CLAMP_PAD_OUTER_X = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
+CLAMP_OUTER_WALL_X = POST_OFFSET + POST_WIDTH / 2
+CLAMP_LOWER_ARM_X = CLAMP_SCREW_X - 22.0 / 2
+CLAMP_SCREW_TOP = CLAMP_PRESSURE_PAD_BOTTOM
+CLAMP_KNOB_TOP = CLAMP_SCREW_TOP - CLAMP_SCREW_TO_KNOB_TOP
+CLAMP_KNOB_BOTTOM = CLAMP_KNOB_TOP - CLAMP_KNOB_H
+CLAMP_KNOB_NUT_TOP = CLAMP_KNOB_TOP - CLAMP_NUT_CLEARANCE / 2
+CLAMP_KNOB_DRIVE_NUT_Z = CLAMP_KNOB_NUT_TOP - CLAMP_NUT_H
+CLAMP_KNOB_LOCK_NUT_Z = (
+    CLAMP_KNOB_DRIVE_NUT_Z - CLAMP_KNOB_NUT_GAP - CLAMP_NUT_H
+)
+CLAMP_SCREW_BOTTOM = CLAMP_KNOB_LOCK_NUT_Z - CLAMP_SCREW_CAPTURE_EXTENSION
+CLAMP_BODY_NUT_Z = CLAMP_LOWER_ARM_BOTTOM + CLAMP_NUT_CLEARANCE
+OPTICAL_BEAM_EDGE_OVERLAP = 0.5
+OPTICAL_BEAM_AXIS_X = TABLE_EDGE + OPTICAL_BEAM_EDGE_OVERLAP
 POST_BOTTOM = CLAMP_LOWER_ARM_TOP
 NET_HEIGHT = 152.5
 NET_RAIL_HEIGHT = 10.0
@@ -99,7 +132,7 @@ def draw_front(ax) -> None:
     for index in range(BEAM_COUNT):
         height = BEAM_FIRST + index * BEAM_PITCH
         ax.plot(
-            [-NET_SPAN / 2 + POST_WIDTH / 2 + 8, NET_SPAN / 2 - POST_WIDTH / 2 - 8],
+            [-OPTICAL_BEAM_AXIS_X, OPTICAL_BEAM_AXIS_X],
             [NET_HEIGHT + height, NET_HEIGHT + height],
             color="#4c78a8",
             linewidth=1.2,
@@ -146,7 +179,7 @@ def draw_front(ax) -> None:
     ax.set_ylim(POST_BOTTOM - 12, POST_TOP + 20)
     ax.set_title("Integrated net stand: front intent")
     ax.set_xlabel("table width / mm")
-    ax.set_ylabel("height above net top / mm")
+    ax.set_ylabel("z relative to table top / mm")
     ax.grid(True, alpha=0.22)
     handles, labels = ax.get_legend_handles_labels()
     unique = dict(zip(labels, handles))
@@ -156,7 +189,6 @@ def draw_front(ax) -> None:
 def draw_side(ax) -> None:
     # 以右侧台边为 x=0，正方向是桌外；画出免打孔 C 形夹体。
     post_x0 = POST_OFFSET - POST_WIDTH / 2
-    clamp_pad_end = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
     ax.add_patch(
         Rectangle(
             (-62, -TABLE_THICKNESS),
@@ -170,27 +202,36 @@ def draw_side(ax) -> None:
     )
     ax.add_patch(
         Rectangle(
-            (-62, 0),
-            clamp_pad_end + 62,
-            8,
+            (CLAMP_PAD_X, CLAMP_TOP_PAD_T),
+            CLAMP_PAD_OUTER_X - CLAMP_PAD_X,
+            CLAMP_PAD_T,
             facecolor="#69727b",
             label="fixed upper jaw (no drilling)",
         )
     )
     ax.add_patch(
         Rectangle(
-            (CLAMP_SCREW_X - 9, CLAMP_LOWER_ARM_BOTTOM),
-            clamp_pad_end - CLAMP_SCREW_X + 9,
-            8,
+            (CLAMP_TOP_PAD_X, 0),
+            CLAMP_TOP_PAD_WIDTH,
+            CLAMP_TOP_PAD_T,
+            facecolor="#111111",
+            label="replaceable upper protective pad",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_LOWER_ARM_X, CLAMP_LOWER_ARM_BOTTOM),
+            CLAMP_PAD_OUTER_X - CLAMP_LOWER_ARM_X,
+            CLAMP_PAD_T,
             facecolor="#69727b",
             label="fixed lower arm / nut seat",
         )
     )
     ax.add_patch(
         Rectangle(
-            (post_x0 + POST_WIDTH, CLAMP_LOWER_ARM_BOTTOM),
+            (CLAMP_OUTER_WALL_X, CLAMP_LOWER_ARM_BOTTOM),
             CLAMP_OUTER_EXTENSION,
-            51,
+            CLAMP_PAD_T + CLAMP_TOP_PAD_T + TABLE_THICKNESS + CLAMP_LOWER_ARM_CLEARANCE,
             facecolor="#69727b",
             label="outer C-frame",
         )
@@ -210,7 +251,7 @@ def draw_side(ax) -> None:
         Rectangle(
             (CLAMP_SCREW_X - CLAMP_PRESSURE_PAD_WIDTH / 2, CLAMP_PRESSURE_PAD_BOTTOM),
             CLAMP_PRESSURE_PAD_WIDTH,
-            2,
+            CLAMP_PRESSURE_PAD_T,
             facecolor="#111111",
             label="movable underside pressure pad",
         )
@@ -219,16 +260,43 @@ def draw_side(ax) -> None:
         [CLAMP_SCREW_X, CLAMP_SCREW_X],
         [CLAMP_SCREW_BOTTOM, CLAMP_PRESSURE_PAD_TOP],
         color="#444",
-        linewidth=3,
+        linewidth=CLAMP_SCREW_D / 2,
         label="M8 screw below tabletop",
     )
     ax.add_patch(
         Rectangle(
-            (CLAMP_SCREW_X - 18, CLAMP_KNOB_BOTTOM),
-            36,
-            12,
+            (CLAMP_SCREW_X - CLAMP_KNOB_D / 2, CLAMP_KNOB_BOTTOM),
+            CLAMP_KNOB_D,
+            CLAMP_KNOB_H,
             facecolor="#30343b",
             label="hand knob",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_SCREW_X - CLAMP_NUT_AF / 2, CLAMP_KNOB_LOCK_NUT_Z),
+            CLAMP_NUT_AF,
+            CLAMP_KNOB_NUT_STACK,
+            facecolor="#d4a72c",
+            edgecolor="#6e5515",
+            label="two jam nuts captured in knob",
+        )
+    )
+    ax.plot(
+        [CLAMP_SCREW_X - CLAMP_NUT_AF / 2,
+         CLAMP_SCREW_X + CLAMP_NUT_AF / 2],
+        [CLAMP_KNOB_DRIVE_NUT_Z, CLAMP_KNOB_DRIVE_NUT_Z],
+        color="#6e5515",
+        linewidth=1,
+    )
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_SCREW_X - CLAMP_NUT_AF / 2, CLAMP_BODY_NUT_Z),
+            CLAMP_NUT_AF,
+            CLAMP_NUT_H,
+            facecolor="#d4a72c",
+            edgecolor="#6e5515",
+            label="fixed M8 nut",
         )
     )
     ax.axhline(NET_HEIGHT, color="#ffffff", linewidth=2, label="traditional net top 152.5 mm")
@@ -250,7 +318,7 @@ def draw_side(ax) -> None:
             label="PVDF mount on net top",
         )
     )
-    ax.set_xlim(-82, clamp_pad_end + 18)
+    ax.set_xlim(-82, CLAMP_PAD_OUTER_X + 18)
     ax.set_ylim(CLAMP_KNOB_BOTTOM - 8, POST_TOP + 20)
     ax.set_title("No-drill under-table C-clamp: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")

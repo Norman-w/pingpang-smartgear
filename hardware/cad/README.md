@@ -59,10 +59,11 @@ python3 test_export_net_stand_printables.py
 
 ```text
 python3 validate_net_stand.py
+python3 test_preview_consistency.py
 python3 render_net_stand_preview.py
 ```
 
-前者编译当前 `PART`、左右支架、桌板剖面夹持证据、下段立柱+夹体一体件、可打印光学导轨、光学镜像/单个载台、圆头螺杆/固定下臂 M8 螺母/旋钮内两枚对锁螺母、参数探针、18/25/30 mm 台厚免打孔夹持矩阵和非法参数路径；除 `assembly`、左右单侧结构、`post`、`table_clamp`、`net_rail`、`optical_strip` 等装配/渲染预览外，成功导出的独立打印零件还会做 STL 封闭边拓扑检查。装配预览允许桌板、网布和电子/标准件包络重叠，只用于 PNG，不是打印件。后者从同一份参数源渲染当前装配、左右支架、桌下夹持及其桌板剖面、圆头螺杆、固定螺母和对锁螺母叠层、带捕获窝旋钮、可打印光学导轨、光学装配预览、单个载台、PVDF 座和标定规，输出到 `rendered/net-stand-*.png`。CI 会把当前和历史两套渲染证据分别保存。
+`test_preview_consistency.py` 不需要 OpenSCAD，用于防止无 OpenSCAD 的轻量意图图继续沿用旧外挂夹具的关键参数；`validate_net_stand.py` 编译当前 `PART`、左右支架、桌板剖面夹持证据、下段立柱+夹体一体件、可打印光学导轨、光学镜像/单个载台、圆头螺杆/固定下臂 M8 螺母/旋钮内两枚对锁螺母、参数探针、18/25/30 mm 台厚免打孔夹持矩阵和非法参数路径；除 `assembly`、左右单侧结构、`post`、`table_clamp`、`net_rail`、`optical_strip` 等装配/渲染预览外，成功导出的独立打印零件还会做 STL 封闭边拓扑检查。装配预览允许桌板、网布和电子/标准件包络重叠，只用于 PNG，不是打印件。后者从同一份参数源渲染当前装配、左右支架、桌下夹持及其桌板剖面、圆头螺杆、固定螺母和对锁螺母叠层、带捕获窝旋钮、可打印光学导轨、光学装配预览、单个载台、PVDF 座和标定规，输出到 `rendered/net-stand-*.png`。CI 会把当前和历史两套渲染证据分别保存。
 
 ## 历史方案
 
