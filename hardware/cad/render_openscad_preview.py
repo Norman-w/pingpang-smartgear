@@ -99,6 +99,20 @@ def main() -> None:
     )
     render(
         openscad,
+        "roller_mount",
+        args.output_dir / "openscad-roller-mount.png",
+        1200,
+        900,
+    )
+    render(
+        openscad,
+        "roller_cap",
+        args.output_dir / "openscad-roller-cap.png",
+        1000,
+        800,
+    )
+    render(
+        openscad,
         "optical_bank",
         args.output_dir / "openscad-optical-bank.png",
         1200,

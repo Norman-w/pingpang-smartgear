@@ -163,7 +163,8 @@ def main() -> None:
         if not output.is_file() or output.stat().st_size == 0:
             raise RuntimeError("OpenSCAD produced no STL for mirrored optical bank")
 
-        for part in ("jaw", "guide"):
+        mirrored_parts = ("jaw", "guide", "roller_mount", "roller_cap")
+        for part in mirrored_parts:
             output = output_dir / f"{part}-mirror.stl"
             subprocess.run(
                 [
@@ -251,16 +252,16 @@ def main() -> None:
         left_override_center = stl_x_center(output_dir / "left-side-explicit.stl")
         optical_default_center = stl_x_center(output_dir / "optical_bank.stl")
         optical_mirror_center = stl_x_center(output_dir / "optical-bank-mirror.stl")
-        jaw_default_center = stl_x_center(output_dir / "jaw.stl")
-        jaw_mirror_center = stl_x_center(output_dir / "jaw-mirror.stl")
-        guide_default_center = stl_x_center(output_dir / "guide.stl")
-        guide_mirror_center = stl_x_center(output_dir / "guide-mirror.stl")
+        mirrored_centers = [
+            stl_x_center(output_dir / f"{part}.stl")
+            * stl_x_center(output_dir / f"{part}-mirror.stl")
+            for part in mirrored_parts
+        ]
         if (
             left_default_center * right_default_center >= 0
             or left_override_center * right_default_center >= 0
             or optical_default_center * optical_mirror_center >= 0
-            or jaw_default_center * jaw_mirror_center >= 0
-            or guide_default_center * guide_mirror_center >= 0
+            or any(center >= 0 for center in mirrored_centers)
         ):
             raise RuntimeError(
                 "SIDE override did not produce opposite left/right, optical, jaw, or guide STL geometry"

@@ -75,6 +75,8 @@ arm_limit_d = 5;
 roller_d = 16;
 roller_h = 18;
 roller_axis_d = 6;
+roller_cap_tab_t = 3;
+roller_cap_tab_h = 9;
 screw_d = 8;
 screw_pitch = 1.25;
 screw_span = 82;
@@ -107,6 +109,11 @@ optical_lens_d = 4;
 optical_lens_depth = 3;
 optical_bank_clearance = 4;
 reference_pin_length = 31;
+nut_capture_outer_d = 18;
+nut_capture_width = 8;
+nut_capture_pocket_d = 15;
+nut_capture_pocket_depth = 5;
+nut_bore_clearance = 0.6;
 
 // 双侧预览间距（不是球桌最终规格）
 assembly_span = 700;
@@ -118,6 +125,15 @@ assert(v_angle == 90, "first prototype uses a 90 degree V jaw");
 assert(pivot_d == 8, "first prototype uses an 8 mm metal pivot shaft");
 assert(screw_d == 8, "first prototype uses an M8 screw");
 assert(screw_pitch == 1.25, "first prototype uses an M8 x 1.25 screw");
+assert(roller_cap_tab_t > 0 && roller_cap_tab_t < roller_d,
+       "roller cap retention tabs must fit beside the roller");
+assert(roller_cap_tab_h > 0 && roller_cap_tab_h > arm_layer_thickness,
+       "roller cap retention tabs must overlap the roller cheeks");
+assert(nut_capture_outer_d > nut_capture_pocket_d &&
+           nut_capture_pocket_d > screw_d &&
+           nut_capture_width > nut_capture_pocket_depth &&
+           nut_bore_clearance > 0,
+       "M8 nut capture must leave a pocket wall and screw clearance");
 assert(beam_count == 10, "first prototype uses 10 optical channels");
 assert(beam_first_height == 10, "first effective beam starts at +10 mm");
 assert(beam_last_height == 100, "first prototype ends at +100 mm");
@@ -305,18 +321,36 @@ module dimpled_vertical_roller(p, has_dimple = false, z0 = 0) {
 }
 
 module removable_roller_cap(p, z0 = 0) {
+    cap_z = z0 + arm_layer_thickness / 2 + roller_h / 2 + 1;
     color("lightgray")
-        translate([point_x(p), point_y(p),
-                   z0 + arm_layer_thickness / 2 + roller_h / 2 + 1])
-            cube([roller_d + 8, roller_d + 8, 3], center = true);
+        difference() {
+            union() {
+                translate([point_x(p), point_y(p), cap_z])
+                    cube([roller_d + 8, roller_d + 8, 3], center = true);
+                // Drop-in tabs capture both U-cheeks while leaving the cap
+                // removable without a threaded printed fastener.
+                for (side = [-1, 1])
+                    translate([point_x(p),
+                               point_y(p) + side * (roller_d + 6) / 2,
+                               cap_z - 2])
+                        cube([roller_d + 8, roller_cap_tab_t,
+                              roller_cap_tab_h], center = true);
+            }
+            // The metal roller axle projects above the roller and must not
+            // collide with the removable cap.
+            translate([point_x(p), point_y(p), cap_z])
+                cylinder(d = roller_axis_d + 0.8, h = 12, center = true);
+        }
 }
 
 module u_roller_mount(p, has_dimple = false, z0 = 0) {
     u_roller_cheeks(p, z0);
     dimpled_vertical_roller(p, has_dimple, z0);
     removable_roller_cap(p, z0);
-    if (!has_dimple)
+    if (!has_dimple) {
         m8_nut_capture(p, z0);
+        m8_nut_placeholder(p, z0);
+    }
 }
 
 module u_roller_cheeks(p, z0 = 0) {
@@ -332,13 +366,46 @@ module u_roller_cheeks(p, z0 = 0) {
 }
 
 module m8_nut_capture(p, z0 = 0) {
-    // 下侧 U 槽捕获金属 M8 螺母；六边形仅表示标准件包络，实际螺纹由
-    // 金属螺母/螺杆提供，不把打印件当成受力螺纹。
+    // 下侧 U 槽捕获金属 M8 螺母；打印件只提供外壳和六边形沉孔，实际
+    // 螺纹由金属螺母/螺杆提供，不把 PETG 当成受力螺纹。
+    capture_y = point_y(p) - roller_d / 2 - 3;
+    capture_z = z0 + arm_layer_thickness / 2;
+    color("darkorange")
+        difference() {
+            translate([point_x(p), capture_y, capture_z])
+                cube([nut_capture_outer_d, nut_capture_width,
+                      nut_capture_outer_d], center = true);
+            // Open the hex pocket from the outside face, leaving a back wall
+            // for retention and a separate round clearance bore for the M8
+            // screw axis.
+            translate([point_x(p),
+                       capture_y - nut_capture_width / 2 +
+                           nut_capture_pocket_depth / 2,
+                       capture_z])
+                rotate([90, 0, 0])
+                    cylinder(d = nut_capture_pocket_d,
+                             h = nut_capture_pocket_depth,
+                             center = true,
+                             $fn = 6);
+            translate([point_x(p), capture_y, capture_z])
+                rotate([90, 0, 0])
+                    cylinder(d = screw_d + nut_bore_clearance,
+                             h = nut_capture_width + 2,
+                             center = true);
+        }
+}
+
+module m8_nut_placeholder(p, z0 = 0) {
     color("dimgray")
-        translate([point_x(p), point_y(p) - roller_d / 2 - 3,
+        translate([point_x(p),
+                   point_y(p) - roller_d / 2 - 3 - nut_capture_width / 2 +
+                       nut_capture_pocket_depth / 2,
                    z0 + arm_layer_thickness / 2])
             rotate([90, 0, 0])
-                cylinder(d = 15, h = 6, center = true, $fn = 6);
+                cylinder(d = nut_capture_pocket_d - 0.5,
+                         h = nut_capture_pocket_depth - 0.5,
+                         center = true,
+                         $fn = 6);
 }
 
 module rounded_screw_rod() {
@@ -528,6 +595,8 @@ module parameter_probe() {
              ";pivot_d=", pivot_d,
              ";pivot_clearance=", pivot_clearance,
              ";roller_d=", roller_d,
+             ";roller_cap_tab_t=", roller_cap_tab_t,
+             ";roller_cap_tab_h=", roller_cap_tab_h,
              ";screw_d=", screw_d,
              ";screw_pitch=", screw_pitch,
              ";screw_span=", screw_span,
@@ -547,6 +616,11 @@ module parameter_probe() {
              ";optical_lens_depth=", optical_lens_depth,
              ";optical_bank_clearance=", optical_bank_clearance,
              ";reference_pin_length=", reference_pin_length,
+             ";nut_capture_outer_d=", nut_capture_outer_d,
+             ";nut_capture_width=", nut_capture_width,
+             ";nut_capture_pocket_d=", nut_capture_pocket_d,
+             ";nut_capture_pocket_depth=", nut_capture_pocket_depth,
+             ";nut_bore_clearance=", nut_bore_clearance,
              ";guide_width=", guide_width));
     cube([0.1, 0.1, 0.1]);
 }

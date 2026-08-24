@@ -111,6 +111,8 @@ def validate(parameters: dict[str, float]) -> str:
         "pivot_d",
         "pivot_clearance",
         "roller_d",
+        "roller_cap_tab_t",
+        "roller_cap_tab_h",
         "screw_d",
         "screw_pitch",
         "screw_span",
@@ -130,6 +132,11 @@ def validate(parameters: dict[str, float]) -> str:
         "optical_lens_depth",
         "optical_bank_clearance",
         "reference_pin_length",
+        "nut_capture_outer_d",
+        "nut_capture_width",
+        "nut_capture_pocket_d",
+        "nut_capture_pocket_depth",
+        "nut_bore_clearance",
         "guide_width",
     }
     require(required <= parameters.keys(), "CAD parameter manifest is incomplete")
@@ -148,6 +155,19 @@ def validate(parameters: dict[str, float]) -> str:
     require(parameters["screw_d"] == 8, "adjustment screw must remain M8")
     require(math.isclose(parameters["screw_pitch"], 1.25, abs_tol=1e-6),
             "adjustment screw must remain M8 x 1.25")
+    require(
+        0 < parameters["roller_cap_tab_t"] < parameters["roller_d"]
+        and parameters["roller_cap_tab_h"] > parameters["arm_layer_thickness"],
+        "roller cap retention tabs must overlap the U-cheeks",
+    )
+    require(
+        parameters["nut_capture_outer_d"] > parameters["nut_capture_pocket_d"]
+        > parameters["screw_d"]
+        and parameters["nut_capture_width"]
+        > parameters["nut_capture_pocket_depth"]
+        and parameters["nut_bore_clearance"] > 0,
+        "M8 nut capture must leave a pocket wall and screw clearance",
+    )
     require(0 < min_angle <= selected_angle <= max_angle < 30,
             "selected clamp angle must stay inside a stable motion range")
     require(parameters["pivot_d"] < parameters["pivot_d"] + 2 * parameters["pivot_clearance"] < parameters["arm_width"],
