@@ -125,6 +125,116 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 0 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [0, 0] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 10 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [0, 10] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 20 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [10, 20] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 30 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [20, 30] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 40 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [30, 40] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 50 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [40, 50] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 60 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [50, 60] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 70 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [60, 70] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 80 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [70, 80] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 90 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [80, 90] } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "beam_height_mm": { "prefixItems": [{ "const": 100 }] }
+        }
+      },
+      "then": {
+        "properties": { "ball_bottom_gap_mm": { "const": [90, 100] } }
+      }
     }
   ],
   "properties": {

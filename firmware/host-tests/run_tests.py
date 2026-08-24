@@ -99,6 +99,19 @@ def main() -> None:
     invalid_gap["ball_bottom_gap_mm"] = [0, 20]
     if validator.is_valid(invalid_gap):
         raise AssertionError("schema must reject a gap outside the adjacent 10 mm interval")
+    for lowest_height in range(10, 101, 10):
+        valid_relation = deepcopy(trace_events[0])
+        valid_relation["beam_height_mm"] = [lowest_height, 100]
+        valid_relation["ball_bottom_gap_mm"] = [lowest_height - 10, lowest_height]
+        validator.validate(valid_relation)
+        invalid_relation = deepcopy(valid_relation)
+        invalid_relation["ball_bottom_gap_mm"] = (
+            [10, 20] if lowest_height == 10 else [0, 10]
+        )
+        if validator.is_valid(invalid_relation):
+            raise AssertionError(
+                "schema must tie ball_bottom_gap_mm to the lowest beam height"
+            )
     invalid_touch_mask = deepcopy(trace_events[2])
     invalid_touch_mask["net_touch"]["triggered"] = False
     invalid_touch_mask["net_touch"]["sensor_mask"] = 1
