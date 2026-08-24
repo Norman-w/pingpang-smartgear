@@ -85,6 +85,20 @@ def main() -> None:
     )
     render(
         openscad,
+        "jaw",
+        args.output_dir / "openscad-jaw.png",
+        1200,
+        800,
+    )
+    render(
+        openscad,
+        "jaw_pad",
+        args.output_dir / "openscad-jaw-pad.png",
+        1200,
+        800,
+    )
+    render(
+        openscad,
         "optical_bank",
         args.output_dir / "openscad-optical-bank.png",
         1200,
