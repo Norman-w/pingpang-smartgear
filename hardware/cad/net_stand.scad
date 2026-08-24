@@ -14,7 +14,7 @@
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_pressure_pad" 台底可动压块/软垫占位
 //   PART="clamp_screw"        M8 螺杆占位（非打印件）
-//   PART="clamp_knob"         手拧旋钮
+//   PART="clamp_knob"         手拧旋钮（含 M8 配合贯穿孔）
 //   PART="net"                球网/网布装配占位（非打印件）
 //   PART="net_rail"           网顶承载条
 //   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
@@ -112,6 +112,7 @@ clamp_screw_bore_d = clamp_screw_d + 0.8;
 clamp_screw_inset = 30;
 clamp_knob_d = 36;
 clamp_knob_h = 12;
+clamp_knob_overlap = 4;
 clamp_outer_wall_width = 22;
 clamp_lower_arm_t = clamp_pad_t;
 clamp_threaded_boss_d = 18;
@@ -166,6 +167,7 @@ clamp_pressure_pad_x = clamp_screw_x - clamp_pressure_pad_width / 2;
 clamp_screw_top_z = clamp_pressure_pad_top_z;
 clamp_screw_length = 36;
 clamp_screw_bottom_z = clamp_screw_top_z - clamp_screw_length;
+clamp_knob_bottom_z = clamp_screw_bottom_z - clamp_knob_h + clamp_knob_overlap;
 default_side = SIDE == 0 ? 1 : SIDE;
 
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
@@ -238,6 +240,9 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
        "outer wall width must connect the post to the outer clamp edge");
 assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
        "first clamp uses an M8 vertical tightening screw");
+assert(clamp_knob_d > clamp_screw_bore_d && clamp_knob_h > 0 &&
+           clamp_knob_overlap > 0 && clamp_knob_overlap < clamp_knob_h,
+       "printed clamp knob must leave an M8 through-bore and screw overlap");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
        "two PVDF mounts must fit on the net top without crossing the center");
 assert(sensor_front_offset > 0, "PVDF mount front offset must leave a printable connection bridge");
@@ -319,9 +324,15 @@ module clamp_screw_positive() {
 
 module clamp_knob_positive() {
     color("dimgray")
-        translate([clamp_screw_x, 0,
-                   clamp_screw_bottom_z - clamp_knob_h])
-            cylinder(d = clamp_knob_d, h = clamp_knob_h);
+        difference() {
+            translate([clamp_screw_x, 0, clamp_knob_bottom_z])
+                cylinder(d = clamp_knob_d, h = clamp_knob_h);
+            // The printed handwheel must be able to slide over the M8 rod;
+            // the final threaded-rod/nut or head capture remains a standard
+            // hardware decision and is deliberately not hidden in PETG.
+            translate([clamp_screw_x, 0, clamp_knob_bottom_z - 1])
+                cylinder(d = clamp_screw_bore_d, h = clamp_knob_h + 2);
+        }
 }
 
 module table_clamp_positive() {

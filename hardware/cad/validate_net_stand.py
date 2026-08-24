@@ -41,6 +41,7 @@ PARTS = (
     "reference_pin",
     "calibration_gauge",
 )
+NO_DRILL_TABLE_THICKNESSES = (18, 25, 30)
 
 
 def run_openscad(openscad: str, output: Path, *definitions: str) -> subprocess.CompletedProcess[str]:
@@ -62,6 +63,40 @@ def require_stl(result: subprocess.CompletedProcess[str], output: Path, label: s
         raise RuntimeError(f"OpenSCAD rejected {label}:\n{result.stdout}")
     if not output.is_file() or output.stat().st_size == 0:
         raise RuntimeError(f"OpenSCAD produced no STL for {label}")
+
+
+def validate_no_drill_thickness(
+    openscad: str, output_dir: Path, table_thickness: int
+) -> None:
+    """Compile the under-table pressure path for a first-pass thickness matrix."""
+
+    definitions = (f"table_thickness={table_thickness}",)
+    body = output_dir / f"table-clamp-body-{table_thickness}.stl"
+    pad = output_dir / f"pressure-pad-{table_thickness}.stl"
+    screw = output_dir / f"clamp-screw-{table_thickness}.stl"
+    require_stl(
+        run_openscad(openscad, body, 'PART="table_clamp_body"', *definitions),
+        body,
+        f"table clamp body table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, pad, 'PART="clamp_pressure_pad"', *definitions),
+        pad,
+        f"pressure pad table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, screw, 'PART="clamp_screw"', *definitions),
+        screw,
+        f"clamp screw table_thickness={table_thickness}",
+    )
+    pad_bounds = stl_bounds(pad)
+    screw_bounds = stl_bounds(screw)
+    tabletop_bottom = -float(table_thickness)
+    if not (pad_bounds[5] < tabletop_bottom and screw_bounds[5] < tabletop_bottom):
+        raise RuntimeError(
+            "no-drill under-table path reaches the tabletop for "
+            f"table_thickness={table_thickness}: pad={pad_bounds}, screw={screw_bounds}"
+        )
 
 
 def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
@@ -358,6 +393,9 @@ def main() -> None:
                 f"segment={post_segment_bounds}"
             )
 
+        for table_thickness in NO_DRILL_TABLE_THICKNESSES:
+            validate_no_drill_thickness(openscad, output_dir, table_thickness)
+
         invalid_grid = run_openscad(
             openscad,
             output_dir / "invalid-grid.stl",
@@ -475,7 +513,8 @@ def main() -> None:
         "NET_STAND_OK "
         f"(table {parameters['table_width']:g} mm, net {parameters['net_height']:g} mm, "
         f"optical +{parameters['beam_first_height']:g}..+{parameters['beam_last_height']:g} mm, "
-        f"{int(parameters['beam_count'])} channels)"
+        f"{int(parameters['beam_count'])} channels, no-drill table thickness "
+        f"{','.join(str(value) for value in NO_DRILL_TABLE_THICKNESSES)} mm)"
     )
 
 

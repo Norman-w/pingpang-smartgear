@@ -6,7 +6,7 @@
 
 | 范围 | 当前证据 |
 | --- | --- |
-| 当前内置球网支架 CAD | `hardware/cad/net_stand.scad` 支持 `assembly`、左右单侧结构检查件、两段约 `153 mm` 的立柱分件、接缝外套筒/内芯、固定 C 形夹体、台底可动压块、M8 螺杆/旋钮、3 段搭接网顶承载条、2 片带孔拼接片和两侧承托/端挡座、可单独导出的 `optical_rail`、带每 10 mm 实际贯穿定位孔/刻度的光学导轨、10 个带正交调节长孔的光学模块载台、参考线端座/定位销、PVDF 薄膜/两侧可拆压片、独立 PVDF 安装座和标定规；`optical_strip` 仅用于装配预览；首轮参数为球台宽度 `1525 mm`、网顶 `152.5 mm`、光栅 `+10…+100 mm`、M8 竖直夹紧螺杆；`validate_net_stand.py` 编译当前 PART、检查左右镜像、台边跨接、螺杆/压块均低于台面底面、3 段网顶承载条覆盖全跨度、承托座跨过立柱内侧并到达网顶高度、接缝拼接片索引、参考端座落在选定档位、全部 10 个载台档位、薄膜被压片包住、装配包络，并拒绝 9 路光栅、+55 mm 非法参考高度和不存在的载台索引。 |
+| 当前内置球网支架 CAD | `hardware/cad/net_stand.scad` 支持 `assembly`、左右单侧结构检查件、两段约 `153 mm` 的立柱分件、接缝外套筒/内芯、固定 C 形夹体、台底可动压块、M8 螺杆/带 M8 配合孔的旋钮、3 段搭接网顶承载条、2 片带孔拼接片和两侧承托/端挡座、可单独导出的 `optical_rail`、带每 10 mm 实际贯穿定位孔/刻度的光学导轨、10 个带正交调节长孔的光学模块载台、参考线端座/定位销、PVDF 薄膜/两侧可拆压片、独立 PVDF 安装座和标定规；`optical_strip` 仅用于装配预览；首轮参数为球台宽度 `1525 mm`、网顶 `152.5 mm`、光栅 `+10…+100 mm`、M8 竖直夹紧螺杆；`validate_net_stand.py` 编译当前 PART、检查左右镜像、18/25/30 mm 台厚下的免打孔路径、台边跨接、螺杆/压块均低于台面底面、3 段网顶承载条覆盖全跨度、承托座跨过立柱内侧并到达网顶高度、接缝拼接片索引、参考端座落在选定档位、全部 10 个载台档位、薄膜被压片包住、装配包络，并拒绝 9 路光栅、+55 mm 非法参考高度和不存在的载台索引。 |
 | 历史外挂 X 夹具 CAD | `hardware/cad/net_post_x_clamp.scad` 和旧验证脚本保留在历史边界，用于设计回溯与旧几何回归；它不再是当前机械主线。 |
 | CAD 几何关系 | `validate_net_stand.py` 从当前 OpenSCAD 参数探针读取网顶高度、光栅档位、立柱外置位置、网跨度和支架顶部余量；`preview.py`、`render_net_stand_preview.py` 提供当前内置支架的正视/侧面和 OpenSCAD 实体可视证据。 |
 | 光栅业务 | 10 位 `beam_mask`、最低/最高命中光束、安静结束、超时边界、逐通道位图和高度区间均有主机测试；采集器保留跨事件时间边界，事件结束后迟到的旧边沿会形成 invalid/unknown，不会伪造新的有效高度。 |
@@ -16,7 +16,7 @@
 | 传输边界 | `NetEventDelivery` 支持断链缓存、有界覆盖、顺序补发、发送失败后保留事件；ESP32-S3 通过 `net_event_transport.h` 的两个弱 C hook 接 SmartPaddle 现有连接层；具体 `/ws` 适配示例与当前引脚冲突见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。 |
 | 固件构建 | ESP-IDF 5.5.1 / ESP32-S3 实际 `reconfigure + build` 通过，应用分区仍有余量。 |
 | 契约与回归 | JSON Schema 正例/反例、CMake/CTest、ASan/UBSan 主机测试和可视预览均通过。 Schema 还限制 UUID-like `event_id`、10 mm 离散高度档位、每个 1…1023 光栅位图与最低/最高命中档位及球底间隔的对应关系、`touch_no_cross` 无光栅命中及擦网状态与传感器位图一致；主机测试遍历全部 1…1023 光栅位图。 |
-| 实体几何可视证据 | `render_net_stand_preview.py` 从 `net_stand.scad` 渲染当前装配、左右支架、桌下夹持、可打印光学导轨、光学装配预览、单个光学载台、PVDF 安装座和标定规；旧 `render_openscad_preview.py` 单独保留历史方案渲染。两套渲染均由 CI 作为 artifact 保存。 |
+| 实体几何可视证据 | `render_net_stand_preview.py` 从 `net_stand.scad` 渲染当前装配、左右支架、桌下夹持、带孔旋钮、可打印光学导轨、光学装配预览、单个光学载台、PVDF 安装座和标定规；旧 `render_openscad_preview.py` 单独保留历史方案渲染。两套渲染均由 CI 作为 artifact 保存。 |
 | 现场证据门 | `docs/field-validation-record-v0.1.schema.json` 与 `tools/validate_field_record.py` 要求全部 M/B/S/T/E 编号存在；只有 `pending` 可以没有证据，`pass/fail` 必须引用 `evidence_root` 下真实文件；模板当前 19 项全部保持 `pending`，不冒充实机通过；逐项主机覆盖与实物缺口见 [`validation-coverage-v0.1.zh-CN.md`](validation-coverage-v0.1.zh-CN.md)。 |
 | 可运行轨迹回放 | `firmware/host-tests/trace_replay.cpp` 读取固定 CSV，实际跑过光栅/PVDF/短波形采集/事件归并并输出 3 个 Schema 合法事件，`touch_over` 保留波形引用和持续时间；主机单元测试另覆盖“比较器先到、DMA 迟到预触发/后触发、完整帧回填后归并为 `touch_over`”的整条顺序路径；板级 hook 和实物记录边界见 `sensor-interface-v0.1.zh-CN.md` 与现场记录模板。 |
 | 外部回放关联工具 | `tools/correlate_net_events.py` 支持 NetEvent JSONL/`JSON_EVENT` 行、外部时间标记 CSV、明确的微秒偏移和包含边界的匹配窗口；`tools/test_correlate_net_events.py` 覆盖偏移、窗口边界、默认元数据和畸形输入。它只做时间戳关联，不把外部视频结果当作本体判定。 |

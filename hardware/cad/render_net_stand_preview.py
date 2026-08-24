@@ -126,6 +126,7 @@ def main() -> None:
         900,
         700,
     )
+    render(openscad, "clamp_knob", args.output_dir / "net-stand-clamp-knob.png", 900, 700)
     render(openscad, "optical_rail", args.output_dir / "net-stand-optical-rail.png", 900, 1200)
     render(openscad, "optical_strip", args.output_dir / "net-stand-optical-strip.png", 1000, 1200)
     render(
