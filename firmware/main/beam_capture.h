@@ -38,6 +38,10 @@ class BeamCapture {
     std::uint16_t latched_mask_ = 0;
     std::uint64_t start_us_ = 0;
     std::uint64_t last_change_us_ = 0;
+    // Keep the last observed/polled stream boundary across event resets so a
+    // late GPIO edge cannot be mistaken for a fresh valid ball path.
+    std::uint64_t stream_last_timestamp_us_ = 0;
+    bool stream_has_timestamp_ = false;
     bool timestamp_order_valid_ = true;
 };
 

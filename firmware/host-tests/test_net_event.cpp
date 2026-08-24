@@ -133,6 +133,18 @@ void test_beam_capture() {
     const auto invalid_order = out_of_order.poll(3'001);
     require(invalid_order.has_value() && !invalid_order->valid,
             "out-of-order beam timestamps must fail closed");
+
+    smartgear::BeamCapture late_after_boundary(5, 1'000);
+    late_after_boundary.on_edge(0, true, 4'000);
+    late_after_boundary.on_edge(0, false, 4'010);
+    const auto first_boundary = late_after_boundary.poll(4'015);
+    require(first_boundary.has_value() && first_boundary->valid,
+            "ordered beam boundary should remain valid before late input");
+    late_after_boundary.on_edge(0, true, 3'000);
+    late_after_boundary.on_edge(0, false, 3'010);
+    const auto late_boundary = late_after_boundary.poll(3'015);
+    require(late_boundary.has_value() && !late_boundary->valid,
+            "a late beam edge after a closed boundary must be invalid");
 }
 
 void test_each_beam_channel_independently() {
@@ -581,6 +593,30 @@ void test_waveform_window() {
                 complete_after_backlog->pre_samples_available ==
                     std::array<std::size_t, 2>{5, 5},
             "stale DMA backlog must not poison an otherwise complete frame");
+
+    // A stale DMA sample can also arrive after the frame has already closed.
+    // It must be rejected from the rolling history, otherwise it becomes the
+    // next event's pre-trigger baseline even though it was outside the old
+    // frame's timestamp window.
+    outside_window.feed_sample(0, 1, 0);
+    outside_window.feed_sample(1, 2, 0);
+    require(outside_window.start_capture(31'000, "wave-after-stale-history"),
+            "capture after a stale inactive sample should start");
+    for (int sample = 0; sample < 5; ++sample) {
+        outside_window.feed_sample(
+            0, static_cast<std::int16_t>(380 + sample),
+            31'000 + static_cast<std::uint64_t>(sample));
+        outside_window.feed_sample(
+            1, static_cast<std::int16_t>(480 + sample),
+            31'000 + static_cast<std::uint64_t>(sample));
+    }
+    const auto after_stale_history = outside_window.take_ready();
+    require(after_stale_history.has_value() &&
+                after_stale_history->pre_samples_available ==
+                    std::array<std::size_t, 2>{5, 5} &&
+                after_stale_history->samples[0][0] == 180 &&
+                after_stale_history->samples[0][4] == 184,
+            "late inactive DMA samples must not enter the next pre-trigger history");
 
     smartgear::PiezoWaveformCapture post_outside_window({1'000, 5, 5});
     require(post_outside_window.start_capture(40'000,

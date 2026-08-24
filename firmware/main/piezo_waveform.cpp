@@ -102,7 +102,7 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
     }
 
     if (!active_) {
-        record_history(channel, sample);
+        record_history_sample(channel, sample, timestamp_us);
         return;
     }
 
@@ -131,15 +131,14 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
                 static_cast<std::uint64_t>(config_.pre_trigger_ms) * 1'000ULL;
             if (age_us <= pre_trigger_window_us) {
                 append_late_pre_trigger_sample(channel, sample);
-                record_history(channel, sample);
+                record_history_sample(channel, sample, timestamp_us);
             } else {
                 // An ADC DMA batch may contain an older backlog sample. It
-                // is not part of this frame, but it must not poison a frame
-                // whose configured pre/post window is otherwise complete.
-                record_history(channel, sample);
+                // is not part of this frame and must not poison the rolling
+                // history used by the next frame.
             }
         } else {
-            record_history(channel, sample);
+            record_history_sample(channel, sample, timestamp_us);
         }
         return;
     }
@@ -149,18 +148,18 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
     if (timestamp_us - frame_->trigger_us > post_trigger_window_us) {
         // Samples arriving after the configured post-trigger window may be
         // useful to the rolling history, but cannot fill this frame.
-        record_history(channel, sample);
+        record_history_sample(channel, sample, timestamp_us);
         return;
     }
 
     if (post_written_[channel] >= config_.post_trigger_samples()) {
-        record_history(channel, sample);
+        record_history_sample(channel, sample, timestamp_us);
         return;
     }
     frame_->samples[channel][config_.pre_trigger_samples() + post_written_[channel]] =
         sample;
     ++post_written_[channel];
-    record_history(channel, sample);
+    record_history_sample(channel, sample, timestamp_us);
     if (all_post_samples_written()) {
         enqueue_current_frame(true);
     }
@@ -254,6 +253,8 @@ void PiezoWaveformCapture::abort() {
 void PiezoWaveformCapture::clear_history() {
     history_cursor_ = {0, 0};
     history_count_ = {0, 0};
+    history_last_sample_timestamp_ = {0, 0};
+    history_has_timestamp_ = {false, false};
     for (auto& channel_history : history_) {
         std::fill(channel_history.begin(), channel_history.end(), 0);
     }
@@ -290,6 +291,22 @@ void PiezoWaveformCapture::record_history(const std::uint8_t channel,
     history_count_[channel] = std::min(
         history_count_[channel] + static_cast<std::size_t>(1),
         channel_history.size());
+}
+
+void PiezoWaveformCapture::record_history_sample(
+    const std::uint8_t channel,
+    const std::int16_t sample,
+    const std::uint64_t timestamp_us) {
+    if (history_has_timestamp_[channel] &&
+        timestamp_us < history_last_sample_timestamp_[channel]) {
+        // A late DMA sample can arrive after the current frame has already
+        // closed. Dropping it here prevents stale data from becoming the
+        // pre-trigger baseline of the next event.
+        return;
+    }
+    record_history(channel, sample);
+    history_last_sample_timestamp_[channel] = timestamp_us;
+    history_has_timestamp_[channel] = true;
 }
 
 void PiezoWaveformCapture::append_late_pre_trigger_sample(

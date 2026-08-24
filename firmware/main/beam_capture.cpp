@@ -16,12 +16,21 @@ std::optional<BeamObservation> BeamCapture::on_edge(
         return std::nullopt;
     }
 
-    const bool timestamp_in_order = !active_ || timestamp_us >= last_change_us_;
+    const bool timestamp_in_order =
+        !stream_has_timestamp_ || timestamp_us >= stream_last_timestamp_us_;
     if (!timestamp_in_order) {
         // GPIO ISR delivery is expected to be FIFO, but a board adapter or
         // replay source can violate that assumption. Keep the boundary
-        // recoverable while making the eventual observation invalid.
-        timestamp_order_valid_ = false;
+        // recoverable while making the eventual observation invalid. This
+        // check deliberately survives reset() so an old edge after a quiet
+        // boundary cannot start a valid new event.
+        if (active_) {
+            timestamp_order_valid_ = false;
+        }
+    }
+    if (!stream_has_timestamp_ || timestamp_us > stream_last_timestamp_us_) {
+        stream_last_timestamp_us_ = timestamp_us;
+        stream_has_timestamp_ = true;
     }
 
     if (active_ && timestamp_us >= start_us_ &&
@@ -34,6 +43,7 @@ std::optional<BeamObservation> BeamCapture::on_edge(
             last_change_us_ = timestamp_us;
             active_mask_ = static_cast<std::uint16_t>(1U << channel);
             latched_mask_ = active_mask_;
+            timestamp_order_valid_ = timestamp_in_order;
         }
         return timed_out;
     }
@@ -43,6 +53,7 @@ std::optional<BeamObservation> BeamCapture::on_edge(
         if (!active_) {
             active_ = true;
             start_us_ = timestamp_us;
+            timestamp_order_valid_ = timestamp_in_order;
             latched_mask_ = 0;
         }
         active_mask_ = static_cast<std::uint16_t>(active_mask_ | bit);
@@ -59,7 +70,17 @@ std::optional<BeamObservation> BeamCapture::on_edge(
 std::optional<BeamObservation> BeamCapture::poll(
     const std::uint64_t timestamp_us) {
     if (!active_) {
+        if (!stream_has_timestamp_ || timestamp_us > stream_last_timestamp_us_) {
+            stream_last_timestamp_us_ = timestamp_us;
+            stream_has_timestamp_ = true;
+        }
         return std::nullopt;
+    }
+    if (stream_has_timestamp_ && timestamp_us < stream_last_timestamp_us_) {
+        timestamp_order_valid_ = false;
+    } else if (!stream_has_timestamp_ || timestamp_us > stream_last_timestamp_us_) {
+        stream_last_timestamp_us_ = timestamp_us;
+        stream_has_timestamp_ = true;
     }
     if (timestamp_us >= start_us_ && timestamp_us - start_us_ > max_event_us_) {
         return finish(timestamp_us, true);
