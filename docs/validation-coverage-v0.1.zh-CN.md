@@ -30,7 +30,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | S-02 | 无 | — | 旋钮、碰夹具、球网振动的原始波形与误报率 |
 | S-03 | `test_waveform_timeout_flush()`、`test_touch_no_cross_and_unknown()` | 不完整帧释放、`waveform_incomplete` 和 fail-closed 状态 | 接板后真实 ADC 中断/超时行为 |
 | T-01/T-02 | `test_delivery_recovery_and_feedback()` | 断链缓存、容量覆盖、发送失败、补发顺序和不重复 | SmartPaddle/App 真实 WebSocket/BLE/MQTT/SSE 回调 |
-| T-03 | 无 | — | 与外部视频/设备时间轴的同钟或偏移记录 |
+| T-03 | `tools/correlate_net_events.py`、`tools/test_correlate_net_events.py` | 对 `NetEvent.timestamp_us` 与外部 CSV 时间标记执行明确偏移、包含边界和时间窗匹配；不读取视频，也不解释图像 | 同钟来源/偏移的现场测量、外部设备导出文件和真实事件日志 |
 | E-01 | `test_sequential_and_overlapping_events()`、`net_event_trace` | 可分离事件、重叠事件 fail-closed 和事件 ID | 真实连续单球与球路分离能力 |
 
 ## 2. 现场证据门
@@ -38,7 +38,6 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 `docs/field-validation-record.example.json` 当前 19 项全部为 `pending`，`tools/validate_field_record.py` 只验证编号完整性和证据路径安全，不会把主机测试自动改成 `pass`。因此当前结论是：
 
 - 软件/协议/参数验证链已具备并持续由 CI 执行；
-- M-01、S-02、T-03 目前没有可替代的主机证据；
+- M-01、S-02 没有可替代的主机证据；T-03 现在有纯时间戳关联工具覆盖，但仍没有真实同钟/偏移的现场证据；
 - B-06～B-09、S-01～S-03、T-01～T-02、E-01 的主机证据不能关闭对应实物验收项；
 - 只有在证据目录存在照片、量具/示波器/逻辑分析仪记录、原始波形或真实事件日志后，才允许把记录从 `pending` 改成 `pass`/`fail`。
-
