@@ -27,9 +27,11 @@
 //   PART="optical_strip"      单侧 10 路红外模块导轨与模块装配预览
 //   PART="optical_module_carrier" 单个光学模块中性载台/调节槽（由 optical_module_index 选择）
 //   PART="sensor_mount"       单侧网顶 PVDF 夹片安装座
+//   PART="sensor_mount_body"   单侧可打印 PVDF 安装座本体（不含薄膜/压片）
 //   PART="pvdf_film"          PVDF 薄膜包络（非打印件）
 //   PART="sensor_clamp_lip"   PVDF 薄膜两侧可拆压片
 //   PART="reference_carriage" 参考线端座与定位销
+//   PART="reference_carriage_body" 可打印参考线端座本体（不含定位销）
 //   PART="reference_pin"      参考线弹簧销占位（非打印件）
 //   PART="calibration_gauge"  10 mm 高度档位标定规
 //   PART="parameter_probe"    输出验证脚本读取的参数清单
@@ -624,7 +626,7 @@ module sensor_clamp_lip_positive(x_position) {
         }
 }
 
-module sensor_mount_positive(x_position) {
+module sensor_mount_body_positive(x_position) {
     color("mediumpurple")
         translate([x_position - sensor_length / 2,
                    -net_rail_depth / 2 - sensor_front_offset - sensor_depth,
@@ -636,12 +638,20 @@ module sensor_mount_positive(x_position) {
                    -net_rail_depth / 2 - sensor_front_offset,
                    net_height - 1])
             cube([16, sensor_front_offset, sensor_height]);
+}
+
+module sensor_mount_positive(x_position) {
+    sensor_mount_body_positive(x_position);
     pvdf_film_positive(x_position);
     sensor_clamp_lip_positive(x_position);
 }
 
 module sensor_mount(side = 1) {
     sided(side) sensor_mount_positive(sensor_x);
+}
+
+module sensor_mount_body(side = 1) {
+    sided(side) sensor_mount_body_positive(sensor_x);
 }
 
 module net_rail_segment_positive(index = 0) {
@@ -749,7 +759,7 @@ module reference_pin_positive() {
                          center = true);
 }
 
-module reference_carriage_positive() {
+module reference_carriage_body_positive() {
     carriage_center_x = optical_rail_x + optical_rail_depth / 2;
     carriage_z = beam_z(reference_height) - reference_carriage_height / 2;
     color("seagreen") {
@@ -766,11 +776,19 @@ module reference_carriage_positive() {
                    beam_z(reference_height) - 1.5])
             cube([8, optical_rail_width / 2 + reference_carriage_depth - 1.1, 3]);
     }
+}
+
+module reference_carriage_positive() {
+    reference_carriage_body_positive();
     reference_pin_positive();
 }
 
 module reference_carriage(side = 1) {
     sided(side) reference_carriage_positive();
+}
+
+module reference_carriage_body(side = 1) {
+    sided(side) reference_carriage_body_positive();
 }
 
 module table_preview() {
@@ -945,12 +963,16 @@ if (PART == "assembly") {
             beam_first_height + optical_module_index * beam_pitch);
 } else if (PART == "sensor_mount") {
     sensor_mount(default_side);
+} else if (PART == "sensor_mount_body") {
+    sensor_mount_body(default_side);
 } else if (PART == "pvdf_film") {
     sided(default_side) pvdf_film_positive(sensor_x);
 } else if (PART == "sensor_clamp_lip") {
     sided(default_side) sensor_clamp_lip_positive(sensor_x);
 } else if (PART == "reference_carriage") {
     reference_carriage(default_side);
+} else if (PART == "reference_carriage_body") {
+    reference_carriage_body(default_side);
 } else if (PART == "reference_pin") {
     sided(default_side) reference_pin_positive();
 } else if (PART == "calibration_gauge") {

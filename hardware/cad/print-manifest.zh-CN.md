@@ -26,10 +26,12 @@
 | `optical_rail` | 2 | PETG；左右各一条，可打印导轨本体，包含 10 个贯穿定位孔和刻度 |
 | `optical_strip` | 2 | 装配预览，不直接打印；包含导轨、模块包络和载台关系，电子光学模块不打印 |
 | `optical_module_carrier` | 20 | PETG；每侧 10 枚，按 `optical_module_index=0…9` 导出；U 形载台后壁带正交调节长孔，M3 紧固件为标准件 |
-| `sensor_mount` | 2 | PETG/TPU 组合首样；左右各一枚，PVDF 薄膜和线束按实物固定 |
+| `sensor_mount` | 2 | 装配预览，不直接打印；包含座体、PVDF 薄膜和可拆压片的关系 |
+| `sensor_mount_body` | 2 | PETG；左右各一枚，只打印安装座本体，薄膜和压片另装 |
 | `sensor_clamp_lip` | 2 | PETG/TPU；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
 | `pvdf_film` | 2 | 非打印件；PVDF 薄膜包络，首样按实物裁切并保留可替换性 |
-| `reference_carriage` | 2 | PETG；左右各一枚，作为校准时的参考线端座，不永久挡住光栅 |
+| `reference_carriage` | 2 | 装配预览，不直接打印；包含端座和标准定位销关系 |
+| `reference_carriage_body` | 2 | PETG；左右各一枚，作为校准时的参考线端座，不永久挡住光栅 |
 | `reference_pin` | 2 | 非打印件；约 Ø3 mm 弹簧定位销，插入导轨 Ø4 mm 孔 |
 | `calibration_gauge` | 1 | PETG；共享的 +10…+100 mm 十档高度标定规 |
 | `net` | 1 | 非打印件；使用真实球网/网布装配，OpenSCAD 只显示占位几何 |
@@ -66,8 +68,18 @@ openscad -D 'PART="optical_strip"' -D 'SIDE=-1' -o left-optical-strip.stl net_st
 openscad -D 'PART="optical_module_carrier"' -D 'SIDE=1' -D 'optical_module_index=4' -o right-optical-carrier-50mm.stl net_stand.scad
 openscad -D 'PART="optical_module_carrier"' -D 'SIDE=-1' -D 'optical_module_index=4' -o left-optical-carrier-50mm.stl net_stand.scad
 openscad -D 'PART="sensor_mount"' -D 'SIDE=1' -o right-pvdf-mount.stl net_stand.scad
+openscad -D 'PART="sensor_mount_body"' -D 'SIDE=1' -o right-pvdf-mount-body.stl net_stand.scad
+openscad -D 'PART="reference_carriage_body"' -D 'SIDE=1' -o right-reference-carriage-body.stl net_stand.scad
 openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 ```
+
+批量导出首样打印包：
+
+```text
+python3 export_net_stand_printables.py
+```
+
+默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧/档位、单位、包围盒和封闭拓扑摘要；它只导出独立打印件，不把球台、网布、PVDF 薄膜、标准定位销或组合装配预览误当作 PETG 单件。
 
 打印后先做无网桌下夹持检查，再装网布、网顶 PVDF 和光学模块。没有 M-01/M-02/M-03 的照片、量具读数和记录文件时，现场记录状态必须保持 `pending`。
 
@@ -76,7 +88,7 @@ openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 1. 用 `table_clamp_body`、`clamp_pressure_pad`、两枚标准 M8 螺母和一段与实物相同厚度的台面样块检查上夹板、台底压块、圆头螺杆行程、旋钮捕获和软垫压痕；
 2. 先将左右各自的两段 `post_segment` 用 `post_joint_key` 和 `post_joint_sleeve` 定位装配，再确认夹持后立柱不明显倾斜或滑移；
 3. 把左右 `net_rail_saddle` 装到立柱内侧，拼接 3 段 `net_rail_segment` 成 `net_rail`，确认承载条落在承托座且被端挡限位，再安装真实网布，记录网顶高度、网布张力和两侧平行度；
-4. 安装可打印的 `optical_rail`，再安装 10 个 `optical_module_carrier` 和真实收发器；`optical_strip` 只用于装配关系预览；用载台长孔做有限俯仰/偏航预调，再用 `reference_carriage`/`reference_pin` 逐档复核参考线，最后做逐光束/逐 PVDF 接板记录；
+4. 安装可打印的 `optical_rail`，再安装 10 个 `optical_module_carrier` 和真实收发器；`optical_strip` 只用于装配关系预览；用载台长孔做有限俯仰/偏航预调，再用 `reference_carriage_body`/`reference_pin` 逐档复核参考线，最后做逐光束/逐 PVDF 接板记录；
 5. 只有完成机械记录后，才把 `assembly` 的参数继续收敛为下一版打印尺寸。
 
 ## 历史方案边界

@@ -40,9 +40,11 @@ PARTS = (
     "optical_strip",
     "optical_module_carrier",
     "sensor_mount",
+    "sensor_mount_body",
     "pvdf_film",
     "sensor_clamp_lip",
     "reference_carriage",
+    "reference_carriage_body",
     "reference_pin",
     "calibration_gauge",
 )
@@ -60,6 +62,8 @@ PREVIEW_ONLY_PARTS = {
     "net",
     "net_rail",
     "optical_strip",
+    "sensor_mount",
+    "reference_carriage",
 }
 NO_DRILL_TABLE_THICKNESSES = (18, 25, 30)
 
@@ -423,9 +427,11 @@ def main() -> None:
             "optical_strip",
             "optical_module_carrier",
             "sensor_mount",
+            "sensor_mount_body",
             "pvdf_film",
             "sensor_clamp_lip",
             "reference_carriage",
+            "reference_carriage_body",
             "reference_pin",
         ):
             mirrored = output_dir / f"{part}-mirror.stl"
