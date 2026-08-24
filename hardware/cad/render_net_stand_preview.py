@@ -99,6 +99,13 @@ def main() -> None:
     )
     render(
         openscad,
+        "lower_stand_segment",
+        args.output_dir / "net-stand-lower-stand-segment.png",
+        1200,
+        1000,
+    )
+    render(
+        openscad,
         "post_joint_sleeve",
         args.output_dir / "net-stand-post-joint-sleeve.png",
         700,

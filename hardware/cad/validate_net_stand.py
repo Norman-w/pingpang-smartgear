@@ -21,6 +21,7 @@ PARTS = (
     "right_stand",
     "post",
     "post_segment",
+    "lower_stand_segment",
     "post_joint_sleeve",
     "post_joint_key",
     "table_clamp",
@@ -291,6 +292,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "beam_last_height",
         "beam_pitch",
         "post_center_x",
+        "post_offset",
         "post_body_width",
         "post_body_depth",
         "post_bottom",
@@ -346,6 +348,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "optical_module_depth",
         "optical_module_width",
         "optical_module_height",
+        "optical_rail_depth",
+        "optical_beam_edge_overlap",
+        "optical_beam_axis_x",
+        "optical_rail_x",
         "optical_carrier_clearance",
         "optical_carrier_wall",
         "optical_carrier_z_wall",
@@ -357,6 +363,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "optical_carrier_slot_length",
         "optical_module_index",
         "reference_pin_d",
+        "clamp_pad_depth",
     }
     missing = required - parameters.keys()
     if missing:
@@ -365,13 +372,27 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         raise RuntimeError(f"unexpected optical grid parameters: {parameters}")
     if not (parameters["post_center_x"] > parameters["table_width"] / 2):
         raise RuntimeError(f"post is not outside table edge: {parameters}")
+    table_edge = parameters["table_width"] / 2
+    post_inner_face = parameters["post_center_x"] - parameters["post_body_width"] / 2
+    if not (
+        parameters["post_offset"] > 0
+        and parameters["optical_beam_edge_overlap"] >= 0
+        and parameters["optical_beam_axis_x"] >= table_edge
+        and 2 * parameters["optical_beam_axis_x"] >= parameters["table_width"]
+        and parameters["optical_rail_x"] >= table_edge
+        and parameters["optical_rail_x"] + parameters["optical_rail_depth"]
+        <= post_inner_face + 0.01
+    ):
+        raise RuntimeError(
+            "optical axis/rail does not cover the full tabletop while staying outside the post body: "
+            f"{parameters}"
+        )
     if not (
         parameters["post_segment_count"] == 2
         and 100 < parameters["post_segment_length"] < 180
         and parameters["post_joint_gap"] == 2
     ):
         raise RuntimeError(f"unexpected printable post segmentation: {parameters}")
-    table_edge = parameters["table_width"] / 2
     if not (
         parameters["clamp_pad_x"] < table_edge < parameters["clamp_pad_outer_x"]
         and parameters["clamp_pad_x"] < parameters["clamp_screw_x"] < table_edge
@@ -460,6 +481,7 @@ def main() -> None:
             "post_segment",
             "post_joint_sleeve",
             "post_joint_key",
+            "lower_stand_segment",
             "table_clamp",
             "table_clamp_section",
             "table_clamp_body",
@@ -540,6 +562,7 @@ def main() -> None:
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
+        lower_stand_bounds = stl_bounds(output_dir / "lower_stand_segment.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
@@ -666,6 +689,18 @@ def main() -> None:
             raise RuntimeError(
                 f"post assembly/segment bounds or lower reinforcement are not printable: post={post_bounds}, "
                 f"segment={post_segment_bounds}"
+            )
+        if not (
+            lower_stand_bounds[0] <= parameters["clamp_pad_x"] + 0.01
+            and lower_stand_bounds[1] >= parameters["clamp_pad_outer_x"] - 0.01
+            and lower_stand_bounds[3] - lower_stand_bounds[2]
+            >= parameters["clamp_pad_depth"] - 0.01
+            and lower_stand_bounds[4] <= parameters["clamp_lower_arm_bottom_z"] + 0.01
+            and lower_stand_bounds[5] >= post_segment_bounds[5] - 0.01
+        ):
+            raise RuntimeError(
+                "integrated lower stand segment does not contain both the post and C clamp: "
+                f"lower={lower_stand_bounds}, post_segment={post_segment_bounds}"
             )
 
         for table_thickness in NO_DRILL_TABLE_THICKNESSES:

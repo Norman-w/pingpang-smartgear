@@ -96,7 +96,9 @@ def _indexed_side_specs(
 def _indexed_post_specs() -> list[ExportSpec]:
     specs: list[ExportSpec] = []
     for label, value in (("right", 1), ("left", -1)):
-        for index in range(2):
+        # index=0 is exported as lower_stand_segment below so the first-print
+        # lower upright and its C clamp are one physically assembleable part.
+        for index in (1,):
             specs.append(
                 ExportSpec(
                     filename=f"{label}-post-segment-{index}.stl",
@@ -159,6 +161,15 @@ def build_export_specs() -> list[ExportSpec]:
     specs = _indexed_post_specs()
     specs.extend(
         _side_specs(
+            "lower_stand_segment",
+            "lower-stand-segment",
+            "PETG",
+            "底面朝下；下段立柱与 C 形夹已经一体化，接缝方向沿 Z 轴。",
+            "首样左右各一件；包含 post_segment_index=0 与固定 C 形夹，避免分件相互干涉。",
+        )
+    )
+    specs.extend(
+        _side_specs(
             "post_joint_sleeve",
             "post-joint-sleeve",
             "PETG",
@@ -173,15 +184,6 @@ def build_export_specs() -> list[ExportSpec]:
             "PETG",
             "最大平面朝下；装配前检查与套筒的滑动间隙。",
             "立柱两段接缝内芯/防转键。",
-        )
-    )
-    specs.extend(
-        _side_specs(
-            "table_clamp_body",
-            "table-clamp-body",
-            "PETG",
-            "C 形开口朝外；上夹板和下臂按层间强度方向切片。",
-            "传统桌下 C 形夹固定体；不打孔、不穿透台面。",
         )
     )
     specs.extend(

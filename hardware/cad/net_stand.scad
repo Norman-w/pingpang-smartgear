@@ -8,6 +8,7 @@
 //   PART="right_stand"        右侧立柱/桌下夹持/光学导轨结构检查件
 //   PART="post"               单侧立柱主体
 //   PART="post_segment"       单段可打印立柱（由 post_segment_index 选择）
+//   PART="lower_stand_segment" 下段立柱与固定 C 形夹一体打印件
 //   PART="post_joint_sleeve"  立柱中部外套筒
 //   PART="post_joint_key"     立柱中部内芯
 //   PART="table_clamp"        单侧传统桌下夹持机构装配预览
@@ -52,7 +53,9 @@ table_width = 1525;
 table_depth_preview = 500;
 table_thickness = 25;
 table_edge_x = table_width / 2;
-post_offset = 18;
+// 立柱外置 37 mm，使光学导轨留在立柱内侧与台边之间的开放空间；
+// 模块镜头轴线因此可以覆盖台面边缘，而不会嵌入实心立柱。
+post_offset = 37;
 post_center_x = table_edge_x + post_offset;
 post_body_width = 28;
 post_body_depth = 38;
@@ -164,9 +167,14 @@ net_rail_saddle_width = 12;
 net_rail_saddle_depth = net_rail_depth + 6;
 net_rail_saddle_height = 4;
 net_rail_saddle_stop_t = 3;
-optical_rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
-// 模块本体贴在导轨内侧；镜头朝向球台中心，避免模块实体嵌进导轨。
-optical_center_x = optical_rail_x - optical_module_depth / 2;
+// 右侧光学件的光轴必须覆盖球台边缘；左侧由 SIDE 镜像。导轨位于
+// 立柱内侧与台边之间的开放空间，模块本体贴在导轨内侧，镜头朝向球台中心，
+// 不把模块或导轨嵌入立柱实体。
+optical_beam_edge_overlap = 0.5;
+optical_beam_axis_x = table_edge_x + optical_beam_edge_overlap;
+optical_center_x = optical_beam_axis_x +
+                   optical_module_depth / 2 + optical_lens_depth / 2;
+optical_rail_x = optical_center_x + optical_module_depth / 2;
 optical_carrier_front_depth = optical_module_depth + 2 * optical_carrier_clearance;
 optical_carrier_front_x = optical_rail_x - optical_carrier_front_depth;
 optical_carrier_width = optical_module_width + 2 * optical_carrier_wall;
@@ -199,6 +207,12 @@ default_side = SIDE == 0 ? 1 : SIDE;
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
 assert(post_offset > 0, "integrated stand must sit outside the table edge");
 assert(post_center_x > table_edge_x, "post center must be outside the table edge");
+assert(optical_beam_edge_overlap >= 0 &&
+           optical_beam_axis_x >= table_edge_x &&
+           optical_rail_x >= table_edge_x &&
+           optical_rail_x + optical_rail_depth <=
+           post_center_x - post_body_width / 2,
+       "optical axis must cover the tabletop edge while the rail stays outside the post body");
 assert(net_height >= 152 && net_height <= 153,
        "first integrated stand keeps the traditional 152.5 mm net height");
 assert(beam_count == 10, "first integrated stand uses ten optical channels");
@@ -312,7 +326,9 @@ assert(rail_segment_index >= 0 && rail_segment_index < net_rail_segment_count,
 assert(SIDE == -1 || SIDE == 0 || SIDE == 1, "SIDE must be -1, 0, or 1");
 
 function beam_z(height) = net_height + height;
-function beam_inner_span() = net_span - post_body_width - optical_module_depth * 2;
+// 参考光束线按实际镜头光轴，而不是按模块外壳内缘绘制；这样装配预览
+// 能直接暴露光束是否覆盖球台边缘。
+function beam_inner_span() = 2 * optical_beam_axis_x;
 function sensor_z() = net_height + sensor_height / 2 - 1;
 function net_rail_segment_start(index) =
     -net_span / 2 + index * (net_rail_segment_length - net_rail_splice_overlap);
@@ -500,6 +516,15 @@ module post_segment_positive(index = 0) {
                        -post_body_depth / 2 - 4,
                        -2])
                 cube([post_body_width + 10, post_body_depth + 8, 34]);
+    }
+}
+
+module lower_stand_segment_positive() {
+    // 首样的下段与桌下夹体一体打印，避免把两个相互穿入的独立实体
+    // 交给装配者硬压在一起；上段仍通过套筒和内芯接到这个下段。
+    union() {
+        post_segment_positive(0);
+        table_clamp_body_positive();
     }
 }
 
@@ -747,7 +772,7 @@ module net_rail_saddle(side = 1) {
 }
 
 module net_rail() {
-    // 三段带 20 mm 搭接，打印长度约 524 mm；实际装配时用下方拼接片/螺钉
+    // 三段带 20 mm 搭接，打印长度约 536 mm；实际装配时用下方拼接片/螺钉
     // 或铝型材替代件把搭接处锁紧。整体 PART 仍用于连续网顶关系预览。
     for (index = [0:net_rail_segment_count - 1]) {
         net_rail_segment_positive(index);
@@ -884,11 +909,13 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM net_rail_saddle_depth=", net_rail_saddle_depth));
     echo(str("NETSTAND_PARAM net_rail_saddle_height=", net_rail_saddle_height));
     echo(str("NETSTAND_PARAM post_top=", post_top));
+    echo(str("NETSTAND_PARAM post_offset=", post_offset));
     echo(str("NETSTAND_PARAM sensor_x=", sensor_x));
     echo(str("NETSTAND_PARAM sensor_film_length=", sensor_film_length));
     echo(str("NETSTAND_PARAM sensor_film_depth=", sensor_film_depth));
     echo(str("NETSTAND_PARAM sensor_clamp_tab_width=", sensor_clamp_tab_width));
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
+    echo(str("NETSTAND_PARAM clamp_pad_depth=", clamp_pad_depth));
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
@@ -922,6 +949,10 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM optical_module_depth=", optical_module_depth));
     echo(str("NETSTAND_PARAM optical_module_width=", optical_module_width));
     echo(str("NETSTAND_PARAM optical_module_height=", optical_module_height));
+    echo(str("NETSTAND_PARAM optical_rail_depth=", optical_rail_depth));
+    echo(str("NETSTAND_PARAM optical_beam_edge_overlap=", optical_beam_edge_overlap));
+    echo(str("NETSTAND_PARAM optical_beam_axis_x=", optical_beam_axis_x));
+    echo(str("NETSTAND_PARAM optical_rail_x=", optical_rail_x));
     echo(str("NETSTAND_PARAM optical_carrier_clearance=", optical_carrier_clearance));
     echo(str("NETSTAND_PARAM optical_carrier_wall=", optical_carrier_wall));
     echo(str("NETSTAND_PARAM optical_carrier_z_wall=", optical_carrier_z_wall));
@@ -957,6 +988,8 @@ if (PART == "assembly") {
     sided(default_side) post_positive();
 } else if (PART == "post_segment") {
     sided(default_side) post_segment_positive(post_segment_index);
+} else if (PART == "lower_stand_segment") {
+    sided(default_side) lower_stand_segment_positive();
 } else if (PART == "post_joint_sleeve") {
     sided(default_side) post_joint_sleeve_positive();
 } else if (PART == "post_joint_key") {
