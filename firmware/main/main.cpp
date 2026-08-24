@@ -274,26 +274,12 @@ extern "C" void app_main() {
             sync_sensor_health(aggregator);
             next_health_poll_us = now_us + 1'000'000ULL;
         }
-        if (adc_continuous.initialized()) {
-            const esp_err_t adc_read_error = adc_continuous.read_and_dispatch(0);
-            if (adc_read_error != ESP_OK && adc_read_error != ESP_ERR_TIMEOUT) {
-                ESP_LOGW(kTag, "ADC1 continuous read: %s",
-                         esp_err_to_name(adc_read_error));
-            }
-        }
-        waveform_capture.expire(static_cast<std::uint64_t>(esp_timer_get_time()));
-        while (auto frame = waveform_capture.take_ready()) {
-            const auto features =
-                extract_piezo_features(*frame, config::kPiezoSampleRateHz);
-            const std::string reference = frame->reference;
-            smartgear_board_on_piezo_waveform(
-                frame->reference.c_str(), frame->trigger_us,
-                frame->pre_trigger_samples, frame->samples[0].data(),
-                frame->samples[0].size(), frame->samples[1].data(),
-                frame->samples[1].size(), frame->complete);
-            waveform_archive.store(std::move(*frame));
-            piezo_capture.on_waveform_ready(reference, features);
-        }
+
+        // Consume comparator/beam edges before dispatching the next ADC DMA
+        // batch. A comparator edge and its ADC samples can arrive in the same
+        // scheduler slice; starting the frame first lets the timestamped DMA
+        // backlog backfill the pre-trigger tail instead of completing an
+        // unassociated frame before PiezoCapture sees the trigger.
         if (xQueueReceive(s_sensor_queue, &edge, pdMS_TO_TICKS(1)) == pdTRUE) {
             std::size_t processed_edges = 0;
             do {
@@ -342,6 +328,27 @@ extern "C" void app_main() {
                 ++processed_edges;
             } while (processed_edges < 32 &&
                      xQueueReceive(s_sensor_queue, &edge, 0) == pdTRUE);
+        }
+
+        if (adc_continuous.initialized()) {
+            const esp_err_t adc_read_error = adc_continuous.read_and_dispatch(0);
+            if (adc_read_error != ESP_OK && adc_read_error != ESP_ERR_TIMEOUT) {
+                ESP_LOGW(kTag, "ADC1 continuous read: %s",
+                         esp_err_to_name(adc_read_error));
+            }
+        }
+        waveform_capture.expire(static_cast<std::uint64_t>(esp_timer_get_time()));
+        while (auto frame = waveform_capture.take_ready()) {
+            const auto features =
+                extract_piezo_features(*frame, config::kPiezoSampleRateHz);
+            const std::string reference = frame->reference;
+            smartgear_board_on_piezo_waveform(
+                frame->reference.c_str(), frame->trigger_us,
+                frame->pre_trigger_samples, frame->samples[0].data(),
+                frame->samples[0].size(), frame->samples[1].data(),
+                frame->samples[1].size(), frame->complete);
+            waveform_archive.store(std::move(*frame));
+            piezo_capture.on_waveform_ready(reference, features);
         }
 
         if (auto observation = beam_capture.poll(now_us)) {
