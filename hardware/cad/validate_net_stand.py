@@ -316,6 +316,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pad_outer_x",
         "clamp_screw_x",
         "clamp_screw_d",
+        "clamp_screw_pitch",
         "clamp_threaded_boss_d",
         "clamp_threaded_boss_h",
         "clamp_top_pad_x",
@@ -377,6 +378,9 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     ):
         raise RuntimeError(f"clamp does not bridge edge with an under-table screw: {parameters}")
     if not (
+        parameters["clamp_screw_d"] == 8
+        and parameters["clamp_screw_pitch"] == 1.25
+        and
         parameters["clamp_screw_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_screw_top_z"] <= parameters["clamp_pressure_pad_bottom_z"]
@@ -387,7 +391,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_lower_arm_top_z"] <
         parameters["clamp_pressure_pad_bottom_z"]
     ):
-        raise RuntimeError(f"clamp pressure path is not below tabletop: {parameters}")
+        raise RuntimeError(f"M8x1.25 clamp pressure path is inconsistent: {parameters}")
     if not (
         parameters["clamp_nut_af"] > parameters["clamp_screw_d"]
         and parameters["clamp_nut_pocket_af"] > parameters["clamp_nut_af"]

@@ -114,6 +114,9 @@ clamp_pad_depth = 58;
 clamp_pad_t = 8;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
+// 首样采用真实 M8×1.25 金属螺杆；螺纹牙型不在 PETG 几何中建模，
+// 但螺距作为标准件接口的一部分固化并由参数探针/验证脚本读取。
+clamp_screw_pitch = 1.25;
 clamp_screw_bore_d = clamp_screw_d + 0.8;
 clamp_screw_inset = 30;
 clamp_knob_d = 36;
@@ -267,8 +270,9 @@ assert(clamp_top_pad_t > 0 && clamp_top_pad_width > 0 &&
        "replaceable upper protective pad must fit under the fixed jaw");
 assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
        "outer wall width must connect the post to the outer clamp edge");
-assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
-       "first clamp uses an M8 vertical tightening screw");
+assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
+           clamp_screw_length > table_thickness,
+       "first clamp uses an M8 x 1.25 vertical tightening screw");
 assert(clamp_screw_top_z <= clamp_pressure_pad_bottom_z &&
            clamp_screw_top_z < -table_thickness &&
            clamp_screw_tip_radius > 0,
@@ -888,6 +892,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
+    echo(str("NETSTAND_PARAM clamp_screw_pitch=", clamp_screw_pitch));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_d=", clamp_threaded_boss_d));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_h=", clamp_threaded_boss_h));
     echo(str("NETSTAND_PARAM clamp_top_pad_x=", clamp_top_pad_x));
