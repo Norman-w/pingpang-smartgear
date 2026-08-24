@@ -133,6 +133,19 @@ def main() -> None:
     invalid_event_id["event_id"] = "not-a-uuid"
     if validator.is_valid(invalid_event_id):
         raise AssertionError("schema must reject a non-UUID event ID")
+    for beam_mask in range(1, 1024):
+        mapped_event = deepcopy(trace_events[0])
+        lowest_index = (beam_mask & -beam_mask).bit_length() - 1
+        highest_index = beam_mask.bit_length() - 1
+        lowest_height = 10 + lowest_index * 10
+        highest_height = 10 + highest_index * 10
+        mapped_event["beam_mask"] = beam_mask
+        mapped_event["beam_height_mm"] = [lowest_height, highest_height]
+        mapped_event["ball_bottom_gap_mm"] = [
+            max(0, lowest_height - 10), lowest_height
+        ]
+        validator.validate(mapped_event)
+    print("BEAM_SCHEMA_MAPPING_OK (1023 masks)")
     print(f"TRACE_SCHEMA_OK ({len(trace_events)} events)")
 
 
