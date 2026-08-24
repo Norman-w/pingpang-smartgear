@@ -11,6 +11,7 @@
 //   PART="post_joint_sleeve"  立柱中部外套筒
 //   PART="post_joint_key"     立柱中部内芯
 //   PART="table_clamp"        单侧传统桌下夹持机构装配预览
+//   PART="table_clamp_section" 桌板剖面/免打孔夹紧受力路径预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_pressure_pad" 台底可动压块/软垫占位
 //   PART="clamp_screw"        M8 螺杆占位（非打印件，顶端圆头）
@@ -410,6 +411,48 @@ module table_clamp_positive() {
     clamp_screw_positive();
     clamp_knob_positive();
     clamp_knob_nut_positive();
+}
+
+module table_clamp_section_clip() {
+    // 只保留 y=0 附近的薄剖面，便于直接看清桌板、压块、圆头螺杆和两枚
+    // M8 螺母的相对高度；它是可视校验件，不是额外的打印零件。
+    translate([clamp_pad_x - 8, -4, clamp_knob_bottom_z - 5])
+        cube([clamp_pad_outer_x - clamp_pad_x + 16,
+              8,
+              -clamp_knob_bottom_z + 10]);
+}
+
+module table_clamp_section_positive() {
+    section_x = clamp_pad_x - 8;
+    section_width = clamp_pad_outer_x - clamp_pad_x + 16;
+    // 半透明台板截面明确标出 z=-table_thickness 到 z=0 的实体范围。
+    color("gray", 0.45)
+        translate([section_x, -4, -table_thickness])
+            cube([section_width, 8, table_thickness]);
+    intersection() {
+        table_clamp_body_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_pressure_pad_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_screw_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_body_nut_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_knob_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_knob_nut_positive();
+        table_clamp_section_clip();
+    }
 }
 
 module post_segment_positive(index = 0) {
@@ -868,6 +911,8 @@ if (PART == "assembly") {
     sided(default_side) post_joint_key_positive();
 } else if (PART == "table_clamp") {
     sided(default_side) table_clamp_positive();
+} else if (PART == "table_clamp_section") {
+    sided(default_side) table_clamp_section_positive();
 } else if (PART == "table_clamp_body") {
     sided(default_side) table_clamp_body_positive();
 } else if (PART == "clamp_pressure_pad") {

@@ -19,7 +19,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件、夹体/压块/圆头螺杆/固定下臂螺母/旋钮捕获螺母拆分、18/25/30 mm 台厚免打孔矩阵、镜像与非法参数路径 | 免打孔 C 形夹体跨过台边，圆头 M8 螺杆只到台底压块下表面，两个 M8 螺母捕获关系和旋钮/螺杆包络可编译；左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、立柱倾斜、螺杆行程和标准件实际装配/防松 |
 | M-03 | `validate_net_stand.py`；`preview.py`；`render_net_stand_preview.py` | `152.5 mm` 网顶、双侧支架、3 段承载条与拼接片、可单独导出的 `optical_rail`、10 mm 光栅档位、实际贯穿定位孔、参考线端座/定位销、全部十个参考高度、10 个光学载台档位和 PVDF/光学安装位的参数与可视关系 | 真实网布张力、左右立柱平行度、网顶高度、光学载台锁紧和光学/PVDF 实物安装记录 |
 | B-01 | `test_clean_over_and_height_interval()`、`test_every_beam_mask_interval()` | `clean_over`、位图、离散高度和球底间隔契约 | 真实光束与球体遮挡 |
-| B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征和 `touch_over` | PVDF 前端与真实过网动作 |
+| B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`test_runtime_chain_with_delivery()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征、`touch_over` 以及事件进入传输缓存 | PVDF 前端与真实过网动作 |
 | B-03 | `test_touch_no_cross_and_unknown()`、`net_event_trace` | 擦网无光栅时的 `touch_no_cross` 和质量标记 | 真实擦网未过网动作 |
 | B-04/B-05 | `test_touch_over_before_and_after_beam()` | 左/右单通道 `sensor_mask` 与前后时序关联 | 左右 PVDF 实物分别接板触发 |
 | B-06 | `test_each_beam_channel_independently()`；全部 `1…1023` 位图 Schema 遍历 | 通道编号、位图和高度映射 | 10 根真实光束逐根遮挡 |
@@ -29,7 +29,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | S-01 | `test_waveform_window()`、`test_trigger_before_dma_dispatch_pipeline()` | 双通道窗口、触发前/后边界、迟到 DMA 回填和波形特征 | ADC1 实际 16 kHz、AFE 电压/噪声/削顶测量 |
 | S-02 | 无 | — | 旋钮、碰夹具、球网振动的原始波形与误报率 |
 | S-03 | `test_waveform_timeout_flush()`、`test_touch_no_cross_and_unknown()` | 不完整帧释放、`waveform_incomplete` 和 fail-closed 状态 | 接板后真实 ADC 中断/超时行为 |
-| T-01/T-02 | `test_delivery_recovery_and_feedback()` | 断链缓存、容量覆盖、发送失败、补发顺序和不重复 | SmartPaddle/App 真实 WebSocket/BLE/MQTT/SSE 回调 |
+| T-01/T-02 | `test_delivery_recovery_and_feedback()`、`test_runtime_chain_with_delivery()` | 断链缓存、容量覆盖、发送失败、补发顺序和不重复，并验证完整传感器事件序列化后进入缓存再补发 | SmartPaddle/App 真实 WebSocket/BLE/MQTT/SSE 回调 |
 | T-03 | `tools/correlate_net_events.py`、`tools/test_correlate_net_events.py` | 对 `NetEvent.timestamp_us` 与外部 CSV 时间标记执行明确偏移、包含边界和时间窗匹配；不读取视频，也不解释图像 | 同钟来源/偏移的现场测量、外部设备导出文件和真实事件日志 |
 | E-01 | `test_sequential_and_overlapping_events()`、`net_event_trace` | 可分离事件、重叠事件 fail-closed 和事件 ID | 真实连续单球与球路分离能力 |
 

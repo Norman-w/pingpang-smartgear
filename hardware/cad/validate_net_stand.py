@@ -23,6 +23,7 @@ PARTS = (
     "post_joint_sleeve",
     "post_joint_key",
     "table_clamp",
+    "table_clamp_section",
     "table_clamp_body",
     "clamp_pressure_pad",
     "clamp_screw",
@@ -312,6 +313,7 @@ def main() -> None:
             "post_joint_sleeve",
             "post_joint_key",
             "table_clamp",
+            "table_clamp_section",
             "table_clamp_body",
             "clamp_pressure_pad",
             "clamp_screw",
@@ -357,6 +359,7 @@ def main() -> None:
         rail_bounds = stl_bounds(output_dir / "net_rail.stl")
         rail_segment_bounds = stl_bounds(output_dir / "net_rail_segment.stl")
         clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
+        clamp_section_bounds = stl_bounds(output_dir / "table_clamp_section.stl")
         pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
         screw_bounds = stl_bounds(output_dir / "clamp_screw.stl")
         body_nut_bounds = stl_bounds(output_dir / "clamp_body_nut.stl")
@@ -421,6 +424,18 @@ def main() -> None:
             and clamp_body_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
         ):
             raise RuntimeError(f"fixed clamp body does not bridge the table edge: {clamp_body_bounds}")
+        if not (
+            clamp_section_bounds[0] < parameters["table_width"] / 2 < clamp_section_bounds[1]
+            and clamp_section_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
+            and clamp_section_bounds[2] < 0 < clamp_section_bounds[3]
+            and clamp_section_bounds[4] <= parameters["clamp_knob_bottom_z"] + 0.01
+            and clamp_section_bounds[5] > 0
+            and clamp_section_bounds[3] - clamp_section_bounds[2] <= 8.01
+        ):
+            raise RuntimeError(
+                "table clamp section does not expose the complete no-drill path: "
+                f"section={clamp_section_bounds}"
+            )
         if not (
             pressure_pad_bounds[5] < -parameters["table_thickness"]
             and screw_bounds[5] < -parameters["table_thickness"]

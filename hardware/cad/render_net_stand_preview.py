@@ -114,6 +114,13 @@ def main() -> None:
     render(openscad, "table_clamp", args.output_dir / "net-stand-table-clamp.png", 1200, 900)
     render(
         openscad,
+        "table_clamp_section",
+        args.output_dir / "net-stand-table-clamp-section.png",
+        1200,
+        1200,
+    )
+    render(
+        openscad,
         "table_clamp_body",
         args.output_dir / "net-stand-table-clamp-body.png",
         1200,

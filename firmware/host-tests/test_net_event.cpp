@@ -1407,6 +1407,78 @@ void test_delivery_recovery_and_feedback() {
             "touch_no_cross must use red feedback");
 }
 
+void test_runtime_chain_with_delivery() {
+    constexpr std::uint64_t trigger_us = 10'000;
+    constexpr char waveform_reference[] = "wave-runtime-chain";
+
+    // 复现 ESP32-S3 主循环的业务顺序：比较器先到，ADC1 DMA 随后补齐
+    // 预触发/后触发窗口，事件归并完成后再进入断链缓存与补发。
+    smartgear::BeamCapture beam_capture(5'000, 250'000);
+    smartgear::PiezoCapture piezo_capture(5'000, 20'000);
+    smartgear::PiezoWaveformCapture waveform_capture({1'000, 5, 5});
+    smartgear::NetEventAggregator aggregator;
+    aggregator.set_calibration("cal-runtime-chain", true);
+    aggregator.set_beam_health(1U, true);
+    aggregator.set_piezo_baseline(true);
+
+    for (int sample = 0; sample < 5; ++sample) {
+        const auto timestamp = trigger_us - 5'000 +
+                               static_cast<std::uint64_t>(sample) * 1'000U;
+        waveform_capture.feed_sample(
+            0, static_cast<std::int16_t>(100 + sample), timestamp);
+        waveform_capture.feed_sample(
+            1, static_cast<std::int16_t>(200 + sample), timestamp);
+    }
+    require(waveform_capture.start_capture(trigger_us, waveform_reference),
+            "runtime chain must start a waveform frame at the comparator edge");
+    require(!piezo_capture.on_trigger(0, trigger_us, 0.0F, 0.0F,
+                                      waveform_reference),
+            "runtime chain comparator edge must remain pending until DMA completes");
+
+    for (int sample = 0; sample < 5; ++sample) {
+        const auto timestamp = trigger_us +
+                               static_cast<std::uint64_t>(sample) * 1'000U;
+        waveform_capture.feed_sample(
+            0, static_cast<std::int16_t>(120 + sample), timestamp);
+        waveform_capture.feed_sample(
+            1, static_cast<std::int16_t>(220 + sample), timestamp);
+    }
+    auto frame = waveform_capture.take_ready();
+    require(frame.has_value() && frame->complete,
+            "runtime chain DMA must produce a complete frame");
+    const auto features = smartgear::extract_piezo_features(*frame, 1'000);
+    require(features.complete,
+            "runtime chain waveform features must remain complete");
+    piezo_capture.on_waveform_ready(frame->reference, features);
+    const auto touch_observation = piezo_capture.poll(trigger_us + 5'001);
+    require(touch_observation.has_value() && touch_observation->features_ready,
+            "runtime chain must close the PVDF candidate after waveform completion");
+    aggregator.on_touch(*touch_observation);
+
+    beam_capture.on_edge(0, true, trigger_us + 2'000);
+    beam_capture.on_edge(0, false, trigger_us + 3'000);
+    const auto beam_observation = beam_capture.poll(trigger_us + 8'005);
+    require(beam_observation.has_value() && beam_observation->valid,
+            "runtime chain must close the optical event after quiet time");
+    aggregator.on_beam(*beam_observation);
+
+    const auto event = pop_one(aggregator);
+    require(event.state == smartgear::NetState::kTouchOver &&
+                event.beam_mask == 1 &&
+                event.net_touch.waveform_ref == waveform_reference,
+            "runtime chain must produce one touch_over event with both evidence paths");
+
+    smartgear::NetEventDelivery delivery;
+    require(!delivery.publish(event) && delivery.cached_count() == 1,
+            "runtime chain event must enter RAM cache while disconnected");
+    DeliverySink sink;
+    delivery.set_transport(true, delivery_sink, &sink);
+    require(delivery.cached_count() == 0 && sink.messages.size() == 1 &&
+                sink.messages[0].find("touch_over") != std::string::npos &&
+                sink.messages[0].find(waveform_reference) != std::string::npos,
+            "runtime chain recovery must replay the serialized event exactly once");
+}
+
 void test_ring_buffer() {
     smartgear::RingBuffer<int, 2> cache;
     require(cache.push(1), "first cache push should not overwrite");
@@ -1480,6 +1552,7 @@ int main() {
         test_trigger_before_dma_dispatch_pipeline();
         test_input_shape_and_deadline_safety();
         test_delivery_recovery_and_feedback();
+        test_runtime_chain_with_delivery();
         test_ring_buffer();
         test_pin_mapping_contract();
         print_schema_events();
