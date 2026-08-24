@@ -517,6 +517,76 @@ void test_waveform_window() {
             "stale DMA samples must not be treated as pre-trigger evidence");
     require(!smartgear::extract_piezo_features(*stale_frame, 1'000).complete,
             "a stale-only pre-trigger window must remain incomplete");
+
+    smartgear::PiezoWaveformCapture out_of_order({1'000, 5, 5});
+    require(out_of_order.start_capture(20'000, "wave-out-of-order"),
+            "out-of-order waveform should begin");
+    const std::array<std::uint64_t, 5> left_times = {20'000, 20'002, 20'001,
+                                                       20'003, 20'004};
+    const std::array<std::uint64_t, 5> right_times = {20'000, 20'001, 20'002,
+                                                        20'003, 20'004};
+    for (std::size_t sample = 0; sample < left_times.size(); ++sample) {
+        out_of_order.feed_sample(0, static_cast<std::int16_t>(150 + sample),
+                                 left_times[sample]);
+        out_of_order.feed_sample(1, static_cast<std::int16_t>(250 + sample),
+                                 right_times[sample]);
+    }
+    const auto out_of_order_frame = out_of_order.take_ready();
+    require(out_of_order_frame.has_value() && !out_of_order_frame->complete &&
+                !out_of_order_frame->sample_timestamps_valid,
+            "out-of-order ADC samples must not become complete evidence");
+    require(!smartgear::extract_piezo_features(*out_of_order_frame, 1'000)
+                 .complete,
+            "out-of-order ADC features must remain incomplete");
+
+    smartgear::PiezoWaveformCapture outside_window({1'000, 5, 5});
+    for (int sample = 0; sample < 5; ++sample) {
+        outside_window.feed_sample(0, static_cast<std::int16_t>(130 + sample),
+                                   20'000 + static_cast<std::uint64_t>(sample));
+        outside_window.feed_sample(1, static_cast<std::int16_t>(230 + sample),
+                                   20'000 + static_cast<std::uint64_t>(sample));
+    }
+    require(outside_window.start_capture(30'000, "wave-outside-window"),
+            "outside-window waveform should begin");
+    // This old DMA backlog is ignored for the current frame; it must not
+    // damage a complete frame whose valid post-trigger samples follow it.
+    outside_window.feed_sample(0, 120, 0);
+    outside_window.feed_sample(1, 220, 0);
+    for (int sample = 0; sample < 5; ++sample) {
+        outside_window.feed_sample(0, static_cast<std::int16_t>(180 + sample),
+                                   30'000 + static_cast<std::uint64_t>(sample));
+        outside_window.feed_sample(1, static_cast<std::int16_t>(280 + sample),
+                                   30'000 + static_cast<std::uint64_t>(sample));
+    }
+    const auto complete_after_backlog = outside_window.take_ready();
+    require(complete_after_backlog.has_value() &&
+                complete_after_backlog->complete &&
+                complete_after_backlog->sample_timestamps_valid &&
+                complete_after_backlog->pre_samples_available ==
+                    std::array<std::size_t, 2>{5, 5},
+            "stale DMA backlog must not poison an otherwise complete frame");
+
+    smartgear::PiezoWaveformCapture post_outside_window({1'000, 5, 5});
+    require(post_outside_window.start_capture(40'000,
+                                              "wave-post-outside-window"),
+            "post-outside-window waveform should begin");
+    for (int sample = 0; sample < 4; ++sample) {
+        post_outside_window.feed_sample(
+            0, static_cast<std::int16_t>(180 + sample),
+            40'000 + static_cast<std::uint64_t>(sample));
+        post_outside_window.feed_sample(
+            1, static_cast<std::int16_t>(280 + sample),
+            40'000 + static_cast<std::uint64_t>(sample));
+    }
+    post_outside_window.feed_sample(0, 190, 45'001);
+    post_outside_window.feed_sample(1, 290, 45'001);
+    require(post_outside_window.expire(45'000),
+            "outside-window waveform must flush at its post deadline");
+    const auto outside_frame = post_outside_window.take_ready();
+    require(outside_frame.has_value() && !outside_frame->complete &&
+                outside_frame->sample_timestamps_valid &&
+                outside_frame->post_samples == std::array<std::size_t, 2>{4, 4},
+            "samples after the post window must not fill the waveform frame");
 }
 
 void test_waveform_timeout_flush() {

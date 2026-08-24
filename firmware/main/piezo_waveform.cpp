@@ -14,7 +14,7 @@ constexpr std::size_t kReadyFrameCapacity = 4;
 PiezoFeatureSummary extract_piezo_features(const PiezoWaveformFrame& frame,
                                            const std::uint32_t sample_rate_hz) {
     PiezoFeatureSummary features;
-    features.complete = frame.complete;
+    features.complete = frame.complete && frame.sample_timestamps_valid;
     if (sample_rate_hz == 0) {
         return features;
     }
@@ -106,6 +106,18 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
         return;
     }
 
+    if (frame_) {
+        if (frame_has_sample_timestamp_[channel] &&
+            timestamp_us < frame_last_sample_timestamp_[channel]) {
+            // A DMA adapter is expected to dispatch each channel in
+            // timestamp order. Preserve the sample for diagnostics, but do
+            // not let a reordered stream become valid waveform evidence.
+            frame_->sample_timestamps_valid = false;
+        }
+        frame_last_sample_timestamp_[channel] = timestamp_us;
+        frame_has_sample_timestamp_[channel] = true;
+    }
+
     // ADC DMA may deliver samples that were already buffered before the
     // comparator edge. They belong to the pre-trigger history, but may arrive
     // after start_capture() has already snapshotted the rolling buffer. Keep
@@ -120,10 +132,24 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
             if (age_us <= pre_trigger_window_us) {
                 append_late_pre_trigger_sample(channel, sample);
                 record_history(channel, sample);
+            } else {
+                // An ADC DMA batch may contain an older backlog sample. It
+                // is not part of this frame, but it must not poison a frame
+                // whose configured pre/post window is otherwise complete.
+                record_history(channel, sample);
             }
         } else {
             record_history(channel, sample);
         }
+        return;
+    }
+
+    const std::uint64_t post_trigger_window_us =
+        static_cast<std::uint64_t>(config_.post_trigger_ms) * 1'000ULL;
+    if (timestamp_us - frame_->trigger_us > post_trigger_window_us) {
+        // Samples arriving after the configured post-trigger window may be
+        // useful to the rolling history, but cannot fill this frame.
+        record_history(channel, sample);
         return;
     }
 
@@ -157,6 +183,8 @@ bool PiezoWaveformCapture::start_capture(const std::uint64_t trigger_us,
         channel_samples.assign(total_samples, 0);
     }
     post_written_ = {0, 0};
+    frame_last_sample_timestamp_ = {0, 0};
+    frame_has_sample_timestamp_ = {false, false};
     snapshot_pre_trigger();
     active_ = true;
     return true;
@@ -218,6 +246,8 @@ void PiezoWaveformCapture::abort() {
     active_ = false;
     frame_.reset();
     post_written_ = {0, 0};
+    frame_last_sample_timestamp_ = {0, 0};
+    frame_has_sample_timestamp_ = {false, false};
     history_cursor_ = {0, 0};
     history_count_ = {0, 0};
     for (auto& channel_history : history_) {
@@ -230,7 +260,7 @@ void PiezoWaveformCapture::enqueue_current_frame(const bool complete) {
         return;
     }
     frame_->post_samples = post_written_;
-    frame_->complete = complete;
+    frame_->complete = complete && frame_->sample_timestamps_valid;
     active_ = false;
     if (ready_frames_.size() == kReadyFrameCapacity) {
         ready_frames_.pop_front();

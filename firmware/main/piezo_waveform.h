@@ -32,6 +32,10 @@ struct PiezoWaveformFrame {
     std::array<std::vector<std::int16_t>, 2> samples;
     std::array<std::size_t, 2> pre_samples_available = {0, 0};
     std::array<std::size_t, 2> post_samples = {0, 0};
+    // A frame with an out-of-order sample is retained for diagnostics, but
+    // cannot be used as complete waveform evidence. Samples outside the
+    // configured window are simply ignored for this frame.
+    bool sample_timestamps_valid = true;
     bool complete = false;
 };
 
@@ -73,6 +77,8 @@ class PiezoWaveformCapture {
     std::array<std::size_t, 2> history_cursor_ = {0, 0};
     std::array<std::size_t, 2> history_count_ = {0, 0};
     std::array<std::size_t, 2> post_written_ = {0, 0};
+    std::array<std::uint64_t, 2> frame_last_sample_timestamp_ = {0, 0};
+    std::array<bool, 2> frame_has_sample_timestamp_ = {false, false};
     std::optional<PiezoWaveformFrame> frame_;
     std::deque<PiezoWaveformFrame> ready_frames_;
     std::size_t dropped_ready_count_ = 0;
