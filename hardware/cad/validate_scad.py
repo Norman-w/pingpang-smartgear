@@ -174,6 +174,25 @@ def main() -> None:
         )
         if invalid.returncode == 0:
             raise RuntimeError("OpenSCAD accepted an out-of-range clamp angle")
+
+        invalid_layer = subprocess.run(
+            [
+                openscad,
+                "-o",
+                str(output_dir / "invalid-layer.stl"),
+                "-D",
+                'PART="left_clamp"',
+                "-D",
+                "arm_layer_gap=0",
+                str(SOURCE),
+            ],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        if invalid_layer.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted intersecting scissor arm layers")
     geometry_result = validate(read_parameters(openscad))
     print(
         f"SCAD_OK ({len(PARTS)} parts + SIDE=±1 mirror geometry + motion 10/20 deg; "

@@ -32,7 +32,7 @@ jaw_clearance = 1.2;
 soft_pad_t = 2.0;
 jaw_length = 26;
 jaw_width = 9;
-jaw_height = 17;
+jaw_height = 7;
 jaw_mount_overlap = 2;
 
 // X 臂/转轴参数
@@ -46,7 +46,14 @@ clamp_angle_deg = 15;
 clamp_angle_min_deg = 10;
 clamp_angle_max_deg = 20;
 arm_width = 14;
+// The top view is a true X, but the two printable arms occupy separate
+// vertical layers around the same Ø8 pivot.  arm_height is the complete
+// stack envelope, not the thickness of one arm.
 arm_height = 16;
+arm_layer_thickness = 7;
+arm_layer_gap = 2;
+arm_lower_z = 0;
+arm_upper_z = arm_layer_thickness + arm_layer_gap;
 pivot_d = 8;
 pivot_clearance = 0.35;
 pivot_head_d = 16;
@@ -95,6 +102,10 @@ assert(beam_first_height == 10, "first effective beam starts at +10 mm");
 assert(beam_last_height == 100, "first prototype ends at +100 mm");
 assert(rod_w == 12 && rod_h == 12 && rod_len == 130, "first rod is 12 x 12 x 130 mm");
 assert(SIDE == -1 || SIDE == 0 || SIDE == 1, "SIDE must be -1, 0, or 1");
+assert(2 * arm_layer_thickness + arm_layer_gap == arm_height,
+       "scissor arms must fit in the declared vertical stack");
+assert(jaw_height <= arm_layer_thickness,
+       "V jaw thickness must fit the arm layer");
 assert(clamp_angle_deg >= clamp_angle_min_deg && clamp_angle_deg <= clamp_angle_max_deg,
        "clamp angle must stay inside the printable motion range");
 assert(clamp_angle_min_deg > 0 && clamp_angle_max_deg < 30,
@@ -132,8 +143,10 @@ assert(reference_height >= beam_first_height && reference_height <= beam_last_he
            (reference_height - beam_first_height) % beam_pitch == 0,
        "reference line must land on a 10 mm optical detent");
 
-module beam_between_2d(p1, p2, width, height) {
-    translate([(point_x(p1) + point_x(p2)) / 2, (point_y(p1) + point_y(p2)) / 2, height / 2])
+module beam_between_2d(p1, p2, width, height, z0 = 0) {
+    translate([(point_x(p1) + point_x(p2)) / 2,
+               (point_y(p1) + point_y(p2)) / 2,
+               z0 + height / 2])
         rotate([0, 0, segment_angle(p1, p2)])
             cube([segment_length(p1, p2), width, height], center = true);
 }
@@ -153,31 +166,33 @@ module metal_pivot_shaft() {
     }
 }
 
-module scissor_arm(p1, p2, label = "arm") {
+module scissor_arm(p1, p2, z0 = 0, label = "arm") {
     color("darkorange") {
         difference() {
             union() {
-                beam_between_2d(p1, p2, arm_width, arm_height);
+                beam_between_2d(p1, p2, arm_width, arm_layer_thickness, z0);
                 // 中心局部加厚，表示箱型截面/三角肋区域。
-                translate([0, 0, arm_height / 2])
-                    cylinder(d = arm_width + 8, h = arm_height + 4, center = true);
+                translate([0, 0, z0 + arm_layer_thickness / 2])
+                    cylinder(d = arm_width + 8,
+                             h = arm_layer_thickness,
+                             center = true);
             }
             // Ø8 金属光轴的打印间隙孔；光轴由装配件穿过两根活动臂。
-            translate([0, 0, -1])
+            translate([0, 0, z0 - 1])
                 cylinder(d = pivot_d + pivot_clearance * 2,
-                         h = arm_height + 2);
+                         h = arm_layer_thickness + 2);
         }
     }
     // 小型限位柱，首样用于限制过开和过夹。
     color("dimgray")
-        translate([point_x(p2), point_y(p2), arm_height])
+        translate([point_x(p2), point_y(p2), z0 + arm_layer_thickness])
             cylinder(d = arm_limit_d, h = 5);
 }
 
-module v_jaw(center, opening_angle = 0) {
+module v_jaw(center, opening_angle = 0, z0 = 0) {
     // 两根 45 度肋形成 90 度 V 槽；V 的尖端朝向 center。
     color("orange")
-        translate([point_x(center), point_y(center), arm_height / 2])
+        translate([point_x(center), point_y(center), z0 + arm_layer_thickness / 2])
             rotate([0, 0, opening_angle]) {
                 for (a = [-45, 45])
                     rotate([0, 0, a])
@@ -190,7 +205,7 @@ module v_jaw(center, opening_angle = 0) {
 
     // 可替换 TPU/硅胶软垫占位，颜色只用于装配预览。
     color("deepskyblue")
-        translate([point_x(center), point_y(center), arm_height / 2])
+        translate([point_x(center), point_y(center), z0 + arm_layer_thickness / 2])
             rotate([0, 0, opening_angle])
                 for (a = [-45, 45])
                     rotate([0, 0, a])
@@ -198,48 +213,56 @@ module v_jaw(center, opening_angle = 0) {
                             cube([soft_pad_t, jaw_width + 1, jaw_height - 4], center = true);
 }
 
-module dimpled_vertical_roller(p, has_dimple = false) {
+module dimpled_vertical_roller(p, has_dimple = false, z0 = 0) {
     color("silver")
         if (has_dimple)
             difference() {
-                vertical_cylinder_at(p, roller_d, roller_h, arm_height / 2 - roller_h / 2);
+                vertical_cylinder_at(p, roller_d, roller_h,
+                                     z0 + arm_layer_thickness / 2 - roller_h / 2);
                 // 圆坑在滚柱的外侧圆周面，承接沿 Y 方向来的螺杆圆头；
                 // 不把顶面凹坑误当成水平推力承接面。
-                translate([point_x(p), point_y(p) + roller_d / 2, arm_height / 2])
+                translate([point_x(p), point_y(p) + roller_d / 2,
+                           z0 + arm_layer_thickness / 2])
                     sphere(d = 6);
             }
         else
-            vertical_cylinder_at(p, roller_d, roller_h, arm_height / 2 - roller_h / 2);
+            vertical_cylinder_at(p, roller_d, roller_h,
+                                 z0 + arm_layer_thickness / 2 - roller_h / 2);
 
     color("dimgray")
-        vertical_cylinder_at(p, roller_axis_d, roller_h + 4, arm_height / 2 - roller_h / 2 - 2);
+        vertical_cylinder_at(p, roller_axis_d, roller_h + 4,
+                             z0 + arm_layer_thickness / 2 - roller_h / 2 - 2);
 }
 
-module removable_roller_cap(p) {
+module removable_roller_cap(p, z0 = 0) {
     color("lightgray")
-        translate([point_x(p), point_y(p), arm_height / 2 + roller_h / 2 + 1])
+        translate([point_x(p), point_y(p),
+                   z0 + arm_layer_thickness / 2 + roller_h / 2 + 1])
             cube([roller_d + 8, roller_d + 8, 3], center = true);
 }
 
-module u_roller_mount(p, has_dimple = false) {
+module u_roller_mount(p, has_dimple = false, z0 = 0) {
     // 两侧 cheek 代表可打印 U 槽，压盖单独显示以便检查防脱空间。
     color("darkorange") {
-        translate([point_x(p), point_y(p) - (roller_d + 6) / 2, arm_height / 2])
+        translate([point_x(p), point_y(p) - (roller_d + 6) / 2,
+                   z0 + arm_layer_thickness / 2])
             cube([roller_d + 12, 4, roller_h + 8], center = true);
-        translate([point_x(p), point_y(p) + (roller_d + 6) / 2, arm_height / 2])
+        translate([point_x(p), point_y(p) + (roller_d + 6) / 2,
+                   z0 + arm_layer_thickness / 2])
             cube([roller_d + 12, 4, roller_h + 8], center = true);
     }
-    dimpled_vertical_roller(p, has_dimple);
-    removable_roller_cap(p);
+    dimpled_vertical_roller(p, has_dimple, z0);
+    removable_roller_cap(p, z0);
     if (!has_dimple)
-        m8_nut_capture(p);
+        m8_nut_capture(p, z0);
 }
 
-module m8_nut_capture(p) {
+module m8_nut_capture(p, z0 = 0) {
     // 下侧 U 槽捕获金属 M8 螺母；六边形仅表示标准件包络，实际螺纹由
     // 金属螺母/螺杆提供，不把打印件当成受力螺纹。
     color("dimgray")
-        translate([point_x(p), point_y(p) - roller_d / 2 - 3, arm_height / 2])
+        translate([point_x(p), point_y(p) - roller_d / 2 - 3,
+                   z0 + arm_layer_thickness / 2])
             rotate([90, 0, 0])
                 cylinder(d = 15, h = 6, center = true, $fn = 6);
 }
@@ -362,6 +385,9 @@ module parameter_probe() {
              ";clamp_angle_min_deg=", clamp_angle_min_deg,
              ";clamp_angle_max_deg=", clamp_angle_max_deg,
              ";arm_width=", arm_width,
+             ";arm_height=", arm_height,
+             ";arm_layer_thickness=", arm_layer_thickness,
+             ";arm_layer_gap=", arm_layer_gap,
              ";pivot_d=", pivot_d,
              ";pivot_clearance=", pivot_clearance,
              ";roller_d=", roller_d,
@@ -384,23 +410,24 @@ module net_post() {
 }
 
 module clamp_assembly() {
-    // 两条共面、相反斜率的臂，端点由同一夹具角度生成并穿过 pivot。
+    // 两条相反斜率的臂在俯视形成 X，并在同一 Ø8 光轴上上下错层；
+    // 端点由同一夹具角度生成，避免把两个打印臂建模成互相穿透的实体。
     arm_a_outer = outer_point(1);
     arm_a_inner = inner_point(1);
     arm_b_outer = outer_point(-1);
     arm_b_inner = inner_point(-1);
 
     net_post();
-    scissor_arm(arm_a_outer, arm_a_inner, "arm_a");
-    scissor_arm(arm_b_outer, arm_b_inner, "arm_b");
+    scissor_arm(arm_a_outer, arm_a_inner, arm_lower_z, "arm_a_lower");
+    scissor_arm(arm_b_outer, arm_b_inner, arm_upper_z, "arm_b_upper");
 
     // 两个分别固定在活动臂内端的相向 90 度 V 槽，首样按 Ø25 圆柱立柱。
-    v_jaw(arm_a_inner, atan2(-arm_a_inner[1], post_x() - arm_a_inner[0]));
-    v_jaw(arm_b_inner, atan2(-arm_b_inner[1], post_x() - arm_b_inner[0]));
+    v_jaw(arm_a_inner, atan2(-arm_a_inner[1], post_x() - arm_a_inner[0]), arm_lower_z);
+    v_jaw(arm_b_inner, atan2(-arm_b_inner[1], post_x() - arm_b_inner[0]), arm_upper_z);
 
     // 外侧两个竖直滚柱：上侧承接螺杆圆头，下侧容纳螺母/螺纹件。
-    u_roller_mount(outer_point(1), true);
-    u_roller_mount(outer_point(-1), false);
+    u_roller_mount(outer_point(1), true, arm_lower_z);
+    u_roller_mount(outer_point(-1), false, arm_upper_z);
     rounded_screw_rod();
     printed_knob();
 
@@ -441,10 +468,10 @@ if (PART == "assembly") {
 } else if (PART == "right_clamp") {
     oriented_clamp(resolved_side(-1));
 } else if (PART == "arm") {
-    scissor_arm(outer_point(1), inner_point(1));
+    scissor_arm(outer_point(1), inner_point(1), arm_lower_z);
 } else if (PART == "roller") {
-    u_roller_mount(outer_point(1), true);
-    u_roller_mount(outer_point(-1), false);
+    u_roller_mount(outer_point(1), true, arm_lower_z);
+    u_roller_mount(outer_point(-1), false, arm_upper_z);
 } else if (PART == "knob") {
     rounded_screw_rod();
     printed_knob();

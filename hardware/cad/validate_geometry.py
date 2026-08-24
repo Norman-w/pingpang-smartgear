@@ -103,6 +103,9 @@ def validate(parameters: dict[str, float]) -> str:
         "clamp_angle_min_deg",
         "clamp_angle_max_deg",
         "arm_width",
+        "arm_height",
+        "arm_layer_thickness",
+        "arm_layer_gap",
         "pivot_d",
         "pivot_clearance",
         "roller_d",
@@ -136,6 +139,19 @@ def validate(parameters: dict[str, float]) -> str:
             "selected clamp angle must stay inside a stable motion range")
     require(parameters["pivot_d"] < parameters["pivot_d"] + 2 * parameters["pivot_clearance"] < parameters["arm_width"],
             "pivot bore clearance must fit inside the printed arm")
+    require(
+        math.isclose(
+            2 * parameters["arm_layer_thickness"] + parameters["arm_layer_gap"],
+            parameters["arm_height"],
+            abs_tol=1e-6,
+        ),
+        "scissor arm layers must fit the 16 mm stack envelope",
+    )
+    require(
+        parameters["arm_layer_thickness"] > 0
+        and parameters["arm_layer_gap"] > 0,
+        "scissor arm layers must have positive thickness and separation",
+    )
     require(parameters["beam_count"] == 10, "height grid must contain 10 beams")
     expected_last = parameters["beam_first_height"] + (
         parameters["beam_count"] - 1
@@ -172,6 +188,8 @@ def validate(parameters: dict[str, float]) -> str:
     return (
         f"GEOMETRY_OK (angle {min_angle:g}..{max_angle:g} deg, "
         f"post Ø{parameters['post_nominal_d']:g}, "
+        f"arm layers {parameters['arm_layer_thickness']:g}+"
+        f"{parameters['arm_layer_gap']:g}+{parameters['arm_layer_thickness']:g} mm, "
         f"outer roller separation {2 * selected_outer_y:.2f} mm)"
     )
 
