@@ -303,11 +303,11 @@ extern "C" void app_main() {
                         effective_waveform_reference =
                             waveform_capture.active_reference();
                     }
-                    if (effective_waveform_reference.empty()) {
-                        // 没有可用波形帧时也必须走“未完成”路径，不能把比较器
-                        // 时间点和零特征误报成已完成的波形证据。
-                        effective_waveform_reference = "wave-unavailable";
-                    }
+
+                    // 没有可用波形帧时保留空引用；PiezoCapture 会继续保留
+                    // 这个比较器候选，但因为没有完整波形而最终 fail-closed。
+                    // 不使用固定的 "wave-unavailable" 占位字符串，避免多个
+                    // 无波形事件看起来像引用了同一份可回放帧。
 
                     // comparator 只给低延迟时间点；peak/energy 和 waveform_ref 的
                     // 完整内容由 ADC1 continuous 解析任务补入。这里保留业务接口，

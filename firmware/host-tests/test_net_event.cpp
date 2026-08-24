@@ -208,8 +208,9 @@ void test_piezo_merge() {
     no_waveform.on_trigger(0, 10'000, 99.0F, 100.0F, "");
     const auto no_waveform_result = no_waveform.poll(115'001);
     require(no_waveform_result.has_value() &&
-                !no_waveform_result->features_ready,
-            "an empty waveform reference must remain incomplete evidence");
+                !no_waveform_result->features_ready &&
+                no_waveform_result->waveform_ref.empty(),
+            "an empty waveform reference must remain an unreferenced, incomplete candidate");
 
     smartgear::PiezoCapture invalid_features(5'000, 100'000);
     invalid_features.on_trigger(0, 20'000, 0.0F, 0.0F, "wave-invalid");
