@@ -51,6 +51,7 @@ class NetEventAggregator {
     void clear_beam_pending();
     void clear_touch_pending();
     void clear_pending();
+    void clear_health_change_if_idle();
 
     NetEventAggregatorConfig config_;
     std::string calibration_id_ = "uncalibrated";
@@ -61,6 +62,10 @@ class NetEventAggregator {
     bool piezo_baseline_configured_ = false;
     bool piezo_baseline_valid_ = false;
     bool input_overflow_ = false;
+    // Health is polled asynchronously from the board layer. If it changes
+    // while either candidate is waiting for its association boundary, the
+    // candidate must not be reinterpreted with the new snapshot.
+    bool health_changed_while_pending_ = false;
     std::optional<BeamObservation> pending_beam_;
     std::optional<PiezoObservation> pending_touch_;
     std::uint64_t pending_beam_deadline_us_ = 0;

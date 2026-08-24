@@ -84,25 +84,47 @@ NetEventAggregator::NetEventAggregator(NetEventAggregatorConfig config)
 void NetEventAggregator::set_calibration(std::string calibration_id,
                                          const bool valid) {
     const bool has_id = !calibration_id.empty();
-    calibration_id_ = has_id ? std::move(calibration_id) : "uncalibrated";
+    std::string next_calibration_id =
+        has_id ? std::move(calibration_id) : "uncalibrated";
     // A board hook may report an otherwise successful snapshot with an empty
     // ID. Keep the value serializable, but never let that malformed snapshot
     // authorize a clean/touch conclusion.
-    calibration_valid_ = valid && has_id;
+    const bool next_calibration_valid = valid && has_id;
+    if (calibration_id_ != next_calibration_id ||
+        calibration_valid_ != next_calibration_valid) {
+        if (pending_beam_ || pending_touch_) {
+            health_changed_while_pending_ = true;
+        }
+    }
+    calibration_id_ = std::move(next_calibration_id);
+    calibration_valid_ = next_calibration_valid;
 }
 
 void NetEventAggregator::set_beam_health(const std::uint16_t healthy_mask,
                                          const bool valid) {
-    beam_healthy_mask_ = healthy_mask;
     // Do not rely solely on the board hook's validator. This public business
     // boundary is also used by replay/integration adapters and must fail
     // closed when an out-of-range bit is injected directly.
-    beam_health_valid_ =
+    const bool next_beam_health_valid =
         valid && (healthy_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) == 0;
+    if (beam_healthy_mask_ != healthy_mask ||
+        beam_health_valid_ != next_beam_health_valid ||
+        !beam_health_configured_) {
+        if (pending_beam_ || pending_touch_) {
+            health_changed_while_pending_ = true;
+        }
+    }
+    beam_healthy_mask_ = healthy_mask;
+    beam_health_valid_ = next_beam_health_valid;
     beam_health_configured_ = true;
 }
 
 void NetEventAggregator::set_piezo_baseline(const bool valid) {
+    if (!piezo_baseline_configured_ || piezo_baseline_valid_ != valid) {
+        if (pending_beam_ || pending_touch_) {
+            health_changed_while_pending_ = true;
+        }
+    }
     piezo_baseline_valid_ = valid;
     piezo_baseline_configured_ = true;
 }
@@ -219,6 +241,10 @@ NetEvent NetEventAggregator::build_event(
     }
     if (input_overflow_) {
         add_quality_flag(event, "sensor_queue_overflow");
+        state_quality_valid = false;
+    }
+    if (health_changed_while_pending_) {
+        add_quality_flag(event, "sensor_health_changed_during_event");
         state_quality_valid = false;
     }
     event.state = state_quality_valid ? state : NetState::kUnknown;
@@ -375,16 +401,25 @@ void NetEventAggregator::emit_pending_touch(const NetState state,
 void NetEventAggregator::clear_pending() {
     clear_beam_pending();
     clear_touch_pending();
+    clear_health_change_if_idle();
 }
 
 void NetEventAggregator::clear_beam_pending() {
     pending_beam_.reset();
     pending_beam_deadline_us_ = 0;
+    clear_health_change_if_idle();
 }
 
 void NetEventAggregator::clear_touch_pending() {
     pending_touch_.reset();
     pending_touch_deadline_us_ = 0;
+    clear_health_change_if_idle();
+}
+
+void NetEventAggregator::clear_health_change_if_idle() {
+    if (!pending_beam_ && !pending_touch_) {
+        health_changed_while_pending_ = false;
+    }
 }
 
 bool NetEventAggregator::pop_event(NetEvent& event) {

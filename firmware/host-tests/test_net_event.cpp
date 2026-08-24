@@ -776,6 +776,49 @@ void test_sensor_health_quality_flags() {
     require(empty_calibration_event.state == smartgear::NetState::kUnknown &&
                 has_quality_flag(empty_calibration_event, "calibration_invalid"),
             "an empty calibration ID must not authorize a valid event");
+
+    smartgear::NetEventAggregator changed_during_beam;
+    changed_during_beam.set_calibration("cal-before", true);
+    changed_during_beam.set_beam_health(0x03ffU, true);
+    changed_during_beam.set_piezo_baseline(true);
+    changed_during_beam.on_beam(beam(29'000, 30'000, 1U << 2, 2, 2));
+    changed_during_beam.set_beam_health(0x03fbU, true);
+    changed_during_beam.poll(300'001);
+    const auto changed_beam_event = pop_one(changed_during_beam);
+    require(changed_beam_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(changed_beam_event,
+                                 "sensor_health_changed_during_event"),
+            "a health change during a pending beam event must fail closed");
+
+    smartgear::NetEventAggregator changed_during_touch;
+    changed_during_touch.set_calibration("cal-before", true);
+    changed_during_touch.set_beam_health(0x03ffU, true);
+    changed_during_touch.set_piezo_baseline(true);
+    changed_during_touch.on_touch(touch(31'000, 31'500, 1));
+    changed_during_touch.set_calibration("cal-after", true);
+    changed_during_touch.poll(172'001);
+    const auto changed_touch_event = pop_one(changed_during_touch);
+    require(changed_touch_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(changed_touch_event,
+                                 "sensor_health_changed_during_event"),
+            "a calibration change during a pending touch must fail closed");
+
+    smartgear::NetEventAggregator unchanged_snapshot;
+    unchanged_snapshot.set_calibration("cal-same", true);
+    unchanged_snapshot.set_beam_health(0x03ffU, true);
+    unchanged_snapshot.set_piezo_baseline(true);
+    unchanged_snapshot.on_beam(beam(32'000, 33'000, 1U << 1, 1, 1));
+    // Repeating the same board snapshot is not a health transition and must
+    // not make an otherwise valid pending event unknown.
+    unchanged_snapshot.set_calibration("cal-same", true);
+    unchanged_snapshot.set_beam_health(0x03ffU, true);
+    unchanged_snapshot.set_piezo_baseline(true);
+    unchanged_snapshot.poll(303'001);
+    const auto unchanged_event = pop_one(unchanged_snapshot);
+    require(unchanged_event.state == smartgear::NetState::kCleanOver &&
+                !has_quality_flag(unchanged_event,
+                                  "sensor_health_changed_during_event"),
+            "an identical health snapshot must not invalidate a pending event");
 }
 
 void test_channel_self_test_and_baseline() {
