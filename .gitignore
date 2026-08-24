@@ -33,3 +33,6 @@ hardware/prints/
 # ESP-IDF generated project configuration
 firmware/sdkconfig
 firmware/sdkconfig.old
+
+# Alternate local CMake sanitizer build
+firmware/host-tests/build-sanitize/

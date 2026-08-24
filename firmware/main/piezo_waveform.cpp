@@ -109,14 +109,21 @@ void PiezoWaveformCapture::feed_sample(const std::uint8_t channel,
     // ADC DMA may deliver samples that were already buffered before the
     // comparator edge. They belong to the pre-trigger history, but may arrive
     // after start_capture() has already snapshotted the rolling buffer. Keep
-    // them in the history and also backfill the current frame's newest
-    // pre-trigger slots; otherwise a valid DMA backlog would be silently
-    // omitted from the 20 ms evidence window.
+    // only samples inside the configured pre-trigger time window and backfill
+    // the current frame's newest pre-trigger slots; an older DMA backlog is
+    // stale input and must not masquerade as evidence from this event.
     if (!frame_ || timestamp_us < frame_->trigger_us) {
         if (frame_ && timestamp_us < frame_->trigger_us) {
-            append_late_pre_trigger_sample(channel, sample);
+            const std::uint64_t age_us = frame_->trigger_us - timestamp_us;
+            const std::uint64_t pre_trigger_window_us =
+                static_cast<std::uint64_t>(config_.pre_trigger_ms) * 1'000ULL;
+            if (age_us <= pre_trigger_window_us) {
+                append_late_pre_trigger_sample(channel, sample);
+                record_history(channel, sample);
+            }
+        } else {
+            record_history(channel, sample);
         }
-        record_history(channel, sample);
         return;
     }
 

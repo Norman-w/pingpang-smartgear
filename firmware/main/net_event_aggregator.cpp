@@ -34,6 +34,7 @@ bool beam_shape_is_valid(const BeamObservation& beam) {
     if (!beam.valid || beam.beam_mask == 0 ||
         (beam.beam_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) !=
             0 ||
+        beam.end_us < beam.start_us ||
         beam.min_index >= config::kBeamCount ||
         beam.max_index >= config::kBeamCount || beam.min_index > beam.max_index) {
         return false;

@@ -496,6 +496,27 @@ void test_waveform_window() {
         smartgear::extract_piezo_features(*dma_frame, 1'000);
     require(dma_features.complete,
             "a fully recovered DMA pre-trigger window must become complete evidence");
+
+    smartgear::PiezoWaveformCapture stale_dma({1'000, 5, 5});
+    require(stale_dma.start_capture(10'000, "wave-stale-dma"),
+            "stale DMA waveform should begin");
+    // This sample is 10 ms before the trigger, outside the configured 5 ms
+    // pre-trigger window. It must not fill the frame's missing history.
+    stale_dma.feed_sample(0, 999, 0);
+    stale_dma.feed_sample(1, 999, 0);
+    for (int sample = 0; sample < 5; ++sample) {
+        stale_dma.feed_sample(0, static_cast<std::int16_t>(120 + sample),
+                              10'000 + sample);
+        stale_dma.feed_sample(1, static_cast<std::int16_t>(220 + sample),
+                              10'000 + sample);
+    }
+    auto stale_frame = stale_dma.take_ready();
+    require(stale_frame.has_value() &&
+                stale_frame->pre_samples_available == std::array<std::size_t, 2>{0, 0} &&
+                stale_frame->samples[0][4] == 0,
+            "stale DMA samples must not be treated as pre-trigger evidence");
+    require(!smartgear::extract_piezo_features(*stale_frame, 1'000).complete,
+            "a stale-only pre-trigger window must remain incomplete");
 }
 
 void test_waveform_timeout_flush() {
@@ -772,6 +793,16 @@ void test_input_shape_and_deadline_safety() {
                 has_quality_flag(malformed_beam_event, "beam_shape_invalid") &&
                 malformed_beam_event.beam_mask == 0,
             "malformed beam observations must fail closed without height data");
+
+    smartgear::NetEventAggregator reversed_beam;
+    reversed_beam.set_calibration("cal-shape", true);
+    auto beam_with_reversed_time = beam(83'000, 82'000, 1, 0, 0);
+    reversed_beam.on_beam(beam_with_reversed_time);
+    const auto reversed_beam_event = pop_one(reversed_beam);
+    require(reversed_beam_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(reversed_beam_event, "beam_shape_invalid") &&
+                reversed_beam_event.beam_mask == 0,
+            "beam observations with reversed time bounds must fail closed");
 
     smartgear::NetEventAggregator malformed_touch;
     malformed_touch.set_calibration("cal-shape", true);
