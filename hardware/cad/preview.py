@@ -23,7 +23,17 @@ POST_OFFSET = 18.0
 POST_WIDTH = 28.0
 CLAMP_OUTER_EXTENSION = 22.0
 POST_CENTER = TABLE_EDGE + POST_OFFSET
-POST_BOTTOM = -43.0
+CLAMP_SCREW_INSET = 30.0
+CLAMP_LOWER_ARM_CLEARANCE = 10.0
+CLAMP_LOWER_ARM_TOP = -TABLE_THICKNESS - CLAMP_LOWER_ARM_CLEARANCE
+CLAMP_LOWER_ARM_BOTTOM = CLAMP_LOWER_ARM_TOP - 8.0
+CLAMP_PRESSURE_PAD_WIDTH = 42.0
+CLAMP_PRESSURE_PAD_TOP = -TABLE_THICKNESS - 1.5
+CLAMP_PRESSURE_PAD_BOTTOM = CLAMP_PRESSURE_PAD_TOP - 2.0
+CLAMP_SCREW_X = -CLAMP_SCREW_INSET
+CLAMP_SCREW_BOTTOM = CLAMP_PRESSURE_PAD_TOP - 36.0
+CLAMP_KNOB_BOTTOM = CLAMP_SCREW_BOTTOM - 12.0
+POST_BOTTOM = CLAMP_LOWER_ARM_TOP
 NET_HEIGHT = 152.5
 NET_RAIL_HEIGHT = 10.0
 BEAM_FIRST = 10.0
@@ -144,7 +154,7 @@ def draw_front(ax) -> None:
 
 
 def draw_side(ax) -> None:
-    # 以右侧台边为 x=0，正方向是桌外；画出传统网架式上下夹持面。
+    # 以右侧台边为 x=0，正方向是桌外；画出免打孔 C 形夹体。
     post_x0 = POST_OFFSET - POST_WIDTH / 2
     clamp_pad_end = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
     ax.add_patch(
@@ -158,8 +168,33 @@ def draw_side(ax) -> None:
             label="tabletop edge",
         )
     )
-    ax.add_patch(Rectangle((-62, 0), clamp_pad_end + 62, 8, facecolor="#69727b", label="upper clamp pad"))
-    ax.add_patch(Rectangle((-62, -33), clamp_pad_end + 62, 8, facecolor="#69727b", label="lower clamp pad"))
+    ax.add_patch(
+        Rectangle(
+            (-62, 0),
+            clamp_pad_end + 62,
+            8,
+            facecolor="#69727b",
+            label="fixed upper jaw (no drilling)",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_SCREW_X - 9, CLAMP_LOWER_ARM_BOTTOM),
+            clamp_pad_end - CLAMP_SCREW_X + 9,
+            8,
+            facecolor="#69727b",
+            label="fixed lower arm / nut seat",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (post_x0 + POST_WIDTH, CLAMP_LOWER_ARM_BOTTOM),
+            CLAMP_OUTER_EXTENSION,
+            51,
+            facecolor="#69727b",
+            label="outer C-frame",
+        )
+    )
     ax.add_patch(
         Rectangle(
             (post_x0, POST_BOTTOM),
@@ -171,10 +206,31 @@ def draw_side(ax) -> None:
             label="integrated upright",
         )
     )
-    screw_x = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION / 2
-    ax.add_patch(Rectangle((screw_x - 6, -33), 12, 41, facecolor="#58616a", label="screw guide outside tabletop"))
-    ax.plot([screw_x, screw_x], [-47, 9], color="#444", linewidth=3, label="M8 tightening screw")
-    ax.add_patch(Rectangle((screw_x - 18, -59), 36, 12, facecolor="#30343b", label="hand knob"))
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_SCREW_X - CLAMP_PRESSURE_PAD_WIDTH / 2, CLAMP_PRESSURE_PAD_BOTTOM),
+            CLAMP_PRESSURE_PAD_WIDTH,
+            2,
+            facecolor="#111111",
+            label="movable underside pressure pad",
+        )
+    )
+    ax.plot(
+        [CLAMP_SCREW_X, CLAMP_SCREW_X],
+        [CLAMP_SCREW_BOTTOM, CLAMP_PRESSURE_PAD_TOP],
+        color="#444",
+        linewidth=3,
+        label="M8 screw below tabletop",
+    )
+    ax.add_patch(
+        Rectangle(
+            (CLAMP_SCREW_X - 18, CLAMP_KNOB_BOTTOM),
+            36,
+            12,
+            facecolor="#30343b",
+            label="hand knob",
+        )
+    )
     ax.axhline(NET_HEIGHT, color="#ffffff", linewidth=2, label="traditional net top 152.5 mm")
     ax.axhline(NET_HEIGHT + REFERENCE_HEIGHT, color="#31a354", linewidth=2, label="reference line +50 mm")
     for index in range(BEAM_COUNT):
@@ -195,8 +251,8 @@ def draw_side(ax) -> None:
         )
     )
     ax.set_xlim(-82, clamp_pad_end + 18)
-    ax.set_ylim(-70, POST_TOP + 20)
-    ax.set_title("Traditional under-table clamp: side intent")
+    ax.set_ylim(CLAMP_KNOB_BOTTOM - 8, POST_TOP + 20)
+    ax.set_title("No-drill under-table C-clamp: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
     ax.set_ylabel("z / mm")
     ax.grid(True, alpha=0.22)

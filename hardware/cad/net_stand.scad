@@ -7,11 +7,24 @@
 //   PART="left_stand"         左侧完整桌下夹持支架
 //   PART="right_stand"        右侧完整桌下夹持支架
 //   PART="post"               单侧立柱主体
-//   PART="table_clamp"        单侧传统桌下夹持机构
+//   PART="post_segment"       单段可打印立柱（由 post_segment_index 选择）
+//   PART="post_joint_sleeve"  立柱中部外套筒
+//   PART="post_joint_key"     立柱中部内芯
+//   PART="table_clamp"        单侧传统桌下夹持机构装配预览
+//   PART="table_clamp_body"   单侧固定 C 形夹体
+//   PART="clamp_pressure_pad" 台底可动压块/软垫占位
+//   PART="clamp_screw"        M8 螺杆占位（非打印件）
+//   PART="clamp_knob"         手拧旋钮
 //   PART="net"                球网/网布装配占位（非打印件）
 //   PART="net_rail"           网顶承载条
+//   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
+//   PART="net_rail_splice"    网顶承载条拼接片（由 rail_splice_index 选择）
 //   PART="optical_strip"      单侧 10 路红外模块导轨与模块包络
 //   PART="sensor_mount"       单侧网顶 PVDF 夹片安装座
+//   PART="pvdf_film"          PVDF 薄膜包络（非打印件）
+//   PART="sensor_clamp_lip"   PVDF 薄膜两侧可拆压片
+//   PART="reference_carriage" 参考线端座与定位销
+//   PART="reference_pin"      参考线弹簧销占位（非打印件）
 //   PART="calibration_gauge"  10 mm 高度档位标定规
 //   PART="parameter_probe"    输出验证脚本读取的参数清单
 //   SIDE=0                    使用默认右侧；SIDE=1/-1 显式选择左右镜像
@@ -34,7 +47,8 @@ post_offset = 18;
 post_center_x = table_edge_x + post_offset;
 post_body_width = 28;
 post_body_depth = 38;
-post_bottom = -table_thickness - 18;
+clamp_lower_arm_clearance = 10;
+post_bottom = -table_thickness - clamp_lower_arm_clearance;
 post_top_margin = 18;
 
 // 网、光栅和网顶传感器
@@ -63,8 +77,19 @@ sensor_depth = 10;
 sensor_height = 8;
 sensor_x_fraction = 0.32;
 sensor_front_offset = 10;
+sensor_film_length = sensor_length - 10;
+sensor_film_depth = 2;
+sensor_film_height = 3;
+sensor_clamp_tab_width = 6;
+sensor_clamp_tab_depth = 3;
+sensor_clamp_tab_height = 4;
 reference_height = 50;
 reference_line_d = 1.5;
+reference_pin_d = 3;
+reference_carriage_width = 20;
+reference_carriage_depth = 8;
+reference_carriage_height = 10;
+rail_segment_index = 0;
 
 // 传统桌下夹持结构
 clamp_reach_inboard = 62;
@@ -73,16 +98,52 @@ clamp_pad_depth = 58;
 clamp_pad_t = 8;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
-clamp_screw_length = table_thickness + clamp_pad_t * 2 + 14;
+clamp_screw_bore_d = clamp_screw_d + 0.8;
+clamp_screw_inset = 30;
 clamp_knob_d = 36;
 clamp_knob_h = 12;
+clamp_outer_wall_width = 22;
+clamp_lower_arm_t = clamp_pad_t;
+clamp_threaded_boss_d = 18;
+clamp_threaded_boss_h = 12;
+clamp_pressure_pad_width = 42;
+clamp_pressure_pad_depth = 44;
+clamp_pressure_pad_t = 2;
 post_top = net_height + beam_last_height + optical_module_height / 2 + post_top_margin;
+post_segment_count = 2;
+post_joint_gap = 2;
+post_joint_sleeve_h = 24;
+post_joint_clearance = 0.6;
+post_segment_index = 0;
+post_total_height = post_top - post_bottom;
+post_segment_length =
+    (post_total_height - post_joint_gap) / post_segment_count;
+post_joint_z = post_bottom + post_segment_length + post_joint_gap / 2;
 net_span = 2 * (post_center_x - post_body_width / 2);
+net_rail_segment_count = 3;
+net_rail_splice_overlap = 20;
+net_rail_segment_length =
+    (net_span + (net_rail_segment_count - 1) * net_rail_splice_overlap) /
+    net_rail_segment_count;
+net_rail_splice_plate_length = 60;
+net_rail_splice_plate_depth = net_rail_depth + 4;
+net_rail_splice_plate_t = 4;
+net_rail_splice_hole_d = 3.2;
+rail_splice_index = 0;
 optical_center_x = post_center_x - post_body_width / 2 - optical_module_depth / 2;
 sensor_x = sensor_x_fraction * net_span / 2;
 clamp_pad_x = table_edge_x - clamp_reach_inboard;
 clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
-clamp_screw_x = post_center_x + post_body_width / 2 + clamp_outer_extension / 2;
+clamp_outer_wall_x = post_center_x + post_body_width / 2;
+clamp_screw_x = table_edge_x - clamp_screw_inset;
+clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
+clamp_lower_arm_bottom_z = clamp_lower_arm_top_z - clamp_lower_arm_t;
+clamp_pressure_pad_top_z = -table_thickness - clamp_clearance;
+clamp_pressure_pad_bottom_z = clamp_pressure_pad_top_z - clamp_pressure_pad_t;
+clamp_pressure_pad_x = clamp_screw_x - clamp_pressure_pad_width / 2;
+clamp_screw_top_z = clamp_pressure_pad_top_z;
+clamp_screw_length = 36;
+clamp_screw_bottom_z = clamp_screw_top_z - clamp_screw_length;
 default_side = SIDE == 0 ? 1 : SIDE;
 
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
@@ -97,30 +158,70 @@ assert(beam_last_height == 100,
        "first optical window ends at +100 mm above the net top");
 assert(post_top > net_height + beam_last_height + optical_module_height / 2,
        "upright must clear the highest optical module");
+assert(post_segment_count == 2 && post_joint_gap > 0 &&
+           post_segment_length > 100 && post_segment_length < 180 &&
+           post_joint_sleeve_h > post_joint_gap && post_joint_clearance > 0,
+       "the upright must split into two printable segments with a keyed joint");
+assert(post_segment_index >= 0 && post_segment_index < post_segment_count,
+       "post_segment_index must select an existing printable upright segment");
 assert(optical_locating_hole_d > 0 && optical_locating_hole_d < optical_rail_width,
        "10 mm optical locating holes must fit through the rail");
 assert(scale_tick_width > 0 && scale_tick_height > 0 && scale_tick_width < optical_rail_width,
        "height scale ticks must fit on the optical rail");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
+assert(net_rail_segment_count >= 2 && net_rail_segment_count <= 5 &&
+           net_rail_segment_length > 100 && net_rail_splice_overlap > 0 &&
+           net_rail_splice_overlap < net_rail_segment_length,
+       "the long net rail must be split into printable overlapping segments");
+assert(net_rail_splice_plate_length > net_rail_splice_overlap * 2 &&
+           net_rail_splice_plate_depth > net_rail_depth &&
+           net_rail_splice_plate_t > 0 && net_rail_splice_hole_d > 0 &&
+           rail_splice_index >= 0 && rail_splice_index < net_rail_segment_count - 1,
+       "each rail seam needs a printable splice plate and valid index");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
-assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > clamp_screw_x &&
-           clamp_screw_x > table_edge_x,
-       "M8 clamp screw and guide must stay outside the tabletop; no drilling is allowed");
+assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
+           clamp_outer_wall_x < clamp_pad_outer_x &&
+           clamp_screw_x > clamp_pad_x && clamp_screw_x < table_edge_x,
+       "the C clamp must bridge the edge and keep the M8 screw below the tabletop");
+assert(clamp_lower_arm_bottom_z < clamp_lower_arm_top_z &&
+           clamp_lower_arm_top_z < clamp_pressure_pad_bottom_z &&
+           clamp_pressure_pad_top_z < -table_thickness,
+       "the lower arm and pressure pad must stay below the tabletop without drilling");
+assert(clamp_pressure_pad_x > clamp_pad_x &&
+           clamp_pressure_pad_x + clamp_pressure_pad_width < table_edge_x,
+       "the movable pressure pad must contact the underside inside the table edge");
+assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
+       "outer wall width must connect the post to the outer clamp edge");
 assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
        "first clamp uses an M8 vertical tightening screw");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
        "two PVDF mounts must fit on the net top without crossing the center");
 assert(sensor_front_offset > 0, "PVDF mount front offset must leave a printable connection bridge");
+assert(sensor_film_length > 0 && sensor_film_depth > 0 && sensor_film_height > 0 &&
+           sensor_clamp_tab_width > 0 && sensor_clamp_tab_depth > 0 &&
+           sensor_clamp_tab_height > 0 && sensor_clamp_tab_width < sensor_film_length,
+       "PVDF film and its removable clamp lips must have printable dimensions");
 assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&
            (reference_height - beam_first_height) % beam_pitch == 0,
        "reference line must land on a 10 mm optical detent");
 assert(reference_line_d > 0, "reference line diameter must be positive");
+assert(reference_pin_d > 0 && reference_pin_d < optical_locating_hole_d,
+       "reference pin must fit the 10 mm locating holes");
+assert(reference_carriage_width > 0 && reference_carriage_depth > 0 &&
+           reference_carriage_height > 0,
+       "reference carriage dimensions must be positive");
+assert(rail_segment_index >= 0 && rail_segment_index < net_rail_segment_count,
+       "rail_segment_index must select an existing printable rail segment");
 assert(SIDE == -1 || SIDE == 0 || SIDE == 1, "SIDE must be -1, 0, or 1");
 
 function beam_z(height) = net_height + height;
 function beam_inner_span() = net_span - post_body_width - optical_module_depth * 2;
 function sensor_z() = net_height + sensor_height / 2 - 1;
+function net_rail_segment_start(index) =
+    -net_span / 2 + index * (net_rail_segment_length - net_rail_splice_overlap);
+function net_rail_splice_center(index) =
+    net_rail_segment_start(index) + net_rail_segment_length - net_rail_splice_overlap / 2;
 
 module sided(side = 1) {
     if (side >= 0) {
@@ -130,59 +231,112 @@ module sided(side = 1) {
     }
 }
 
-module table_clamp_positive() {
-    pad_width = clamp_pad_outer_x - clamp_pad_x;
-
-    color("slategray") {
-        // 上下夹持面直接贴合台面边缘，整个夹具免打孔安装。
-        translate([clamp_pad_x, -clamp_pad_depth / 2, -clamp_pad_t])
-            cube([pad_width, clamp_pad_depth, clamp_pad_t]);
-        translate([clamp_pad_x, -clamp_pad_depth / 2, -table_thickness - clamp_pad_t])
-            cube([pad_width, clamp_pad_depth, clamp_pad_t]);
-        // 外侧夹臂把上下接触面连成传统网架的 C 形受力路径。
-        translate([post_center_x - post_body_width / 2,
-                   -clamp_pad_depth / 2,
-                   -table_thickness - clamp_pad_t])
-            cube([post_body_width, clamp_pad_depth,
-                  table_thickness + clamp_pad_t * 2]);
-        // 螺杆导向座也在台面外侧；螺杆只穿过打印夹具，不穿过球台。
+module table_clamp_body_positive() {
+    // 固定件是一个真正有开口的 C 形夹体：上夹板在台面上方，
+    // 下臂在台底下方，中间留出台面厚度和压块行程；不把任何零件嵌入台面。
+    lower_arm_x = clamp_screw_x - clamp_threaded_boss_d / 2;
+    color("slategray")
         difference() {
-            translate([clamp_screw_x - 6, -clamp_pad_depth / 2,
-                       -table_thickness - clamp_pad_t])
-                cube([12, clamp_pad_depth, table_thickness + clamp_pad_t * 2]);
-            translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 1])
-                cylinder(d = clamp_screw_d + 1, h = table_thickness + clamp_pad_t * 2 + 2);
+            union() {
+                translate([clamp_pad_x, -clamp_pad_depth / 2, 0])
+                    cube([clamp_pad_outer_x - clamp_pad_x,
+                          clamp_pad_depth, clamp_pad_t]);
+                translate([clamp_outer_wall_x, -clamp_pad_depth / 2,
+                           clamp_lower_arm_bottom_z])
+                    cube([clamp_outer_wall_width, clamp_pad_depth,
+                          clamp_pad_t + table_thickness + clamp_lower_arm_clearance]);
+                translate([lower_arm_x, -clamp_pad_depth / 2,
+                           clamp_lower_arm_bottom_z])
+                    cube([clamp_pad_outer_x - lower_arm_x,
+                          clamp_pad_depth, clamp_lower_arm_t]);
+                translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z])
+                    cylinder(d = clamp_threaded_boss_d, h = clamp_threaded_boss_h);
+            }
+            // M8 螺杆只穿过下臂/螺母座，不能穿过球台。
+            translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
+                cylinder(d = clamp_screw_bore_d,
+                         h = clamp_threaded_boss_h + 2);
         }
-    }
+}
 
-    color("dimgray") {
-        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 3])
+module clamp_pressure_pad_positive() {
+    // 独立可动压块：旋钮从下方顶它，压块顶面只接触台面底面。
+    color("black")
+        translate([clamp_pressure_pad_x, -clamp_pressure_pad_depth / 2,
+                   clamp_pressure_pad_bottom_z])
+            cube([clamp_pressure_pad_width, clamp_pressure_pad_depth,
+                  clamp_pressure_pad_t]);
+}
+
+module clamp_screw_positive() {
+    color("dimgray")
+        translate([clamp_screw_x, 0, clamp_screw_bottom_z])
             cylinder(d = clamp_screw_d, h = clamp_screw_length);
-        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - clamp_knob_h])
-            cylinder(d = clamp_knob_d, h = clamp_knob_h);
-    }
+}
 
-    color("black") {
-        translate([clamp_screw_x, 0, -clamp_pad_t - clamp_clearance])
-            cylinder(d = clamp_screw_d + 8, h = 2);
-        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 2])
-            cylinder(d = clamp_screw_d + 8, h = 2);
+module clamp_knob_positive() {
+    color("dimgray")
+        translate([clamp_screw_x, 0,
+                   clamp_screw_bottom_z - clamp_knob_h])
+            cylinder(d = clamp_knob_d, h = clamp_knob_h);
+}
+
+module table_clamp_positive() {
+    table_clamp_body_positive();
+    clamp_pressure_pad_positive();
+    clamp_screw_positive();
+    clamp_knob_positive();
+}
+
+module post_segment_positive(index = 0) {
+    segment_z = post_bottom + index * (post_segment_length + post_joint_gap);
+    color("darkorange")
+        translate([post_center_x - post_body_width / 2,
+                   -post_body_depth / 2, segment_z])
+            cube([post_body_width, post_body_depth, post_segment_length]);
+    // 下段单独导出时也必须带上台面上方的箱型加厚，否则单件打印会
+    // 丢失承载网顶和光学导轨的局部结构。
+    if (index == 0) {
+        color("darkorange")
+            translate([post_center_x - post_body_width / 2 - 5,
+                       -post_body_depth / 2 - 4,
+                       -2])
+                cube([post_body_width + 10, post_body_depth + 8, 34]);
     }
 }
 
-module post_positive() {
-    color("darkorange") {
-        translate([post_center_x - post_body_width / 2,
-                   -post_body_depth / 2,
-                   post_bottom])
-            cube([post_body_width, post_body_depth, post_top - post_bottom]);
-        // 台面上方的局部箱型加厚，承载网顶和光学导轨。
-        translate([post_center_x - post_body_width / 2 - 5,
-                   -post_body_depth / 2 - 4,
-                   -2])
-            cube([post_body_width + 10, post_body_depth + 8, 34]);
-    }
+module post_joint_sleeve_positive() {
+    color("darkorange")
+        difference() {
+            translate([post_center_x - post_body_width / 2 - 5,
+                       -post_body_depth / 2 - 4,
+                       post_joint_z - post_joint_sleeve_h / 2])
+                cube([post_body_width + 10, post_body_depth + 8,
+                      post_joint_sleeve_h]);
+            translate([post_center_x - post_body_width / 2 - post_joint_clearance,
+                       -post_body_depth / 2 - post_joint_clearance,
+                       post_joint_z - post_joint_sleeve_h / 2 - 1])
+                cube([post_body_width + 2 * post_joint_clearance,
+                      post_body_depth + 2 * post_joint_clearance,
+                      post_joint_sleeve_h + 2]);
+        }
+}
 
+module post_joint_key_positive() {
+    color("darkorange")
+        translate([post_center_x - (post_body_width - 2) / 2,
+                   -(post_body_depth - 2) / 2,
+                   post_joint_z - (post_joint_sleeve_h - 4) / 2])
+            cube([post_body_width - 2, post_body_depth - 2,
+                  post_joint_sleeve_h - 4]);
+}
+
+module post_positive() {
+    for (index = [0:post_segment_count - 1]) {
+        post_segment_positive(index);
+    }
+    post_joint_sleeve_positive();
+    post_joint_key_positive();
 }
 
 module optical_module_positive(height) {
@@ -230,6 +384,27 @@ module optical_strip_positive() {
     }
 }
 
+function sensor_film_y() =
+    -net_rail_depth / 2 - sensor_front_offset - sensor_depth - sensor_film_depth;
+
+module pvdf_film_positive(x_position) {
+    color("black")
+        translate([x_position - sensor_film_length / 2,
+                   sensor_film_y(), net_height - 1])
+            cube([sensor_film_length, sensor_film_depth, sensor_film_height]);
+}
+
+module sensor_clamp_lip_positive(x_position) {
+    film_y = sensor_film_y();
+    color("mediumpurple")
+        for (side = [-1, 1]) {
+            translate([x_position + side * (sensor_film_length / 2 - sensor_clamp_tab_width),
+                       film_y - 0.5, net_height - 1])
+                cube([sensor_clamp_tab_width, sensor_clamp_tab_depth,
+                      sensor_clamp_tab_height]);
+        }
+}
+
 module sensor_mount_positive(x_position) {
     color("mediumpurple")
         translate([x_position - sensor_length / 2,
@@ -242,21 +417,65 @@ module sensor_mount_positive(x_position) {
                    -net_rail_depth / 2 - sensor_front_offset,
                    net_height - 1])
             cube([16, sensor_front_offset, sensor_height]);
-    color("black")
-        translate([x_position - sensor_length / 2 + 5,
-                   -net_rail_depth / 2 - sensor_front_offset - sensor_depth - 2,
-                   net_height - 1])
-            cube([sensor_length - 10, 2, 3]);
+    pvdf_film_positive(x_position);
+    sensor_clamp_lip_positive(x_position);
 }
 
 module sensor_mount(side = 1) {
     sided(side) sensor_mount_positive(sensor_x);
 }
 
-module net_rail() {
+module net_rail_segment_positive(index = 0) {
     color("white")
-        translate([-net_span / 2, -net_rail_depth / 2, net_height - net_rail_height])
-            cube([net_span, net_rail_depth, net_rail_height]);
+        difference() {
+            translate([net_rail_segment_start(index),
+                       -net_rail_depth / 2,
+                       net_height - net_rail_height])
+                cube([net_rail_segment_length, net_rail_depth, net_rail_height]);
+            // 拼接片的两个 M3 孔分别落在相邻的两段承载条中。
+            if (index > 0) {
+                translate([net_rail_splice_center(index - 1) + 20, 0,
+                           net_height - net_rail_height - 1])
+                    cylinder(d = net_rail_splice_hole_d,
+                             h = net_rail_height + 2);
+            }
+            if (index < net_rail_segment_count - 1) {
+                translate([net_rail_splice_center(index) - 20, 0,
+                           net_height - net_rail_height - 1])
+                    cylinder(d = net_rail_splice_hole_d,
+                             h = net_rail_height + 2);
+            }
+        }
+}
+
+module net_rail_splice_positive(index = 0) {
+    seam_x = net_rail_splice_center(index);
+    color("lightgray")
+        difference() {
+            translate([seam_x - net_rail_splice_plate_length / 2,
+                       -net_rail_splice_plate_depth / 2,
+                       net_height - net_rail_height - net_rail_splice_plate_t])
+                cube([net_rail_splice_plate_length,
+                      net_rail_splice_plate_depth,
+                      net_rail_splice_plate_t]);
+            for (hole_x = [-20, 20]) {
+                translate([seam_x + hole_x, 0,
+                           net_height - net_rail_height - 1])
+                    cylinder(d = net_rail_splice_hole_d,
+                             h = net_rail_splice_plate_t + 2);
+            }
+        }
+}
+
+module net_rail() {
+    // 三段带 20 mm 搭接，打印长度约 524 mm；实际装配时用下方拼接片/螺钉
+    // 或铝型材替代件把搭接处锁紧。整体 PART 仍用于连续网顶关系预览。
+    for (index = [0:net_rail_segment_count - 1]) {
+        net_rail_segment_positive(index);
+    }
+    for (index = [0:net_rail_segment_count - 2]) {
+        net_rail_splice_positive(index);
+    }
 }
 
 module net_panel() {
@@ -278,6 +497,42 @@ module reference_line() {
     color("limegreen")
         translate([-net_span / 2, -1.1, beam_z(reference_height) - reference_line_d / 2])
             cube([net_span, reference_line_d, reference_line_d]);
+}
+
+module reference_pin_positive() {
+    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
+    color("black")
+        translate([rail_x + optical_rail_depth / 2, 0,
+                   beam_z(reference_height)])
+            rotate([90, 0, 0])
+                cylinder(d = reference_pin_d,
+                         h = optical_rail_width + reference_carriage_depth + 4,
+                         center = true);
+}
+
+module reference_carriage_positive() {
+    rail_x = post_center_x - post_body_width / 2 - optical_rail_depth;
+    carriage_center_x = rail_x + optical_rail_depth / 2;
+    carriage_z = beam_z(reference_height) - reference_carriage_height / 2;
+    color("seagreen") {
+        // 端座位于导轨前侧，定位销穿过对应 10 mm 孔；它是校准附件，
+        // 不作为光学模块的永久遮挡件。
+        translate([carriage_center_x - reference_carriage_width / 2,
+                   -optical_rail_width / 2 - reference_carriage_depth,
+                   carriage_z])
+            cube([reference_carriage_width, reference_carriage_depth,
+                  reference_carriage_height]);
+        // 小桥把线端带到网面前侧的参考线位置。
+        translate([carriage_center_x - 4,
+                   -optical_rail_width / 2 - reference_carriage_depth,
+                   beam_z(reference_height) - 1.5])
+            cube([8, optical_rail_width / 2 + reference_carriage_depth - 1.1, 3]);
+    }
+    reference_pin_positive();
+}
+
+module reference_carriage(side = 1) {
+    sided(side) reference_carriage_positive();
 }
 
 module table_preview() {
@@ -318,6 +573,7 @@ module stand(side = 1) {
 
 module parameter_probe() {
     echo(str("NETSTAND_PARAM table_width=", table_width));
+    echo(str("NETSTAND_PARAM table_thickness=", table_thickness));
     echo(str("NETSTAND_PARAM net_height=", net_height));
     echo(str("NETSTAND_PARAM net_rail_height=", net_rail_height));
     echo(str("NETSTAND_PARAM net_rail_depth=", net_rail_depth));
@@ -326,12 +582,33 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM beam_last_height=", beam_last_height));
     echo(str("NETSTAND_PARAM beam_pitch=", beam_pitch));
     echo(str("NETSTAND_PARAM post_center_x=", post_center_x));
+    echo(str("NETSTAND_PARAM post_body_width=", post_body_width));
+    echo(str("NETSTAND_PARAM post_body_depth=", post_body_depth));
+    echo(str("NETSTAND_PARAM post_bottom=", post_bottom));
     echo(str("NETSTAND_PARAM net_span=", net_span));
+    echo(str("NETSTAND_PARAM post_segment_count=", post_segment_count));
+    echo(str("NETSTAND_PARAM post_segment_length=", post_segment_length));
+    echo(str("NETSTAND_PARAM post_joint_gap=", post_joint_gap));
+    echo(str("NETSTAND_PARAM net_rail_segment_count=", net_rail_segment_count));
+    echo(str("NETSTAND_PARAM net_rail_segment_length=", net_rail_segment_length));
+    echo(str("NETSTAND_PARAM net_rail_splice_overlap=", net_rail_splice_overlap));
+    echo(str("NETSTAND_PARAM net_rail_splice_plate_length=", net_rail_splice_plate_length));
+    echo(str("NETSTAND_PARAM net_rail_splice_hole_d=", net_rail_splice_hole_d));
     echo(str("NETSTAND_PARAM post_top=", post_top));
     echo(str("NETSTAND_PARAM sensor_x=", sensor_x));
+    echo(str("NETSTAND_PARAM sensor_film_length=", sensor_film_length));
+    echo(str("NETSTAND_PARAM sensor_film_depth=", sensor_film_depth));
+    echo(str("NETSTAND_PARAM sensor_clamp_tab_width=", sensor_clamp_tab_width));
+    echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
+    echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
+    echo(str("NETSTAND_PARAM clamp_screw_top_z=", clamp_screw_top_z));
+    echo(str("NETSTAND_PARAM clamp_lower_arm_top_z=", clamp_lower_arm_top_z));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_top_z=", clamp_pressure_pad_top_z));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_bottom_z=", clamp_pressure_pad_bottom_z));
     echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
     echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
+    echo(str("NETSTAND_PARAM reference_pin_d=", reference_pin_d));
     cube([0.2, 0.2, 0.2]);
 }
 
@@ -343,22 +620,50 @@ if (PART == "assembly") {
     stand(-1);
     beam_markers();
     reference_line();
+    reference_carriage(1);
+    reference_carriage(-1);
 } else if (PART == "left_stand") {
     stand(-1);
 } else if (PART == "right_stand") {
     stand(1);
 } else if (PART == "post") {
     sided(default_side) post_positive();
+} else if (PART == "post_segment") {
+    sided(default_side) post_segment_positive(post_segment_index);
+} else if (PART == "post_joint_sleeve") {
+    sided(default_side) post_joint_sleeve_positive();
+} else if (PART == "post_joint_key") {
+    sided(default_side) post_joint_key_positive();
 } else if (PART == "table_clamp") {
     sided(default_side) table_clamp_positive();
+} else if (PART == "table_clamp_body") {
+    sided(default_side) table_clamp_body_positive();
+} else if (PART == "clamp_pressure_pad") {
+    sided(default_side) clamp_pressure_pad_positive();
+} else if (PART == "clamp_screw") {
+    sided(default_side) clamp_screw_positive();
+} else if (PART == "clamp_knob") {
+    sided(default_side) clamp_knob_positive();
 } else if (PART == "net") {
     net_panel();
 } else if (PART == "net_rail") {
     net_rail();
+} else if (PART == "net_rail_segment") {
+    net_rail_segment_positive(rail_segment_index);
+} else if (PART == "net_rail_splice") {
+    net_rail_splice_positive(rail_splice_index);
 } else if (PART == "optical_strip") {
     sided(default_side) optical_strip_positive();
 } else if (PART == "sensor_mount") {
     sensor_mount(default_side);
+} else if (PART == "pvdf_film") {
+    sided(default_side) pvdf_film_positive(sensor_x);
+} else if (PART == "sensor_clamp_lip") {
+    sided(default_side) sensor_clamp_lip_positive(sensor_x);
+} else if (PART == "reference_carriage") {
+    reference_carriage(default_side);
+} else if (PART == "reference_pin") {
+    sided(default_side) reference_pin_positive();
 } else if (PART == "calibration_gauge") {
     calibration_gauge();
 } else if (PART == "parameter_probe") {

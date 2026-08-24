@@ -1,6 +1,6 @@
 # OpenSCAD CAD
 
-当前机械主线是 `net_stand.scad`：直接做出一套替换传统球网的内置式球网支架，网布和网顶 PVDF 振动监测预装在支架上，左右端通过传统的桌下上下夹持面固定到球台。夹紧螺杆和导向座全部位于台边外侧，只夹台面边缘，不要求也不允许给球桌打孔。它不再依赖原球网立柱，也不再使用外挂式 X 夹具。
+当前机械主线是 `net_stand.scad`：直接做出一套替换传统球网的内置式球网支架，网布和网顶 PVDF 振动监测预装在支架上，左右端通过传统的桌下 C 形夹体固定到球台。M8 螺杆完全位于台面下方，向上顶台底可动压块；螺杆不穿过球台，不要求也不允许给球桌打孔。它不再依赖原球网立柱，也不再使用外挂式 X 夹具。
 
 ## 当前参数源：`net_stand.scad`
 
@@ -8,14 +8,14 @@
 
 - `assembly`：含球台截面、网布、网顶承载条、双侧立柱、桌下夹持、10 路光栅模块、PVDF 网顶安装座和参考线的装配预览；
 - `left_stand` / `right_stand`：左右完整的内置式支架，包含立柱、传统桌下夹持、单侧光学模块和 PVDF 安装座；
-- `post`：单侧立柱主体；`table_clamp`：单侧桌下夹持机构；
-- `net`：网布装配占位，不是 PETG 打印件；`net_rail`：网顶承载条；
+- `post`：单侧立柱主体装配预览；`post_segment`：两段约 153 mm 的可打印立柱，`post_segment_index=0` 的下段包含台面上方承载加厚；`post_joint_sleeve` / `post_joint_key`：接缝外套筒与内芯；`table_clamp`：单侧桌下夹持装配预览；`table_clamp_body`：固定 C 形夹体；`clamp_pressure_pad`：台底可动压块/软垫占位；`clamp_knob`：手拧旋钮；
+- `net`：网布装配占位，不是 PETG 打印件；`net_rail`：三段带搭接和拼接片的网顶承载条装配预览；`net_rail_segment`：约 524 mm 的可打印单段；`net_rail_splice`：带 M3 孔的拼接片；
 - `optical_strip`：单侧连续光学导轨和 10 个模块包络，`SIDE=-1` 可生成镜像侧；
-- `sensor_mount`：单侧网顶 PVDF 夹片安装座；
+- `sensor_mount`：单侧网顶 PVDF 夹片安装座；`pvdf_film` / `sensor_clamp_lip`：可拆薄膜和两侧压片包络；`reference_carriage` / `reference_pin`：锁定到 10 mm 孔位的参考线端座与定位销；
 - `calibration_gauge`：+10…+100 mm 高度档位标定规；
 - `parameter_probe`：验证脚本读取的参数清单，不是打印件。
 
-首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、光栅窗口 `+10…+100 mm`、10 mm 档位、两侧 `M8` 竖直夹紧螺杆。当前光学导轨已经包含每 `10 mm` 一个实际贯穿定位孔和可视刻度标记，便于参考线/标定销复核。球网、光学器件、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性或光学精度验收。
+首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、光栅窗口 `+10…+100 mm`、10 mm 档位、两侧 `M8` 竖直夹紧螺杆。当前光学导轨已经包含每 `10 mm` 一个实际贯穿定位孔和可视刻度标记，参考线端座用 `reference_pin` 锁到这些孔位；网顶承载条拆成 3 段、每段约 `524 mm`、搭接 `20 mm`，便于常见打印幅面或改用铝型材。球网、光学器件、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性或光学精度验收。
 
 导出示例：
 
@@ -23,8 +23,13 @@
 openscad -D 'PART="assembly"' -o net-stand-assembly.stl net_stand.scad
 openscad -D 'PART="right_stand"' -o right-stand.stl net_stand.scad
 openscad -D 'PART="left_stand"' -o left-stand.stl net_stand.scad
+openscad -D 'PART="table_clamp_body"' -D 'SIDE=1' -o right-clamp-body.stl net_stand.scad
+openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=1' -o right-pressure-pad.stl net_stand.scad
+openscad -D 'PART="clamp_knob"' -D 'SIDE=1' -o right-clamp-knob.stl net_stand.scad
 openscad -D 'PART="optical_strip"' -D 'SIDE=-1' -o optical-strip-left.stl net_stand.scad
 openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
+openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=1' -o net-rail-segment-1.stl net_stand.scad
+openscad -D 'PART="net_rail_splice"' -D 'rail_splice_index=0' -o net-rail-splice-0.stl net_stand.scad
 ```
 
 `preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。

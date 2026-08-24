@@ -18,11 +18,24 @@ PARTS = (
     "left_stand",
     "right_stand",
     "post",
+    "post_segment",
+    "post_joint_sleeve",
+    "post_joint_key",
     "table_clamp",
+    "table_clamp_body",
+    "clamp_pressure_pad",
+    "clamp_screw",
+    "clamp_knob",
     "net",
     "net_rail",
+    "net_rail_segment",
+    "net_rail_splice",
     "optical_strip",
     "sensor_mount",
+    "pvdf_film",
+    "sensor_clamp_lip",
+    "reference_carriage",
+    "reference_pin",
     "calibration_gauge",
 )
 
@@ -57,6 +70,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         parameters[key] = float(value)
     required = {
         "table_width",
+        "table_thickness",
         "net_height",
         "net_rail_height",
         "net_rail_depth",
@@ -65,12 +79,33 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "beam_last_height",
         "beam_pitch",
         "post_center_x",
+        "post_body_width",
+        "post_body_depth",
+        "post_bottom",
+        "post_segment_count",
+        "post_segment_length",
+        "post_joint_gap",
         "net_span",
+        "net_rail_segment_count",
+        "net_rail_segment_length",
+        "net_rail_splice_overlap",
+        "net_rail_splice_plate_length",
+        "net_rail_splice_hole_d",
         "post_top",
         "sensor_x",
+        "sensor_film_length",
+        "sensor_film_depth",
+        "sensor_clamp_tab_width",
+        "clamp_pad_x",
+        "clamp_pad_outer_x",
         "clamp_screw_x",
+        "clamp_screw_top_z",
+        "clamp_lower_arm_top_z",
+        "clamp_pressure_pad_top_z",
+        "clamp_pressure_pad_bottom_z",
         "optical_locating_hole_d",
         "optical_rail_width",
+        "reference_pin_d",
     }
     missing = required - parameters.keys()
     if missing:
@@ -79,12 +114,46 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         raise RuntimeError(f"unexpected optical grid parameters: {parameters}")
     if not (parameters["post_center_x"] > parameters["table_width"] / 2):
         raise RuntimeError(f"post is not outside table edge: {parameters}")
-    if not (parameters["clamp_screw_x"] > parameters["table_width"] / 2):
-        raise RuntimeError(f"clamp screw is not outside tabletop edge: {parameters}")
+    if not (
+        parameters["post_segment_count"] == 2
+        and 100 < parameters["post_segment_length"] < 180
+        and parameters["post_joint_gap"] == 2
+    ):
+        raise RuntimeError(f"unexpected printable post segmentation: {parameters}")
+    table_edge = parameters["table_width"] / 2
+    if not (
+        parameters["clamp_pad_x"] < table_edge < parameters["clamp_pad_outer_x"]
+        and parameters["clamp_pad_x"] < parameters["clamp_screw_x"] < table_edge
+    ):
+        raise RuntimeError(f"clamp does not bridge edge with an under-table screw: {parameters}")
+    if not (
+        parameters["clamp_screw_top_z"] < -parameters["table_thickness"]
+        and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
+        and parameters["clamp_pressure_pad_bottom_z"] <
+        parameters["clamp_pressure_pad_top_z"]
+        and parameters["clamp_lower_arm_top_z"] <
+        parameters["clamp_pressure_pad_bottom_z"]
+    ):
+        raise RuntimeError(f"clamp pressure path is not below tabletop: {parameters}")
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
+    if not (
+        parameters["net_rail_segment_count"] == 3
+        and parameters["net_rail_segment_length"] > 500
+        and parameters["net_rail_splice_overlap"] == 20
+        and parameters["net_rail_splice_plate_length"] == 60
+        and parameters["net_rail_splice_hole_d"] > 0
+    ):
+        raise RuntimeError(f"unexpected printable rail segmentation: {parameters}")
     if not (0 < parameters["optical_locating_hole_d"] < parameters["optical_rail_width"]):
         raise RuntimeError(f"invalid optical locating hole diameter: {parameters}")
+    if not (0 < parameters["reference_pin_d"] < parameters["optical_locating_hole_d"]):
+        raise RuntimeError(f"reference pin cannot fit the locating hole: {parameters}")
+    if not (
+        parameters["sensor_film_length"] > parameters["sensor_clamp_tab_width"] > 0
+        and parameters["sensor_film_depth"] > 0
+    ):
+        raise RuntimeError(f"invalid removable PVDF film clamp dimensions: {parameters}")
     return parameters
 
 
@@ -103,7 +172,23 @@ def main() -> None:
             )
 
         mirrored_paths: dict[str, Path] = {}
-        for part in ("post", "table_clamp", "optical_strip", "sensor_mount"):
+        for part in (
+            "post",
+            "post_segment",
+            "post_joint_sleeve",
+            "post_joint_key",
+            "table_clamp",
+            "table_clamp_body",
+            "clamp_pressure_pad",
+            "clamp_screw",
+            "clamp_knob",
+            "optical_strip",
+            "sensor_mount",
+            "pvdf_film",
+            "sensor_clamp_lip",
+            "reference_carriage",
+            "reference_pin",
+        ):
             mirrored = output_dir / f"{part}-mirror.stl"
             require_stl(
                 run_openscad(
@@ -131,9 +216,17 @@ def main() -> None:
 
         net_bounds = stl_bounds(output_dir / "net.stl")
         rail_bounds = stl_bounds(output_dir / "net_rail.stl")
-        clamp_bounds = stl_bounds(output_dir / "table_clamp.stl")
+        rail_segment_bounds = stl_bounds(output_dir / "net_rail_segment.stl")
+        clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
+        pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
+        screw_bounds = stl_bounds(output_dir / "clamp_screw.stl")
         sensor_bounds = stl_bounds(output_dir / "sensor_mount.stl")
+        film_bounds = stl_bounds(output_dir / "pvdf_film.stl")
+        film_lip_bounds = stl_bounds(output_dir / "sensor_clamp_lip.stl")
+        reference_bounds = stl_bounds(output_dir / "reference_carriage.stl")
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
+        post_bounds = stl_bounds(output_dir / "post.stl")
+        post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
@@ -143,19 +236,64 @@ def main() -> None:
         if abs(rail_bounds[5] - parameters["net_height"]) > 0.01:
             raise RuntimeError(f"net rail top does not match net height: {rail_bounds}")
         if not (
-            clamp_bounds[0] < parameters["table_width"] / 2 < clamp_bounds[1]
-            and clamp_bounds[1] > parameters["clamp_screw_x"]
+            abs(rail_bounds[0] + parameters["net_span"] / 2) < 0.01
+            and abs(rail_bounds[1] - parameters["net_span"] / 2) < 0.01
+            and rail_segment_bounds[1] - rail_segment_bounds[0]
+            > 500
         ):
-            raise RuntimeError(f"clamp does not bridge the table edge and outer screw: {clamp_bounds}")
+            raise RuntimeError(
+                f"segmented net rail does not cover the full span: rail={rail_bounds}, "
+                f"segment={rail_segment_bounds}"
+            )
+        expected_reference_z = parameters["net_height"] + 50
+        if not (
+            reference_bounds[4] < expected_reference_z < reference_bounds[5]
+        ):
+            raise RuntimeError(f"reference carriage is not at the selected detent: {reference_bounds}")
+        if not (
+            clamp_body_bounds[0] < parameters["table_width"] / 2 < clamp_body_bounds[1]
+            and clamp_body_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
+        ):
+            raise RuntimeError(f"fixed clamp body does not bridge the table edge: {clamp_body_bounds}")
+        if not (
+            pressure_pad_bounds[5] < -parameters["table_thickness"]
+            and screw_bounds[5] < -parameters["table_thickness"]
+            and abs(pressure_pad_bounds[5] - parameters["clamp_pressure_pad_top_z"]) < 0.01
+            and abs(screw_bounds[5] - parameters["clamp_screw_top_z"]) < 0.01
+        ):
+            raise RuntimeError(
+                "pressure pad or screw reaches the tabletop; no-drill clearance is broken: "
+                f"pad={pressure_pad_bounds}, screw={screw_bounds}"
+            )
         if not (
             sensor_bounds[2] < -parameters["net_rail_depth"] / 2
             and abs(sensor_bounds[3] + parameters["net_rail_depth"] / 2) < 0.01
         ):
             raise RuntimeError(f"PVDF mount does not reach the net rail front face: {sensor_bounds}")
+        if not (
+            film_bounds[2] < film_bounds[3]
+            and film_lip_bounds[2] < film_bounds[2]
+            and film_lip_bounds[3] > film_bounds[3]
+        ):
+            raise RuntimeError(
+                f"removable PVDF film is not captured by the clamp lips: "
+                f"film={film_bounds}, lips={film_lip_bounds}"
+            )
         if assembly_bounds[2] >= 0 or assembly_bounds[3] <= 0:
             raise RuntimeError(f"assembly does not include the table-depth axis: {assembly_bounds}")
         if assembly_bounds[5] <= parameters["net_height"] + parameters["beam_last_height"]:
             raise RuntimeError(f"uprights do not clear the optical window: {assembly_bounds}")
+        if not (
+            abs(post_bounds[4] - parameters["post_bottom"]) < 0.01
+            and post_bounds[5] > parameters["net_height"] + parameters["beam_last_height"]
+            and post_segment_bounds[5] - post_segment_bounds[4] < 180
+            and post_segment_bounds[1] - post_segment_bounds[0] > parameters["post_body_width"]
+            and post_segment_bounds[3] - post_segment_bounds[2] > parameters["post_body_depth"]
+        ):
+            raise RuntimeError(
+                f"post assembly/segment bounds or lower reinforcement are not printable: post={post_bounds}, "
+                f"segment={post_segment_bounds}"
+            )
 
         invalid_grid = run_openscad(
             openscad,
@@ -187,6 +325,67 @@ def main() -> None:
                 detent,
                 f"reference_height={height}",
             )
+
+        for index in range(3):
+            segment = output_dir / f"net-rail-segment-{index}.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    segment,
+                    'PART="net_rail_segment"',
+                    f"rail_segment_index={index}",
+                ),
+                segment,
+                f"net_rail_segment index={index}",
+            )
+        for index in range(2):
+            splice = output_dir / f"net-rail-splice-{index}.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    splice,
+                    'PART="net_rail_splice"',
+                    f"rail_splice_index={index}",
+                ),
+                splice,
+                f"net_rail_splice index={index}",
+            )
+        invalid_segment = run_openscad(
+            openscad,
+            output_dir / "invalid-rail-segment.stl",
+            'PART="net_rail_segment"',
+            "rail_segment_index=3",
+        )
+        if invalid_segment.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a non-existent net rail segment")
+        for index in range(2):
+            segment = output_dir / f"post-segment-{index}.stl"
+            require_stl(
+                run_openscad(
+                    openscad,
+                    segment,
+                    'PART="post_segment"',
+                    f"post_segment_index={index}",
+                ),
+                segment,
+                f"post_segment index={index}",
+            )
+        invalid_post_segment = run_openscad(
+            openscad,
+            output_dir / "invalid-post-segment.stl",
+            'PART="post_segment"',
+            "post_segment_index=2",
+        )
+        if invalid_post_segment.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a non-existent post segment")
+        invalid_splice = run_openscad(
+            openscad,
+            output_dir / "invalid-rail-splice.stl",
+            'PART="net_rail_splice"',
+            "rail_splice_index=2",
+        )
+        if invalid_splice.returncode == 0:
+            raise RuntimeError("OpenSCAD accepted a non-existent net rail splice")
 
     print(
         "NET_STAND_OK "

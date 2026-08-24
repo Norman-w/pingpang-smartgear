@@ -1,6 +1,6 @@
 # 内置式球网支架首样打印与装配清单
 
-这份清单只说明当前 `net_stand.scad` 的导出关系，不代表 PETG 实物已经打印、桌下夹持力已经合格，或光学/电气已经接通。当前结构是免打孔夹持：螺杆和导向座在台边外侧，只通过上下接触面夹住台面；不得把球台打孔作为安装前提。打印前仍需按实际喷嘴、层高、PETG 收缩、球台厚度和标准件尺寸复核。
+这份清单只说明当前 `net_stand.scad` 的导出关系，不代表 PETG 实物已经打印、桌下夹持力已经合格，或光学/电气已经接通。当前结构是免打孔夹持：固定 C 形夹体跨过台边，M8 螺杆完全位于台面下方并顶起可动压块；不得把球台打孔作为安装前提。打印前仍需按实际喷嘴、层高、PETG 收缩、球台厚度和标准件尺寸复核。
 
 ## 当前主线：替换传统球网
 
@@ -8,24 +8,47 @@
 | --- | ---: | --- |
 | `right_stand` | 1 | PETG 装配检查件；包含右侧立柱、桌下夹持、光学模块包络和 PVDF 安装座 |
 | `left_stand` | 1 | PETG 装配检查件；为 `right_stand` 的镜像侧 |
-| `post` | 2 | PETG；若拆分打印，左右各一件，实际加强肋/分体面待打印方向确认 |
-| `table_clamp` | 2 | PETG；左右各一件；M8 竖直螺杆、旋钮和上下接触软垫使用实物件/替换件 |
-| `net_rail` | 1 | PETG 或后续改为铝型材；承载网顶白边和两枚 PVDF 安装座 |
+| `post` | 2 | 立柱装配预览，不建议直接作为单件打印；当前按两段立柱、外套筒和内芯分件 |
+| `post_segment` | 4 | PETG；左右各 2 段，每段约 153 mm；`post_segment_index=0` 下段自带台面上方承载加厚 |
+| `post_joint_sleeve` | 2 | PETG；左右各一件，跨接两段立柱接缝 |
+| `post_joint_key` | 2 | PETG；左右各一件，插入外套筒内部并定位接缝 |
+| `table_clamp` | 2 | 装配预览，不建议直接作为单件打印；包含固定夹体、台底压块、M8 螺杆和旋钮边界 |
+| `table_clamp_body` | 2 | PETG；左右各一件的固定 C 形夹体，上夹板跨过台边、下臂承载螺母座 |
+| `clamp_pressure_pad` | 2 | TPU/硅胶/耐磨软垫优先，也可先用 PETG 几何样件；左右各一件，独立位于台底 |
+| `clamp_screw` | 2 | 非打印件；M8 竖直螺杆，完全在台面下方，穿过固定下臂/螺母座，不穿球台 |
+| `clamp_knob` | 2 | PETG 打印旋钮；左右各一件，和 M8 螺杆配合 |
+| `net_rail` | 1 | 三段网顶承载条装配预览；不建议整件打印 |
+| `net_rail_segment` | 3 | PETG；每段约 524 mm、相邻搭接 20 mm；也可按同一接口改用铝型材 |
+| `net_rail_splice` | 2 | PETG；每个接缝一片，带 Ø3.2 mm M3 通孔；M3 螺钉/螺母为标准件 |
 | `optical_strip` | 2 | PETG；左右各一条；电子光学模块不打印，用包络验证安装空间 |
 | `sensor_mount` | 2 | PETG/TPU 组合首样；左右各一枚，PVDF 薄膜和线束按实物固定 |
+| `sensor_clamp_lip` | 2 | PETG/TPU；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
+| `pvdf_film` | 2 | 非打印件；PVDF 薄膜包络，首样按实物裁切并保留可替换性 |
+| `reference_carriage` | 2 | PETG；左右各一枚，作为校准时的参考线端座，不永久挡住光栅 |
+| `reference_pin` | 2 | 非打印件；约 Ø3 mm 弹簧定位销，插入导轨 Ø4 mm 孔 |
 | `calibration_gauge` | 1 | PETG；共享的 +10…+100 mm 十档高度标定规 |
 | `net` | 1 | 非打印件；使用真实球网/网布装配，OpenSCAD 只显示占位几何 |
 
-`assembly` 是整体关系预览，不建议直接导出成一件打印；`left_stand`/`right_stand` 也主要用于装配、干涉和桌下夹持检查，必要时再按切片结果拆分 `post` 与 `table_clamp`。光栅发射器/接收器、PVDF、AFE、线束、ESP32-S3、M8 螺杆、旋钮轴件、夹持软垫和网布属于非 CAD 打印件或标准件。
+`assembly` 是整体关系预览，不建议直接导出成一件打印；`left_stand`/`right_stand` 也主要用于装配、干涉和桌下夹持检查。当前立柱明确按 `post_segment`、`post_joint_sleeve`、`post_joint_key` 分件导出，不能把装配预览当作单件打印件。光栅发射器/接收器、PVDF、AFE、线束、ESP32-S3、M8 螺杆、旋钮轴件和网布属于非 CAD 打印件或标准件；压块软垫必须按实物材料单独确认。
 
 ## 导出示例
 
 ```text
 openscad -D 'PART="post"' -D 'SIDE=1' -o right-post.stl net_stand.scad
 openscad -D 'PART="post"' -D 'SIDE=-1' -o left-post.stl net_stand.scad
-openscad -D 'PART="table_clamp"' -D 'SIDE=1' -o right-clamp.stl net_stand.scad
-openscad -D 'PART="table_clamp"' -D 'SIDE=-1' -o left-clamp.stl net_stand.scad
+openscad -D 'PART="post_segment"' -D 'SIDE=1' -D 'post_segment_index=0' -o right-post-lower.stl net_stand.scad
+openscad -D 'PART="post_segment"' -D 'SIDE=1' -D 'post_segment_index=1' -o right-post-upper.stl net_stand.scad
+openscad -D 'PART="post_joint_sleeve"' -D 'SIDE=1' -o right-post-sleeve.stl net_stand.scad
+openscad -D 'PART="post_joint_key"' -D 'SIDE=1' -o right-post-key.stl net_stand.scad
+openscad -D 'PART="table_clamp_body"' -D 'SIDE=1' -o right-clamp-body.stl net_stand.scad
+openscad -D 'PART="table_clamp_body"' -D 'SIDE=-1' -o left-clamp-body.stl net_stand.scad
+openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=1' -o right-pressure-pad.stl net_stand.scad
+openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=-1' -o left-pressure-pad.stl net_stand.scad
+openscad -D 'PART="clamp_knob"' -D 'SIDE=1' -o right-clamp-knob.stl net_stand.scad
 openscad -D 'PART="net_rail"' -o net-rail.stl net_stand.scad
+openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=0' -o net-rail-segment-0.stl net_stand.scad
+openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=1' -o net-rail-segment-1.stl net_stand.scad
+openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=2' -o net-rail-segment-2.stl net_stand.scad
 openscad -D 'PART="optical_strip"' -D 'SIDE=-1' -o left-optical-strip.stl net_stand.scad
 openscad -D 'PART="sensor_mount"' -D 'SIDE=1' -o right-pvdf-mount.stl net_stand.scad
 openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
@@ -35,10 +58,10 @@ openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 
 ## 机械首样顺序
 
-1. 用 `table_clamp` 和一段与实物相同厚度的台面样块检查上下夹持面、螺杆行程和软垫压痕；
-2. 安装左右 `post`，确认夹持后立柱不明显倾斜或滑移；
-3. 安装 `net_rail` 和真实网布，记录网顶高度、网布张力和两侧平行度；
-4. 安装 `optical_strip` 的光学包络、`sensor_mount` 和参考线，再做逐光束/逐 PVDF 接板记录；
+1. 用 `table_clamp_body`、`clamp_pressure_pad` 和一段与实物相同厚度的台面样块检查上夹板、台底压块、M8 螺杆行程和软垫压痕；
+2. 先将左右各自的两段 `post_segment` 用 `post_joint_key` 和 `post_joint_sleeve` 定位装配，再确认夹持后立柱不明显倾斜或滑移；
+3. 拼接 3 段 `net_rail_segment` 成 `net_rail`，再安装真实网布，记录网顶高度、网布张力和两侧平行度；
+4. 安装 `optical_strip` 的光学包络、`sensor_mount`；用 `reference_carriage`/`reference_pin` 逐档复核参考线，再做逐光束/逐 PVDF 接板记录；
 5. 只有完成机械记录后，才把 `assembly` 的参数继续收敛为下一版打印尺寸。
 
 ## 历史方案边界
