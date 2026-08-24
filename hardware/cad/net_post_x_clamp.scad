@@ -93,6 +93,8 @@ locating_hole_d = 4;
 assembly_span = 700;
 
 assert(post_nominal_d > 0, "post_nominal_d must be positive");
+assert(post_radius == post_nominal_d / 2,
+       "post radius must stay derived from the nominal post diameter");
 assert(v_angle == 90, "first prototype uses a 90 degree V jaw");
 assert(pivot_d == 8, "first prototype uses an 8 mm metal pivot shaft");
 assert(screw_d == 8, "first prototype uses an M8 screw");
@@ -135,8 +137,8 @@ assert(abs(cross_2d(outer_point(1), inner_point(1))) < 0.01,
        "upper scissor arm must pass through the pivot");
 assert(abs(cross_2d(outer_point(-1), inner_point(-1))) < 0.01,
        "lower scissor arm must pass through the pivot");
-assert(jaw_to_post_gap() < jaw_length,
-       "inner V jaw must reach the nominal post at every selected angle");
+assert(jaw_to_post_gap() + jaw_clearance < jaw_length,
+       "inner V jaw must reach the nominal post with clearance margin");
 assert(screw_span / 2 >= outer_radius() * sin(clamp_angle_deg) + roller_d / 2,
        "M8 screw span must cover both outer rollers");
 assert(reference_height >= beam_first_height && reference_height <= beam_last_height &&

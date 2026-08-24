@@ -175,10 +175,16 @@ def validate(parameters: dict[str, float]) -> str:
                 "upper arm endpoints are not collinear with the pivot")
         require(abs(cross(lower_outer, lower_inner)) < 0.01,
                 "lower arm endpoints are not collinear with the pivot")
-        require(distance(upper_inner, (post_x, 0.0)) < parameters["jaw_length"],
-                f"upper V jaw cannot reach the post at {angle:g} degrees")
-        require(distance(lower_inner, (post_x, 0.0)) < parameters["jaw_length"],
-                f"lower V jaw cannot reach the post at {angle:g} degrees")
+        require(
+            distance(upper_inner, (post_x, 0.0)) + parameters["jaw_clearance"]
+            < parameters["jaw_length"],
+            f"upper V jaw cannot reach the post with clearance at {angle:g} degrees",
+        )
+        require(
+            distance(lower_inner, (post_x, 0.0)) + parameters["jaw_clearance"]
+            < parameters["jaw_length"],
+            f"lower V jaw cannot reach the post with clearance at {angle:g} degrees",
+        )
 
     max_outer_y = outer_radius * math.sin(math.radians(max_angle))
     require(parameters["screw_span"] / 2 >= max_outer_y + parameters["roller_d"] / 2,
