@@ -15,8 +15,10 @@
 | `table_clamp` | 2 | 装配预览，不建议直接作为单件打印；包含固定夹体、台底压块、M8 螺杆和旋钮边界 |
 | `table_clamp_body` | 2 | PETG；左右各一件的固定 C 形夹体，上夹板跨过台边、下臂承载螺母座 |
 | `clamp_pressure_pad` | 2 | TPU/硅胶/耐磨软垫优先，也可先用 PETG 几何样件；左右各一件，独立位于台底 |
-| `clamp_screw` | 2 | 非打印件；M8 竖直螺杆，完全在台面下方，穿过固定下臂/螺母座，不穿球台 |
-| `clamp_knob` | 2 | PETG 打印旋钮；左右各一件，含 M8 配合贯穿孔；螺杆下端锁固/螺母捕获方式仍需按标准件确认 |
+| `clamp_screw` | 2 | 非打印件；M8 竖直螺杆/圆头顶端，完全在台面下方，圆头只接触台底可动压块，不穿球台或压块 |
+| `clamp_body_nut` | 2 | 非打印件；左右各 1 枚 M8 六角螺母，捕获在固定下臂的螺母座内，避免依赖 PETG 螺纹 |
+| `clamp_knob` | 2 | PETG 打印旋钮；左右各一件，含 M8 通孔和顶部六角螺母捕获窝，旋钮随螺杆转动 |
+| `clamp_knob_nut` | 2 | 非打印件；左右各 1 枚 M8 六角螺母，装入旋钮捕获窝并锁住螺杆下端 |
 | `net_rail` | 1 | 三段网顶承载条装配预览；不建议整件打印 |
 | `net_rail_segment` | 3 | PETG；每段约 524 mm、相邻搭接 20 mm；也可按同一接口改用铝型材 |
 | `net_rail_splice` | 2 | PETG；每个接缝一片，带 Ø3.2 mm M3 通孔；M3 螺钉/螺母为标准件 |
@@ -32,7 +34,7 @@
 | `calibration_gauge` | 1 | PETG；共享的 +10…+100 mm 十档高度标定规 |
 | `net` | 1 | 非打印件；使用真实球网/网布装配，OpenSCAD 只显示占位几何 |
 
-`assembly` 是整体关系预览，不建议直接导出成一件打印；`left_stand`/`right_stand` 也主要用于装配、干涉和桌下夹持检查。当前立柱明确按 `post_segment`、`post_joint_sleeve`、`post_joint_key` 分件导出，不能把装配预览当作单件打印件。光栅发射器/接收器、PVDF、AFE、线束、ESP32-S3、M8 螺杆、旋钮轴件和网布属于非 CAD 打印件或标准件；压块软垫必须按实物材料单独确认。
+`assembly` 是整体关系预览，不建议直接导出成一件打印；`left_stand`/`right_stand` 也主要用于装配、干涉和桌下夹持检查。当前立柱明确按 `post_segment`、`post_joint_sleeve`、`post_joint_key` 分件导出，不能把装配预览当作单件打印件。光栅发射器/接收器、PVDF、AFE、线束、ESP32-S3、M8 螺杆、两枚 M8 螺母、旋钮轴件和网布属于非 CAD 打印件或标准件；压块软垫必须按实物材料单独确认。旋钮和螺杆的接口现在由 CAD 明确为“固定下臂 M8 螺母 + 旋钮捕获 M8 螺母 + M8 圆头螺杆”，不使用 PETG 内螺纹。
 
 ## 导出示例
 
@@ -47,6 +49,8 @@ openscad -D 'PART="table_clamp_body"' -D 'SIDE=1' -o right-clamp-body.stl net_st
 openscad -D 'PART="table_clamp_body"' -D 'SIDE=-1' -o left-clamp-body.stl net_stand.scad
 openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=1' -o right-pressure-pad.stl net_stand.scad
 openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=-1' -o left-pressure-pad.stl net_stand.scad
+openscad -D 'PART="clamp_body_nut"' -D 'SIDE=1' -o right-clamp-body-nut.stl net_stand.scad
+openscad -D 'PART="clamp_knob_nut"' -D 'SIDE=1' -o right-clamp-knob-nut.stl net_stand.scad
 openscad -D 'PART="clamp_knob"' -D 'SIDE=1' -o right-clamp-knob.stl net_stand.scad
 openscad -D 'PART="net_rail"' -o net-rail.stl net_stand.scad
 openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=0' -o net-rail-segment-0.stl net_stand.scad
@@ -67,7 +71,7 @@ openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 
 ## 机械首样顺序
 
-1. 用 `table_clamp_body`、`clamp_pressure_pad` 和一段与实物相同厚度的台面样块检查上夹板、台底压块、M8 螺杆行程和软垫压痕；
+1. 用 `table_clamp_body`、`clamp_pressure_pad`、两枚标准 M8 螺母和一段与实物相同厚度的台面样块检查上夹板、台底压块、圆头螺杆行程、旋钮捕获和软垫压痕；
 2. 先将左右各自的两段 `post_segment` 用 `post_joint_key` 和 `post_joint_sleeve` 定位装配，再确认夹持后立柱不明显倾斜或滑移；
 3. 把左右 `net_rail_saddle` 装到立柱内侧，拼接 3 段 `net_rail_segment` 成 `net_rail`，确认承载条落在承托座且被端挡限位，再安装真实网布，记录网顶高度、网布张力和两侧平行度；
 4. 安装可打印的 `optical_rail`，再安装 10 个 `optical_module_carrier` 和真实收发器；`optical_strip` 只用于装配关系预览；用载台长孔做有限俯仰/偏航预调，再用 `reference_carriage`/`reference_pin` 逐档复核参考线，最后做逐光束/逐 PVDF 接板记录；

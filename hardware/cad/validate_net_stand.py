@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import math
 import subprocess
 import tempfile
 from pathlib import Path
@@ -25,7 +26,9 @@ PARTS = (
     "table_clamp_body",
     "clamp_pressure_pad",
     "clamp_screw",
+    "clamp_body_nut",
     "clamp_knob",
+    "clamp_knob_nut",
     "net",
     "net_rail",
     "net_rail_segment",
@@ -74,6 +77,9 @@ def validate_no_drill_thickness(
     body = output_dir / f"table-clamp-body-{table_thickness}.stl"
     pad = output_dir / f"pressure-pad-{table_thickness}.stl"
     screw = output_dir / f"clamp-screw-{table_thickness}.stl"
+    body_nut = output_dir / f"clamp-body-nut-{table_thickness}.stl"
+    knob = output_dir / f"clamp-knob-{table_thickness}.stl"
+    knob_nut = output_dir / f"clamp-knob-nut-{table_thickness}.stl"
     require_stl(
         run_openscad(openscad, body, 'PART="table_clamp_body"', *definitions),
         body,
@@ -89,13 +95,41 @@ def validate_no_drill_thickness(
         screw,
         f"clamp screw table_thickness={table_thickness}",
     )
+    require_stl(
+        run_openscad(openscad, body_nut, 'PART="clamp_body_nut"', *definitions),
+        body_nut,
+        f"fixed M8 nut table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, knob, 'PART="clamp_knob"', *definitions),
+        knob,
+        f"clamp knob table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, knob_nut, 'PART="clamp_knob_nut"', *definitions),
+        knob_nut,
+        f"captured knob M8 nut table_thickness={table_thickness}",
+    )
     pad_bounds = stl_bounds(pad)
     screw_bounds = stl_bounds(screw)
+    body_nut_bounds = stl_bounds(body_nut)
+    knob_bounds = stl_bounds(knob)
+    knob_nut_bounds = stl_bounds(knob_nut)
     tabletop_bottom = -float(table_thickness)
-    if not (pad_bounds[5] < tabletop_bottom and screw_bounds[5] < tabletop_bottom):
+    if not (
+        pad_bounds[5] < tabletop_bottom
+        and screw_bounds[5] < tabletop_bottom
+        and screw_bounds[5] <= pad_bounds[4] + 0.01
+        and body_nut_bounds[5] < tabletop_bottom
+        and knob_bounds[5] < tabletop_bottom
+        and knob_nut_bounds[5] < tabletop_bottom
+        and knob_nut_bounds[4] >= knob_bounds[4] - 0.01
+        and knob_nut_bounds[5] <= knob_bounds[5] + 0.01
+    ):
         raise RuntimeError(
             "no-drill under-table path reaches the tabletop for "
-            f"table_thickness={table_thickness}: pad={pad_bounds}, screw={screw_bounds}"
+            f"table_thickness={table_thickness}: pad={pad_bounds}, screw={screw_bounds}, "
+            f"body_nut={body_nut_bounds}, knob={knob_bounds}, knob_nut={knob_nut_bounds}"
         )
 
 
@@ -141,7 +175,24 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pad_x",
         "clamp_pad_outer_x",
         "clamp_screw_x",
+        "clamp_screw_d",
+        "clamp_threaded_boss_d",
+        "clamp_threaded_boss_h",
         "clamp_screw_top_z",
+        "clamp_screw_bottom_z",
+        "clamp_screw_length",
+        "clamp_screw_tip_radius",
+        "clamp_screw_to_knob_top",
+        "clamp_nut_af",
+        "clamp_nut_h",
+        "clamp_nut_clearance",
+        "clamp_nut_pocket_af",
+        "clamp_nut_pocket_depth",
+        "clamp_body_nut_z",
+        "clamp_knob_top_z",
+        "clamp_knob_bottom_z",
+        "clamp_knob_nut_z",
+        "clamp_lower_arm_bottom_z",
         "clamp_lower_arm_top_z",
         "clamp_pressure_pad_top_z",
         "clamp_pressure_pad_bottom_z",
@@ -184,12 +235,24 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     if not (
         parameters["clamp_screw_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
+        and parameters["clamp_screw_top_z"] <= parameters["clamp_pressure_pad_bottom_z"]
+        and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_top_z"]
+        and parameters["clamp_knob_bottom_z"] < parameters["clamp_knob_top_z"]
         and parameters["clamp_pressure_pad_bottom_z"] <
         parameters["clamp_pressure_pad_top_z"]
         and parameters["clamp_lower_arm_top_z"] <
         parameters["clamp_pressure_pad_bottom_z"]
     ):
         raise RuntimeError(f"clamp pressure path is not below tabletop: {parameters}")
+    if not (
+        parameters["clamp_nut_af"] > parameters["clamp_screw_d"]
+        and parameters["clamp_nut_pocket_af"] > parameters["clamp_nut_af"]
+        and parameters["clamp_nut_pocket_af"] / math.cos(math.radians(30)) + 2
+        < parameters["clamp_threaded_boss_d"]
+        and parameters["clamp_nut_pocket_depth"] >= parameters["clamp_nut_h"]
+        and parameters["clamp_nut_pocket_depth"] < parameters["clamp_threaded_boss_h"]
+    ):
+        raise RuntimeError(f"M8 nut capture dimensions are inconsistent: {parameters}")
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
     if not (
@@ -252,7 +315,9 @@ def main() -> None:
             "table_clamp_body",
             "clamp_pressure_pad",
             "clamp_screw",
+            "clamp_body_nut",
             "clamp_knob",
+            "clamp_knob_nut",
             "net_rail_saddle",
             "optical_rail",
             "optical_strip",
@@ -294,6 +359,9 @@ def main() -> None:
         clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
         pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
         screw_bounds = stl_bounds(output_dir / "clamp_screw.stl")
+        body_nut_bounds = stl_bounds(output_dir / "clamp_body_nut.stl")
+        knob_bounds = stl_bounds(output_dir / "clamp_knob.stl")
+        knob_nut_bounds = stl_bounds(output_dir / "clamp_knob_nut.stl")
         sensor_bounds = stl_bounds(output_dir / "sensor_mount.stl")
         film_bounds = stl_bounds(output_dir / "pvdf_film.stl")
         film_lip_bounds = stl_bounds(output_dir / "sensor_clamp_lip.stl")
@@ -356,12 +424,22 @@ def main() -> None:
         if not (
             pressure_pad_bounds[5] < -parameters["table_thickness"]
             and screw_bounds[5] < -parameters["table_thickness"]
+            and screw_bounds[5] <= pressure_pad_bounds[4] + 0.01
             and abs(pressure_pad_bounds[5] - parameters["clamp_pressure_pad_top_z"]) < 0.01
             and abs(screw_bounds[5] - parameters["clamp_screw_top_z"]) < 0.01
+            and abs(knob_bounds[4] - parameters["clamp_knob_bottom_z"]) < 0.01
+            and abs(knob_bounds[5] - parameters["clamp_knob_top_z"]) < 0.01
+            and screw_bounds[4] < knob_bounds[5]
+            and knob_nut_bounds[4] >= knob_bounds[4] - 0.01
+            and knob_nut_bounds[5] <= knob_bounds[5] + 0.01
+            and body_nut_bounds[4] >= parameters["clamp_lower_arm_bottom_z"] - 0.01
+            and body_nut_bounds[5] <= parameters["clamp_lower_arm_bottom_z"] +
+            parameters["clamp_nut_pocket_depth"] + 0.01
         ):
             raise RuntimeError(
-                "pressure pad or screw reaches the tabletop; no-drill clearance is broken: "
-                f"pad={pressure_pad_bounds}, screw={screw_bounds}"
+                "pressure pad, M8 tip or nut capture breaks the no-drill clamp path: "
+                f"pad={pressure_pad_bounds}, screw={screw_bounds}, "
+                f"body_nut={body_nut_bounds}, knob={knob_bounds}, knob_nut={knob_nut_bounds}"
             )
         if not (
             sensor_bounds[2] < -parameters["net_rail_depth"] / 2

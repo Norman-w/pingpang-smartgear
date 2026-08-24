@@ -13,8 +13,10 @@
 //   PART="table_clamp"        单侧传统桌下夹持机构装配预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_pressure_pad" 台底可动压块/软垫占位
-//   PART="clamp_screw"        M8 螺杆占位（非打印件）
-//   PART="clamp_knob"         手拧旋钮（含 M8 配合贯穿孔）
+//   PART="clamp_screw"        M8 螺杆占位（非打印件，顶端圆头）
+//   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母（标准件）
+//   PART="clamp_knob"         手拧旋钮（含 M8 螺母捕获窝）
+//   PART="clamp_knob_nut"     旋钮内捕获的 M8 螺母（标准件）
 //   PART="net"                球网/网布装配占位（非打印件）
 //   PART="net_rail"           网顶承载条
 //   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
@@ -112,10 +114,16 @@ clamp_screw_bore_d = clamp_screw_d + 0.8;
 clamp_screw_inset = 30;
 clamp_knob_d = 36;
 clamp_knob_h = 12;
-clamp_knob_overlap = 4;
+clamp_screw_to_knob_top = 32;
+clamp_screw_capture_extension = 2;
+clamp_nut_af = 13;
+clamp_nut_h = 6.5;
+clamp_nut_clearance = 0.35;
+clamp_nut_pocket_af = clamp_nut_af + 2 * clamp_nut_clearance;
+clamp_nut_pocket_depth = clamp_nut_h + clamp_nut_clearance;
 clamp_outer_wall_width = 22;
 clamp_lower_arm_t = clamp_pad_t;
-clamp_threaded_boss_d = 18;
+clamp_threaded_boss_d = 22;
 clamp_threaded_boss_h = 12;
 clamp_pressure_pad_width = 42;
 clamp_pressure_pad_depth = 44;
@@ -164,10 +172,17 @@ clamp_lower_arm_bottom_z = clamp_lower_arm_top_z - clamp_lower_arm_t;
 clamp_pressure_pad_top_z = -table_thickness - clamp_clearance;
 clamp_pressure_pad_bottom_z = clamp_pressure_pad_top_z - clamp_pressure_pad_t;
 clamp_pressure_pad_x = clamp_screw_x - clamp_pressure_pad_width / 2;
-clamp_screw_top_z = clamp_pressure_pad_top_z;
-clamp_screw_length = 36;
-clamp_screw_bottom_z = clamp_screw_top_z - clamp_screw_length;
-clamp_knob_bottom_z = clamp_screw_bottom_z - clamp_knob_h + clamp_knob_overlap;
+// The screw pushes the underside of the independent pad. It must not model
+// itself as passing through the pad or through the tabletop.
+clamp_screw_top_z = clamp_pressure_pad_bottom_z;
+clamp_knob_top_z = clamp_screw_top_z - clamp_screw_to_knob_top;
+clamp_knob_bottom_z = clamp_knob_top_z - clamp_knob_h;
+clamp_screw_bottom_z =
+    clamp_knob_top_z - clamp_nut_pocket_depth - clamp_screw_capture_extension;
+clamp_screw_length = clamp_screw_top_z - clamp_screw_bottom_z;
+clamp_screw_tip_radius = clamp_screw_d / 2;
+clamp_body_nut_z = clamp_lower_arm_bottom_z + clamp_nut_clearance;
+clamp_knob_nut_z = clamp_knob_top_z - clamp_nut_h;
 default_side = SIDE == 0 ? 1 : SIDE;
 
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
@@ -240,9 +255,24 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
        "outer wall width must connect the post to the outer clamp edge");
 assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
        "first clamp uses an M8 vertical tightening screw");
-assert(clamp_knob_d > clamp_screw_bore_d && clamp_knob_h > 0 &&
-           clamp_knob_overlap > 0 && clamp_knob_overlap < clamp_knob_h,
-       "printed clamp knob must leave an M8 through-bore and screw overlap");
+assert(clamp_screw_top_z <= clamp_pressure_pad_bottom_z &&
+           clamp_screw_top_z < -table_thickness &&
+           clamp_screw_tip_radius > 0,
+       "rounded M8 screw tip must contact the pad underside without penetrating it");
+assert(clamp_nut_af > clamp_screw_d && clamp_nut_h > 0 &&
+           clamp_nut_clearance > 0 &&
+           clamp_nut_pocket_af > clamp_nut_af &&
+           clamp_nut_pocket_af / cos(30) + 2 < clamp_threaded_boss_d &&
+           clamp_nut_pocket_depth >= clamp_nut_h &&
+           clamp_nut_pocket_depth < clamp_threaded_boss_h,
+       "M8 nut pockets must fit inside the lower boss with printable clearance");
+assert(clamp_screw_to_knob_top > clamp_nut_pocket_depth &&
+           clamp_screw_capture_extension > 0 &&
+           clamp_screw_bottom_z < clamp_knob_nut_z &&
+           clamp_knob_bottom_z < clamp_knob_top_z,
+       "M8 rod must reach the captured knob nut and leave a usable handwheel");
+assert(clamp_knob_d > clamp_screw_bore_d && clamp_knob_h > clamp_nut_h,
+       "printed clamp knob must leave an M8 bore and captured-nut wall");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
        "two PVDF mounts must fit on the net top without crossing the center");
 assert(sensor_front_offset > 0, "PVDF mount front offset must leave a printable connection bridge");
@@ -304,7 +334,30 @@ module table_clamp_body_positive() {
             translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
                 cylinder(d = clamp_screw_bore_d,
                          h = clamp_threaded_boss_h + 2);
+            // 下臂下侧捕获固定 M8 螺母；螺杆转动而沿轴向进退，
+            // 旋钮/螺杆受力路径不依赖 PETG 螺纹。
+            translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 0.01])
+                hex_prism(clamp_nut_pocket_af, clamp_nut_pocket_depth + 0.01);
         }
+}
+
+module hex_prism(across_flats, height) {
+    rotate([0, 0, 30])
+        cylinder(r = across_flats / (2 * cos(30)), h = height, $fn = 6);
+}
+
+module m8_nut_positive() {
+    difference() {
+        hex_prism(clamp_nut_af, clamp_nut_h);
+        translate([0, 0, -1])
+            cylinder(d = clamp_screw_bore_d, h = clamp_nut_h + 2);
+    }
+}
+
+module clamp_body_nut_positive() {
+    color("gold")
+        translate([clamp_screw_x, 0, clamp_body_nut_z])
+            m8_nut_positive();
 }
 
 module clamp_pressure_pad_positive() {
@@ -317,9 +370,14 @@ module clamp_pressure_pad_positive() {
 }
 
 module clamp_screw_positive() {
-    color("dimgray")
+    color("dimgray") {
         translate([clamp_screw_x, 0, clamp_screw_bottom_z])
-            cylinder(d = clamp_screw_d, h = clamp_screw_length);
+            cylinder(d = clamp_screw_d,
+                     h = clamp_screw_length - clamp_screw_tip_radius);
+        translate([clamp_screw_x, 0,
+                   clamp_screw_top_z - clamp_screw_tip_radius])
+            sphere(r = clamp_screw_tip_radius);
+    }
 }
 
 module clamp_knob_positive() {
@@ -327,19 +385,31 @@ module clamp_knob_positive() {
         difference() {
             translate([clamp_screw_x, 0, clamp_knob_bottom_z])
                 cylinder(d = clamp_knob_d, h = clamp_knob_h);
-            // The printed handwheel must be able to slide over the M8 rod;
-            // the final threaded-rod/nut or head capture remains a standard
-            // hardware decision and is deliberately not hidden in PETG.
+            // The center bore lets the rod pass through the printed handwheel.
             translate([clamp_screw_x, 0, clamp_knob_bottom_z - 1])
                 cylinder(d = clamp_screw_bore_d, h = clamp_knob_h + 2);
+            // An M8 hex nut is captured from the handwheel top. The rod is
+            // threaded through this nut, so turning the handwheel turns the
+            // rod while the lower-arm nut converts rotation into clamp force.
+            translate([clamp_screw_x, 0,
+                       clamp_knob_top_z - clamp_nut_pocket_depth])
+                hex_prism(clamp_nut_pocket_af, clamp_nut_pocket_depth + 0.01);
         }
+}
+
+module clamp_knob_nut_positive() {
+    color("gold")
+        translate([clamp_screw_x, 0, clamp_knob_nut_z])
+            m8_nut_positive();
 }
 
 module table_clamp_positive() {
     table_clamp_body_positive();
+    clamp_body_nut_positive();
     clamp_pressure_pad_positive();
     clamp_screw_positive();
     clamp_knob_positive();
+    clamp_knob_nut_positive();
 }
 
 module post_segment_positive(index = 0) {
@@ -731,7 +801,24 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
+    echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
+    echo(str("NETSTAND_PARAM clamp_threaded_boss_d=", clamp_threaded_boss_d));
+    echo(str("NETSTAND_PARAM clamp_threaded_boss_h=", clamp_threaded_boss_h));
     echo(str("NETSTAND_PARAM clamp_screw_top_z=", clamp_screw_top_z));
+    echo(str("NETSTAND_PARAM clamp_screw_bottom_z=", clamp_screw_bottom_z));
+    echo(str("NETSTAND_PARAM clamp_screw_length=", clamp_screw_length));
+    echo(str("NETSTAND_PARAM clamp_screw_tip_radius=", clamp_screw_tip_radius));
+    echo(str("NETSTAND_PARAM clamp_screw_to_knob_top=", clamp_screw_to_knob_top));
+    echo(str("NETSTAND_PARAM clamp_nut_af=", clamp_nut_af));
+    echo(str("NETSTAND_PARAM clamp_nut_h=", clamp_nut_h));
+    echo(str("NETSTAND_PARAM clamp_nut_clearance=", clamp_nut_clearance));
+    echo(str("NETSTAND_PARAM clamp_nut_pocket_af=", clamp_nut_pocket_af));
+    echo(str("NETSTAND_PARAM clamp_nut_pocket_depth=", clamp_nut_pocket_depth));
+    echo(str("NETSTAND_PARAM clamp_body_nut_z=", clamp_body_nut_z));
+    echo(str("NETSTAND_PARAM clamp_knob_top_z=", clamp_knob_top_z));
+    echo(str("NETSTAND_PARAM clamp_knob_bottom_z=", clamp_knob_bottom_z));
+    echo(str("NETSTAND_PARAM clamp_knob_nut_z=", clamp_knob_nut_z));
+    echo(str("NETSTAND_PARAM clamp_lower_arm_bottom_z=", clamp_lower_arm_bottom_z));
     echo(str("NETSTAND_PARAM clamp_lower_arm_top_z=", clamp_lower_arm_top_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_top_z=", clamp_pressure_pad_top_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_bottom_z=", clamp_pressure_pad_bottom_z));
@@ -787,8 +874,12 @@ if (PART == "assembly") {
     sided(default_side) clamp_pressure_pad_positive();
 } else if (PART == "clamp_screw") {
     sided(default_side) clamp_screw_positive();
+} else if (PART == "clamp_body_nut") {
+    sided(default_side) clamp_body_nut_positive();
 } else if (PART == "clamp_knob") {
     sided(default_side) clamp_knob_positive();
+} else if (PART == "clamp_knob_nut") {
+    sided(default_side) clamp_knob_nut_positive();
 } else if (PART == "net") {
     net_panel();
 } else if (PART == "net_rail") {
