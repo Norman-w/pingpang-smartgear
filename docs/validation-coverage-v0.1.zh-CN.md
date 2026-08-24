@@ -16,7 +16,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | 编号 | 当前软件证据 | 能证明什么 | 仍缺什么 |
 | --- | --- | --- | --- |
 | M-01 | 无；`tools/validate_field_record.py` 可校验现场记录格式 | 记录项完整性和证据路径安全 | 内置支架重复从桌下夹紧、安装位置、滑移和软垫损伤记录 |
-| M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件、夹体/压块/圆头螺杆/固定下臂螺母/旋钮捕获螺母拆分、18/25/30 mm 台厚免打孔矩阵、镜像与非法参数路径 | 免打孔 C 形夹体跨过台边，圆头 M8 螺杆只到台底压块下表面，两个 M8 螺母捕获关系和旋钮/螺杆包络可编译；左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、立柱倾斜、螺杆行程和标准件实际装配/防松 |
+| M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件、夹体/压块/圆头螺杆/固定下臂螺母/旋钮捕获螺母拆分、18/25/30 mm 台厚免打孔矩阵、镜像、STL 封闭边拓扑与非法参数路径 | 免打孔 C 形夹体跨过台边，圆头 M8 螺杆只到台底压块下表面，两个 M8 螺母捕获关系和旋钮/螺杆包络可编译；可打印零件的 STL 没有开放边/非流形边，左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、立柱倾斜、螺杆行程和标准件实际装配/防松 |
 | M-03 | `validate_net_stand.py`；`preview.py`；`render_net_stand_preview.py` | `152.5 mm` 网顶、双侧支架、3 段承载条与拼接片、可单独导出的 `optical_rail`、10 mm 光栅档位、实际贯穿定位孔、参考线端座/定位销、全部十个参考高度、10 个光学载台档位和 PVDF/光学安装位的参数与可视关系 | 真实网布张力、左右立柱平行度、网顶高度、光学载台锁紧和光学/PVDF 实物安装记录 |
 | B-01 | `test_clean_over_and_height_interval()`、`test_every_beam_mask_interval()` | `clean_over`、位图、离散高度和球底间隔契约 | 真实光束与球体遮挡 |
 | B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`test_runtime_chain_with_delivery()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征、`touch_over` 以及事件进入传输缓存 | PVDF 前端与真实过网动作 |

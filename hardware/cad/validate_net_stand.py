@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import math
+import struct
 import subprocess
 import tempfile
 from pathlib import Path
@@ -45,6 +46,11 @@ PARTS = (
     "reference_pin",
     "calibration_gauge",
 )
+# The complete assembly deliberately contains overlapping visual envelopes
+# (table slab, net cloth, sensor/optical placeholders and both stands).  It is
+# rendered as PNG evidence and is never a printable STL.  All other successful
+# exports are checked for closed edge topology below.
+PREVIEW_ONLY_PARTS = {"assembly"}
 NO_DRILL_TABLE_THICKNESSES = (18, 25, 30)
 
 
@@ -62,11 +68,92 @@ def run_openscad(openscad: str, output: Path, *definitions: str) -> subprocess.C
     )
 
 
-def require_stl(result: subprocess.CompletedProcess[str], output: Path, label: str) -> None:
+def _stl_triangles(path: Path) -> list[tuple[tuple[float, float, float], ...]]:
+    """Read binary or ASCII STL triangles using only the standard library."""
+
+    data = path.read_bytes()
+    if len(data) >= 84:
+        triangle_count = struct.unpack_from("<I", data, 80)[0]
+        expected_size = 84 + triangle_count * 50
+        if expected_size == len(data):
+            triangles = []
+            for index in range(triangle_count):
+                base = 84 + index * 50 + 12
+                triangles.append(
+                    tuple(
+                        struct.unpack_from("<fff", data, base + vertex * 12)
+                        for vertex in range(3)
+                    )
+                )
+            return triangles
+
+    vertices = [
+        (float(match.group(1)), float(match.group(2)), float(match.group(3)))
+        for match in re.finditer(
+            r"\bvertex\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)",
+            data.decode("utf-8", errors="replace"),
+            re.IGNORECASE,
+        )
+    ]
+    if len(vertices) == 0 or len(vertices) % 3 != 0:
+        raise RuntimeError(f"cannot parse STL triangles from {path}")
+    return [
+        (vertices[index], vertices[index + 1], vertices[index + 2])
+        for index in range(0, len(vertices), 3)
+    ]
+
+
+def _stl_topology(path: Path, tolerance: float = 1e-6) -> tuple[bool, str]:
+    """Return a compact closed-edge report for a generated STL."""
+
+    edge_counts: dict[tuple[tuple[int, int, int], tuple[int, int, int]], int] = {}
+    edge_orientation: dict[tuple[tuple[int, int, int], tuple[int, int, int]], int] = {}
+    degenerate = 0
+    triangles = _stl_triangles(path)
+
+    def vertex_key(point: tuple[float, float, float]) -> tuple[int, int, int]:
+        return tuple(int(round(value / tolerance)) for value in point)
+
+    for triangle in triangles:
+        keys = tuple(vertex_key(point) for point in triangle)
+        if len(set(keys)) < 3:
+            degenerate += 1
+        for start, end in ((keys[0], keys[1]), (keys[1], keys[2]), (keys[2], keys[0])):
+            edge = tuple(sorted((start, end)))
+            edge_counts[edge] = edge_counts.get(edge, 0) + 1
+            edge_orientation[edge] = edge_orientation.get(edge, 0) + (
+                1 if (start, end) == edge else -1
+            )
+
+    boundary = sum(count == 1 for count in edge_counts.values())
+    non_manifold = sum(count > 2 for count in edge_counts.values())
+    inconsistent = sum(
+        count == 2 and edge_orientation[edge] != 0
+        for edge, count in edge_counts.items()
+    )
+    ok = bool(triangles) and not (degenerate or boundary or non_manifold or inconsistent)
+    details = (
+        f"triangles={len(triangles)}, degenerate={degenerate}, boundary={boundary}, "
+        f"non_manifold={non_manifold}, inconsistent_orientation={inconsistent}"
+    )
+    return ok, details
+
+
+def require_stl(
+    result: subprocess.CompletedProcess[str],
+    output: Path,
+    label: str,
+    *,
+    require_closed: bool = True,
+) -> None:
     if result.returncode != 0:
         raise RuntimeError(f"OpenSCAD rejected {label}:\n{result.stdout}")
     if not output.is_file() or output.stat().st_size == 0:
         raise RuntimeError(f"OpenSCAD produced no STL for {label}")
+    if require_closed:
+        closed, details = _stl_topology(output)
+        if not closed:
+            raise RuntimeError(f"OpenSCAD produced a non-closed STL for {label}: {details}")
 
 
 def validate_no_drill_thickness(
@@ -304,6 +391,7 @@ def main() -> None:
                 run_openscad(openscad, output, f'PART="{part}"'),
                 output,
                 f"PART={part}",
+                require_closed=part not in PREVIEW_ONLY_PARTS,
             )
 
         mirrored_paths: dict[str, Path] = {}
@@ -518,6 +606,7 @@ def main() -> None:
                 ),
                 detent,
                 f"reference_height={height}",
+                require_closed=False,
             )
 
         for index in range(10):
