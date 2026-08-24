@@ -90,6 +90,20 @@ def main() -> None:
         1200,
         1000,
     )
+    render(
+        openscad,
+        "reference_carriage",
+        args.output_dir / "openscad-reference-carriage.png",
+        1000,
+        800,
+    )
+    render(
+        openscad,
+        "calibration_gauge",
+        args.output_dir / "openscad-calibration-gauge.png",
+        1000,
+        800,
+    )
     print(f"OPENSCAD_PREVIEWS_OK ({args.output_dir})")
 
 

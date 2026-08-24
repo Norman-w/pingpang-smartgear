@@ -25,4 +25,4 @@ openscad -D 'PART="left_clamp"' -D 'SIDE=1' -o left-clamp.stl net_post_x_clamp.s
 
 若本机安装了 OpenSCAD，可运行 `python3 validate_scad.py` 编译全部 `PART`、左右镜像覆盖和临时 STL，并读取 OpenSCAD 参数源验证 X 臂共轴、内侧 V 槽包络、M8 螺杆行程、轴孔间隙和 10 mm 光栅档位；它还会用 STL 包围盒检查左右方向相反，确认 10°/20° 两个运动端点可编译、25° 越界角度会被断言拒绝。该命令不把导出物写入仓库。单独运行 `python3 validate_geometry.py` 可只做参数/运动断言。
 
-若需要直接检查实体几何外观，可运行 `python3 render_openscad_preview.py`；它从同一份 SCAD 生成双侧装配、左侧夹具和 10 路光学模块包络三张 PNG，输出到 `rendered/`，与 `preview.py` 的意图图分开。CI 会把这些 OpenSCAD 渲染图作为 `smartgear-openscad-previews` artifact 保存。
+若需要直接检查实体几何外观，可运行 `python3 render_openscad_preview.py`；它从同一份 SCAD 生成双侧装配、左侧夹具、10 路光学模块包络、参考线端座和标定规五张 PNG，输出到 `rendered/`，与 `preview.py` 的意图图分开。CI 会把这些 OpenSCAD 渲染图作为 `smartgear-openscad-previews` artifact 保存。
