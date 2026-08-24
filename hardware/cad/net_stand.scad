@@ -65,11 +65,11 @@ reference_line_d = 1.5;
 
 // 传统桌下夹持结构
 clamp_reach_inboard = 62;
+clamp_outer_extension = 22;
 clamp_pad_depth = 58;
 clamp_pad_t = 8;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
-clamp_screw_x_from_edge = 34;
 clamp_screw_length = table_thickness + clamp_pad_t * 2 + 14;
 clamp_knob_d = 36;
 clamp_knob_h = 12;
@@ -77,6 +77,9 @@ post_top = net_height + beam_last_height + optical_module_height / 2 + post_top_
 net_span = 2 * (post_center_x - post_body_width / 2);
 optical_center_x = post_center_x - post_body_width / 2 - optical_module_depth / 2;
 sensor_x = sensor_x_fraction * net_span / 2;
+clamp_pad_x = table_edge_x - clamp_reach_inboard;
+clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
+clamp_screw_x = post_center_x + post_body_width / 2 + clamp_outer_extension / 2;
 default_side = SIDE == 0 ? 1 : SIDE;
 
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
@@ -92,8 +95,11 @@ assert(beam_last_height == 100,
 assert(post_top > net_height + beam_last_height + optical_module_height / 2,
        "upright must clear the highest optical module");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
-assert(clamp_reach_inboard > 40 && clamp_pad_t > 0,
+assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
+assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > clamp_screw_x &&
+           clamp_screw_x > table_edge_x,
+       "M8 clamp screw and guide must stay outside the tabletop; no drilling is allowed");
 assert(clamp_screw_d == 8 && clamp_screw_length > table_thickness,
        "first clamp uses an M8 vertical tightening screw");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
@@ -117,15 +123,13 @@ module sided(side = 1) {
 }
 
 module table_clamp_positive() {
-    pad_x = table_edge_x - clamp_reach_inboard;
-    pad_width = post_center_x + post_body_width / 2 - pad_x;
-    screw_x = table_edge_x - clamp_screw_x_from_edge;
+    pad_width = clamp_pad_outer_x - clamp_pad_x;
 
     color("slategray") {
-        // 上下夹持面直接贴合台面，保留少量软垫/装配余量。
-        translate([pad_x, -clamp_pad_depth / 2, -clamp_pad_t])
+        // 上下夹持面直接贴合台面边缘，整个夹具免打孔安装。
+        translate([clamp_pad_x, -clamp_pad_depth / 2, -clamp_pad_t])
             cube([pad_width, clamp_pad_depth, clamp_pad_t]);
-        translate([pad_x, -clamp_pad_depth / 2, -table_thickness - clamp_pad_t])
+        translate([clamp_pad_x, -clamp_pad_depth / 2, -table_thickness - clamp_pad_t])
             cube([pad_width, clamp_pad_depth, clamp_pad_t]);
         // 外侧夹臂把上下接触面连成传统网架的 C 形受力路径。
         translate([post_center_x - post_body_width / 2,
@@ -133,19 +137,27 @@ module table_clamp_positive() {
                    -table_thickness - clamp_pad_t])
             cube([post_body_width, clamp_pad_depth,
                   table_thickness + clamp_pad_t * 2]);
+        // 螺杆导向座也在台面外侧；螺杆只穿过打印夹具，不穿过球台。
+        difference() {
+            translate([clamp_screw_x - 6, -clamp_pad_depth / 2,
+                       -table_thickness - clamp_pad_t])
+                cube([12, clamp_pad_depth, table_thickness + clamp_pad_t * 2]);
+            translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 1])
+                cylinder(d = clamp_screw_d + 1, h = table_thickness + clamp_pad_t * 2 + 2);
+        }
     }
 
     color("dimgray") {
-        translate([screw_x, 0, -table_thickness - clamp_pad_t - 3])
+        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 3])
             cylinder(d = clamp_screw_d, h = clamp_screw_length);
-        translate([screw_x, 0, -table_thickness - clamp_pad_t - clamp_knob_h])
+        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - clamp_knob_h])
             cylinder(d = clamp_knob_d, h = clamp_knob_h);
     }
 
     color("black") {
-        translate([screw_x, 0, -clamp_pad_t - clamp_clearance])
+        translate([clamp_screw_x, 0, -clamp_pad_t - clamp_clearance])
             cylinder(d = clamp_screw_d + 8, h = 2);
-        translate([screw_x, 0, -table_thickness - clamp_pad_t - 2])
+        translate([clamp_screw_x, 0, -table_thickness - clamp_pad_t - 2])
             cylinder(d = clamp_screw_d + 8, h = 2);
     }
 }
@@ -283,6 +295,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM net_span=", net_span));
     echo(str("NETSTAND_PARAM post_top=", post_top));
     echo(str("NETSTAND_PARAM sensor_x=", sensor_x));
+    echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     cube([0.2, 0.2, 0.2]);
 }
 

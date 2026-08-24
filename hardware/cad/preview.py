@@ -21,6 +21,7 @@ TABLE_THICKNESS = 25.0
 TABLE_EDGE = TABLE_WIDTH / 2
 POST_OFFSET = 18.0
 POST_WIDTH = 28.0
+CLAMP_OUTER_EXTENSION = 22.0
 POST_CENTER = TABLE_EDGE + POST_OFFSET
 POST_BOTTOM = -43.0
 NET_HEIGHT = 152.5
@@ -144,6 +145,8 @@ def draw_front(ax) -> None:
 
 def draw_side(ax) -> None:
     # 以右侧台边为 x=0，正方向是桌外；画出传统网架式上下夹持面。
+    post_x0 = POST_OFFSET - POST_WIDTH / 2
+    clamp_pad_end = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
     ax.add_patch(
         Rectangle(
             (-62, -TABLE_THICKNESS),
@@ -155,11 +158,11 @@ def draw_side(ax) -> None:
             label="tabletop edge",
         )
     )
-    ax.add_patch(Rectangle((-62, 0), 108, 8, facecolor="#69727b", label="upper clamp pad"))
-    ax.add_patch(Rectangle((-62, -33), 108, 8, facecolor="#69727b", label="lower clamp pad"))
+    ax.add_patch(Rectangle((-62, 0), clamp_pad_end + 62, 8, facecolor="#69727b", label="upper clamp pad"))
+    ax.add_patch(Rectangle((-62, -33), clamp_pad_end + 62, 8, facecolor="#69727b", label="lower clamp pad"))
     ax.add_patch(
         Rectangle(
-            (POST_OFFSET, POST_BOTTOM),
+            (post_x0, POST_BOTTOM),
             POST_WIDTH,
             POST_TOP - POST_BOTTOM,
             facecolor="#e67e22",
@@ -168,7 +171,8 @@ def draw_side(ax) -> None:
             label="integrated upright",
         )
     )
-    screw_x = -34
+    screw_x = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION / 2
+    ax.add_patch(Rectangle((screw_x - 6, -33), 12, 41, facecolor="#58616a", label="screw guide outside tabletop"))
     ax.plot([screw_x, screw_x], [-47, 9], color="#444", linewidth=3, label="M8 tightening screw")
     ax.add_patch(Rectangle((screw_x - 18, -59), 36, 12, facecolor="#30343b", label="hand knob"))
     ax.axhline(NET_HEIGHT, color="#ffffff", linewidth=2, label="traditional net top 152.5 mm")
@@ -183,14 +187,14 @@ def draw_side(ax) -> None:
         )
     ax.add_patch(
         Rectangle(
-            (POST_OFFSET - 20, NET_HEIGHT - 1),
+            (post_x0 - 20, NET_HEIGHT - 1),
             12,
             8,
             facecolor="#9467bd",
             label="PVDF mount on net top",
         )
     )
-    ax.set_xlim(-82, 78)
+    ax.set_xlim(-82, clamp_pad_end + 18)
     ax.set_ylim(-70, POST_TOP + 20)
     ax.set_title("Traditional under-table clamp: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")

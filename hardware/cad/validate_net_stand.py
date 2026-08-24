@@ -68,6 +68,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "net_span",
         "post_top",
         "sensor_x",
+        "clamp_screw_x",
     }
     missing = required - parameters.keys()
     if missing:
@@ -76,6 +77,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         raise RuntimeError(f"unexpected optical grid parameters: {parameters}")
     if not (parameters["post_center_x"] > parameters["table_width"] / 2):
         raise RuntimeError(f"post is not outside table edge: {parameters}")
+    if not (parameters["clamp_screw_x"] > parameters["table_width"] / 2):
+        raise RuntimeError(f"clamp screw is not outside tabletop edge: {parameters}")
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
     return parameters

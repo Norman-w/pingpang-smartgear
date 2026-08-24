@@ -6,7 +6,7 @@
 
 | 范围 | 当前证据 |
 | --- | --- |
-| 当前内置球网支架 CAD | `hardware/cad/net_stand.scad` 支持 `assembly`、左右完整支架、立柱、传统桌下夹持、网顶承载条、10 路光学导轨、PVDF 安装座和标定规；首轮参数为球台宽度 `1525 mm`、网顶 `152.5 mm`、光栅 `+10…+100 mm`、M8 竖直夹紧螺杆；`validate_net_stand.py` 编译当前 PART、检查左右/光学镜像、参数探针、装配包络，并拒绝 9 路光栅和 +55 mm 非法参考高度。 |
+| 当前内置球网支架 CAD | `hardware/cad/net_stand.scad` 支持 `assembly`、左右完整支架、立柱、免打孔传统桌下夹持、网顶承载条、10 路光学导轨、PVDF 安装座和标定规；首轮参数为球台宽度 `1525 mm`、网顶 `152.5 mm`、光栅 `+10…+100 mm`、M8 竖直夹紧螺杆；`validate_net_stand.py` 编译当前 PART、检查左右/光学镜像、参数探针、夹紧螺杆位于台边外侧、装配包络，并拒绝 9 路光栅和 +55 mm 非法参考高度。 |
 | 历史外挂 X 夹具 CAD | `hardware/cad/net_post_x_clamp.scad` 和旧验证脚本保留在历史边界，用于设计回溯与旧几何回归；它不再是当前机械主线。 |
 | CAD 几何关系 | `validate_net_stand.py` 从当前 OpenSCAD 参数探针读取网顶高度、光栅档位、立柱外置位置、网跨度和支架顶部余量；`preview.py`、`render_net_stand_preview.py` 提供当前内置支架的正视/侧面和 OpenSCAD 实体可视证据。 |
 | 光栅业务 | 10 位 `beam_mask`、最低/最高命中光束、安静结束、超时边界、逐通道位图和高度区间均有主机测试；采集器保留跨事件时间边界，事件结束后迟到的旧边沿会形成 invalid/unknown，不会伪造新的有效高度。 |
