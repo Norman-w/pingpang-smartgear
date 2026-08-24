@@ -610,6 +610,26 @@ void test_sensor_health_quality_flags() {
     require(overflow_event.state == smartgear::NetState::kUnknown &&
                 has_quality_flag(overflow_event, "sensor_queue_overflow"),
             "dropped GPIO edges must produce an explicit unknown event");
+
+    smartgear::NetEventAggregator invalid_health;
+    invalid_health.set_calibration("cal-test", true);
+    invalid_health.set_beam_health(0x0400U, true);
+    invalid_health.on_beam(beam(26'000, 27'000, 1, 0, 0));
+    invalid_health.poll(272'001);
+    const auto invalid_health_event = pop_one(invalid_health);
+    require(invalid_health_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(invalid_health_event, "beam_self_test_invalid") &&
+                !has_quality_flag(invalid_health_event, "beam_channel_unhealthy"),
+            "an out-of-range health bit must fail closed before height validation");
+
+    smartgear::NetEventAggregator empty_calibration;
+    empty_calibration.set_calibration("", true);
+    empty_calibration.on_beam(beam(28'000, 29'000, 1, 0, 0));
+    empty_calibration.poll(274'001);
+    const auto empty_calibration_event = pop_one(empty_calibration);
+    require(empty_calibration_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(empty_calibration_event, "calibration_invalid"),
+            "an empty calibration ID must not authorize a valid event");
 }
 
 void test_channel_self_test_and_baseline() {
@@ -761,6 +781,26 @@ void test_input_shape_and_deadline_safety() {
     const auto saturated_event = pop_one(saturated);
     require(saturated_event.state == smartgear::NetState::kCleanOver,
             "deadline arithmetic must saturate instead of wrapping around");
+
+    smartgear::NetEventAggregator pending_boundary;
+    pending_boundary.set_calibration("cal-pending", true);
+    pending_boundary.on_beam(beam(90'000, 91'000, 1, 0, 0));
+    auto bad_boundary = beam(92'000, 93'000, 1, 0, 0);
+    bad_boundary.valid = false;
+    pending_boundary.on_beam(bad_boundary);
+    smartgear::NetEvent pending_event;
+    smartgear::NetEvent bad_boundary_event;
+    require(pending_boundary.pop_event(pending_event) &&
+                pending_boundary.pop_event(bad_boundary_event),
+            "malformed beam boundary must emit both affected events");
+    require(pending_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(pending_event, "pending_beam_boundary_unknown") &&
+                bad_boundary_event.state == smartgear::NetState::kUnknown &&
+                has_quality_flag(bad_boundary_event, "beam_boundary_unknown"),
+            "a malformed beam boundary must close old pending state explicitly");
+    pending_boundary.poll(300'000);
+    require(pending_boundary.pending_output_count() == 0,
+            "malformed beam boundary must not leave a duplicate pending event");
 }
 
 struct DeliverySink {

@@ -44,8 +44,10 @@ class NetEventAggregator {
                          const std::optional<PiezoObservation>& touch,
                          NetState state,
                          std::string extra_quality_flag = {});
-    void emit_pending_beam(NetState state);
-    void emit_pending_touch(NetState state);
+    void emit_pending_beam(NetState state,
+                           std::string extra_quality_flag = {});
+    void emit_pending_touch(NetState state,
+                            std::string extra_quality_flag = {});
     void clear_beam_pending();
     void clear_touch_pending();
     void clear_pending();

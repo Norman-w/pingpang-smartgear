@@ -82,14 +82,22 @@ NetEventAggregator::NetEventAggregator(NetEventAggregatorConfig config)
 
 void NetEventAggregator::set_calibration(std::string calibration_id,
                                          const bool valid) {
-    calibration_id_ = calibration_id.empty() ? "uncalibrated" : std::move(calibration_id);
-    calibration_valid_ = valid;
+    const bool has_id = !calibration_id.empty();
+    calibration_id_ = has_id ? std::move(calibration_id) : "uncalibrated";
+    // A board hook may report an otherwise successful snapshot with an empty
+    // ID. Keep the value serializable, but never let that malformed snapshot
+    // authorize a clean/touch conclusion.
+    calibration_valid_ = valid && has_id;
 }
 
 void NetEventAggregator::set_beam_health(const std::uint16_t healthy_mask,
                                          const bool valid) {
     beam_healthy_mask_ = healthy_mask;
-    beam_health_valid_ = valid;
+    // Do not rely solely on the board hook's validator. This public business
+    // boundary is also used by replay/integration adapters and must fail
+    // closed when an out-of-range bit is injected directly.
+    beam_health_valid_ =
+        valid && (healthy_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) == 0;
     beam_health_configured_ = true;
 }
 
@@ -214,12 +222,34 @@ NetEvent NetEventAggregator::build_event(
 
 void NetEventAggregator::on_beam(const BeamObservation& observation) {
     if (!observation.valid) {
+        if (pending_beam_) {
+            emit_pending_beam(NetState::kUnknown,
+                              "pending_beam_boundary_unknown");
+            clear_beam_pending();
+            // emit_pending_beam() includes a pending touch in the same
+            // fail-closed event when one exists.
+            clear_touch_pending();
+        } else if (pending_touch_) {
+            emit_pending_touch(NetState::kUnknown,
+                               "pending_touch_boundary_unknown");
+            clear_touch_pending();
+        }
         output_.push_back(build_event(observation, std::nullopt, NetState::kUnknown,
                                       "beam_boundary_unknown"));
         ++event_sequence_;
         return;
     }
     if (!beam_shape_is_valid(observation)) {
+        if (pending_beam_) {
+            emit_pending_beam(NetState::kUnknown,
+                              "pending_beam_shape_unknown");
+            clear_beam_pending();
+            clear_touch_pending();
+        } else if (pending_touch_) {
+            emit_pending_touch(NetState::kUnknown,
+                               "pending_touch_shape_unknown");
+            clear_touch_pending();
+        }
         output_.push_back(build_event(observation, std::nullopt,
                                       NetState::kUnknown,
                                       "beam_shape_invalid"));
@@ -313,21 +343,25 @@ void NetEventAggregator::poll(const std::uint64_t timestamp_us) {
     }
 }
 
-void NetEventAggregator::emit_pending_beam(const NetState state) {
+void NetEventAggregator::emit_pending_beam(const NetState state,
+                                           std::string extra_quality_flag) {
     if (!pending_beam_) {
         return;
     }
     const std::optional<PiezoObservation> touch_for_beam =
         state == NetState::kCleanOver ? std::nullopt : pending_touch_;
-    output_.push_back(build_event(pending_beam_, touch_for_beam, state));
+    output_.push_back(build_event(pending_beam_, touch_for_beam, state,
+                                  std::move(extra_quality_flag)));
     ++event_sequence_;
 }
 
-void NetEventAggregator::emit_pending_touch(const NetState state) {
+void NetEventAggregator::emit_pending_touch(const NetState state,
+                                            std::string extra_quality_flag) {
     if (!pending_touch_) {
         return;
     }
-    output_.push_back(build_event(std::nullopt, pending_touch_, state));
+    output_.push_back(build_event(std::nullopt, pending_touch_, state,
+                                  std::move(extra_quality_flag)));
     ++event_sequence_;
 }
 
