@@ -438,6 +438,7 @@ def main() -> None:
                 ),
                 mirrored,
                 f"PART={part} SIDE=-1",
+                require_closed=part not in PREVIEW_ONLY_PARTS,
             )
             mirrored_paths[part] = mirrored
 
