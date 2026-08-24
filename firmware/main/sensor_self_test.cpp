@@ -92,9 +92,9 @@ bool sensor_health_snapshot_is_well_formed(
     if (calibration_valid && calibration_id[0] == '\0') {
         return false;
     }
-    if (beam_health_valid &&
-        (healthy_beam_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) !=
-            0) {
+    if ((healthy_beam_mask & static_cast<std::uint16_t>(~config::kAllBeamMask)) !=
+            0 ||
+        (!beam_health_valid && healthy_beam_mask != 0)) {
         return false;
     }
     return true;

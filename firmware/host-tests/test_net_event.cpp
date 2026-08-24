@@ -859,6 +859,12 @@ void test_channel_self_test_and_baseline() {
     require(!smartgear::sensor_health_snapshot_is_well_formed(
                 valid_id, sizeof(valid_id), 0x0400U, true, true),
             "beam health snapshot must not contain bits above channel 9");
+    require(!smartgear::sensor_health_snapshot_is_well_formed(
+                valid_id, sizeof(valid_id), 0x0400U, false, false),
+            "invalid beam health must still reject out-of-range bits");
+    require(!smartgear::sensor_health_snapshot_is_well_formed(
+                valid_id, sizeof(valid_id), 1U, false, false),
+            "invalid beam health must not carry a nonzero healthy mask");
     const char unterminated_id[] = {'c', 'a', 'l', 'x'};
     require(!smartgear::sensor_health_snapshot_is_well_formed(
                 unterminated_id, sizeof(unterminated_id), 0x03ffU, true,
