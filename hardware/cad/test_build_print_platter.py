@@ -55,7 +55,7 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
     expected_files = {str(item["file"]) for item in source["parts"]}
     entries = data.get("parts")
     if not isinstance(entries, list) or {str(item["file"]) for item in entries} != expected_files:
-        raise AssertionError("拼盘 parts 与 50 件源清单不一致")
+        raise AssertionError("拼盘 parts 与源打印清单不一致")
     components = data.get("assembly_components")
     if not isinstance(components, list) or not components:
         raise AssertionError("拼盘 manifest 缺少装配物料清单")
@@ -126,7 +126,7 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 47:
+    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 26:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "PETG", "TPU/柔性"]:

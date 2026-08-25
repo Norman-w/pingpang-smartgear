@@ -4,6 +4,16 @@ const refs = {
   loadStatus: $("#load-status"),
   sourceManifestLink: $("#source-manifest-link"),
   errorBanner: $("#error-banner"),
+  modeTabs: $("#mode-tabs"),
+  assemblyControlCard: $("#assembly-control-card"),
+  explodeRange: $("#explode-range"),
+  explodeOutput: $("#explode-output"),
+  assembledButton: $("#assembled-button"),
+  explodedButton: $("#exploded-button"),
+  assemblyStep: $("#assembly-step"),
+  assemblyStepOutput: $("#assembly-step-output"),
+  showTable: $("#show-table"),
+  showNonPrinted: $("#show-nonprinted"),
   bedPreset: $("#bed-preset"),
   bedWidth: $("#bed-width"),
   bedDepth: $("#bed-depth"),
@@ -29,7 +39,22 @@ const refs = {
   modelTitle: $("#model-title"),
   modelHost: $("#model-host"),
   modelPlaceholder: $("#model-placeholder"),
+  modelKicker: $("#model-kicker"),
   modelCaption: $("#model-caption"),
+  modelCard: $(".model-card"),
+  layoutCard: $(".layout-card"),
+  visualGrid: $(".visual-grid"),
+  assemblyToolbar: $("#assembly-toolbar"),
+  assemblyStatusBadge: $("#assembly-status-badge"),
+  assemblySelectionBadge: $("#assembly-selection-badge"),
+  assemblyHoverLabel: $("#assembly-hover-label"),
+  assemblyGuideCard: $("#assembly-guide-card"),
+  assemblyStepList: $("#assembly-step-list"),
+  assemblySelectionPanel: $("#assembly-selection-panel"),
+  clearAssemblySelection: $("#clear-assembly-selection"),
+  detailGrid: $(".detail-grid"),
+  componentCard: $("#component-card"),
+  partsCardTitle: $("#parts-card-title"),
   showPlateModel: $("#show-plate-model"),
   showPartModel: $("#show-part-model"),
   downloadPlate: $("#download-plate"),
@@ -51,23 +76,58 @@ const PRESETS = {
 const COLORS = {
   stand: { label: "立柱 / 夹持", color: "#f6bd67" },
   rail: { label: "网顶 / 导轨", color: "#b28cff" },
-  optical: { label: "光学模块", color: "#74a7ff" },
+  optical: { label: "STG-120ML 光栅", color: "#74a7ff" },
   sensor: { label: "PVDF 传感", color: "#62e4d1" },
   calibration: { label: "标定 / 参考", color: "#fb817c" },
   other: { label: "其他", color: "#a9bbc0" },
 };
 
+const ASSEMBLY_STEPS = [
+  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘。" },
+  { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上。" },
+  { number: 3, label: "网顶承载条与网布", description: "三段网顶承载条用拼接片锁紧，网布挂在完整的网顶基准之间。" },
+  { number: 4, label: "STG-120ML 光栅与 PVDF", description: "两段 STG-120ML 光纤头由外侧托架和中央背靠背支撑桥承载；网顶前侧夹入左右 PVDF 薄膜。" },
+  { number: 5, label: "参考线与最终检查", description: "用 3.87 mm 标定规和机械参考线核对两段检测窗口、网顶高度与平行度；放大器输出参数仍以实测证据为准。" },
+];
+
+const ASSEMBLY_GROUPS = {
+  clamp: { label: "台下夹紧", color: "#f6bd67", stage: 1 },
+  post: { label: "左右立柱", color: "#f28b50", stage: 2 },
+  rail: { label: "网顶承载", color: "#e9eef0", stage: 3 },
+  optical: { label: "STG-120ML 光栅", color: "#74a7ff", stage: 4 },
+  sensor: { label: "PVDF 擦网", color: "#62e4d1", stage: 4 },
+  reference: { label: "标定参考", color: "#fb817c", stage: 5 },
+  hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
+  context: { label: "球台背景", color: "#75858b", stage: 0 },
+};
+
+const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
+
 const state = {
   manifest: null,
+  sourceManifest: null,
   manifestUrl: null,
+  sourceManifestUrl: null,
   generatedLayout: null,
   layout: null,
   generated: true,
+  uiMode: "assembly",
   activePlateIndex: 0,
   selectedFile: null,
   hoveredFile: null,
   modelMode: "plate",
   canvasTransform: null,
+  assembly: {
+    explode: 0,
+    step: ASSEMBLY_STEPS.length,
+    selectedId: null,
+    hoveredId: null,
+    showTable: true,
+    showNonPrinted: true,
+    items: [],
+    loaded: false,
+    loadError: null,
+  },
   three: {
     ready: false,
     THREE: null,
@@ -79,6 +139,8 @@ const state = {
     controls: null,
     modelRoot: null,
     loadId: 0,
+    raycaster: null,
+    pointer: null,
   },
 };
 
@@ -123,7 +185,8 @@ function partName(entry) {
 
 function categoryKey(entry) {
   const text = `${entry?.part || ""} ${entry?.file || ""} ${entry?.name_zh || ""}`.toLowerCase();
-  if (text.includes("optical") || text.includes("module") || text.includes("光学")) return "optical";
+  if (text.includes("stg120") || text.includes("stg-120") || text.includes("光纤")
+      || text.includes("optical") || text.includes("module") || text.includes("光学")) return "optical";
   if (text.includes("sensor") || text.includes("pvdf") || text.includes("film")) return "sensor";
   if (text.includes("rail") || text.includes("net-rail")) return "rail";
   if (text.includes("gauge") || text.includes("reference") || text.includes("pin")) return "calibration";
@@ -176,6 +239,411 @@ function partSearchText(entry) {
 
 function assetPath(relative) {
   return new URL(relative, state.manifestUrl).href;
+}
+
+function boundsFromEntry(entry) {
+  const bounds = entry?.bounds || entry?.source_bounds || entry?.placed_bounds;
+  if (bounds && !Array.isArray(bounds) && Array.isArray(bounds.min) && Array.isArray(bounds.max)) {
+    const min = bounds.min.map(number);
+    const max = bounds.max.map(number);
+    const size = Array.isArray(bounds.size)
+      ? bounds.size.map(number)
+      : max.map((value, index) => value - min[index]);
+    return { min, max, size };
+  }
+  if (!Array.isArray(bounds) || bounds.length !== 2) return null;
+  const min = bounds[0].map(number);
+  const max = bounds[1].map(number);
+  return { min, max, size: max.map((value, index) => value - min[index]) };
+}
+
+function sideSign(entry) {
+  if (entry?.side === "left" || number(entry?.side_value) < 0) return -1;
+  if (entry?.side === "right" || number(entry?.side_value) > 0) return 1;
+  return 0;
+}
+
+function assemblyGroupKey(entry) {
+  const part = String(entry?.part || entry?.file || entry?.id || "").toLowerCase();
+  if (part.includes("clamp") || part.includes("knob") || part.includes("lower_stand")) return "clamp";
+  if (part.includes("post")) return "post";
+  if (part.includes("net_rail")) return "rail";
+  if (part.includes("stg120") || part.includes("stg-120") || part.includes("optical")) return "optical";
+  if (part.includes("sensor") || part.includes("pvdf")) return "sensor";
+  if (part.includes("reference") || part.includes("calibration") || part.includes("pin")) return "reference";
+  return "hardware";
+}
+
+function assemblyStage(entry) {
+  return ASSEMBLY_GROUPS[assemblyGroupKey(entry)]?.stage || 5;
+}
+
+function explosionVector(group, side = 0) {
+  const outward = side || 1;
+  switch (group) {
+    case "clamp": return [outward * 118, 0, -74];
+    case "post": return [outward * 74, 0, 42];
+    case "rail": return [0, 0, 82];
+    case "optical": return [side ? outward * 162 : 0, 0, 28];
+    case "sensor": return [0, -126, 48];
+    case "reference": return [outward * 142, -78, 48];
+    case "hardware": return [outward * 128, -32, -70];
+    default: return [0, 0, 0];
+  }
+}
+
+function sourcePrintableEntries() {
+  const entries = state.sourceManifest?.parts || state.manifest?.parts || [];
+  return entries.filter((entry) => entry && entry.file && entry.printable !== false);
+}
+
+function assemblySourcePath(entry) {
+  const base = state.sourceManifestUrl || state.manifestUrl;
+  return new URL(entry.file, base).href;
+}
+
+function makeAssemblyItem(options) {
+  const min = options.base_min.map(number);
+  const size = options.size.map(number);
+  return {
+    id: options.id,
+    name_zh: options.name_zh,
+    name_en: options.name_en || options.name_zh,
+    kind: options.kind || "装配件",
+    material: options.material || "装配占位",
+    material_group: options.material_group || "装配占位",
+    notes: options.notes || "",
+    group: options.group || "hardware",
+    stage: options.stage ?? (ASSEMBLY_GROUPS[options.group] || ASSEMBLY_GROUPS.hardware).stage,
+    color: options.color || (ASSEMBLY_GROUPS[options.group] || ASSEMBLY_GROUPS.hardware).color,
+    nonPrinted: options.nonPrinted !== false,
+    context: Boolean(options.context),
+    shape: options.shape || "box",
+    shapeOptions: options.shapeOptions || {},
+    baseMin: min,
+    baseSize: size,
+    baseMax: min.map((value, index) => value + size[index]),
+    explosion: options.explosion || explosionVector(options.group || "hardware", options.side || 0),
+    sourceEntry: options.sourceEntry || null,
+    sourcePath: options.sourcePath || null,
+    side: options.side || 0,
+    object: null,
+  };
+}
+
+function makePrintableAssemblyItem(entry) {
+  const bounds = boundsFromEntry(entry);
+  if (!bounds) return null;
+  const group = assemblyGroupKey(entry);
+  return makeAssemblyItem({
+    id: `stl:${entry.file}`,
+    name_zh: partName(entry),
+    name_en: entry.name_en || entry.part,
+    kind: entry.component_kind || "打印件",
+    material: entry.material || materialGroup(entry),
+    material_group: entry.material_group || materialGroup(entry),
+    notes: entry.notes || entry.orientation || "",
+    group,
+    stage: assemblyStage(entry),
+    nonPrinted: false,
+    shape: "stl",
+    sourceEntry: entry,
+    sourcePath: assemblySourcePath(entry),
+    base_min: bounds.min,
+    size: bounds.size,
+    side: sideSign(entry),
+    explosion: explosionVector(group, sideSign(entry)),
+  });
+}
+
+function firstEntry(entries, predicate) {
+  return entries.find(predicate) || null;
+}
+
+function makeProxyAssemblyItems(entries) {
+  const items = [];
+  const stgHead = {
+    length: 130,
+    activeLength: 120,
+    width: 19,
+    thickness: 6,
+    bottomZ: 147.5,
+    pitch: 3.87,
+    count: 32,
+  };
+  const railEntries = entries.filter((entry) => entry.part === "net_rail_segment");
+  const railBounds = railEntries.map(boundsFromEntry).filter(Boolean);
+  const railMinX = railBounds.length ? Math.min(...railBounds.map((item) => item.min[0])) : -785.5;
+  const railMaxX = railBounds.length ? Math.max(...railBounds.map((item) => item.max[0])) : 785.5;
+  const railTopZ = railBounds.length ? Math.min(...railBounds.map((item) => item.min[2])) : 142.5;
+  const netSpan = railMaxX - railMinX;
+
+  items.push(makeAssemblyItem({
+    id: "context:table",
+    name_zh: "球台台面（背景）",
+    name_en: "tabletop context",
+    kind: "背景包络",
+    material: "显示占位",
+    group: "context",
+    context: true,
+    nonPrinted: false,
+    shape: "box",
+    base_min: [-762.5, -250, -25],
+    size: [1525, 500, 25],
+    explosion: [0, 0, 0],
+    notes: "只用于确认两侧传统桌下夹的安装关系，不是打印件。",
+  }));
+  items.push(makeAssemblyItem({
+    id: "hardware:net-fabric",
+    name_zh: "乒乓球网布（装配占位）",
+    name_en: "table-tennis net fabric",
+    kind: "网布装配件",
+    material: "外购网布",
+    group: "rail",
+    shape: "box",
+    base_min: [railMinX, -0.6, 0],
+    size: [netSpan, 1.2, railTopZ],
+    explosion: [0, 0, 82],
+    notes: "半透明网布占位，用于确认网顶承载条与过网窗口关系。",
+  }));
+  items.push(makeAssemblyItem({
+    id: "hardware:reference-line",
+    name_zh: "STG-120ML 机械参考线（+50.31 mm 示例）",
+    name_en: "STG-120ML mechanical reference line example",
+    kind: "机械校准参考",
+    material: "外购线材",
+    group: "reference",
+    shape: "box",
+    base_min: [railMinX, -0.5, 202],
+    size: [netSpan, 1, 1],
+    explosion: [0, -78, 48],
+    notes: "只用于核对两段检测窗口和机械高度；当前不依赖旧版 10 mm 定位销导轨，电子高度输出必须以放大器接口证据为准。",
+  }));
+  const gauge = firstEntry(entries, (entry) => entry.part === "calibration_gauge");
+  const gaugeBounds = boundsFromEntry(gauge);
+  if (gaugeBounds) {
+    items.push(makeAssemblyItem({
+      id: "tool:calibration-gauge",
+      name_zh: "过网高度标定规（装配外工具）",
+      name_en: "height calibration gauge",
+      kind: "标定工具",
+      material: "PETG",
+      group: "reference",
+      nonPrinted: false,
+      shape: "box",
+      base_min: [900, 120, 0],
+      size: gaugeBounds.size,
+      explosion: [0, 128, 56],
+      notes: "这是独立的 32 点 / 3.87 mm 间距标定工具，不安装在网架上；用于核对 STG-120ML 有效检测面和两段窗口。",
+    }));
+  }
+
+  for (const entry of entries) {
+    const group = assemblyGroupKey(entry);
+    const side = sideSign(entry);
+    const bounds = boundsFromEntry(entry);
+    if (!bounds) continue;
+    if (entry.part === "stg120_outer_carrier") {
+      const headMinX = side > 0
+        ? bounds.min[0] + 3
+        : bounds.max[0] - stgHead.thickness - 3;
+      const outerFaceX = side > 0 ? headMinX : headMinX + stgHead.thickness;
+      const segmentMinX = side > 0 ? 0 : outerFaceX;
+      const segmentMaxX = side > 0 ? outerFaceX : 0;
+      items.push(makeAssemblyItem({
+        id: `hardware:stg120-head:outer:${entry.file}`,
+        name_zh: `STG-120ML 光纤头（${side < 0 ? "左外侧" : "右外侧"}）`,
+        name_en: "STG-120ML opposed fiber head",
+        kind: "外购光学器件占位",
+        material: "金属光纤头",
+        group: "optical",
+        shape: "stg120-head",
+        shapeOptions: { face_direction: side > 0 ? -1 : 1 },
+        base_min: [headMinX, -stgHead.width / 2, stgHead.bottomZ],
+        size: [stgHead.thickness, stgHead.width, stgHead.length],
+        side,
+        explosion: explosionVector("optical", side),
+        notes: "商品页选中的 STG-120ML 金属线/精度 3.87 mm 光纤头；本体需要配套放大器，当前只显示安装包络。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:stg120-window:${entry.file}`,
+        name_zh: `STG-120ML ${side < 0 ? "左" : "右"}段检测窗口（32 点 × 3.87 mm）`,
+        name_en: "STG-120ML detection segment proxy",
+        kind: "光路占位",
+        material: "光学占位",
+        group: "optical",
+        shape: "stg120-beam-window",
+        shapeOptions: { count: stgHead.count, pitch: stgHead.pitch },
+        base_min: [segmentMinX, -0.4, stgHead.bottomZ + 5],
+        size: [Math.abs(segmentMaxX - segmentMinX), 0.8, stgHead.activeLength],
+        side,
+        explosion: explosionVector("optical", side),
+        notes: "仅表示两段对射光路的机械覆盖范围；放大器是否能输出逐点高度信息仍待确认。",
+      }));
+    }
+    if (entry.part === "stg120_center_bridge") {
+      const centerHeads = [
+        { minX: bounds.min[0] + 4, face: 1, label: "右段中央" },
+        { minX: bounds.max[0] - 10, face: -1, label: "左段中央" },
+      ];
+      centerHeads.forEach((head, index) => {
+        items.push(makeAssemblyItem({
+          id: `hardware:stg120-head:center:${index}`,
+          name_zh: `STG-120ML 光纤头（${head.label}）`,
+          name_en: "STG-120ML center fiber head",
+          kind: "外购光学器件占位",
+          material: "金属光纤头",
+          group: "optical",
+          shape: "stg120-head",
+          shapeOptions: { face_direction: head.face },
+          base_min: [head.minX, -stgHead.width / 2, stgHead.bottomZ],
+          size: [stgHead.thickness, stgHead.width, stgHead.length],
+          side: 0,
+          explosion: explosionVector("optical", 0),
+          notes: "中央桥内背靠背安装的一只 STG-120ML 光纤头；左右两段各占一只。",
+        }));
+      });
+    }
+    if (entry.part === "optical_module_carrier") {
+      const center = bounds.min.map((value, index) => value + bounds.size[index] / 2);
+      items.push(makeAssemblyItem({
+        id: `hardware:optical-module:${entry.file}`,
+        name_zh: `调制红外光学模块 ${entry.name_zh?.match(/\+\d+ mm/)?.[0] || "占位"}（${side < 0 ? "左" : "右"}）`,
+        name_en: "modulated IR emitter / receiver module proxy",
+        kind: "光学器件占位",
+        material: "外购模块",
+        group: "optical",
+        shape: "optical-module",
+        base_min: [center[0] - 6, -9, center[2] - 3],
+        size: [12, 18, 6],
+        side,
+        explosion: explosionVector("optical", side),
+        notes: "真实发射/接收模块不在打印 STL 中；此处只显示安装包络和光轴方向。",
+      }));
+    }
+    if (entry.part === "sensor_mount_body") {
+      const centerX = bounds.min[0] + bounds.size[0] / 2;
+      items.push(makeAssemblyItem({
+        id: `hardware:pvdf:${entry.file}`,
+        name_zh: `PVDF 压电薄膜（${side < 0 ? "左" : "右"}）`,
+        name_en: "PVDF piezo film proxy",
+        kind: "传感器占位",
+        material: "外购 PVDF",
+        group: "sensor",
+        shape: "box",
+        base_min: [centerX - 18, -31, bounds.min[2]],
+        size: [36, 2, 3],
+        side,
+        explosion: explosionVector("sensor", side),
+        notes: "薄膜夹在网顶白边的可拆座中；这里只显示动态振动传感器的安装位置。",
+      }));
+    }
+  }
+
+  for (const sideLabel of ["left", "right"]) {
+    const side = sideLabel === "left" ? -1 : 1;
+    const knob = firstEntry(entries, (entry) => entry.part === "clamp_knob" && entry.side === sideLabel);
+    const pressurePad = firstEntry(entries, (entry) => entry.part === "clamp_pressure_pad" && entry.side === sideLabel);
+    const knobBounds = boundsFromEntry(knob);
+    const padBounds = boundsFromEntry(pressurePad);
+    if (!knobBounds || !padBounds) continue;
+    const centerX = knobBounds.min[0] + knobBounds.size[0] / 2;
+    const rodMinZ = knobBounds.min[2] + 4.4;
+    const rodHeight = Math.max(12, padBounds.min[2] - rodMinZ);
+    items.push(makeAssemblyItem({
+      id: `hardware:m8-rod:${sideLabel}`,
+      name_zh: `M8×1.25 金属螺杆（${sideLabel === "left" ? "左" : "右"}）`,
+      name_en: "M8 × 1.25 metal threaded rod",
+      kind: "外购标准件",
+      material: "金属",
+      group: "hardware",
+      shape: "cylinder",
+      shapeOptions: { radius: 4, axis: "z" },
+      base_min: [centerX - 4, -4, rodMinZ],
+      size: [8, 8, rodHeight],
+      side,
+      explosion: explosionVector("hardware", side),
+      notes: "真实 M8×1.25 螺杆，不打印螺纹；圆头顶住独立台底压块。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m8-body-nut:${sideLabel}`,
+      name_zh: `M8 六角螺母（下臂固定，${sideLabel === "left" ? "左" : "右"}）`,
+      name_en: "M8 fixed nut",
+      kind: "外购标准件",
+      material: "金属",
+      group: "hardware",
+      shape: "hex",
+      shapeOptions: { radius: 7, axis: "z" },
+      base_min: [centerX - 6.5, -6.5, padBounds.min[2] - 19],
+      size: [13, 13, 6.5],
+      side,
+      explosion: explosionVector("hardware", side),
+      notes: "固定在下臂捕获窝中的螺母，形成唯一固定螺纹。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m8-jam-nuts:${sideLabel}`,
+      name_zh: `M8 对锁螺母组（旋钮内，${sideLabel === "left" ? "左" : "右"}）`,
+      name_en: "M8 jam-nut pair",
+      kind: "外购标准件",
+      material: "金属",
+      group: "hardware",
+      shape: "hex-stack",
+      shapeOptions: { radius: 7, axis: "z" },
+      base_min: [centerX - 6.5, -6.5, knobBounds.max[2] - 13],
+      size: [13, 13, 13.4],
+      side,
+      explosion: explosionVector("hardware", side),
+      notes: "两枚标准 M8 螺母预先对锁后装入打印旋钮，不使用 PETG 内螺纹。",
+    }));
+  }
+
+  const carriageEntries = entries.filter((entry) => entry.part === "reference_carriage_body");
+  for (const entry of carriageEntries) {
+    const bounds = boundsFromEntry(entry);
+    if (!bounds) continue;
+    const side = sideSign(entry);
+    const center = bounds.min.map((value, index) => value + bounds.size[index] / 2);
+    items.push(makeAssemblyItem({
+      id: `hardware:reference-pin:${entry.file}`,
+      name_zh: `Ø3 弹簧定位销（${side < 0 ? "左" : "右"}）`,
+      name_en: "spring locating pin",
+      kind: "外购标准件",
+      material: "金属",
+      group: "reference",
+      shape: "cylinder",
+      shapeOptions: { radius: 1.5, axis: "y" },
+      base_min: [center[0] - 1.5, center[1] - 15, center[2] - 1.5],
+      size: [3, 30, 3],
+      side,
+      explosion: explosionVector("reference", side),
+      notes: "仅保留为旧版参考 carriage 的兼容诊断对象；当前 STG-120ML 结构不使用这套 10 mm 导轨定位销。",
+    }));
+  }
+  return items;
+}
+
+function buildAssemblyItems() {
+  const sourceEntries = sourcePrintableEntries();
+  const printable = sourceEntries
+    .filter((entry) => entry.part !== "calibration_gauge")
+    .map(makePrintableAssemblyItem)
+    .filter(Boolean);
+  return printable.concat(makeProxyAssemblyItems(sourceEntries));
+}
+
+function assemblyItemById(id) {
+  return state.assembly.items.find((item) => item.id === id) || null;
+}
+
+function assemblyVisible(item) {
+  if (item.context && !state.assembly.showTable) return false;
+  if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
+  return true;
+}
+
+function assemblyStageLabel(stage) {
+  if (stage <= 0) return "背景";
+  return ASSEMBLY_STEPS.find((step) => step.number === stage)?.label || `步骤 ${stage}`;
 }
 
 function generatedLayoutFromManifest(manifest) {
@@ -411,14 +879,128 @@ function render() {
   refs.layoutTitle.textContent = plate ? `${plate.label} · ${formatNumber(bed.width_mm)} × ${formatNumber(bed.depth_mm)} mm` : "没有零件适合当前打印床";
   refs.layoutBadge.textContent = state.generated ? "已生成 STL" : "仅浏览器预览";
   refs.layoutBadge.classList.toggle("preview-badge", !state.generated);
-  refs.modelTitle.textContent = state.modelMode === "part" && state.selectedFile ? partName(findPart(state.selectedFile)) : (plate?.label || "等待选择模型");
-  refs.modelCaption.textContent = state.generated ? "当前显示脚本生成的拼盘 STL；源零件仍保持独立尺寸。" : "当前布局由浏览器按源 STL 计算，仅供核对；如需拼盘 STL，请重新运行拼盘脚本。";
   updateDownloadLink();
   drawBed();
   renderLegend();
   renderPartList();
   renderOversized();
   renderComponents();
+  renderMode();
+  renderAssemblyGuide();
+}
+
+function renderMode() {
+  const designMode = state.uiMode === "assembly" || state.uiMode === "exploded";
+  const printMode = state.uiMode === "print";
+  const partsMode = state.uiMode === "parts";
+  document.body.dataset.viewMode = state.uiMode;
+
+  refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
+    button.setAttribute("aria-selected", String(button.dataset.viewMode === state.uiMode));
+  });
+  document.querySelectorAll("[data-print-only]").forEach((element) => {
+    element.hidden = !printMode;
+  });
+  if (refs.assemblyControlCard) refs.assemblyControlCard.hidden = !designMode;
+  if (refs.layoutCard) refs.layoutCard.hidden = designMode || partsMode;
+  if (refs.visualGrid) refs.visualGrid.hidden = partsMode;
+  if (refs.modelCard) {
+    refs.modelCard.hidden = partsMode;
+    refs.modelCard.classList.toggle("design-model", designMode);
+  }
+  if (refs.detailGrid) refs.detailGrid.hidden = designMode;
+  if (refs.componentCard) refs.componentCard.hidden = false;
+  if (refs.assemblyGuideCard) refs.assemblyGuideCard.hidden = !designMode;
+  if (refs.assemblyToolbar) refs.assemblyToolbar.hidden = !designMode;
+  if (refs.showPlateModel) refs.showPlateModel.hidden = designMode;
+  if (refs.showPartModel) refs.showPartModel.hidden = designMode;
+
+  if (designMode) {
+    refs.modelKicker.textContent = state.uiMode === "exploded" ? "三维爆炸检查" : "三维装配检查";
+    refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
+    refs.modelCaption.textContent = state.uiMode === "exploded"
+      ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
+      : "完整装配关系预览；球台、网布、PVDF、STG-120ML 光纤头、两段检测窗口和已确认的标准件按装配清单显示。";
+    refs.assemblyStatusBadge.textContent = `${state.assembly.items.length} 个装配对象 · mm`;
+    refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
+    refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
+    refs.assemblyStepOutput.textContent = state.assembly.step >= ASSEMBLY_STEPS.length
+      ? "完整"
+      : `步骤 ${state.assembly.step}`;
+    refs.assemblyStep.value = String(state.assembly.step);
+  } else if (printMode) {
+    refs.modelKicker.textContent = "STL 几何检查";
+    refs.modelTitle.textContent = state.modelMode === "part" && state.selectedFile
+      ? partName(findPart(state.selectedFile))
+      : (currentPlate()?.label || "等待选择模型");
+    refs.modelCaption.textContent = state.generated
+      ? "当前显示脚本生成的拼盘 STL；源零件仍保持独立尺寸。"
+      : "当前布局由浏览器按源 STL 计算，仅供核对；如需拼盘 STL，请重新运行拼盘脚本。";
+  } else {
+    refs.modelKicker.textContent = "零件检视";
+    refs.modelTitle.textContent = "从清单选择一个打印件查看几何";
+    refs.modelCaption.textContent = "零件清单保留中文名称、材料组、尺寸和 STL 下载入口。点击条目会切换到打印检查。";
+  }
+}
+
+function renderAssemblyGuide() {
+  if (!refs.assemblyStepList || !refs.assemblySelectionPanel) return;
+  refs.assemblyStepList.textContent = "";
+  ASSEMBLY_STEPS.forEach((step) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "assembly-step-row";
+    button.classList.toggle("active", state.assembly.step === step.number);
+    button.dataset.step = String(step.number);
+    const numberBadge = document.createElement("span");
+    numberBadge.className = "assembly-step-number";
+    numberBadge.textContent = String(step.number).padStart(2, "0");
+    const copy = document.createElement("span");
+    copy.className = "assembly-step-copy";
+    const title = document.createElement("strong");
+    title.textContent = step.label;
+    const description = document.createElement("small");
+    description.textContent = step.description;
+    copy.append(title, description);
+    button.append(numberBadge, copy);
+    button.addEventListener("click", () => {
+      state.assembly.step = step.number;
+      refs.assemblyStep.value = String(step.number);
+      updateAssemblyScene();
+      render();
+    });
+    refs.assemblyStepList.append(button);
+  });
+
+  const selected = assemblyItemById(state.assembly.selectedId || state.assembly.hoveredId);
+  refs.assemblySelectionPanel.textContent = "";
+  if (!selected) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "点击三维零件或左侧步骤查看对应的中文名称、材料和装配说明。";
+    refs.assemblySelectionPanel.append(empty);
+    refs.assemblySelectionBadge.textContent = "悬停或点击三维零件查看中文名称";
+    return;
+  }
+  const heading = document.createElement("div");
+  heading.className = "selection-heading";
+  const swatch = document.createElement("i");
+  swatch.className = "legend-swatch";
+  swatch.style.background = selected.color;
+  const title = document.createElement("strong");
+  title.textContent = selected.name_zh;
+  heading.append(swatch, title);
+  const meta = document.createElement("div");
+  meta.className = "selection-meta";
+  meta.textContent = `${ASSEMBLY_GROUPS[selected.group]?.label || "装配件"} · ${selected.kind} · ${selected.material}`;
+  const stage = document.createElement("div");
+  stage.className = "selection-meta";
+  stage.textContent = selected.context ? "仅作球台背景显示" : `装配步骤 ${selected.stage} · ${assemblyStageLabel(selected.stage)}`;
+  const notes = document.createElement("p");
+  notes.className = "selection-notes";
+  notes.textContent = selected.notes || "当前对象没有额外装配说明。";
+  refs.assemblySelectionPanel.append(heading, meta, stage, notes);
+  refs.assemblySelectionBadge.textContent = `${selected.name_zh} · ${selected.kind}`;
 }
 
 function renderTabs() {
@@ -484,11 +1066,17 @@ function renderPartList() {
   refs.partList.textContent = "";
   const plate = currentPlate();
   const query = refs.partFilter.value.trim().toLowerCase();
-  const entries = (plate?.parts || []).filter((entry) => partSearchText(entry).includes(query));
+  const sourceEntries = state.uiMode === "parts"
+    ? (state.manifest?.parts || state.layout?.parts || [])
+    : (plate?.parts || []);
+  const entries = sourceEntries.filter((entry) => partSearchText(entry).includes(query));
+  if (refs.partsCardTitle) {
+    refs.partsCardTitle.textContent = state.uiMode === "parts" ? "全部打印零件" : "当前拼盘包含的打印件";
+  }
   if (!entries.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = plate ? "当前筛选没有匹配零件" : "没有可显示的排版零件";
+    empty.textContent = sourceEntries.length ? "当前筛选没有匹配零件" : "没有可显示的排版零件";
     refs.partList.append(empty);
     return;
   }
@@ -614,6 +1202,7 @@ function selectPart(file) {
   if (!entry) return;
   const plateIndex = state.layout.plates.findIndex((plate) => plate.parts.some((part) => part.file === file));
   if (plateIndex >= 0) state.activePlateIndex = plateIndex;
+  if (state.uiMode === "parts") state.uiMode = "print";
   state.selectedFile = file;
   state.hoveredFile = file;
   state.modelMode = "part";
@@ -748,7 +1337,7 @@ function updateCanvasHoverLabel(entry, clientX = 0, clientY = 0) {
 
 function updateDownloadLink() {
   const plate = currentPlate();
-  const available = Boolean(state.generated && plate?.path);
+  const available = Boolean(state.uiMode === "print" && state.generated && plate?.path);
   refs.downloadPlate.hidden = !available;
   if (!available) {
     refs.downloadPlate.removeAttribute("href");
@@ -787,6 +1376,7 @@ function setModelPlaceholder(title, detail = "") {
 function clearThreeModel() {
   const root = state.three.modelRoot;
   if (!root) return;
+  state.assembly.items.forEach((item) => { item.object = null; });
   while (root.children.length) {
     const object = root.children.pop();
     object.traverse((child) => {
@@ -797,6 +1387,7 @@ function clearThreeModel() {
       }
     });
   }
+  state.assembly.loaded = false;
 }
 
 function loadGeometry(url) {
@@ -859,9 +1450,243 @@ function resizeThree() {
   camera.updateProjectionMatrix();
 }
 
+function assemblyMaterial(THREE, item, options = {}) {
+  const material = new THREE.MeshStandardMaterial({
+    color: options.color || item.color,
+    roughness: options.roughness ?? (item.group === "hardware" ? 0.32 : 0.66),
+    metalness: options.metalness ?? (item.group === "hardware" ? 0.64 : 0.06),
+    transparent: true,
+    opacity: options.opacity ?? (item.context ? 0.28 : item.nonPrinted ? 0.72 : 1),
+    depthWrite: options.depthWrite ?? !item.context,
+  });
+  material.userData.baseOpacity = material.opacity;
+  material.userData.baseColor = material.color.clone();
+  material.userData.assemblyId = item.id;
+  return material;
+}
+
+function markAssemblyObject(object, item) {
+  object.userData.assemblyId = item.id;
+  object.userData.assemblyItem = item;
+  object.traverse((child) => {
+    child.userData.assemblyId = item.id;
+    child.userData.assemblyItem = item;
+  });
+}
+
+function addProxyPart(THREE, group, item, geometry, position, materialOptions = {}) {
+  const mesh = new THREE.Mesh(geometry, assemblyMaterial(THREE, item, materialOptions));
+  mesh.position.set(...position);
+  group.add(mesh);
+  return mesh;
+}
+
+function createAssemblyProxy(THREE, item) {
+  const group = new THREE.Group();
+  group.position.set(...item.baseMin);
+  const [width, depth, height] = item.baseSize;
+  const options = item.shapeOptions || {};
+  if (item.shape === "cylinder" || item.shape === "hex") {
+    const radius = number(options.radius, Math.min(width, depth) / 2);
+    const radialSegments = item.shape === "hex" ? 6 : 24;
+    const geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
+    if (options.axis === "x") geometry.rotateZ(Math.PI / 2);
+    if (options.axis === "z") geometry.rotateX(Math.PI / 2);
+    addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, height / 2]);
+  } else if (item.shape === "hex-stack") {
+    const nutHeight = 6.5;
+    for (const z of [0, nutHeight + 0.4]) {
+      const geometry = new THREE.CylinderGeometry(number(options.radius, 7), number(options.radius, 7), nutHeight, 6);
+      geometry.rotateX(Math.PI / 2);
+      addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, z + nutHeight / 2], { metalness: 0.72 });
+    }
+  } else {
+    const geometry = new THREE.BoxGeometry(width, depth, height);
+    const isBeamWindow = item.shape === "stg120-beam-window";
+    addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, height / 2], {
+      color: isBeamWindow ? "#fb817c" : undefined,
+      opacity: isBeamWindow ? 0.18 : (item.group === "rail" && item.nonPrinted ? 0.34 : undefined),
+      depthWrite: isBeamWindow ? false : (item.group !== "rail" || !item.nonPrinted),
+    });
+    if (item.shape === "stg120-head") {
+      const slit = new THREE.BoxGeometry(0.35, Math.max(1, depth - 2), Math.min(height - 10, 120));
+      const faceDirection = number(options.face_direction, 1);
+      const slitX = faceDirection < 0 ? width - 0.18 : 0.18;
+      addProxyPart(THREE, group, item, slit, [slitX, depth / 2, Math.min(height - 5, 125) / 2 + 5], {
+        color: "#fb817c",
+        roughness: 0.22,
+        metalness: 0.18,
+        opacity: 0.96,
+      });
+    }
+    if (item.shape === "optical-module") {
+      const lens = new THREE.CylinderGeometry(2, 2, 3, 24);
+      lens.rotateZ(Math.PI / 2);
+      addProxyPart(THREE, group, item, lens, [1.5, depth / 2, height / 2], {
+        color: "#fb817c",
+        roughness: 0.22,
+        metalness: 0.2,
+        opacity: 0.96,
+      });
+    }
+  }
+  markAssemblyObject(group, item);
+  state.three.modelRoot.add(group);
+  item.object = group;
+  return group;
+}
+
+function setAssemblyMaterialState(material, active, progressAlpha) {
+  const baseOpacity = number(material.userData.baseOpacity, 1);
+  const baseColor = material.userData.baseColor;
+  material.opacity = baseOpacity * progressAlpha;
+  material.transparent = material.opacity < 0.999;
+  if (baseColor) material.color.copy(baseColor);
+  if (material.emissive) {
+    material.emissive.set(active ? "#ffffff" : "#000000");
+    material.emissiveIntensity = active ? 0.42 : 0;
+  }
+}
+
+function updateAssemblyScene() {
+  if (!state.three.ready) return;
+  const amount = state.assembly.explode;
+  for (const item of state.assembly.items) {
+    const object = item.object;
+    if (!object) continue;
+    object.visible = assemblyVisible(item);
+    object.position.set(
+      item.baseMin[0] + item.explosion[0] * amount,
+      item.baseMin[1] + item.explosion[1] * amount,
+      item.baseMin[2] + item.explosion[2] * amount,
+    );
+    const future = state.assembly.step < ASSEMBLY_STEPS.length && item.stage > state.assembly.step;
+    const progressAlpha = future ? 0.18 : 1;
+    const active = item.id === state.assembly.selectedId || item.id === state.assembly.hoveredId;
+    object.traverse((child) => {
+      if (!child.material) return;
+      const materials = Array.isArray(child.material) ? child.material : [child.material];
+      materials.forEach((material) => setAssemblyMaterialState(material, active, progressAlpha));
+    });
+  }
+  if (refs.assemblyStatusBadge) {
+    refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · ${Math.round(amount * 100)}% 爆炸`;
+  }
+}
+
+async function loadAssemblyModel() {
+  if (!state.three.ready) return;
+  const { THREE } = state.three;
+  const requestId = ++state.three.loadId;
+  clearThreeModel();
+  state.assembly.items = buildAssemblyItems();
+  state.assembly.loadError = null;
+  setModelPlaceholder("正在载入装配预览…", `${state.assembly.items.length} 个对象；打印件按源 STL 坐标恢复`);
+  const failures = [];
+  for (const item of state.assembly.items.filter((candidate) => candidate.shape !== "stl")) {
+    createAssemblyProxy(THREE, item);
+  }
+  await Promise.all(state.assembly.items.filter((item) => item.shape === "stl").map(async (item) => {
+    try {
+      const geometry = await loadGeometry(item.sourcePath);
+      if (requestId !== state.three.loadId) return;
+      normalizedGeometry(THREE, geometry);
+      const material = assemblyMaterial(THREE, item);
+      const mesh = new THREE.Mesh(geometry, material);
+      const group = new THREE.Group();
+      group.position.set(...item.baseMin);
+      group.add(mesh);
+      markAssemblyObject(group, item);
+      state.three.modelRoot.add(group);
+      item.object = group;
+    } catch (error) {
+      failures.push(`${item.name_zh}: ${error?.message || error}`);
+    }
+  }));
+  if (requestId !== state.three.loadId) return;
+  state.assembly.loaded = true;
+  state.assembly.loadError = failures.length ? failures : null;
+  refs.modelPlaceholder.hidden = true;
+  refs.modelCaption.textContent = failures.length
+    ? `装配预览已载入，但有 ${failures.length} 个 STL 读取失败；非打印占位仍可检查。`
+    : "装配预览已载入；鼠标悬停查看中文名称，点击零件查看材料和装配说明。";
+  updateAssemblyScene();
+  fitThreeCamera();
+  renderAssemblyGuide();
+}
+
+function assemblyItemAtPointer(event) {
+  const { camera, modelRoot, raycaster, pointer } = state.three;
+  if (!camera || !modelRoot || !raycaster || !pointer) return null;
+  const rect = refs.modelHost.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const intersections = raycaster.intersectObjects(modelRoot.children, true);
+  for (const intersection of intersections) {
+    const id = intersection.object.userData.assemblyId;
+    const item = id ? assemblyItemById(id) : null;
+    if (item && assemblyVisible(item)) return item;
+  }
+  return null;
+}
+
+function updateAssemblyHoverLabel(item, event) {
+  const label = refs.assemblyHoverLabel;
+  if (!label) return;
+  if (!item || state.uiMode === "print" || state.uiMode === "parts") {
+    label.hidden = true;
+    return;
+  }
+  const rect = refs.modelHost.getBoundingClientRect();
+  label.innerHTML = `<strong>${item.name_zh}</strong><span>${item.kind} · ${item.material}</span>`;
+  label.hidden = false;
+  const maxLeft = Math.max(8, rect.width - label.offsetWidth - 8);
+  const maxTop = Math.max(8, rect.height - label.offsetHeight - 8);
+  label.style.left = `${Math.min(maxLeft, Math.max(8, event.clientX - rect.left + 14))}px`;
+  label.style.top = `${Math.min(maxTop, Math.max(8, event.clientY - rect.top + 14))}px`;
+}
+
+function handleAssemblyPointerMove(event) {
+  if (state.uiMode !== "assembly" && state.uiMode !== "exploded") return;
+  const item = assemblyItemAtPointer(event);
+  const nextId = item?.id || null;
+  if (nextId !== state.assembly.hoveredId) {
+    state.assembly.hoveredId = nextId;
+    updateAssemblyScene();
+    renderAssemblyGuide();
+  }
+  updateAssemblyHoverLabel(item, event);
+}
+
+function handleAssemblyPointerLeave() {
+  state.assembly.hoveredId = null;
+  updateAssemblyScene();
+  updateAssemblyHoverLabel(null);
+  renderAssemblyGuide();
+}
+
+function handleAssemblyClick(event) {
+  if (state.uiMode !== "assembly" && state.uiMode !== "exploded") return;
+  const item = assemblyItemAtPointer(event);
+  state.assembly.selectedId = item?.id || null;
+  updateAssemblyScene();
+  renderAssemblyGuide();
+}
+
 async function loadModel() {
   if (!state.three.ready) return;
   const { THREE } = state.three;
+  const designMode = state.uiMode === "assembly" || state.uiMode === "exploded";
+  if (designMode) {
+    if (!state.assembly.loaded || !state.assembly.items.length) {
+      await loadAssemblyModel();
+    } else {
+      updateAssemblyScene();
+      fitThreeCamera();
+    }
+    return;
+  }
   const plate = currentPlate();
   const requestId = ++state.three.loadId;
   clearThreeModel();
@@ -963,6 +1788,8 @@ async function initThree() {
     state.three.camera = camera;
     state.three.controls = controls;
     state.three.modelRoot = new THREE.Group();
+    state.three.raycaster = new THREE.Raycaster();
+    state.three.pointer = new THREE.Vector2();
     scene.add(state.three.modelRoot);
     state.three.ready = true;
     resizeThree();
@@ -993,12 +1820,26 @@ async function loadManifest() {
     const response = await fetch(state.manifestUrl, { cache: "no-store" });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     state.manifest = await response.json();
+    state.sourceManifest = state.manifest;
+    state.sourceManifestUrl = state.manifestUrl;
+    if (state.manifest.source_manifest) {
+      const sourceUrl = new URL(state.manifest.source_manifest, state.manifestUrl);
+      const sourceResponse = await fetch(sourceUrl, { cache: "no-store" });
+      if (sourceResponse.ok) {
+        state.sourceManifest = await sourceResponse.json();
+        state.sourceManifestUrl = sourceUrl;
+      }
+    }
     state.generatedLayout = generatedLayoutFromManifest(state.manifest);
     state.layout = state.generatedLayout;
     state.generated = true;
     state.activePlateIndex = 0;
     state.selectedFile = null;
     state.modelMode = "plate";
+    state.assembly.items = [];
+    state.assembly.loaded = false;
+    state.assembly.selectedId = null;
+    state.assembly.hoveredId = null;
     setBedInputs(state.layout.print_bed);
     const sourceHref = state.manifest.source_manifest
       ? new URL(state.manifest.source_manifest, state.manifestUrl).href
@@ -1017,6 +1858,20 @@ async function loadManifest() {
     refs.oversizedCount.textContent = "—";
     setModelPlaceholder("等待打印清单", "生成 manifest 后刷新页面");
   }
+}
+
+function setViewMode(mode) {
+  if (!["assembly", "exploded", "print", "parts"].includes(mode)) return;
+  state.uiMode = mode;
+  if (mode === "assembly") state.assembly.explode = 0;
+  if (mode === "exploded" && state.assembly.explode === 0) state.assembly.explode = ASSEMBLY_DEFAULT_EXPLODE;
+  if (mode === "parts") state.modelMode = "plate";
+  render();
+  if (mode === "parts") {
+    if (state.three.ready) clearThreeModel();
+    return;
+  }
+  loadModel();
 }
 
 refs.bedPreset.addEventListener("change", () => {
@@ -1058,6 +1913,38 @@ refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
 refs.fitModel.addEventListener("click", fitThreeCamera);
 refs.downloadLayout.addEventListener("click", downloadLayout);
+refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
+  button.addEventListener("click", () => setViewMode(button.dataset.viewMode));
+});
+refs.explodeRange.addEventListener("input", () => {
+  state.assembly.explode = number(refs.explodeRange.value) / 100;
+  refs.explodeOutput.textContent = String(Math.round(state.assembly.explode * 100));
+  updateAssemblyScene();
+});
+refs.assembledButton.addEventListener("click", () => setViewMode("assembly"));
+refs.explodedButton.addEventListener("click", () => {
+  state.assembly.explode = ASSEMBLY_DEFAULT_EXPLODE;
+  setViewMode("exploded");
+});
+refs.assemblyStep.addEventListener("input", () => {
+  state.assembly.step = number(refs.assemblyStep.value, ASSEMBLY_STEPS.length);
+  updateAssemblyScene();
+  render();
+});
+refs.showTable.addEventListener("change", () => {
+  state.assembly.showTable = refs.showTable.checked;
+  updateAssemblyScene();
+});
+refs.showNonPrinted.addEventListener("change", () => {
+  state.assembly.showNonPrinted = refs.showNonPrinted.checked;
+  updateAssemblyScene();
+});
+refs.clearAssemblySelection.addEventListener("click", () => {
+  state.assembly.selectedId = null;
+  state.assembly.hoveredId = null;
+  updateAssemblyScene();
+  renderAssemblyGuide();
+});
 refs.showPlateModel.addEventListener("click", () => {
   state.hoveredFile = state.selectedFile;
   state.modelMode = "plate";
@@ -1073,6 +1960,9 @@ refs.showPartModel.addEventListener("click", () => {
   render();
   loadModel();
 });
+refs.modelHost.addEventListener("pointermove", handleAssemblyPointerMove);
+refs.modelHost.addEventListener("pointerleave", handleAssemblyPointerLeave);
+refs.modelHost.addEventListener("click", handleAssemblyClick);
 refs.partFilter.addEventListener("input", renderPartList);
 refs.bedCanvas.addEventListener("click", (event) => {
   const entry = canvasEntryAt(event.clientX, event.clientY);

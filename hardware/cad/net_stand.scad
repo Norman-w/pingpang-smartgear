@@ -4,8 +4,8 @@
 //
 // 预览/导出：
 //   PART="assembly"          含球台截面、网、双侧支架和传感器的装配预览
-//   PART="left_stand"         左侧立柱/桌下夹持/光学导轨结构检查件
-//   PART="right_stand"        右侧立柱/桌下夹持/光学导轨结构检查件
+//   PART="left_stand"         左侧立柱/桌下夹持/STG 托架结构检查件
+//   PART="right_stand"        右侧立柱/桌下夹持/STG 托架结构检查件
 //   PART="post"               单侧立柱主体
 //   PART="post_segment"       单段可打印立柱（由 post_segment_index 选择）
 //   PART="lower_stand_segment" 下段立柱与固定 C 形夹一体打印件
@@ -25,23 +25,26 @@
 //   PART="net_rail_segment"   单段网顶承载条（由 rail_segment_index 选择）
 //   PART="net_rail_splice"    网顶承载条拼接片（由 rail_splice_index 选择）
 //   PART="net_rail_saddle"    立柱内侧网顶承托/端部限位座
-//   PART="optical_rail"       单侧可打印 10 路红外模块导轨、定位孔与刻度
-//   PART="optical_strip"      单侧 10 路红外模块导轨与模块装配预览
-//   PART="optical_module_carrier" 单个光学模块中性载台/调节槽（由 optical_module_index 选择）
+//   PART="optical_rail"       旧版 10 路离散红外模块导轨（兼容诊断件）
+//   PART="optical_strip"      旧版 10 路离散红外模块装配预览（兼容诊断件）
+//   PART="optical_module_carrier" 旧版单个光学模块载台（兼容诊断件）
+//   PART="stg120_outer_carrier" STG-120ML 外侧光纤头包络/安装托架
+//   PART="stg120_center_bridge" STG-120ML 中央背靠背分段支撑桥
+//   PART="stg120_preview"      STG-120ML 双分段光束装配预览（非打印件）
 //   PART="sensor_mount"       单侧网顶 PVDF 夹片安装座
 //   PART="sensor_mount_body"   单侧可打印 PVDF 安装座本体（不含薄膜/压片）
 //   PART="pvdf_film"          PVDF 薄膜包络（非打印件）
 //   PART="sensor_clamp_lip"   PVDF 薄膜两侧可拆压片
-//   PART="reference_carriage" 参考线端座与定位销
-//   PART="reference_carriage_body" 可打印参考线端座本体（不含定位销）
-//   PART="reference_pin"      参考线弹簧销占位（非打印件）
-//   PART="calibration_gauge"  10 mm 高度档位标定规
+//   PART="reference_carriage" 旧版参考线端座与定位销（兼容诊断件）
+//   PART="reference_carriage_body" 旧版可打印参考线端座（兼容诊断件）
+//   PART="reference_pin"      旧版参考线弹簧销占位（兼容诊断件）
+//   PART="calibration_gauge"  STG-120ML 3.87 mm 光点高度标定规
 //   PART="parameter_probe"    输出验证脚本读取的参数清单
 //   SIDE=0                    使用默认右侧；SIDE=1/-1 显式选择左右镜像
 //
 // 说明：光学器件、PVDF 薄膜、网布、金属螺杆和夹持软垫均为装配占位或
 // 标准件边界。M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示，不能直接
-// 作为 PETG 打印件进入 50 件打印清单；打印件是夹体、旋钮和保护垫。
+// 作为 PETG 打印件进入当前 29 件打印清单；STG-120ML 光纤头和放大器为外购件。
 // 该文件验证的是当前机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性或光学精度验收。
 
@@ -92,6 +95,35 @@ optical_carrier_slot_length = 4;
 optical_module_index = 0;
 scale_tick_width = 8;
 scale_tick_height = 1.5;
+
+// 采购 STG-120ML 的真实机械包络（来自商品详情图，首样仍需量实物）。
+// 该器件不是 10 个独立电子模块，而是两条相对的 130×19×6 mm 金属光纤头，
+// 有效检测面 120 mm、32×Ø0.25 mm 纤芯、3.87 mm 光点间距；头部本身需要外接放大器。
+stg120_head_length = 130;
+stg120_active_length = 120;
+stg120_head_width = 19;
+stg120_head_thickness = 6;
+stg120_head_end_margin = 5;
+stg120_beam_count = 32;
+stg120_beam_pitch = 3.87;
+stg120_fiber_connector_d = 2.2;
+stg120_detect_distance_max = 1000;
+stg120_head_clearance = 0.8;
+stg120_carrier_wall = 3;
+stg120_carrier_extra = 3;
+stg120_outer_face_x = table_edge_x + 0.5;
+stg120_head_bottom_z = net_height - stg120_head_end_margin;
+stg120_head_center_z = stg120_head_bottom_z + stg120_head_length / 2;
+stg120_head_top_z = stg120_head_bottom_z + stg120_head_length;
+stg120_outer_frame_min_x = stg120_outer_face_x - stg120_carrier_wall;
+stg120_outer_frame_max_x = post_center_x - post_body_width / 2 + stg120_carrier_extra;
+stg120_outer_frame_width = stg120_outer_frame_max_x - stg120_outer_frame_min_x;
+stg120_outer_frame_y = stg120_head_width + 2 * stg120_carrier_wall;
+stg120_outer_frame_z = stg120_head_length + 2 * stg120_carrier_wall;
+stg120_center_frame_width = 20;
+stg120_center_frame_y = stg120_head_width + 2 * stg120_carrier_wall;
+stg120_center_frame_z = stg120_outer_frame_z;
+stg120_reference_height = stg120_beam_pitch * 13;
 sensor_count = 2;
 sensor_length = 46;
 sensor_depth = 10;
@@ -153,7 +185,10 @@ clamp_top_pad_t = 2;
 clamp_pressure_pad_width = 42;
 clamp_pressure_pad_depth = 44;
 clamp_pressure_pad_t = 2;
-post_top = net_height + beam_last_height + optical_module_height / 2 + post_top_margin;
+post_top = max(
+    net_height + beam_last_height + optical_module_height / 2 + post_top_margin,
+    stg120_head_top_z + post_top_margin
+);
 post_segment_count = 2;
 post_joint_gap = 2;
 post_joint_sleeve_h = 24;
@@ -265,6 +300,27 @@ assert(optical_carrier_slot_d > 0 &&
        "optical carrier adjustment slots must be printable");
 assert(optical_module_index >= 0 && optical_module_index < beam_count,
        "optical_module_index must select an existing 10 mm channel");
+assert(stg120_head_length > stg120_active_length &&
+           stg120_head_width > 0 && stg120_head_thickness > 0 &&
+           stg120_head_end_margin > 0 &&
+           stg120_active_length == stg120_head_length -
+               2 * stg120_head_end_margin,
+       "STG-120ML head envelope must leave equal end margins around the active face");
+assert(stg120_beam_count == 32 && stg120_beam_pitch > 0 &&
+           abs((stg120_beam_count - 1) * stg120_beam_pitch -
+               stg120_active_length) < 0.1,
+       "STG-120ML must use 32 optical points at 3.87 mm pitch");
+assert(stg120_detect_distance_max >= stg120_outer_face_x &&
+           stg120_outer_frame_width > stg120_head_thickness +
+               2 * stg120_head_clearance &&
+           stg120_outer_frame_max_x > stg120_outer_face_x +
+               stg120_head_thickness,
+       "STG-120ML outer carrier must leave a printable support arm inside the post");
+assert(stg120_center_frame_width > stg120_head_thickness +
+           2 * stg120_head_clearance &&
+           stg120_center_frame_y > stg120_head_width &&
+           stg120_center_frame_z == stg120_outer_frame_z,
+       "STG-120ML central bridge must capture two back-to-back heads");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
 assert(net_rail_segment_count >= 2 && net_rail_segment_count <= 5 &&
            net_rail_segment_length > 100 && net_rail_splice_overlap > 0 &&
@@ -705,6 +761,116 @@ module optical_strip_positive() {
     }
 }
 
+// STG-120ML 不是旧版的十个独立红外模块。它的 120 mm 竖直光纤头需要
+// 一条连续的包络托架；商品标称最大检测距离 1000 mm，因此完整 1525 mm
+// 球台宽度采用左右两段，各段从外侧立柱跨到中央背靠背支撑桥。
+module stg120_outer_carrier_positive() {
+    frame_z = stg120_head_bottom_z - stg120_carrier_wall;
+    cavity_x = stg120_head_thickness + 2 * stg120_head_clearance +
+               stg120_carrier_wall + 1;
+    color("teal")
+        difference() {
+            translate([stg120_outer_frame_min_x,
+                       -stg120_outer_frame_y / 2,
+                       frame_z])
+                cube([stg120_outer_frame_width,
+                      stg120_outer_frame_y,
+                      stg120_outer_frame_z]);
+            // 光纤头从内侧滑入，前方光学窗口保持完全敞开；后方实体臂
+            // 连接到原有立柱内侧，不依赖商品头部的 M3 螺纹孔位。
+            translate([stg120_outer_frame_min_x - 1,
+                       -stg120_head_width / 2 - stg120_head_clearance,
+                       stg120_head_bottom_z - stg120_head_clearance])
+                cube([cavity_x,
+                      stg120_head_width + 2 * stg120_head_clearance,
+                      stg120_head_length + 2 * stg120_head_clearance]);
+        }
+    // 3.87 mm 光束档位刻线先做成可见机械参考，不把它宣称为传感器输出。
+    color("white")
+        for (i = [0:stg120_beam_count - 1]) {
+            translate([stg120_outer_frame_min_x,
+                       -stg120_outer_frame_y / 2 - 0.3,
+                       beam_z(i * stg120_beam_pitch) - 0.35])
+                cube([stg120_outer_frame_width, 1, 0.7]);
+        }
+}
+
+module stg120_outer_carrier(side = 1) {
+    sided(side) stg120_outer_carrier_positive();
+}
+
+module stg120_center_bridge_positive() {
+    frame_z = stg120_head_bottom_z - stg120_carrier_wall;
+    cavity_width = stg120_head_thickness + 2 * stg120_head_clearance;
+    color("teal")
+        difference() {
+            translate([-stg120_center_frame_width / 2,
+                       -stg120_center_frame_y / 2,
+                       frame_z])
+                cube([stg120_center_frame_width,
+                      stg120_center_frame_y,
+                      stg120_center_frame_z]);
+            // 中央桥两侧各收纳一只头部，两个窗口相背打开，形成左右
+            // 两个不超过 1000 mm 的光学分段；中心不留遮光隔墙。
+            translate([-stg120_head_thickness - stg120_head_clearance,
+                       -stg120_head_width / 2 - stg120_head_clearance,
+                       stg120_head_bottom_z - stg120_head_clearance])
+                cube([cavity_width,
+                      stg120_head_width + 2 * stg120_head_clearance,
+                      stg120_head_length + 2 * stg120_head_clearance]);
+            translate([-stg120_head_clearance,
+                       -stg120_head_width / 2 - stg120_head_clearance,
+                       stg120_head_bottom_z - stg120_head_clearance])
+                cube([cavity_width,
+                      stg120_head_width + 2 * stg120_head_clearance,
+                      stg120_head_length + 2 * stg120_head_clearance]);
+        }
+    // 下方桥脚跨住网顶承载条；它是三点支撑的机械首样，仍需实物检查
+    // 是否遮挡球路或网布张力路径。
+    color("teal")
+        translate([-stg120_center_frame_width / 2,
+                   -(net_rail_depth + 6) / 2,
+                   net_height - net_rail_height - 2])
+            cube([stg120_center_frame_width, net_rail_depth + 6, 6]);
+}
+
+module stg120_center_bridge() {
+    stg120_center_bridge_positive();
+}
+
+module stg120_head_body_positive(x_center, face_direction = 1) {
+    face_x = x_center + face_direction * stg120_head_thickness / 2;
+    color("silver")
+        translate([x_center - stg120_head_thickness / 2,
+                   -stg120_head_width / 2,
+                   stg120_head_bottom_z])
+            cube([stg120_head_thickness,
+                  stg120_head_width,
+                  stg120_head_length]);
+    color("black")
+        translate([face_x - 0.15,
+                   -stg120_head_width / 2 + 1,
+                   net_height])
+            cube([0.3, stg120_head_width - 2, stg120_active_length]);
+}
+
+module stg120_pair_preview_positive() {
+    // 右半段：外侧头的出光面朝中心，中央头的出光面朝右。
+    stg120_head_body_positive(
+        stg120_outer_face_x + stg120_head_thickness / 2, -1);
+    stg120_head_body_positive(-stg120_head_thickness / 2, 1);
+    color("red", 0.22)
+        for (i = [0:stg120_beam_count - 1]) {
+            translate([0, -0.35, beam_z(i * stg120_beam_pitch) - 0.3])
+                cube([stg120_outer_face_x, 0.7, 0.6]);
+        }
+}
+
+module stg120_preview() {
+    stg120_pair_preview_positive();
+    mirror([1, 0, 0]) stg120_pair_preview_positive();
+}
+
 function sensor_film_y() =
     -net_rail_depth / 2 - sensor_front_offset - sensor_depth - sensor_film_depth;
 
@@ -910,24 +1076,31 @@ module table_preview() {
 }
 
 module calibration_gauge() {
-    gauge_width = 26;
+    gauge_width = 32;
     gauge_depth = 18;
-    gauge_height = beam_last_height + 20;
+    gauge_height = stg120_active_length + 20;
     color("darkorange") {
         cube([gauge_width, gauge_depth, gauge_height]);
-        for (i = [0:beam_count - 1]) {
-            h = beam_first_height + i * beam_pitch;
+        for (i = [0:stg120_beam_count - 1]) {
+            h = i * stg120_beam_pitch;
             translate([gauge_width - 8, -2, h - 1])
                 cube([12, gauge_depth + 4, 2]);
         }
     }
     color("black")
-        for (i = [0:beam_count - 1]) {
-            h = beam_first_height + i * beam_pitch;
+        for (i = [0:stg120_beam_count - 1]) {
+            h = i * stg120_beam_pitch;
             translate([gauge_width + 6, gauge_depth / 2, h + 1])
                 linear_extrude(height = 0.6)
                     text(str("+", h), size = 4, halign = "left", valign = "center");
         }
+}
+
+module stg120_reference_line() {
+    color("limegreen")
+        translate([-net_span / 2, -1.1,
+                   beam_z(stg120_reference_height) - reference_line_d / 2])
+            cube([net_span, reference_line_d, reference_line_d]);
 }
 
 module stand(side = 1) {
@@ -935,7 +1108,7 @@ module stand(side = 1) {
         post_positive();
         table_clamp_positive();
         net_rail_saddle_positive();
-        optical_strip_positive();
+        stg120_outer_carrier_positive();
     }
 }
 
@@ -1029,6 +1202,17 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM optical_carrier_slot_d=", optical_carrier_slot_d));
     echo(str("NETSTAND_PARAM optical_carrier_slot_length=", optical_carrier_slot_length));
     echo(str("NETSTAND_PARAM optical_module_index=", optical_module_index));
+    echo(str("NETSTAND_PARAM stg120_head_length=", stg120_head_length));
+    echo(str("NETSTAND_PARAM stg120_active_length=", stg120_active_length));
+    echo(str("NETSTAND_PARAM stg120_head_width=", stg120_head_width));
+    echo(str("NETSTAND_PARAM stg120_head_thickness=", stg120_head_thickness));
+    echo(str("NETSTAND_PARAM stg120_beam_count=", stg120_beam_count));
+    echo(str("NETSTAND_PARAM stg120_beam_pitch=", stg120_beam_pitch));
+    echo(str("NETSTAND_PARAM stg120_detect_distance_max=", stg120_detect_distance_max));
+    echo(str("NETSTAND_PARAM stg120_outer_face_x=", stg120_outer_face_x));
+    echo(str("NETSTAND_PARAM stg120_outer_frame_min_x=", stg120_outer_frame_min_x));
+    echo(str("NETSTAND_PARAM stg120_outer_frame_max_x=", stg120_outer_frame_max_x));
+    echo(str("NETSTAND_PARAM stg120_reference_height=", stg120_reference_height));
     echo(str("NETSTAND_PARAM reference_pin_d=", reference_pin_d));
     echo(str("NETSTAND_PARAM reference_pin_bore_d=", reference_pin_bore_d));
     echo(str("NETSTAND_PARAM reference_pin_length=", reference_pin_length));
@@ -1042,13 +1226,12 @@ if (PART == "assembly") {
     net_rail();
     stand(1);
     stand(-1);
+    stg120_center_bridge();
+    stg120_preview();
     // PVDF 座位于全宽网顶承载条的中段，只有在完整装配中才有真实承载关系。
     sensor_mount(1);
     sensor_mount(-1);
-    beam_markers();
-    reference_line();
-    reference_carriage(1);
-    reference_carriage(-1);
+    stg120_reference_line();
 } else if (PART == "left_stand") {
     stand(-1);
 } else if (PART == "right_stand") {
@@ -1099,6 +1282,12 @@ if (PART == "assembly") {
     sided(default_side)
         optical_module_carrier_positive(
             beam_first_height + optical_module_index * beam_pitch);
+} else if (PART == "stg120_outer_carrier") {
+    stg120_outer_carrier(default_side);
+} else if (PART == "stg120_center_bridge") {
+    stg120_center_bridge();
+} else if (PART == "stg120_preview") {
+    stg120_preview();
 } else if (PART == "sensor_mount") {
     sensor_mount(default_side);
 } else if (PART == "sensor_mount_body") {

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-08-25",
+  "board_sha256": "CANDIDATE-RESEARCH-ONLY-NOT-A-RELEASE-BOM",
+  "default_board_quantity": 1,
+  "notes": [
+    "本文件仅用于对淘宝 STG-120ML 候选商品做证据核验，不是生产 BOM，也不代表已冻结电子接口。",
+    "只有商品页选中的 STG-120ML SKU、实际供电电压、电流、输出方式和安装尺寸都被证据确认后，才能进入首样采购清单。"
+  ],
+  "factory_smt": [
+    {
+      "refs": ["OPTICAL-STG120ML"],
+      "comment": "对射 STG-120ML 金属线，商品标注精度 3.87 mm；用于替换当前 10 路离散红外模块方案。",
+      "package": "对射一发一收 / 光纤或金属线组件（待商品页确认）",
+      "manufacturer": "待确认",
+      "mpn": "STG-120ML",
+      "part_class": "Candidate; exact evidence required",
+      "retail_min_qty": 1,
+      "search_keyword": "STG-120ML 对射 金属线 精度 3.87mm",
+      "source_url": "https://item.taobao.com/item.htm?id=878648735163&skuId=5719414916652",
+      "note": "必须核对 5V 兼容性、工作电流/功耗、检测距离、发射/接收端尺寸、固定孔位、线缆出口和输出接口。"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req_stg120ml_20260825",
+      "refs": ["OPTICAL-STG120ML"],
+      "qty_per_board": 1,
+      "comment": "对射 STG-120ML 金属线，商品标注精度 3.87 mm；用于替换当前 10 路离散红外模块方案。",
+      "package": "对射一发一收 / 光纤或金属线组件（待商品页确认）",
+      "manufacturer": "待确认",
+      "mpn": "STG-120ML",
+      "part_class": "Candidate; exact evidence required",
+      "component_kind": "sensor",
+      "is_commodity": false,
+      "exact_mpn_required": true,
+      "replacement_requires_approval": true,
+      "search_keyword": "STG-120ML 对射 金属线 精度 3.87mm",
+      "source_url": "https://item.taobao.com/item.htm?id=878648735163&skuId=5719414916652",
+      "notes": [
+        "必须核对 5V 兼容性、工作电流/功耗、检测距离、发射/接收端尺寸、固定孔位、线缆出口和输出接口。"
+      ],
+      "attributes": {
+        "mpn": "STG-120ML",
+        "accuracyMm": 3.87,
+        "supplyVoltageV": "待确认",
+        "currentA": "待确认"
+      }
+    }
+  ],
+  "manual_or_external": [
+    {
+      "refs": ["OPTICAL-STG120ML"],
+      "quantity_per_board": 1,
+      "item": "对射 STG-120ML 金属线光栅",
+      "specification": "商品标注精度 3.87 mm；用于替换当前 10 路离散红外模块方案。",
+      "retail_min_qty": 1,
+      "search_keyword": "STG-120ML 对射 金属线 精度 3.87mm",
+      "source_url": "https://item.taobao.com/item.htm?id=878648735163&skuId=5719414916652",
+      "note": "必须核对 5V 兼容性、工作电流/功耗、检测距离、发射/接收端尺寸、固定孔位、线缆出口和输出接口。"
+    }
+  ]
+}

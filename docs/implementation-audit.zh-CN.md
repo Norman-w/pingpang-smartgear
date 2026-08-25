@@ -1,5 +1,7 @@
 # 乒乓智配首轮实现审计
 
+> 说明：本文保留的是旧版 10 路离散光栅/10 mm 导轨方案的历史审计记录。当前硬件主线已改为 STG-120ML 两段光纤头、外侧托架/中央桥和待确认的配套放大器；下表中的旧版光栅“已证明”内容不代表当前采购件已经提供逐点位图。当前判断以 `docs/optical-gate-procurement-decision-v0.1.zh-CN.md`、`docs/net-height-device-design.zh-CN.md` 和 `hardware/cad/net_stand.scad` 为准。
+
 本文只记录当前仓库能被复核的证据，不把主机测试或 OpenSCAD 编译结果当作实体硬件验收，也不提交比赛级精度承诺。
 
 ## 已由当前仓库证明

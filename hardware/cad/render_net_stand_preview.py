@@ -169,23 +169,35 @@ def main() -> None:
         600,
         600,
     )
-    render(openscad, "optical_rail", args.output_dir / "net-stand-optical-rail.png", 900, 1200)
-    render(openscad, "optical_strip", args.output_dir / "net-stand-optical-strip.png", 1000, 1200)
     render(
         openscad,
-        "optical_strip",
-        args.output_dir / "net-stand-optical-strip-mirror.png",
-        1000,
+        "stg120_outer_carrier",
+        args.output_dir / "net-stand-stg120-outer-carrier-right.png",
+        900,
+        1200,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "stg120_outer_carrier",
+        args.output_dir / "net-stand-stg120-outer-carrier-left.png",
+        900,
         1200,
         definitions=("SIDE=-1",),
     )
     render(
         openscad,
-        "optical_module_carrier",
-        args.output_dir / "net-stand-optical-module-carrier.png",
-        900,
+        "stg120_center_bridge",
+        args.output_dir / "net-stand-stg120-center-bridge.png",
         700,
-        definitions=("optical_module_index=4",),
+        1200,
+    )
+    render(
+        openscad,
+        "stg120_preview",
+        args.output_dir / "net-stand-stg120-preview.png",
+        1800,
+        900,
     )
     render(openscad, "sensor_mount", args.output_dir / "net-stand-sensor-mount.png", 1000, 800)
     render(openscad, "pvdf_film", args.output_dir / "net-stand-pvdf-film.png", 800, 600)
@@ -195,13 +207,6 @@ def main() -> None:
         args.output_dir / "net-stand-pvdf-clamp-lip.png",
         800,
         600,
-    )
-    render(
-        openscad,
-        "reference_carriage",
-        args.output_dir / "net-stand-reference-carriage.png",
-        1000,
-        800,
     )
     render(
         openscad,

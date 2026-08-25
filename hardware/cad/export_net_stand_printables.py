@@ -38,6 +38,8 @@ PART_NAMES_ZH = {
     "net_rail_saddle": "网顶承托座",
     "optical_rail": "红外光栅导轨",
     "optical_module_carrier": "光栅光学模块载台",
+    "stg120_outer_carrier": "STG-120ML 外侧光纤头托架",
+    "stg120_center_bridge": "STG-120ML 中央背靠背支撑桥",
     "sensor_mount_body": "PVDF 网顶传感器座",
     "sensor_clamp_lip": "PVDF 薄膜压片",
     "reference_carriage_body": "参考线端座",
@@ -129,26 +131,48 @@ ASSEMBLY_COMPONENTS = [
         "notes": "夹在网顶白边的左右两个可拆传感器座中。",
     },
     {
-        "id": "optical-modules",
-        "name_zh": "调制红外发射 / 接收模块",
-        "name_en": "modulated IR emitter / receiver modules",
+        "id": "stg120-heads",
+        "name_zh": "STG-120ML 对射金属光纤头",
+        "name_en": "STG-120ML opposed metal-fiber heads",
         "kind": "光学器件",
-        "status": "外购 / 非打印",
+        "status": "外购 / 非打印 / 已选淘宝 SKU",
         "printable": False,
-        "quantity": "10 对",
-        "scad_part": "optical_strip",
-        "notes": "装入两侧导轨的对应高度载台，真实型号和光轴仍需实测。",
+        "quantity": "2 对（全宽分两段；共 4 根头）",
+        "scad_part": "stg120_outer_carrier / stg120_center_bridge",
+        "notes": "商品图标注有效检测面 120 mm、32×Ø0.25 mm、3.87 mm 间距、最大检测距离 1000 mm；单对无法跨 1525 mm 球台，首样按左右两段布置。",
     },
     {
-        "id": "reference-pins",
-        "name_zh": "Ø3 弹簧定位销",
-        "name_en": "spring locating pins",
-        "kind": "外购标准件",
-        "status": "外购 / 非打印",
+        "id": "stg120-amplifiers",
+        "name_zh": "STG-120ML 配套光纤放大器",
+        "name_en": "STG-120ML fiber amplifier",
+        "kind": "传感器接口",
+        "status": "待确认 / 不在当前光纤头 SKU 内",
         "printable": False,
-        "quantity": "2 枚",
-        "scad_part": "reference_pin",
-        "notes": "锁定参考线端座和 10 mm 光栅孔位。",
+        "quantity": "2 套（每个分段 1 套）",
+        "scad_part": "stg120_amplifier",
+        "notes": "商品图明确写出光纤线需搭配放大器，并标注放大器直流 12–24 V；输出是 NPN/PNP 还是模拟量、空闲/遮挡逻辑和工作电流仍需卖家给出铭牌或手册。",
+    },
+    {
+        "id": "stg120-esp32-interface",
+        "name_zh": "放大器到 ESP32-S3 的隔离/电平接口",
+        "name_en": "isolated level interface to ESP32-S3",
+        "kind": "电子接口",
+        "status": "必需 / 非打印",
+        "printable": False,
+        "quantity": "按放大器输出通道",
+        "scad_part": "stg120_amplifier",
+        "notes": "NPN/PNP 工业输出不能直接把 12–24 V 接入 ESP32-S3 GPIO；首选光耦或 3.3 V 容忍的开集电极接口。若要得到高度，必须确认放大器能输出逐光束位图、计数/位置量或模拟位置量。",
+    },
+    {
+        "id": "stg120-power",
+        "name_zh": "12 V 现场电源或 5 V 充电宝升压模块",
+        "name_en": "12 V field supply or 5 V power-bank boost",
+        "kind": "供电",
+        "status": "待电流实测后选型",
+        "printable": False,
+        "quantity": "1 套",
+        "scad_part": "stg120_amplifier",
+        "notes": "当前商品证据只确认 12–24 V 输入范围，没有确认工作电流；不能直接把 5 V 充电宝接到放大器。若必须移动供电，使用带限流和欠压保护的 5 V→12 V 升压，并按实测峰值电流留余量。",
     },
     {
         "id": "m3-hardware",
@@ -158,8 +182,8 @@ ASSEMBLY_COMPONENTS = [
         "status": "外购 / 非打印",
         "printable": False,
         "quantity": "按装配",
-        "scad_part": "net_rail_splice / optical_module_carrier",
-        "notes": "用于网顶拼接片、光学载台和传感器压片的锁紧。",
+        "scad_part": "net_rail_splice / stg120_outer_carrier",
+        "notes": "用于网顶拼接片和 STG-120ML 托架试装；实际头部固定优先采用包络夹持，不预先假定商品 M3 孔位。",
     },
     {
         "id": "contact-pads",
@@ -376,21 +400,24 @@ def build_export_specs() -> list[ExportSpec]:
     )
     specs.extend(
         _side_specs(
-            "optical_rail",
-            "optical-rail",
+            "stg120_outer_carrier",
+            "stg120-outer-carrier",
             "PETG",
-            "导轨基面朝下；定位孔和刻度朝外可见。",
-            "单侧 10 路光学模块导轨；真实光学件不在 STL 内。",
+            "光纤头窗口朝向球台中心；打印托架先按商品图 130×19×6 mm 包络试装。",
+            "单侧外侧 STG-120ML 光纤头托架；不遮挡前方检测面，支撑臂接到立柱内侧。",
         )
     )
-    specs.extend(
-        _indexed_side_specs(
-            "optical_module_carrier",
-            "optical-module-carrier",
-            range(10),
-            "PETG",
-            "U 形开口朝上；长孔方向按实物模块调节方向复核。",
-            "单个 +10…+100 mm 光学模块载台；M3 紧固件和收发器为标准/外购件。",
+    specs.append(
+        ExportSpec(
+            filename="stg120-center-bridge.stl",
+            part="stg120_center_bridge",
+            definitions=('PART="stg120_center_bridge"',),
+            side=None,
+            side_value=None,
+            index=None,
+            material="PETG",
+            orientation="桥脚平面朝下；两侧窗口分别朝左右，安装在网顶承载条中心。",
+            notes="中央背靠背分段支撑桥；首样用于把两段检测距离控制在 1000 mm 内。",
         )
     )
     specs.extend(
@@ -411,15 +438,6 @@ def build_export_specs() -> list[ExportSpec]:
             "夹持 PVDF 薄膜两侧的可拆压片。",
         )
     )
-    specs.extend(
-        _side_specs(
-            "reference_carriage_body",
-            "reference-carriage-body",
-            "PETG",
-            "端座底面朝下；定位销另用标准件安装。",
-            "参考线端座本体；reference_carriage 只保留为端座+定位销装配预览。",
-        )
-    )
     specs.append(
         ExportSpec(
             filename="calibration-gauge.stl",
@@ -430,7 +448,7 @@ def build_export_specs() -> list[ExportSpec]:
             index=None,
             material="PETG",
             orientation="底面朝下；刻度面朝上。",
-            notes="共享的 +10…+100 mm 高度档位标定规。",
+            notes="共享的 STG-120ML 32 点 / 3.87 mm 间距标定规；用于核对光纤头有效检测面和两段窗口，不代表放大器已经提供逐点输出。",
         )
     )
     return specs
@@ -513,7 +531,7 @@ def main() -> None:
     parser.add_argument(
         "--clean",
         action="store_true",
-        help="仅清理输出目录中不属于当前 50 件清单的旧 STL；不会删除其它文件",
+        help="仅清理输出目录中不属于当前打印清单的旧 STL；不会删除其它文件",
     )
     args = parser.parse_args()
     output_dir = args.output_dir.resolve()
@@ -556,6 +574,7 @@ def main() -> None:
             "table_clamp",
             "net_rail",
             "optical_strip",
+            "stg120_preview",
             "sensor_mount",
             "reference_carriage",
         ],

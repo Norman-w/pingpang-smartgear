@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>乒乓智配 · 网架打印与装配检查</title>
+  <title>乒乓智配 · 装配、爆炸与打印检查</title>
   <script type="importmap">
   {
     "imports": {
@@ -13,15 +13,15 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=stg120ml-v2">
 </head>
 <body>
   <header class="topbar">
     <div class="brand-lockup">
       <div class="brand-mark">配</div>
       <div>
-        <div class="eyebrow">乒乓智配 / 内部工程工具</div>
-        <h1>网架打印件与装配清单 <span>·</span> v0.1</h1>
+        <div class="eyebrow">乒乓智配 / CAD 工程预览</div>
+        <h1>网架装配、爆炸与打印检查 <span>·</span> v0.1</h1>
       </div>
     </div>
     <div class="top-meta">
@@ -31,14 +31,29 @@
   </header>
 
   <main class="app-shell">
-    <aside class="control-rail" aria-label="拼盘控制">
+    <aside class="control-rail" aria-label="网架预览控制">
       <section class="intro-block">
-        <div class="section-kicker">开发 / 装配 / 切片前检查</div>
-        <h2>网架首样<br><em>打印与装配检查</em></h2>
-        <p>给开发、装配和切片人员使用。页面按源 STL 的实际包围盒排版；这里的参数只改变预览，不会缩放或改写源零件。</p>
+        <div class="section-kicker">装配 / 爆炸 / 拼盘</div>
+        <h2>网架首样<br><em>看清楚再打印</em></h2>
+        <p>这是一套替换传统球网的网架首样：先确认左右夹台、网顶和 STG-120ML 两段光栅怎么装，再拆开检查打印件与采购件，最后进入按材料分盘的打印清单。</p>
       </section>
 
-      <section class="control-card">
+      <section class="control-card assembly-control-card" id="assembly-control-card">
+        <div class="card-label">装配视图控制</div>
+        <label class="field-label" for="explode-range">爆炸程度 <output id="explode-output">0</output>%</label>
+        <input id="explode-range" class="range-input" type="range" min="0" max="100" step="1" value="0">
+        <div class="button-row">
+          <button id="assembled-button" class="secondary-button" type="button">合并</button>
+          <button id="exploded-button" class="secondary-button" type="button">展开</button>
+        </div>
+        <label class="field-label" for="assembly-step">装配进度 <output id="assembly-step-output">完整</output></label>
+        <input id="assembly-step" class="range-input" type="range" min="0" max="5" step="1" value="5">
+        <label class="check-row"><input id="show-table" type="checkbox" checked><span>显示球台与球网背景</span></label>
+        <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、STG 光纤头、传感器和标准件</span></label>
+        <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；STG-120ML 光纤头和配套放大器仍按采购件处理。</p>
+      </section>
+
+      <section class="control-card print-control" data-print-only>
         <div class="card-label">打印床与排版参数</div>
         <label class="field-label" for="bed-preset">打印机 / 床面预设</label>
         <select id="bed-preset" class="control-input">
@@ -60,7 +75,7 @@
         <button id="reset-button" class="secondary-button" type="button">恢复已生成清单</button>
       </section>
 
-      <section class="control-card compact-card">
+      <section class="control-card compact-card print-control" data-print-only>
         <div class="card-label">检查项与导出</div>
         <label class="check-row"><input id="show-labels" type="checkbox" checked><span>显示零件名称</span></label>
         <label class="check-row"><input id="show-safe-area" type="checkbox" checked><span>显示边缘余量</span></label>
@@ -70,7 +85,7 @@
         </div>
       </section>
 
-      <section class="note-block">
+      <section class="note-block print-control" data-print-only>
         <div class="note-icon">!</div>
         <div>
           <strong id="oversize-note-title">当前有 3 件需要处理</strong>
@@ -97,12 +112,31 @@
         </div>
       </div>
 
+      <nav class="mode-tabs" id="mode-tabs" role="tablist" aria-label="查看模式">
+        <button class="mode-tab" type="button" role="tab" aria-selected="true" data-view-mode="assembly">
+          <span class="mode-tab-title">装配预览</span>
+          <span class="mode-tab-help">完整安装关系</span>
+        </button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="exploded">
+          <span class="mode-tab-title">爆炸预览</span>
+          <span class="mode-tab-help">拆开看零件位置</span>
+        </button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="print">
+          <span class="mode-tab-title">打印拼盘</span>
+          <span class="mode-tab-help">PETG / TPU 分盘</span>
+        </button>
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="parts">
+          <span class="mode-tab-title">零件清单</span>
+          <span class="mode-tab-help">中文名称与 STL</span>
+        </button>
+      </nav>
+
       <div id="error-banner" class="error-banner" hidden></div>
 
-      <div class="plate-tabs" id="plate-tabs" role="tablist" aria-label="打印床拼盘选择"></div>
+      <div class="plate-tabs print-control" id="plate-tabs" role="tablist" aria-label="打印床拼盘选择" data-print-only></div>
 
       <div class="visual-grid">
-        <section class="visual-card layout-card">
+        <section class="visual-card layout-card print-control" data-print-only>
           <div class="visual-card-head">
             <div>
               <div class="card-label">打印床俯视 / XY</div>
@@ -121,7 +155,7 @@
         <section class="visual-card model-card">
           <div class="visual-card-head">
             <div>
-              <div class="card-label">STL 几何检查</div>
+              <div id="model-kicker" class="card-label">三维装配检查</div>
               <h3 id="model-title">等待选择模型</h3>
             </div>
             <div class="model-actions">
@@ -130,23 +164,44 @@
               <a id="download-plate" class="tiny-button" href="#" download hidden>下载当前拼盘文件</a>
             </div>
           </div>
+          <div id="assembly-toolbar" class="assembly-toolbar" hidden>
+            <span id="assembly-status-badge" class="soft-badge">装配坐标 · mm</span>
+            <span id="assembly-selection-badge" class="assembly-selection-badge">悬停或点击三维零件查看中文名称</span>
+          </div>
           <div id="model-host" class="model-host">
             <div id="model-placeholder" class="model-placeholder">
               <div class="placeholder-orbit">◎</div>
               <p>选择拼盘或打印件</p>
               <small>可旋转、缩放、平移检查 STL 几何</small>
             </div>
+            <div id="assembly-hover-label" class="assembly-hover-label" hidden></div>
           </div>
           <div id="model-caption" class="model-caption">WebGL 3D 预览正在初始化…</div>
         </section>
       </div>
 
-      <div class="detail-grid">
+      <section class="data-card assembly-guide-card" id="assembly-guide-card" hidden>
+        <div class="data-card-head">
+          <div>
+            <div class="card-label">装配顺序 / 结构分组</div>
+            <h3>按步骤检查网架、STG-120ML 和擦网传感器</h3>
+          </div>
+          <button id="clear-assembly-selection" class="tiny-button" type="button">清除选中</button>
+        </div>
+        <div class="assembly-guide-grid">
+          <div id="assembly-step-list" class="assembly-step-list"></div>
+          <div id="assembly-selection-panel" class="assembly-selection-panel">
+            <div class="empty-state">点击三维零件或下方步骤查看对应的中文名称、材料和装配说明。</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="detail-grid print-control" data-print-only>
         <section class="data-card parts-card">
           <div class="data-card-head">
             <div>
               <div class="card-label">当前拼盘 / 打印件</div>
-              <h3>当前拼盘包含的打印件</h3>
+          <h3 id="parts-card-title">当前拼盘包含的打印件</h3>
             </div>
             <input id="part-filter" class="search-input" type="search" placeholder="筛选中文名 / 文件名" aria-label="筛选打印件">
           </div>
@@ -169,7 +224,7 @@
         </section>
       </div>
 
-      <section class="data-card component-card">
+      <section class="data-card component-card" id="component-card">
         <div class="data-card-head">
           <div>
             <div class="card-label">装配物料 / 与打印件分开管理</div>
@@ -190,6 +245,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=stg120ml-v2"></script>
 </body>
 </html>

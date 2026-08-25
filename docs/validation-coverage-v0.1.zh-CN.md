@@ -1,5 +1,7 @@
 # 乒乓智配验证证据映射 v0.1
 
+> 当前硬件主线已经切换为 STG-120ML 两段光纤头 + 配套放大器；本文中保留的旧版 10 路/10 mm 描述只作为历史固件契约兼容，不能当作采购光栅已经具备逐点输出的证据。机械、采购和接口判断以 `docs/optical-gate-procurement-decision-v0.1.zh-CN.md` 为准。
+
 本文把 [`validation-matrix.zh-CN.md`](validation-matrix.zh-CN.md) 的每一项映射到当前可复核的代码或现场证据。这里的“主机覆盖”只证明业务逻辑、时间边界或数据契约；它不替代传感器、球网、打印件、最终 PCB 和真实 App 的现场记录。
 
 ## 1. 软件/主机证据
@@ -17,12 +19,12 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | --- | --- | --- | --- |
 | M-01 | 无；`tools/validate_field_record.py` 可校验现场记录格式 | 记录项完整性和证据路径安全 | 内置支架重复从桌下夹紧、安装位置、滑移和软垫损伤记录 |
 | M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件、夹体/上表面保护垫/台底压块/圆头螺杆/固定下臂螺母/旋钮两枚对锁螺母拆分、18/25/30 mm 台厚免打孔矩阵、镜像、独立打印零件 STL 封闭边拓扑与非法参数路径 | 免打孔 C 形夹体跨过台边，上表面可替换保护垫位于固定上夹板与桌面之间，圆头 M8 螺杆只到台底压块下表面；固定下臂单枚螺母与旋钮两枚对锁螺母的包络、叠层深度和螺杆穿越关系可编译；独立打印零件的 STL 没有开放边/非流形边，组合装配 PART 只作为可视检查，左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、保护垫材料/压缩、立柱倾斜、螺杆行程、对锁防松和标准件实际装配 |
-| M-03 | `validate_net_stand.py`；`preview.py`；`render_net_stand_preview.py` | `152.5 mm` 网顶、双侧支架、3 段承载条与拼接片、可单独导出的 `optical_rail`、10 mm 光栅档位、实际贯穿定位孔、参考线端座/定位销、全部十个参考高度、10 个光学载台档位和 PVDF/光学安装位的参数与可视关系 | 真实网布张力、左右立柱平行度、网顶高度、光学载台锁紧和光学/PVDF 实物安装记录 |
+| M-03 | `validate_net_stand.py`；`render_net_stand_preview.py`；装配页 | `152.5 mm` 网顶、双侧替换式支架、3 段承载条与拼接片、STG-120ML 外侧托架/中央桥、两段约 `763 mm` 检测窗口、32 点/3.87 mm 机械标定规和 PVDF 安装位的参数与可视关系 | 真实网布张力、左右立柱平行度、网顶高度、光纤头/放大器锁紧和光学/PVDF 实物安装记录 |
 | B-01 | `test_clean_over_and_height_interval()`、`test_every_beam_mask_interval()` | `clean_over`、位图、离散高度和球底间隔契约 | 真实光束与球体遮挡 |
 | B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`test_runtime_chain_with_delivery()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征、`touch_over` 以及事件进入传输缓存 | PVDF 前端与真实过网动作 |
 | B-03 | `test_touch_no_cross_and_unknown()`、`net_event_trace` | 擦网无光栅时的 `touch_no_cross` 和质量标记 | 真实擦网未过网动作 |
 | B-04/B-05 | `test_touch_over_before_and_after_beam()` | 左/右单通道 `sensor_mask` 与前后时序关联 | 左右 PVDF 实物分别接板触发 |
-| B-06 | `test_each_beam_channel_independently()`；全部 `1…1023` 位图 Schema 遍历 | 通道编号、位图和高度映射 | 10 根真实光束逐根遮挡 |
+| B-06 | `test_each_beam_channel_independently()`；全部 `1…1023` 位图 Schema 遍历（旧业务契约） | 兼容层的通道编号、位图和高度映射 | STG-120ML 实际放大器是否输出逐点位图；若只输出单个遮挡/位置量，需先改业务映射后再做现场测试 |
 | B-07 | `test_channel_self_test_and_baseline()`、`test_sensor_health_quality_flags()`、`test_sensor_health_gate_pipeline()` | 发射/接收/基线/健康位图失败时 fail-closed | 断发射、偏接收、网体遮挡和环境光实测 |
 | B-08 | `BeamSelfTestReport` 形状测试和健康门测试 | 每通道 pass/fail 位图可组合且坏快照不放行 | 上电自检在目标板逐通道执行并留档 |
 | B-09 | `test_sensor_health_quality_flags()` | GPIO 队列溢出后的旧输入清理和 `unknown` | ESP32-S3 真实 ISR 高频边沿压力 |

@@ -531,7 +531,7 @@ def main() -> int:
     args = parse_args()
     source_manifest_path = args.manifest.resolve()
     if not source_manifest_path.is_file():
-        raise SystemExit(f"找不到打印件 manifest: {source_manifest_path}；请先导出 50 件 STL")
+        raise SystemExit(f"找不到打印件 manifest: {source_manifest_path}；请先运行当前打印件导出脚本")
     source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
     if source_manifest.get("source") != "hardware/cad/net_stand.scad":
         raise SystemExit("输入 manifest 不是当前 net_stand.scad 打印清单")

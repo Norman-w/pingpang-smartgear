@@ -41,6 +41,9 @@ PARTS = (
     "optical_rail",
     "optical_strip",
     "optical_module_carrier",
+    "stg120_outer_carrier",
+    "stg120_center_bridge",
+    "stg120_preview",
     "sensor_mount",
     "sensor_mount_body",
     "pvdf_film",
@@ -64,6 +67,7 @@ PREVIEW_ONLY_PARTS = {
     "net",
     "net_rail",
     "optical_strip",
+    "stg120_preview",
     "sensor_mount",
     "reference_carriage",
 }
@@ -376,6 +380,17 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "optical_carrier_slot_d",
         "optical_carrier_slot_length",
         "optical_module_index",
+        "stg120_head_length",
+        "stg120_active_length",
+        "stg120_head_width",
+        "stg120_head_thickness",
+        "stg120_beam_count",
+        "stg120_beam_pitch",
+        "stg120_detect_distance_max",
+        "stg120_outer_face_x",
+        "stg120_outer_frame_min_x",
+        "stg120_outer_frame_max_x",
+        "stg120_reference_height",
         "reference_pin_d",
         "reference_pin_bore_d",
         "reference_pin_length",
@@ -481,6 +496,20 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     if parameters["optical_module_index"] != 0:
         raise RuntimeError(f"parameter probe must use the default optical module index: {parameters}")
     if not (
+        parameters["stg120_head_length"] == 130
+        and parameters["stg120_active_length"] == 120
+        and parameters["stg120_head_width"] == 19
+        and parameters["stg120_head_thickness"] == 6
+        and parameters["stg120_beam_count"] == 32
+        and abs(parameters["stg120_beam_pitch"] - 3.87) < 0.001
+        and parameters["stg120_detect_distance_max"] == 1000
+        and parameters["stg120_outer_face_x"] >= table_edge
+        and parameters["stg120_outer_frame_min_x"] < parameters["stg120_outer_face_x"]
+        and parameters["stg120_outer_frame_max_x"] > parameters["stg120_outer_face_x"]
+        and abs(parameters["stg120_reference_height"] - 13 * parameters["stg120_beam_pitch"]) < 0.001
+    ):
+        raise RuntimeError(f"STG-120ML geometry parameters are inconsistent: {parameters}")
+    if not (
         0 < parameters["reference_pin_d"]
         < parameters["reference_pin_bore_d"]
         < parameters["optical_locating_hole_d"]
@@ -533,6 +562,7 @@ def main() -> None:
             "optical_rail",
             "optical_strip",
             "optical_module_carrier",
+            "stg120_outer_carrier",
             "sensor_mount",
             "sensor_mount_body",
             "pvdf_film",
@@ -600,6 +630,9 @@ def main() -> None:
         saddle_bounds = stl_bounds(output_dir / "net_rail_saddle.stl")
         optical_rail_bounds = stl_bounds(output_dir / "optical_rail.stl")
         carrier_bounds = stl_bounds(output_dir / "optical_module_carrier.stl")
+        stg_outer_bounds = stl_bounds(output_dir / "stg120_outer_carrier.stl")
+        stg_center_bounds = stl_bounds(output_dir / "stg120_center_bridge.stl")
+        stg_preview_bounds = stl_bounds(output_dir / "stg120_preview.stl")
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
@@ -637,6 +670,26 @@ def main() -> None:
             and abs(carrier_center_z - (parameters["net_height"] + parameters["beam_first_height"])) < 0.01
         ):
             raise RuntimeError(f"optical module carrier envelope is not centered on channel 0: {carrier_bounds}")
+        if not (
+            stg_outer_bounds[0] >= parameters["stg120_outer_frame_min_x"] - 0.01
+            and stg_outer_bounds[1] <= parameters["stg120_outer_frame_max_x"] + 0.01
+            and stg_outer_bounds[1] > parameters["table_width"] / 2
+            and stg_outer_bounds[3] - stg_outer_bounds[2] >= parameters["stg120_head_width"]
+            and stg_outer_bounds[5] - stg_outer_bounds[4] >= parameters["stg120_head_length"]
+        ):
+            raise RuntimeError(f"STG-120ML outer carrier does not retain the head envelope: {stg_outer_bounds}")
+        if not (
+            stg_center_bounds[1] - stg_center_bounds[0] >= 20
+            and stg_center_bounds[3] - stg_center_bounds[2] > parameters["stg120_head_width"]
+            and stg_center_bounds[5] - stg_center_bounds[4] >= parameters["stg120_head_length"]
+            and stg_center_bounds[0] < 0 < stg_center_bounds[1]
+            and stg_preview_bounds[0] < -parameters["table_width"] / 2
+            and stg_preview_bounds[1] > parameters["table_width"] / 2
+        ):
+            raise RuntimeError(
+                f"STG-120ML central bridge or two-segment preview is inconsistent: "
+                f"center={stg_center_bounds}, preview={stg_preview_bounds}"
+            )
         if not (
             optical_rail_bounds[3] - optical_rail_bounds[2] <= parameters["optical_rail_width"] + 0.01
             and optical_rail_bounds[4] < parameters["net_height"]
@@ -896,8 +949,9 @@ def main() -> None:
     print(
         "NET_STAND_OK "
         f"(table {parameters['table_width']:g} mm, net {parameters['net_height']:g} mm, "
-        f"optical +{parameters['beam_first_height']:g}..+{parameters['beam_last_height']:g} mm, "
-        f"{int(parameters['beam_count'])} channels, no-drill table thickness "
+        f"STG-120ML {int(parameters['stg120_beam_count'])}×{parameters['stg120_beam_pitch']:g} mm, "
+        f"legacy optical +{parameters['beam_first_height']:g}..+{parameters['beam_last_height']:g} mm, "
+        f"no-drill table thickness "
         f"{','.join(str(value) for value in NO_DRILL_TABLE_THICKNESSES)} mm)"
     )
 
