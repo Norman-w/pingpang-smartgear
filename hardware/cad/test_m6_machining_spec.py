@@ -71,7 +71,7 @@ def main() -> None:
 
     shell = spec["shell_contract"]
     if (
-        shell["outer_envelope_mm"] != [37.4, 75.8, 222]
+        shell["outer_envelope_mm"] != [37.4, 60.8, 222]
         or shell["split_axis"] != "x"
         or shell["split_x_global_mm"] != 766
         or shell["top_view_profile"]
@@ -81,7 +81,7 @@ def main() -> None:
         or shell["front_max_x_global_mm"] != 766.3
         or shell["rear_min_x_global_mm"] != 765.7
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -93,6 +93,18 @@ def main() -> None:
         "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
     }:
         raise AssertionError("shared edge-groove contract changed")
+    boss = shell["support_boss"]
+    if (
+        boss["min_global_mm"] != [782.4, -9, 234.5]
+        or boss["max_global_mm"] != [796.4, 9, 270.5]
+        or boss["length_x_mm"] != 14
+        or boss["root_overlap_x_mm"] != 3
+        or boss["depth_y_mm"] != 18
+        or boss["height_z_mm"] != 36
+        or boss["center_y_global_mm"] != 0
+        or boss["hole_axis"] != "x- from the rear x+ face toward the optical side"
+    ):
+        raise AssertionError("centered rear-face boss contract changed")
 
     support = spec["support_contract"]
     if (
@@ -103,10 +115,10 @@ def main() -> None:
         != "x- from the rear cover boss toward the optical side"
         or support["boss_hole_d_mm"] != 8.6
         or support["boss_hole_depth_x_mm"] != 14
-        or support["boss_hole_entry_x_global_mm"] != 781.4
+        or support["boss_hole_entry_x_global_mm"] != 796.4
         or support["ballhead_stud_engagement_x_mm"] != 12
-        or support["ballhead_center_x_global_mm"] != 801.4
-        or support["ballhead_center_y_global_mm"] != -36.4
+        or support["ballhead_center_x_global_mm"] != 816.4
+        or support["ballhead_center_y_global_mm"] != 0
         or support["ballhead_center_z_global_mm"] != 252.5
         or "不制作自有 90° 支撑 STL" not in support["net_interface"]
         or "球头自带竖直网夹接口" not in support["load_path"]

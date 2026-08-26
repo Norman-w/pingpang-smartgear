@@ -1,6 +1,6 @@
 # 乒乓智配验证证据映射 v0.1
 
-> 当前硬件主线已经切换为用户指定的 M6 十路光电器件阵列 + 10×56×216 mm PETG 长条主体 + 后盖 y− 加厚 M8 boss + 竖直采购球头直连商品网夹；本文中保留的 STG-120ML、旧版 10 路/10 mm、梳齿条和自制三轴载台描述只作为历史接口兼容，不能当作当前 M6 器件已经具备逐点输出的证据。机械、采购和接口判断以 `docs/m6-optical-array-design-v0.1.zh-CN.md`、`docs/m6-aluminum-machining-spec-v0.1.zh-CN.md` 和 `hardware/cad/net_stand.scad` 为准。
+> 当前硬件主线已经切换为用户指定的 M6 十路光电器件阵列 + 10×56×216 mm PETG 长条主体 + 后盖 x 背面中央加厚 M8 boss + 竖直采购球头直连商品网夹；本文中保留的 STG-120ML、旧版 10 路/10 mm、梳齿条和自制三轴载台描述只作为历史接口兼容，不能当作当前 M6 器件已经具备逐点输出的证据。机械、采购和接口判断以 `docs/m6-optical-array-design-v0.1.zh-CN.md`、`docs/m6-aluminum-machining-spec-v0.1.zh-CN.md` 和 `hardware/cad/net_stand.scad` 为准。
 
 本文把 [`validation-matrix.zh-CN.md`](validation-matrix.zh-CN.md) 的每一项映射到当前可复核的代码或现场证据。这里的“主机覆盖”只证明业务逻辑、时间边界或数据契约；它不替代传感器、球网、打印件、最终 PCB 和真实 App 的现场记录。
 
@@ -19,7 +19,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 | --- | --- | --- | --- |
 | M-01 | 无；`tools/validate_field_record.py` 可校验现场记录格式 | 记录项完整性和证据路径安全 | 内置支架重复从桌下夹紧、安装位置、滑移和软垫损伤记录 |
 | M-02 | `hardware/cad/validate_net_stand.py`；OpenSCAD CI 当前 `net_stand.scad` 各部件、夹体/上表面保护垫/台底压块/圆头螺杆/固定下臂螺母/旋钮两枚对锁螺母拆分、18/25/30 mm 台厚免打孔矩阵、镜像、独立打印零件 STL 封闭边拓扑与非法参数路径 | 免打孔 C 形夹体跨过台边，上表面可替换保护垫位于固定上夹板与桌面之间，圆头 M8 螺杆只到台底压块下表面；固定下臂单枚螺母与旋钮两枚对锁螺母的包络、叠层深度和螺杆穿越关系可编译；独立打印零件的 STL 没有开放边/非流形边，组合装配 PART 只作为可视检查，左右导出可编译 | 实物样块/球台的夹紧力、台面损伤、保护垫材料/压缩、立柱倾斜、螺杆行程、对锁防松和标准件实际装配 |
-| M-03 | `validate_net_stand.py`；`render_net_stand_preview.py`；`render_m6_views.py`；装配页 | `152.5 mm` 网顶、`1830 mm` 名义网架总宽、左右各 `152.5 mm` 网柱外伸、当前夹体外轮廓名义外伸 `160 mm` 且结构下限为 `130 mm`、台边外三角侧肋、双侧替换式支架、3 段承载条与拼接片、左右各一根 10×56×216 mm M6 PETG 主体、后盖 y− 加厚 M8 boss、前后盖/底盖、20 个 M6 直角器件包络、竖直采购球头、10 对名义光轴和 PVDF 安装位的参数与可视关系 | 真实网布张力、两侧外伸后的脚部/球路净空、三角肋耐久性、左右主体平行度、网顶高度、M6 螺纹/螺母/光学中心、球头和网夹接口、NPN 供电/电平和线缆净空；若宣称标准网夹兼容，还需量测 ITTF T2 的开口/台下投影边界 |
+| M-03 | `validate_net_stand.py`；`render_net_stand_preview.py`；`render_m6_views.py`；装配页 | `152.5 mm` 网顶、`1830 mm` 名义网架总宽、左右各 `152.5 mm` 网柱外伸、当前夹体外轮廓名义外伸 `160 mm` 且结构下限为 `130 mm`、台边外三角侧肋、双侧替换式支架、3 段承载条与拼接片、左右各一根 10×56×216 mm M6 PETG 主体、后盖 x 背面中央加厚 M8 boss、前后盖/底盖、20 个 M6 直角器件包络、竖直采购球头、10 对名义光轴和 PVDF 安装位的参数与可视关系 | 真实网布张力、两侧外伸后的脚部/球路净空、三角肋耐久性、左右主体平行度、网顶高度、M6 螺纹/螺母/光学中心、球头和网夹接口、NPN 供电/电平和线缆净空；若宣称标准网夹兼容，还需量测 ITTF T2 的开口/台下投影边界 |
 | B-01 | `test_clean_over_and_height_interval()`、`test_every_beam_mask_interval()` | `clean_over`、位图、离散高度和球底间隔契约 | 真实光束与球体遮挡 |
 | B-02 | `test_sensor_pipeline_end_to_end()`、`test_trigger_before_dma_dispatch_pipeline()`、`test_runtime_chain_with_delivery()`、`net_event_trace` | 擦网候选与光栅关联、波形引用/特征、`touch_over` 以及事件进入传输缓存 | PVDF 前端与真实过网动作 |
 | B-03 | `test_touch_no_cross_and_unknown()`、`net_event_trace` | 擦网无光栅时的 `touch_no_cross` 和质量标记 | 真实擦网未过网动作 |

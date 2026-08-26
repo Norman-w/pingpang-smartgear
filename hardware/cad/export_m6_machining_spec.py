@@ -22,7 +22,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v0.8-20-mm-pitch-petg-body-rear-boss"
+SCHEMA_VERSION = "m6-machining-spec-v0.9-20-mm-pitch-petg-body-rear-face-boss"
 
 
 def _r(value: float) -> float | int:
@@ -140,7 +140,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后盖（PETG，后方加厚 M8 接口 boss）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端；y− 后方加厚形成支撑 boss，开 x 向 Ø8.6 M8 通孔，供金属球头/转接件连接；首样不把薄壳当作唯一弯矩承力件。",
+                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø8.6 M8 通孔，供金属球头连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -240,7 +240,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "tongue_clearance_mm": _r(parameters["m6_detector_shell_tongue_clearance"]),
                 "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
             },
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像，最终尺寸待真实器件首样复核",
             "support_boss": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
@@ -254,8 +254,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                     _r(parameters["m6_detector_shell_support_boss_top_z"]),
                 ],
                 "length_x_mm": _r(parameters["m6_detector_shell_support_boss_length_x"]),
+                "root_overlap_x_mm": _r(parameters["m6_detector_shell_support_boss_overlap_x"]),
                 "depth_y_mm": _r(parameters["m6_detector_shell_support_boss_depth_y"]),
                 "height_z_mm": _r(parameters["m6_detector_shell_support_boss_height_z"]),
+                "center_y_global_mm": _r(parameters["m6_detector_shell_support_boss_center_y"]),
                 "hole_axis": "x- from the rear x+ face toward the optical side",
                 "hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
                 "hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
@@ -288,7 +290,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "posture": "球头主体竖直；侧向 M8 外牙进入后盖 y− 加厚 boss 的 x 向通孔，下方竖直接口直接接商品网夹；最终承力以采购金属件和首样实测为准",
+            "posture": "球头主体竖直；侧向 M8 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔，下方竖直接口直接接商品网夹；最终承力以采购金属件和首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -347,7 +349,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "release_checks": [
             "收到真实 M6 对射器件后复核 M6x0.75 有效外丝长度、头部六角 AF、六角轴向厚度、光学中心和原配螺帽厚度",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
-            "确认左右件只做 x 镜像：左侧发射光轴朝 x+，右侧接收光轴朝 x-，两侧后盖 boss 均位于各自外侧 y-",
+            "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧 boss 均位于各自后端面的 y=0、z 中心",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
             "真实网夹安装面、球网外伸和孔距实测后，核对采购球头竖直螺柱/底座的直接安装界面，不再制作独立灰色适配板或 90°支撑件",

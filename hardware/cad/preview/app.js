@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 y- 侧加厚 M8 boss，直接接保持竖直的采购 13 mm 球头，球头自带竖直接口连接商品网夹。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，直接接保持竖直的采购 13 mm 球头，球头自带竖直接口连接商品网夹。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -492,35 +492,35 @@ function makeProxyAssemblyItems(entries) {
     receiverThreadMinX: 755.25,
     receiverOpticalMinX: 754.85,
     receiverNutMinX: 756.25,
-    shellSupportBossMinX: 767.4,
-    shellSupportBossMaxX: 781.4,
+    shellSupportBossMinX: 782.4,
+    shellSupportBossMaxX: 796.4,
     shellSupportBossLengthX: 14,
-    shellSupportBossEndInsetX: 4,
-    shellSupportBossMinY: -45.4,
-    shellSupportBossMaxY: -27.4,
+    shellSupportBossOverlapX: 3,
+    shellSupportBossMinY: -9,
+    shellSupportBossMaxY: 9,
     shellSupportBossDepthY: 18,
-    shellSupportBossCenterX: 774.4,
-    shellSupportBossCenterY: -36.4,
+    shellSupportBossCenterX: 789.4,
+    shellSupportBossCenterY: 0,
     shellSupportBossBottomZ: 234.5,
     shellSupportBossTopZ: 270.5,
     shellSupportBossHeightZ: 36,
     shellSupportBossRadius: 2,
     shellSupportHoleD: 8.6,
     shellSupportHoleDepthX: 14,
-    shellSupportHoleEntryX: 781.4,
+    shellSupportHoleEntryX: 796.4,
     shellSupportStudEngagementX: 12,
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
-    ballheadCenterX: 801.4,
-    ballheadCenterY: -36.4,
+    ballheadCenterX: 816.4,
+    ballheadCenterY: 0,
     ballheadCenterZ: 252.5,
     ballheadBaseCenterZ: 235.5,
     ballheadBaseD: 32,
     ballheadBaseT: 8,
     ballheadNetStudCenterZ: 217.5,
     ballheadNetStudLength: 28,
-    ballheadSensorStudCenterX: 777.4,
+    ballheadSensorStudCenterX: 792.4,
     ballheadSensorStudD: 8,
     ballheadNetStudD: 8,
     ballheadSensorStudLength: 16,
@@ -806,10 +806,10 @@ function makeProxyAssemblyItems(entries) {
       shape: "rounded-footprint-support-boss",
       shapeOptions: {
         radius: m6Geometry.shellCornerRadius,
-        outer_y_offset: m6Geometry.shellMinY - m6Geometry.shellSupportBossMinY,
+        outer_y_offset: 0,
         outer_depth_y: m6Geometry.shellMaxY - m6Geometry.shellMinY,
         boss_x_offset: m6Geometry.shellSupportBossMinX - m6Geometry.rearMinX,
-        boss_y_offset: 0,
+        boss_y_offset: m6Geometry.shellSupportBossMinY - m6Geometry.shellMinY,
         boss_z_offset: m6Geometry.shellSupportBossBottomZ - m6Geometry.shellBottomZ,
         boss_length_x: m6Geometry.shellSupportBossLengthX,
         boss_depth_y: m6Geometry.shellSupportBossMaxY - m6Geometry.shellSupportBossMinY,
@@ -819,13 +819,13 @@ function makeProxyAssemblyItems(entries) {
         boss_hole_depth_x: m6Geometry.shellSupportHoleDepthX,
         mirror_x: side < 0,
       },
-      base_min: [rearShellMinX, m6Geometry.shellSupportBossMinY, m6Geometry.shellBottomZ],
+      base_min: [rearShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
       size: [m6Geometry.shellMaxX - m6Geometry.rearMinX,
-        m6Geometry.shellMaxY - m6Geometry.shellSupportBossMinY,
+        m6Geometry.shellMaxY - m6Geometry.shellMinY,
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖为圆角矩形；y− 后方适当增厚形成支撑 boss，并开 x 向 Ø8.6 M8 通孔。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
+      notes: "x+ 线缆端后盖为圆角矩形；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø8.6 M8 通孔。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -896,7 +896,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadSensorStudD],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入后盖 y− 加厚 boss 的通孔；主体保持长方条，不制作 T 尾座。",
+      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入各自 x 后端背面中央 boss 的通孔；主体保持长方条，不制作 T 尾座。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
@@ -2431,8 +2431,9 @@ function createAssemblyProxy(THREE, item) {
     addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
 
     // The rear-cover boss is a separate thickened PETG volume.  The browser
-    // proxy keeps it separate so the y- overhang and the x-axis M8 interface
-    // remain obvious in the assembly even though the SCAD part is one union.
+    // proxy keeps it separate so the centered rear-face seat and x-axis M8
+    // interface remain obvious in the assembly even though the SCAD part is
+    // one union.
     const bossLength = number(options.boss_length_x, 0);
     const bossDepth = number(options.boss_depth_y, 0);
     const bossHeight = number(options.boss_height_z, 0);

@@ -631,9 +631,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_sensor_thread_center_y",
         "m6_detector_sensor_head_center_y",
         "m6_detector_shell_support_boss_length_x",
-        "m6_detector_shell_support_boss_end_inset_x",
+        "m6_detector_shell_support_boss_overlap_x",
         "m6_detector_shell_support_boss_depth_y",
-        "m6_detector_shell_support_boss_overlap_y",
         "m6_detector_shell_support_boss_height_z",
         "m6_detector_shell_support_boss_radius",
         "m6_detector_shell_support_hole_d",
@@ -1448,23 +1447,31 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         raise RuntimeError(f"current M6 split shell/bottom cover contract is inconsistent: {parameters}")
 
     if not (
-        parameters["m6_detector_shell_support_boss_min_y"]
-        < parameters["m6_detector_shell_min_y"]
-        < parameters["m6_detector_shell_support_boss_max_y"]
-        and parameters["m6_detector_shell_support_boss_max_y"]
-        - parameters["m6_detector_shell_support_boss_min_y"]
-        == parameters["m6_detector_shell_support_boss_depth_y"]
-        and parameters["m6_detector_shell_support_boss_max_x"]
+        parameters["m6_detector_shell_support_boss_min_x"]
         < parameters["m6_detector_shell_max_x"]
+        < parameters["m6_detector_shell_support_boss_max_x"]
         and math.isclose(
-            parameters["m6_detector_shell_support_boss_end_inset_x"],
+            parameters["m6_detector_shell_support_boss_overlap_x"],
             parameters["m6_detector_shell_max_x"]
-            - parameters["m6_detector_shell_support_boss_max_x"],
+            - parameters["m6_detector_shell_support_boss_min_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
         and parameters["m6_detector_shell_support_boss_min_x"]
         >= parameters["m6_detector_shell_rear_min_x"]
+        and parameters["m6_detector_shell_support_boss_min_y"]
+        >= parameters["m6_detector_shell_min_y"]
+        and parameters["m6_detector_shell_support_boss_max_y"]
+        <= parameters["m6_detector_shell_max_y"]
+        and parameters["m6_detector_shell_support_boss_min_y"]
+        < parameters["m6_detector_body_center_y"]
+        < parameters["m6_detector_shell_support_boss_max_y"]
+        and math.isclose(
+            parameters["m6_detector_shell_support_boss_center_y"],
+            parameters["m6_detector_body_center_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["m6_detector_shell_support_boss_top_z"]
         > parameters["m6_detector_shell_support_boss_bottom_z"]
         and parameters["m6_detector_shell_support_boss_bottom_z"]
@@ -1509,6 +1516,12 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and math.isclose(
             parameters["m6_detector_ballhead_center_y"],
             parameters["m6_detector_shell_support_boss_center_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_ballhead_center_y"],
+            parameters["m6_detector_body_center_y"],
             rel_tol=0,
             abs_tol=1e-4,
         )

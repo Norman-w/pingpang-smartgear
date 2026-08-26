@@ -33,11 +33,10 @@ def find_openscad() -> str:
     )
 
 
-# The detector assembly is centered near x=770, y=0, z=252.5.  Eye points
-# are deliberately outside the part so each image has a predictable datum:
-# x- is the optical/front side, x+ is the cable/rear side, y- is the table
-# front, y+ is the table rear, z+ is the user's top/sky view, and z- is the
-# bottom/ground view.
+# The right detector assembly is centered near x=770, y=0, z=252.5.  The
+# left assembly is its x mirror.  Eye points are deliberately outside the
+# part so each image has a predictable local datum: optical/front end first,
+# cable/rear end second, then table y-/y+, z+/z-, and an isometric view.
 M6_CENTER = (770.0, 0.0, 252.5)
 VIEWS = {
     "front-optical-xminus": (300.0, 0.0, 252.5),
@@ -50,15 +49,23 @@ VIEWS = {
 }
 
 
-def camera_arg(eye: tuple[float, float, float]) -> str:
+def camera_arg(eye: tuple[float, float, float], center: tuple[float, float, float]) -> str:
     return "{} ,{} ,{} ,{} ,{} ,{}".format(
         eye[0],
         eye[1],
         eye[2],
-        M6_CENTER[0],
-        M6_CENTER[1],
-        M6_CENTER[2],
+        center[0],
+        center[1],
+        center[2],
     ).replace(" ", "")
+
+
+def side_camera(name: str, side: int) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+    if side not in (-1, 1):
+        raise ValueError(f"unsupported detector side: {side}")
+    center = (side * M6_CENTER[0], M6_CENTER[1], M6_CENTER[2])
+    eye = VIEWS[name]
+    return (side * eye[0], eye[1], eye[2]), center
 
 
 def render(
@@ -70,7 +77,7 @@ def render(
     width: int,
     height: int,
 ) -> Path:
-    output = output_dir / f"m6-{part}-{name}.png"
+    output = output_dir / f"m6-{part}-{name}-side{side}.png"
     output.parent.mkdir(parents=True, exist_ok=True)
     openscad_command = [
         openscad,
@@ -85,7 +92,7 @@ def render(
         "--render",
         "--viewall",
         "--projection=ortho",
-        "--camera=" + camera_arg(VIEWS[name]),
+        "--camera=" + camera_arg(*side_camera(name, side)),
         "--imgsize",
         f"{width},{height}",
         "--colorscheme=Tomorrow",

@@ -145,28 +145,28 @@ M6_DETECTOR_SHELL_SPLIT_X = 766.0
 M6_DETECTOR_SHELL_FRONT_MAX_X = 766.3
 M6_DETECTOR_SHELL_REAR_MIN_X = 765.7
 M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X = 14.0
-M6_DETECTOR_SHELL_SUPPORT_BOSS_END_INSET_X = 4.0
+M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_X = 3.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y = 18.0
-M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_Y = 3.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_HEIGHT_Z = 36.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_RADIUS = 2.0
 M6_DETECTOR_SHELL_SUPPORT_HOLE_D = 8.6
 M6_DETECTOR_SHELL_SUPPORT_HOLE_DEPTH_X = 14.0
 M6_DETECTOR_SHELL_SUPPORT_STUD_ENGAGEMENT_X = 12.0
 M6_DETECTOR_DETECTOR_BALLHEAD_GAP_X = 2.0
-M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_X = (
-    M6_DETECTOR_SHELL_MAX_X - M6_DETECTOR_SHELL_SUPPORT_BOSS_END_INSET_X
-)
+M6_DETECTOR_BODY_CENTER_Y = 0.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_X = (
-    M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_X
-    - M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X
+    M6_DETECTOR_SHELL_MAX_X
+    - M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_X
+)
+M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_X = (
+    M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_X
+    + M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X
 )
 M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_Y = (
-    M6_DETECTOR_SHELL_MIN_Y + M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_Y
+    M6_DETECTOR_BODY_CENTER_Y + M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y / 2
 )
 M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_Y = (
-    M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_Y
-    - M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y
+    M6_DETECTOR_BODY_CENTER_Y - M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y / 2
 )
 M6_DETECTOR_SHELL_SUPPORT_BOSS_CENTER_Z = (
     M6_DETECTOR_BODY_BOTTOM_Z + M6_DETECTOR_BODY_HEIGHT_Z / 2
@@ -186,10 +186,7 @@ M6_DETECTOR_BALLHEAD_CENTER_X = (
     + M6_DETECTOR_DETECTOR_BALLHEAD_GAP_X
     + M6_BALLHEAD_HOUSING_D / 2
 )
-M6_DETECTOR_BALLHEAD_CENTER_Y = (
-    M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_Y
-    + M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y / 2
-)
+M6_DETECTOR_BALLHEAD_CENTER_Y = M6_DETECTOR_BODY_CENTER_Y
 M6_PITCH_YOKE_T = 8.0
 M6_PITCH_YOKE_WIDTH_Y = 158.0
 M6_PITCH_FRAME_T = 6.0
@@ -204,7 +201,6 @@ M6_ROLL_PLATE_D = 110.0
 # SCAD inputs; the global body/shell/support coordinates below are derived from
 # the table edge and the +10...+190 mm channel schedule.
 M6_SENSOR_ROLL_DEG = -45.0
-M6_DETECTOR_BODY_CENTER_Y = 0.0
 M6_DETECTOR_BODY_DEPTH_Y = 56.0
 M6_DETECTOR_BODY_LENGTH_X = 10.0
 M6_DETECTOR_BODY_MARGIN_Z = 18.0
@@ -358,7 +354,7 @@ def draw_front(ax) -> None:
                 facecolor="#8796a5",
                 edgecolor="#3e4b57",
                 alpha=0.08,
-                label="x+ 后盖圆角矩形；y- 为采购球头加厚 boss" if side < 0 else "_nolegend_",
+                label="x+ 后盖圆角矩形；背面中央为采购球头加厚 boss" if side < 0 else "_nolegend_",
             )
         )
         ax.add_patch(
@@ -375,7 +371,7 @@ def draw_front(ax) -> None:
                 edgecolor="#38434c",
                 linewidth=1.2,
                 alpha=0.75,
-                label="后盖 y− 加厚 M8 boss（采购球头）" if side < 0 else "_nolegend_",
+                label="后盖背面中央加厚 M8 boss（采购球头）" if side < 0 else "_nolegend_",
             )
         )
         ax.add_patch(
@@ -572,7 +568,7 @@ def draw_side(ax) -> None:
             edgecolor="#38434c",
             linewidth=1.2,
             alpha=0.72,
-            label="后盖 y− 加厚 M8 boss",
+            label="后盖 x+ 背面中央加厚 M8 boss",
         )
     )
     for index in range(BEAM_COUNT):
@@ -635,7 +631,7 @@ def draw_side(ax) -> None:
         [body_bottom + body_height / 2, ballhead_z],
         color="#b6bdc3",
         linewidth=4.0,
-        label="采购球头 M8 外牙 → 后盖 y− boss",
+        label="采购球头 M8 外牙 → 后盖 x+ 背面中央 boss",
     )
     ax.add_patch(
         Rectangle(
@@ -976,7 +972,7 @@ def draw_top(ax) -> None:
             edgecolor="#38434c",
             linewidth=1.5,
             alpha=0.86,
-            label="后盖 y− 加厚 M8 boss（采购球头）",
+            label="后盖背面中央加厚 M8 boss（采购球头）",
         )
     )
     cable_hole_y = 0.0

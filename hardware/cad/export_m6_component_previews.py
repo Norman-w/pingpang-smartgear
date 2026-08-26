@@ -23,7 +23,7 @@ from validate_scad import find_openscad, stl_bounds
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-component-previews"
-SCHEMA_VERSION = "m6-component-previews-0.2-20-mm-pitch-petg-body-rear-boss"
+SCHEMA_VERSION = "m6-component-previews-0.3-20-mm-pitch-petg-body-rear-face-boss"
 
 
 @dataclass(frozen=True)
@@ -49,7 +49,7 @@ COMPONENTS = (
         True,
         "保持 OpenSCAD 全局姿态；x 为光束方向，y 为球台前后，z 为竖直",
         "OpenSCAD 全局坐标；不做局部平移",
-        "主体就是 10×56×216 mm 的连续矩形长条；含十路 20 mm 节距光学孔、浅 AF8 防转窝、盖件固定孔和 y± 边槽。主体不再带 T 尾座、M8 孔或独立线缆槽；云台接口位于 PETG 后盖 boss，首样确认后可按同一包络改 CNC。",
+        "主体就是 10×56×216 mm 的连续矩形长条；含十路 20 mm 节距光学孔、浅 AF8 防转窝、盖件固定孔和 y± 边槽。主体不再带 T 尾座、M8 孔或独立线缆槽；云台接口位于后盖 x 背面中央 boss，首样确认后可按同一包络改 CNC。",
     ),
     ComponentSpec(
         "m6_detector_shell_front",
@@ -71,7 +71,7 @@ COMPONENTS = (
         True,
         "z+ 套入；x+ 线缆端圆角矩形朝外",
         "OpenSCAD 全局坐标；与主体装配基准一致",
-        "后盖与前盖共用 y± 连续侧槽的 x+ 半段；y− 后方适当增厚形成 PETG 支撑 boss，开 x 向 Ø8.6 M8 通孔供采购球头的水平 M8 外牙连接。采购球头保持竖直并直接接商品网夹；首样需用实物固定件复核 boss 的承力与耐久。",
+        "后盖与前盖共用 y± 连续侧槽的 x+ 半段；x+ 背面中央在 y=0、z 中心适当增厚形成 PETG 支撑 boss，开 x 向 Ø8.6 M8 通孔供采购球头的水平 M8 外牙连接；左侧件按 x 镜像。采购球头保持竖直并直接接商品网夹；首样需用实物固定件复核 boss 的承力与耐久。",
     ),
     ComponentSpec(
         "m6_detector_bottom_cover",
@@ -218,7 +218,7 @@ def export_component_previews(
         "units": "mm",
         "coordinate_system": {
             "x": "beam direction; left emitter exits +x, right receiver aperture faces -x",
-        "y": "table front/rear direction; rear-cover support boss is on y-",
+        "y": "table front/rear direction; rear-cover support boss is centered at y=0",
             "z": "vertical direction",
             "side_files": "right=SIDE 1, left=SIDE -1; left is the x mirror of right",
             "frame": "entries remain in global OpenSCAD coordinates so they align with assembly and machining spec",

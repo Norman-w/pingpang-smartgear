@@ -150,7 +150,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 根（左右各 1）",
         "scad_part": "m6_detector_body",
-        "notes": "主体保持 10×56×216 mm 简单矩形，十路按 20 mm 单列排列，M6 中空外丝沿 x 贯穿；不带 T 尾座、不挖主体线缆槽。后盖另设 y− 加厚 M8 boss，前后盖和底盖由 M6 组件预览包独立导出。",
+        "notes": "主体保持 10×56×216 mm 简单矩形，十路按 20 mm 单列排列，M6 中空外丝沿 x 贯穿；不带 T 尾座、不挖主体线缆槽。后盖 x 背面中央另设 y=0、z 中心加厚 M8 boss，前后盖和底盖由 M6 组件预览包独立导出。",
     },
     {
         "id": "m6-purchased-ballhead",
@@ -161,7 +161,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 套（左右各 1）",
         "scad_part": "m6_ballhead",
-        "notes": "默认采购 13mm球【M8外牙】；球头保持竖直，横向 M8 外牙进入后盖 y− 加厚 boss，球头自带竖直接口直接接商品网夹。偏航、俯仰、旋转微调依靠采购件锁紧机构，不制作自有 90°支撑、灰色适配板或重复金色螺栓。",
+        "notes": "默认采购 13mm球【M8外牙】；球头保持竖直，横向 M8 外牙从各自 x 后端进入背面中央加厚 boss，球头自带竖直接口直接接商品网夹。偏航、俯仰、旋转微调依靠采购件锁紧机构，不制作自有 90°支撑、灰色适配板或重复金色螺栓。",
     },
     {
         "id": "m6-ballhead-variants",

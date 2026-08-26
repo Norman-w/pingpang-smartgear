@@ -68,8 +68,10 @@
 // 浅六角座只卡住真实金属头的六角外形，M6 外丝直接穿过主体，在外表面只
 // 安装一枚原配 5 mm 螺帽，14 mm 外丝仍保留足够的外露长度。
 // 当前装配已包含 PETG 前盖、后盖和底盖候选件；主体保持简单的 10×56×216 mm
-// 长方条，不再带 T 形尾座。后盖 y- 外侧在中部做独立加厚 boss，并开 x 向
-// Ø8.6 M8 通孔，供 13 mm 球头的 M8 外牙穿入；首样可以用通螺栓/螺母，未来
+// 长方条，不再带 T 形尾座。后盖的 x+ 背面中央在 y=0、z 中心做独立加厚
+// boss，并开 x 向 Ø8.6 M8 通孔，供 13 mm 球头的 M8 外牙从后方穿入；左侧
+// 发射端通过 SIDE 镜像后，boss 落在 x- 背面，孔轴反向指向 x+；首样可以用
+// 通螺栓/螺母，未来
 // CNC 时可改 M8 内丝或金属嵌件。采购球头保持竖直姿态并直接安装到网夹，薄壳
 // 只作定位/保护；首样的球头承力界面须用实物固定件验证。M6 器件、球头、PVDF 薄膜、网布、金属螺杆和夹持软垫
 // 均为外购/装配边界；主体、壳体和底盖可作为 PETG 首样打印件。
@@ -77,7 +79,7 @@
 // 保留为历史诊断件，不再作为当前装配主线。
 // 前后盖沿 x 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
 // 盖件到主体的固定件，当前承力路径是“传感器六角/螺杆 -> PETG/CNC 主体 ->
-// 后盖 y- 加厚 boss -> 采购 13 mm 球头 -> 球头自带竖直网夹接口 -> 网架”。线缆孔为开放孔，
+// 后盖 x 背面中央加厚 boss -> 采购 13 mm 球头 -> 球头自带竖直网夹接口 -> 网架”。线缆孔为开放孔，
 // 没有密封设计，不能宣称防水。该文件验证机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性、实物螺纹/光学精度或 NPN 电气验收。
 
@@ -433,12 +435,12 @@ m6_detector_shell_alpha = 0.48;
 // integral T-tail.  The nominal envelope is kept material-neutral so the same
 // geometry can later be machined from CNC stock or fitted with a metal insert.
 m6_detector_body_material = "PETG";
-// Keep the boss inside the rear cover's rounded x+ corner.  The 4 mm inset
-// leaves a clean CSG intersection instead of a tangent seam at that corner.
+// The boss is centered on the rear x face, not on the y side of the body.  A
+// 3 mm x overlap fuses the boss to the rear cover while leaving 11 mm of
+// material projecting toward the purchased ballhead.
 m6_detector_shell_support_boss_length_x = 14;
-m6_detector_shell_support_boss_end_inset_x = 4;
+m6_detector_shell_support_boss_overlap_x = 3;
 m6_detector_shell_support_boss_depth_y = 18;
-m6_detector_shell_support_boss_overlap_y = 3;
 m6_detector_shell_support_boss_height_z = 36;
 m6_detector_shell_support_boss_radius = 2;
 m6_detector_shell_support_hole_d = 8.6;
@@ -773,29 +775,26 @@ m6_detector_bottom_screw_x = [
     m6_detector_body_min_x + m6_detector_body_length_x / 4,
     m6_detector_body_max_x - m6_detector_body_length_x / 4
 ];
-// The rear x+ cover carries the only current gimbal interface.  Its y- side
-// boss is deliberately much thicker than the shell wall, while a 3 mm overlap
-// keeps it fused to the cover after the inner cavity is removed.  The positive
-// side is the right receiver; SIDE=-1 mirrors the complete boss to the left
-// emitter's outward side.
-m6_detector_shell_support_boss_max_x =
-    m6_detector_shell_max_x -
-    m6_detector_shell_support_boss_end_inset_x;
+// The rear cover carries the only current gimbal interface.  For the positive
+// side (right receiver) the boss is centered on the x+ rear face at y=0 and
+// extends outward in +x.  SIDE=-1 mirrors this complete interface to the left
+// emitter's x- rear face, so its M8 axis still points toward the optical x+.
 m6_detector_shell_support_boss_min_x =
-    m6_detector_shell_support_boss_max_x -
+    m6_detector_shell_max_x -
+    m6_detector_shell_support_boss_overlap_x;
+m6_detector_shell_support_boss_max_x =
+    m6_detector_shell_support_boss_min_x +
     m6_detector_shell_support_boss_length_x;
-m6_detector_shell_support_boss_max_y =
-    m6_detector_shell_min_y +
-    m6_detector_shell_support_boss_overlap_y;
 m6_detector_shell_support_boss_min_y =
-    m6_detector_shell_support_boss_max_y -
-    m6_detector_shell_support_boss_depth_y;
+    m6_detector_body_center_y -
+    m6_detector_shell_support_boss_depth_y / 2;
+m6_detector_shell_support_boss_max_y =
+    m6_detector_body_center_y +
+    m6_detector_shell_support_boss_depth_y / 2;
 m6_detector_shell_support_boss_center_x =
     (m6_detector_shell_support_boss_min_x +
      m6_detector_shell_support_boss_max_x) / 2;
-m6_detector_shell_support_boss_center_y =
-    (m6_detector_shell_support_boss_min_y +
-     m6_detector_shell_support_boss_max_y) / 2;
+m6_detector_shell_support_boss_center_y = m6_detector_body_center_y;
 m6_detector_shell_support_boss_bottom_z =
     m6_detector_body_center_z -
     m6_detector_shell_support_boss_height_z / 2;
@@ -1184,22 +1183,23 @@ assert(m6_detector_body_length_x == 10 &&
            m6_detector_shell_support_boss_length_x > 0 &&
            m6_detector_shell_support_boss_depth_y >
                2 * m6_detector_shell_clearance &&
-           m6_detector_shell_support_boss_overlap_y > 0 &&
+           m6_detector_shell_support_boss_overlap_x > 0 &&
            m6_detector_shell_support_boss_height_z > 0 &&
-           m6_detector_shell_support_boss_min_y <
+           m6_detector_shell_support_boss_min_x <
+               m6_detector_shell_max_x &&
+           m6_detector_shell_support_boss_max_x >
+               m6_detector_shell_max_x &&
+           m6_detector_shell_support_boss_overlap_x ==
+               m6_detector_shell_max_x -
+                   m6_detector_shell_support_boss_min_x &&
+           m6_detector_shell_support_boss_min_y >=
                m6_detector_shell_min_y &&
-           m6_detector_shell_support_boss_max_y >
-               m6_detector_shell_support_boss_min_y &&
-           m6_detector_shell_support_boss_max_y >
-               m6_detector_shell_min_y &&
+           m6_detector_shell_support_boss_max_y <=
+               m6_detector_shell_max_y &&
+           m6_detector_shell_support_boss_center_y ==
+               m6_detector_body_center_y &&
            m6_detector_shell_support_boss_min_x >=
                m6_detector_shell_rear_min_x &&
-           m6_detector_shell_support_boss_end_inset_x > 0 &&
-           m6_detector_shell_support_boss_max_x <
-               m6_detector_shell_max_x &&
-           m6_detector_shell_support_boss_end_inset_x ==
-               m6_detector_shell_max_x -
-                   m6_detector_shell_support_boss_max_x &&
            m6_detector_shell_support_boss_bottom_z <
                m6_detector_shell_support_boss_center_z &&
            m6_detector_shell_support_boss_top_z >
@@ -1220,7 +1220,8 @@ assert(m6_detector_body_length_x == 10 &&
            m6_detector_shell_support_hole_entry_x ==
                m6_detector_shell_support_boss_max_x,
        "rectangular PETG body and rear-cover M8 boss must form the current ballhead interface envelope");
-assert(m6_detector_ballhead_center_z == m6_detector_body_center_z &&
+assert(m6_detector_ballhead_center_y == m6_detector_body_center_y &&
+           m6_detector_ballhead_center_z == m6_detector_body_center_z &&
            m6_detector_ballhead_base_center_z <
                m6_detector_ballhead_center_z &&
            m6_detector_ballhead_net_stud_center_z <
@@ -1722,7 +1723,7 @@ module post_positive() {
 //
 // 机械契约：当前首样用可打印 PETG 长方条主体和 PETG 前后底盖；后续可将
 // 同一主体包络改为 CNC。当前承力路径是：M6×0.75 器件六角/主体 ->
-// 10×56×216 mm 长方条 -> 后盖 y- 加厚 boss -> 采购 13 mm 球头 ->
+// 10×56×216 mm 长方条 -> 后盖 x 背面中央加厚 boss -> 采购 13 mm 球头 ->
 // 球头自带竖直网夹接口。采购球头提供偏航/俯仰/滚转微调；前后壳和底盖
 // 只负责保护、导向和线缆出口，boss 的首样强度须用实物固定件验证。
 
@@ -2577,9 +2578,9 @@ module m6_detector_shell_front_outer_positive() {
 
 module m6_detector_shell_rear_outer_positive() {
     // Rear/cable cover is the x+ segment of the rounded-rectangle envelope.
-    // Its y- side also owns an integral thickened PETG boss for the M8
-    // ballhead stud.  The boss is part of the rear cover, not a hidden body
-    // tail or a separate gray adapter plate.
+    // Its rear x+ face also owns an integral thickened PETG boss for the M8
+    // ballhead stud.  The boss is centered in y and z, part of the rear cover,
+    // not a hidden body tail or a separate gray adapter plate.
     union() {
         intersection() {
             translate([0, 0, m6_detector_shell_bottom_z])
@@ -2683,11 +2684,11 @@ module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
 
 module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
     // Rear is the cable x+ end. It is rounded-rectangle shaped, owns the x+
-    // half of both side grooves, and has a thickened y- boss with an x-axis M8
-    // clearance hole for the purchased ballhead. It is fixed from x+ by two
-    // countersunk screws on the y- track; the boss is the cover-side seat for
-    // the ballhead's horizontal M8 stud, while the ballhead's own vertical
-    // interface connects directly to the purchased net clamp.
+    // half of both side grooves, and has a centered rear-face boss with an
+    // x-axis M8 clearance hole for the purchased ballhead. It is fixed from
+    // x+ by two countersunk screws on the y- track; the boss is the cover-side
+    // seat for the ballhead's horizontal M8 stud, while the ballhead's own
+    // vertical interface connects directly to the purchased net clamp.
     union() {
         color("slategray", alpha)
             difference() {
@@ -4132,9 +4133,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_sensor_head_center_y=", m6_detector_sensor_head_center_y));
     echo(str("NETSTAND_PARAM m6_detector_body_material=", m6_detector_body_material));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_length_x=", m6_detector_shell_support_boss_length_x));
-    echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_end_inset_x=", m6_detector_shell_support_boss_end_inset_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_overlap_x=", m6_detector_shell_support_boss_overlap_x));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_depth_y=", m6_detector_shell_support_boss_depth_y));
-    echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_overlap_y=", m6_detector_shell_support_boss_overlap_y));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_height_z=", m6_detector_shell_support_boss_height_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_radius=", m6_detector_shell_support_boss_radius));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_hole_d=", m6_detector_shell_support_hole_d));
