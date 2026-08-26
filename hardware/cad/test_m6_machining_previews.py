@@ -45,7 +45,7 @@ def main() -> None:
 
         if size("m6_machining_detector_body") != [10, 56, 216]:
             raise AssertionError("detector body local envelope changed")
-        if size("m6_machining_support") != [109.75, 18, 60]:
+        if size("m6_machining_support") != [101.7, 18, 60]:
             raise AssertionError("90-degree support local envelope changed")
         if size("m6_machining_adapter") != [6, 56, 228]:
             raise AssertionError("adapter plate envelope changed")

@@ -35,7 +35,7 @@ def main() -> None:
         raise AssertionError("current aluminum part schedule changed")
     if parts["m6_machining_detector_body"]["blank_mm"] != [10, 56, 216]:
         raise AssertionError("detector body blank changed")
-    if parts["m6_machining_support"]["blank_mm"] != [109.75, 18, 60]:
+    if parts["m6_machining_support"]["blank_mm"] != [101.7, 18, 60]:
         raise AssertionError("90-degree support envelope changed")
     if parts["m6_machining_adapter"]["blank_mm"] != [6, 56, 228]:
         raise AssertionError("vertical adapter envelope changed")
@@ -76,13 +76,42 @@ def main() -> None:
         raise AssertionError("highest channel local height changed")
 
     shell = spec["shell_contract"]
-    if shell["outer_envelope_mm"] != [24.8, 60.8, 222]:
-        raise AssertionError("front/rear shell envelope changed")
-    if shell["split_axis"] != "y" or shell["split_y_global_mm"] != 0 or shell["front_min_y_global_mm"] != -0.3 or shell["rear_max_y_global_mm"] != 0.3 or shell["top_entry"] != "前盖 y+ 为球弧、后盖 y- 为圆角矩形并带桥接 boss；主体位于中间，从主体 z+ 套入；侧边竖槽、底盖和沉头孔为当前装配候选，最终尺寸待真实器件首样复核":
+    if (
+        shell["outer_envelope_mm"] != [24.8, 60.8, 222]
+        or shell["split_axis"] != "x"
+        or shell["split_x_global_mm"] != 766
+        or shell["front_max_x_global_mm"] != 766.3
+        or shell["rear_min_x_global_mm"] != 765.7
+        or shell["top_entry"]
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧带 M8 金属桥接 boss；主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
+    ):
         raise AssertionError("split-cover contract changed")
+    grooves = shell["shared_edge_grooves"]
+    if grooves != {
+        "width_x_mm": 4,
+        "depth_y_mm": 1.2,
+        "margin_z_mm": 5,
+        "tongue_clearance_mm": 0.25,
+        "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
+    }:
+        raise AssertionError("shared edge-groove contract changed")
+
+    support = spec["support_contract"]
+    if (
+        support["thread_nominal_d_mm"] != 8
+        or support["metal_insert_d_mm"] != 12
+        or support["metal_insert_length_x_mm"] != 16
+        or support["printed_boss_clearance_d_mm"] != 8.6
+        or "后盖 boss -> 90°金属支撑水平臂" not in support["load_path"]
+    ):
+        raise AssertionError("M8 metal bridge contract changed")
 
     ballhead = spec["ballhead_contract"]
-    if ballhead["selected_variant"] != "13mm球【M6外牙】（当前模型默认）":
+    if (
+        ballhead["selected_variant"] != "13mm球【M8外牙】（当前模型默认）"
+        or ballhead["sensor_stud_d_mm"] != 8
+        or ballhead["net_stud_d_mm"] != 8
+    ):
         raise AssertionError("ballhead default variant changed")
     if ballhead["alternative_variants"] != [
         "13mm球【1/4内牙】",

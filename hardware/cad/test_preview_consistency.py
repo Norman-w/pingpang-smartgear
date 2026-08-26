@@ -102,8 +102,11 @@ PARAMETER_MAP = {
     "M6_DETECTOR_SUPPORT_BOSS_DEPTH_Y": "m6_detector_support_boss_depth_y",
     "M6_DETECTOR_SUPPORT_BOSS_HEIGHT_Z": "m6_detector_support_boss_height_z",
     "M6_DETECTOR_SUPPORT_BOSS_X_FRACTION": "m6_detector_support_boss_x_fraction",
+    "M6_DETECTOR_SUPPORT_THREAD_NOMINAL_D": "m6_detector_support_thread_nominal_d",
     "M6_DETECTOR_SUPPORT_TAP_D": "m6_detector_support_tap_d",
     "M6_DETECTOR_SUPPORT_TAP_DEPTH_X": "m6_detector_support_tap_depth_x",
+    "M6_DETECTOR_SUPPORT_METAL_INSERT_D": "m6_detector_support_metal_insert_d",
+    "M6_DETECTOR_SUPPORT_METAL_INSERT_LENGTH_X": "m6_detector_support_metal_insert_length_x",
     "M6_DETECTOR_SUPPORT_ARM_T_Z": "m6_detector_support_arm_t_z",
     "M6_DETECTOR_SUPPORT_ARM_WIDTH_Y": "m6_detector_support_arm_width_y",
     "M6_DETECTOR_SUPPORT_LEG_T_X": "m6_detector_support_leg_t_x",
@@ -130,6 +133,8 @@ BROWSER_PARAMETER_MAP = {
     "ballheadHousingLength": "M6_BALLHEAD_HOUSING_LENGTH_X",
     "ballheadBaseD": "M6_BALLHEAD_BASE_D",
     "ballheadBaseT": "M6_BALLHEAD_BASE_T",
+    "ballheadSensorStudD": "M6_BALLHEAD_SENSOR_STUD_D",
+    "ballheadNetStudD": "M6_BALLHEAD_NET_STUD_D",
     "ballheadTiltDeg": "M6_BALLHEAD_TILT_RANGE_DEG",
     "ballheadRotationDeg": "M6_BALLHEAD_ROTATION_RANGE_DEG",
 }
@@ -198,7 +203,7 @@ def main() -> None:
         "M6 直角十路光电阵列",
         "显示网布、M6 光电器件、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
-        "M6 45° L 型宽体主体、20 mm 节距、y 前后分段壳体、斜向 7 字让位孔、90°支撑和竖直采购球头",
+        "M6 45° L 型宽体主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、90°支撑和竖直采购球头",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:

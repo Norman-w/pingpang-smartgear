@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、壳体与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，前盖 y+ 正球弧、后盖 y- 圆角矩形和底盖按实际总成显示，壳体只保护/桥接，不承担主体载荷。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；PETG 只保护/桥接，主要载荷走铝主体和金属 M8 接口。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -425,9 +425,9 @@ function makeProxyAssemblyItems(entries) {
     notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
 
-  // Current M6 body-first assembly contract.  The metal bar is the
-  // load-bearing body; the current view intentionally omits the PETG covers
-  // until the 45-degree L-device orientation is visually accepted.
+  // Current M6 assembly contract. The metal bar is the load-bearing body;
+  // the completed x-split PETG covers and metal M8 bridge are shown together
+  // so the installed orientation can be checked before exploded export.
   const m6Geometry = {
     axisX: 763,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
@@ -442,7 +442,7 @@ function makeProxyAssemblyItems(entries) {
     deviceD: 6,
     sensorOpticalBoreD: 3,
     stemLength: 14,
-    fitProbeOnly: true,
+    fitProbeOnly: false,
     fitCaptureDepthX: 2,
     fitHeadLengthX: 6,
     fitHeadWidthY: 10,
@@ -469,9 +469,13 @@ function makeProxyAssemblyItems(entries) {
     shellWidthY: 60.8,
     shellBottomZ: 141.5,
     shellHeightZ: 222,
-    splitY: 0,
-    frontMinY: -0.3,
-    rearMaxY: 0.3,
+    splitX: 766,
+    frontMaxX: 766.3,
+    rearMinX: 765.7,
+    grooveWidthX: 4,
+    grooveDepthY: 1.2,
+    grooveMarginZ: 5,
+    tongueClearance: 0.25,
     wall: 2.4,
     hexPocketAF: 10.7,
     hexPocketDepthX: 2.5,
@@ -487,12 +491,12 @@ function makeProxyAssemblyItems(entries) {
     mountT: 6,
     mountWidth: 56,
     mountHeight: 228,
-    bossCenterX: 766.25,
+    bossCenterX: 774.3,
     bossWidthX: 18,
     bossDepthY: 8,
     bossHeightZ: 24,
     supportY: -34.4,
-    supportArmMinX: 784,
+    supportArmMinX: 790.3,
     supportArmMaxX: 889,
     supportArmZ: 227.5,
     supportArmWidthY: 18,
@@ -504,7 +508,7 @@ function makeProxyAssemblyItems(entries) {
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
-    ballheadCenterX: 798.25,
+    ballheadCenterX: 806.3,
     ballheadCenterY: -34.4,
     ballheadCenterZ: 252.5,
     ballheadBaseCenterZ: 235.5,
@@ -512,7 +516,13 @@ function makeProxyAssemblyItems(entries) {
     ballheadBaseT: 8,
     ballheadNetStudCenterZ: 217.5,
     ballheadNetStudLength: 28,
-    ballheadSensorStudCenterX: 774.25,
+    ballheadSensorStudCenterX: 782.3,
+    ballheadSensorStudD: 8,
+    ballheadNetStudD: 8,
+    supportThreadNominalD: 8,
+    supportClearanceD: 8.6,
+    supportMetalInsertD: 12,
+    supportMetalInsertLengthX: 16,
     ballheadSensorStudLength: 16,
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
@@ -523,6 +533,8 @@ function makeProxyAssemblyItems(entries) {
     const mirrorX = (minX, sizeX) => side > 0 ? minX : -minX - sizeX;
     const bodyMinX = side > 0 ? m6Geometry.bodyMinX : -m6Geometry.bodyMaxX;
     const shellMinX = side > 0 ? m6Geometry.shellMinX : -m6Geometry.shellMaxX;
+    const frontShellMinX = side > 0 ? m6Geometry.shellMinX : -m6Geometry.frontMaxX;
+    const rearShellMinX = side > 0 ? m6Geometry.rearMinX : -m6Geometry.shellMaxX;
     // Rotation pivots are expressed relative to each item's base_min. The
     // actual axis is the global x line at y=0 and the sensor's z center.
     const rotationPivotFor = (baseMin, sensorZ) => [
@@ -776,39 +788,39 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.bodyMaxX - m6Geometry.bodyMinX, m6Geometry.bodyDepthY, m6Geometry.bodyHeightZ],
       side,
       explosion: [side * 54, 0, 28],
-      notes: "当前验收 x=10 mm 厚、y=56 mm 宽的长条主体与真实三维激光头干涉：灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。壳子、线槽、支撑和云台暂不作为本阶段结构。",
+      notes: "当前验收 x=10 mm 厚、y=56 mm 宽的长条主体与真实三维激光头干涉：灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。两条 y± 边槽只导向前后盖舌片，主体仍是传感器和支撑的基准承力件。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-front:${sideLabel}`,
-      name_zh: `M6 前盖：y+ 球弧（${sideName}）`,
+      name_zh: `M6 前盖：x- 光学端正球弧（${sideName}）`,
       name_en: "M6 front spherical-arc cover",
       kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
-      base_min: [shellMinX, m6Geometry.frontMinY, m6Geometry.shellBottomZ],
-      size: [m6Geometry.shellMaxX - m6Geometry.shellMinX,
-        m6Geometry.shellMaxY - m6Geometry.frontMinY,
+      base_min: [frontShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
+      size: [m6Geometry.frontMaxX - m6Geometry.shellMinX,
+        m6Geometry.shellWidthY,
         m6Geometry.shellHeightZ],
       side,
-      explosion: [side * 92, -18, 46],
-      notes: "y+ 前盖为正球弧外形，从主体上方套入；M3/M4 沉头螺钉进入铝主体导孔。",
+      explosion: [side * -92, 0, 46],
+      notes: "x- 光学端前盖为正球弧，从主体 z+ 套入；它占两条 y± 边槽的 x- 半，M3/M4 沉头螺钉只锁入铝主体导孔。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
-      name_zh: `M6 后盖：圆角矩形与支撑 boss（${sideName}）`,
+      name_zh: `M6 后盖：x+ 圆角矩形与 y- M8 桥接 boss（${sideName}）`,
       name_en: "M6 rear rounded cover and support boss",
       kind: "保护壳/桥接件（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
-      base_min: [shellMinX,
+      base_min: [rearShellMinX,
         m6Geometry.shellMinY - m6Geometry.bossDepthY,
         m6Geometry.shellBottomZ],
-      size: [m6Geometry.shellMaxX - m6Geometry.shellMinX,
-        m6Geometry.rearMaxY - m6Geometry.shellMinY + m6Geometry.bossDepthY,
+      size: [m6Geometry.shellMaxX - m6Geometry.rearMinX,
+        m6Geometry.shellWidthY + m6Geometry.bossDepthY,
         m6Geometry.shellHeightZ],
       side,
-      explosion: [side * 118, -32, 38],
-      notes: "y- 后盖为圆角矩形并带居中桥接 boss；boss 的 x 轴螺纹孔连接金属固定器/球头。",
+      explosion: [side * 118, 0, 38],
+      notes: "x+ 线缆端后盖为圆角矩形，并在 y- 外侧带桥接 boss；boss 只提供金属 M8 外牙/衬套的定位和接口，弯矩经金属件、盖件螺钉和铝主体传递。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -821,7 +833,7 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.shellMaxX - m6Geometry.shellMinX, m6Geometry.shellWidthY, 3],
       side,
       explosion: [side * 42, 0, -46],
-      notes: "底盖按下方截面封闭，两个沉头螺钉固定到主体；Ø12 mm 孔用于剥皮后统一线缆套管，当前无密封。",
+      notes: "底盖按下方截面封闭，两个沉头螺钉固定到主体；Ø12 mm 孔贯通用于剥皮后统一线缆套管，当前明确为非密封设计。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-support-bracket:${sideLabel}`,
@@ -874,12 +886,16 @@ function makeProxyAssemblyItems(entries) {
       material: "外购金属件（非打印）",
       group: "optical",
       shape: "cylinder",
-      shapeOptions: { radius: 3, axis: "x" },
-      base_min: [ballheadStudMinX, m6Geometry.ballheadCenterY - 3, m6Geometry.ballheadCenterZ - 3],
-      size: [m6Geometry.ballheadSensorStudLength, 6, 6],
+      shapeOptions: { radius: m6Geometry.ballheadSensorStudD / 2, axis: "x" },
+      base_min: [ballheadStudMinX,
+        m6Geometry.ballheadCenterY - m6Geometry.ballheadSensorStudD / 2,
+        m6Geometry.ballheadCenterZ - m6Geometry.ballheadSensorStudD / 2],
+      size: [m6Geometry.ballheadSensorStudLength,
+        m6Geometry.ballheadSensorStudD,
+        m6Geometry.ballheadSensorStudD],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "沿 x 插入后盖 y- boss 的内攻孔；不是旧版水平球头背板的三孔结构。",
+      notes: "M8 外牙金属螺柱沿 x- 插入 x+ 后盖 y- boss 的金属衬套/通孔；不是旧版水平球头背板的三孔结构。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
@@ -889,12 +905,17 @@ function makeProxyAssemblyItems(entries) {
       material: "外购金属件（非打印）",
       group: "optical",
       shape: "cylinder",
-      shapeOptions: { radius: 3, axis: "z" },
-      base_min: [mirrorX(m6Geometry.ballheadCenterX - 3, 6), m6Geometry.ballheadCenterY - 3, m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2],
-      size: [6, 6, m6Geometry.ballheadNetStudLength],
+      shapeOptions: { radius: m6Geometry.ballheadNetStudD / 2, axis: "z" },
+      base_min: [mirrorX(m6Geometry.ballheadCenterX - m6Geometry.ballheadNetStudD / 2,
+        m6Geometry.ballheadNetStudD),
+        m6Geometry.ballheadCenterY - m6Geometry.ballheadNetStudD / 2,
+        m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2],
+      size: [m6Geometry.ballheadNetStudD,
+        m6Geometry.ballheadNetStudD,
+        m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "竖直姿态下把球头底部接到支撑托臂；实际端部螺纹由采购 SKU 决定。",
+      notes: "竖直姿态下用 M8 外牙把球头底部接到金属 90° 支撑托臂；实际端部螺纹由采购 SKU 决定。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -1659,7 +1680,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型宽体主体、20 mm 节距、y 前后分段壳体、斜向 7 字让位孔、90°支撑和竖直采购球头按装配清单显示。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型宽体主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、90°支撑和竖直采购球头按装配清单显示。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));

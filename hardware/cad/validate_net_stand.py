@@ -582,8 +582,11 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_support_boss_depth_y",
         "m6_detector_support_boss_height_z",
         "m6_detector_support_boss_x_fraction",
+        "m6_detector_support_thread_nominal_d",
         "m6_detector_support_tap_d",
         "m6_detector_support_tap_depth_x",
+        "m6_detector_support_metal_insert_d",
+        "m6_detector_support_metal_insert_length_x",
         "m6_detector_support_arm_t_z",
         "m6_detector_support_arm_width_y",
         "m6_detector_support_leg_t_x",
@@ -1225,16 +1228,35 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         > parameters["m6_detector_shell_min_x"]
         and parameters["m6_detector_shell_rear_min_x"]
         < parameters["m6_detector_shell_max_x"]
+        and parameters["m6_detector_shell_min_x"]
+        < parameters["m6_detector_shell_split_x"]
+        < parameters["m6_detector_shell_max_x"]
+        and parameters["m6_detector_shell_front_max_x"]
+        > parameters["m6_detector_shell_split_x"]
+        and parameters["m6_detector_shell_rear_min_x"]
+        < parameters["m6_detector_shell_split_x"]
+        and parameters["m6_detector_shell_front_max_x"]
+        > parameters["m6_detector_shell_rear_min_x"]
         and parameters["m6_detector_shell_split_overlap_x"] > 0
         and math.isclose(
-            parameters["m6_detector_shell_split_y"],
-            parameters["m6_detector_body_center_y"],
+            parameters["m6_detector_shell_front_min_y"],
+            parameters["m6_detector_shell_min_y"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_shell_front_min_y"]
-        < parameters["m6_detector_shell_split_y"]
-        < parameters["m6_detector_shell_rear_max_y"]
+        and math.isclose(
+            parameters["m6_detector_shell_rear_max_y"],
+            parameters["m6_detector_shell_max_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_body_groove_width_x"] / 2
+        > 2 * parameters["m6_detector_shell_tongue_clearance"]
+        and parameters["m6_detector_body_groove_depth_y"]
+        > 2 * parameters["m6_detector_shell_tongue_clearance"]
+        and parameters["m6_detector_body_groove_margin_z"] > 0
+        and parameters["m6_detector_shell_tongue_depth_y"]
+        > parameters["m6_detector_shell_tongue_clearance"]
         and parameters["m6_detector_shell_inner_min_x"]
         < parameters["m6_sensor_axis_x"]
         and parameters["m6_detector_shell_inner_max_x"]
@@ -1254,6 +1276,14 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_detector_support_boss_depth_y"] > 0
         and parameters["m6_detector_support_boss_width_x"] > 0
         and parameters["m6_detector_support_boss_height_z"] > 0
+        and parameters["m6_detector_support_boss_center_x"]
+        > parameters["m6_detector_shell_split_x"]
+        and parameters["m6_detector_support_boss_center_x"]
+        - parameters["m6_detector_support_boss_width_x"] / 2
+        < parameters["m6_detector_shell_rear_min_x"]
+        and parameters["m6_detector_support_boss_center_x"]
+        + parameters["m6_detector_support_boss_width_x"] / 2
+        > parameters["m6_detector_shell_rear_min_x"]
         and parameters["m6_detector_support_arm_min_x"]
         > parameters["m6_detector_body_max_x"]
         and parameters["m6_detector_support_arm_max_x"]
@@ -1264,6 +1294,20 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_detector_support_arm_width_y"] > 0
         and parameters["m6_detector_support_gusset_t_y"] > 0
         and parameters["m6_detector_support_gusset_inset_x"] > 0
+        and math.isclose(
+            parameters["m6_detector_support_thread_nominal_d"],
+            8.0,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_support_tap_d"]
+        > parameters["m6_detector_support_thread_nominal_d"]
+        and parameters["m6_detector_support_metal_insert_d"]
+        > parameters["m6_detector_support_tap_d"]
+        and parameters["m6_detector_support_metal_insert_length_x"]
+        > parameters["m6_detector_support_tap_depth_x"]
+        and parameters["m6_detector_support_metal_insert_length_x"]
+        <= parameters["m6_detector_support_boss_width_x"]
     ):
         raise RuntimeError(f"current M6 90-degree support load path is inconsistent: {parameters}")
 

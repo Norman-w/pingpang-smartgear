@@ -173,7 +173,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后方桥接壳（PETG）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖传感器主体并带 y- 后置 boss；boss 中央 x 向内攻孔连接采购球头/转接件。",
+                "notes": "覆盖 x+ 线缆端并带 y- 后置 boss；boss 中央沿 x- 指向光学端，使用金属 M8 外牙/衬套连接采购球头/转接件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -249,15 +249,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ],
             "wall_mm": _r(parameters["m6_detector_shell_wall"]),
             "body_clearance_mm": _r(parameters["m6_detector_shell_clearance"]),
-            "split_axis": "y",
-            "split_y_global_mm": _r(parameters["m6_detector_shell_split_y"]),
-            "front_min_y_global_mm": _r(
-                parameters["m6_detector_shell_front_min_y"]
-            ),
-            "rear_max_y_global_mm": _r(
-                parameters["m6_detector_shell_rear_max_y"]
-            ),
-            "legacy_split_x_global_mm": _r(parameters["m6_detector_shell_split_x"]),
+            "split_axis": "x",
             "split_x_global_mm": _r(parameters["m6_detector_shell_split_x"]),
             "front_max_x_global_mm": _r(
                 parameters["m6_detector_shell_front_max_x"]
@@ -265,7 +257,14 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "rear_min_x_global_mm": _r(
                 parameters["m6_detector_shell_rear_min_x"]
             ),
-            "top_entry": "前盖 y+ 为球弧、后盖 y- 为圆角矩形并带桥接 boss；主体位于中间，从主体 z+ 套入；侧边竖槽、底盖和沉头孔为当前装配候选，最终尺寸待真实器件首样复核",
+            "shared_edge_grooves": {
+                "width_x_mm": _r(parameters["m6_detector_body_groove_width_x"]),
+                "depth_y_mm": _r(parameters["m6_detector_body_groove_depth_y"]),
+                "margin_z_mm": _r(parameters["m6_detector_body_groove_margin_z"]),
+                "tongue_clearance_mm": _r(parameters["m6_detector_shell_tongue_clearance"]),
+                "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
+            },
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧带 M8 金属桥接 boss；主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
         },
         "support_contract": {
             "boss_width_x_mm": _r(parameters["m6_detector_support_boss_width_x"]),
@@ -283,6 +282,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "leg_top_z_global_mm": _r(parameters["m6_detector_support_leg_top_z"]),
             "gusset_t_y_mm": _r(parameters["m6_detector_support_gusset_t_y"]),
+            "thread_nominal_d_mm": _r(parameters["m6_detector_support_thread_nominal_d"]),
+            "metal_insert_d_mm": _r(parameters["m6_detector_support_metal_insert_d"]),
+            "metal_insert_length_x_mm": _r(parameters["m6_detector_support_metal_insert_length_x"]),
+            "printed_boss_clearance_d_mm": _r(parameters["m6_detector_support_tap_d"]),
             "load_path": "后盖 boss -> 90°金属支撑水平臂 -> 竖直腿 -> 网夹适配板/网架",
         },
         "ballhead_contract": {
@@ -300,7 +303,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "posture": "球头主体竖直；下方螺柱接 90° 支撑，上方/侧向锁紧后盖总成",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
-            "selected_variant": "13mm球【M6外牙】（当前模型默认）",
+            "selected_variant": "13mm球【M8外牙】（当前模型默认）",
             "alternative_variants": [
                 "13mm球【1/4内牙】",
                 "13mm球【1/4外牙】",
@@ -341,7 +344,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后盖 boss 到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead thread/adapter; current visual proxy is M6 external",
+                "spec": "selected 13 mm ballhead thread/adapter; current visual proxy is M8 external with metal bushing",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
             {
@@ -357,7 +360,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "收到真实 M6 对射器件后复核 M6x0.75 有效外丝长度、头部六角 AF、六角轴向厚度、光学中心和原配螺帽厚度",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
             "确认左右件只做 x 镜像：左侧发射光轴朝 x+，右侧接收光轴朝 x-，两侧主体后方均为各自外侧 y-",
-            "确认前后盖从 z+ 套入、侧边槽/舌可装配，沉头螺钉不会进入光学孔或线缆孔",
+            "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
             "真实网夹安装面、球网外伸和孔距实测后，冻结竖直适配板及 90°支撑连接孔",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
