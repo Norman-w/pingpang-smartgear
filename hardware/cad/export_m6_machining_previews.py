@@ -17,14 +17,14 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from validate_net_stand import _stl_topology
+from validate_net_stand import _stl_topology, _stl_volume
 from validate_scad import find_openscad, stl_bounds
 
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-previews"
-SCHEMA_VERSION = "m6-machining-previews-0.4-20-mm-pitch-l-sensor"
+SCHEMA_VERSION = "m6-machining-previews-0.5-20-mm-pitch-l-sensor-t-tail"
 
 
 @dataclass(frozen=True)
@@ -41,8 +41,8 @@ PREVIEW_PARTS = (
         "m6_machining_detector_body",
         "m6-detector-body",
         "M6 十路 45° L 型长条主体（铝合金）",
-        "主体 x-min、y-min、z-min；局部尺寸 10×56×216 mm",
-        "6061-T6 主体，十个中心按 20 mm 节距排列；每路有沿 x 的光学/外丝通孔、绕 x 轴 -45° 的尾线让位和浅六角防转沉孔；线缆不在铝材中挖槽，壳体、底盖、传感器和球头均不包含。",
+        "主体一体 T 尾座外包络 x-min、y-min、z-min；中央长条基准 10×56×216 mm，局部毛坯约 20×69.2×216 mm",
+        "6061-T6 主体，中央长条与 y- 外侧 T 形尾座一体加工，尾座向本侧 x 外伸 10 mm 并直接加工 M8×1.25 内丝；十个中心按 20 mm 节距排列；每路有沿 x 的光学/外丝通孔、绕 x 轴 -45° 的尾线让位和浅六角防转沉孔；线缆不在铝材中挖槽，壳体、底盖、传感器和球头均不包含。",
     ),
     MachiningPreviewSpec(
         "m6_machining_support",
@@ -56,7 +56,7 @@ PREVIEW_PARTS = (
         "m6-net-clamp-adapter",
         "M6 网夹/立柱固定适配板",
         "板材 x-min、y=0 中心线、板材 z-min",
-        "含当前竖直网夹/立柱的安装孔位；采购 13 mm 球头通过后盖 boss 和 90° 支撑连接，不把球头本体当作加工件。商品网夹接口仍待实测。",
+        "含当前竖直网夹/立柱的安装孔位；采购 13 mm 球头通过铝合金一体 T 尾座和 90° 支撑连接，不把球头本体当作加工件。商品网夹接口仍待实测。",
     ),
 )
 
@@ -98,6 +98,9 @@ def _manifest_entry(output: Path, spec: MachiningPreviewSpec, side: str, side_va
         raise RuntimeError(
             f"机加工预览不是封闭 STL: {output.name}: {topology_summary}"
         )
+    volume_mm3 = _stl_volume(output)
+    if volume_mm3 <= 1e-6:
+        raise RuntimeError(f"机加工预览体积无效: {output.name}: {volume_mm3}")
     min_x, max_x, min_y, max_y, min_z, max_z = stl_bounds(output)
     return {
         "file": output.name,
@@ -120,6 +123,7 @@ def _manifest_entry(output: Path, spec: MachiningPreviewSpec, side: str, side_va
                 _round(max_z - min_z),
             ],
         },
+        "volume_mm3": _round(volume_mm3),
         "topology": {
             "watertight_by_edge_topology": closed,
             "summary": topology_summary,

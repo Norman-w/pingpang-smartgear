@@ -174,11 +174,53 @@ def _stl_topology(path: Path, tolerance: float = 1e-6) -> tuple[bool, str]:
         for edge, count in edge_counts.items()
     )
     ok = bool(triangles) and not (degenerate or boundary or non_manifold or inconsistent)
+    volume_mm3 = _stl_volume_from_triangles(triangles)
     details = (
         f"triangles={len(triangles)}, degenerate={degenerate}, boundary={boundary}, "
-        f"non_manifold={non_manifold}, inconsistent_orientation={inconsistent}"
+        f"non_manifold={non_manifold}, inconsistent_orientation={inconsistent}, "
+        f"volume_mm3={volume_mm3:.3f}"
     )
     return ok, details
+
+
+def _stl_volume_from_triangles(
+    triangles: list[tuple[tuple[float, float, float], ...]]
+) -> float:
+    """Return the absolute closed-mesh volume using a local reference point.
+
+    Translating every triangle by the first vertex avoids loss of precision for
+    the detector parts, whose global x coordinates are around 770 mm.  The
+    topology check remains the authority for closure; this value catches an
+    empty/zero-volume export and records the requested volume evidence.
+    """
+
+    if not triangles:
+        return 0.0
+    reference = triangles[0][0]
+    total = 0.0
+    for triangle in triangles:
+        vectors = [
+            tuple(point[axis] - reference[axis] for axis in range(3))
+            for point in triangle
+        ]
+        first, second, third = vectors
+        cross = (
+            second[1] * third[2] - second[2] * third[1],
+            second[2] * third[0] - second[0] * third[2],
+            second[0] * third[1] - second[1] * third[0],
+        )
+        total += (
+            first[0] * cross[0]
+            + first[1] * cross[1]
+            + first[2] * cross[2]
+        ) / 6.0
+    return abs(total)
+
+
+def _stl_volume(path: Path) -> float:
+    """Return the absolute STL volume in cubic millimetres."""
+
+    return _stl_volume_from_triangles(_stl_triangles(path))
 
 
 def _stl_mirror_signature(
@@ -223,6 +265,12 @@ def require_stl(
         closed, details = _stl_topology(output)
         if not closed:
             raise RuntimeError(f"OpenSCAD produced a non-closed STL for {label}: {details}")
+        volume_mm3 = _stl_volume(output)
+        if volume_mm3 <= 1e-6:
+            raise RuntimeError(
+                f"OpenSCAD produced a zero-volume STL for {label}: "
+                f"volume_mm3={volume_mm3:.6f}"
+            )
 
 
 def validate_no_drill_thickness(
@@ -426,6 +474,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_sensor_thread_start_x",
         "m6_sensor_thread_end_x",
         "m6_sensor_overall_end_x",
+        "m6_sensor_head_center_x",
         "m6_sensor_cable_exit_x",
         "m6_sensor_mount_plane_offset_z",
         "m6_sensor_lock_nut_af",
@@ -542,8 +591,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_fit_thread_clearance_d",
         "m6_detector_fit_thread_tip_allowance_x",
         "m6_detector_fit_head_inner_x",
+        "m6_detector_fit_head_center_x",
         "m6_detector_fit_thread_tip_x",
         "m6_detector_fit_thread_visible_length_x",
+        "m6_detector_fit_body_depth_limit_x",
+        "m6_detector_fit_nut_center_x",
+        "m6_detector_sensor_install_offset_x",
+        "m6_detector_sensor_nut_center_x",
+        "m6_detector_thread_visible_length",
         "m6_detector_shell_wall",
         "m6_detector_shell_clearance",
         "m6_detector_shell_bottom_lip_z",
@@ -583,6 +638,15 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_support_boss_height_z",
         "m6_detector_support_boss_x_fraction",
         "m6_detector_support_thread_nominal_d",
+        "m6_detector_support_tail_extension_x",
+        "m6_detector_support_tail_head_depth_y",
+        "m6_detector_support_tail_overlap_y",
+        "m6_detector_support_tail_height_z",
+        "m6_detector_support_tail_thread_pitch",
+        "m6_detector_support_tail_thread_depth_x",
+        "m6_detector_support_tail_tap_drill_d",
+        "m6_detector_support_tail_thread_mouth_d",
+        "m6_detector_support_tail_thread_mouth_depth_x",
         "m6_detector_support_tap_d",
         "m6_detector_support_tap_depth_x",
         "m6_detector_support_metal_insert_d",
@@ -623,12 +687,28 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_detector_thread_axis_x",
         "m6_detector_support_boss_center_x",
         "m6_detector_support_y",
+        "m6_detector_support_tail_min_x",
+        "m6_detector_support_tail_max_x",
+        "m6_detector_support_tail_width_x",
+        "m6_detector_support_tail_min_y",
+        "m6_detector_support_tail_max_y",
+        "m6_detector_support_tail_center_y",
+        "m6_detector_support_tail_bottom_z",
+        "m6_detector_support_tail_top_z",
+        "m6_detector_support_tail_center_z",
+        "m6_detector_support_tail_center_x",
+        "m6_detector_support_tail_thread_engagement_x",
+        "m6_detector_support_tail_thread_entry_x",
+        "m6_detector_support_tail_thread_center_x",
         "m6_detector_support_arm_z",
         "m6_detector_support_arm_min_x",
         "m6_detector_support_arm_max_x",
         "m6_detector_support_leg_x",
         "m6_detector_support_leg_bottom_z",
         "m6_detector_support_leg_top_z",
+        "m6_detector_ballhead_center_y",
+        "m6_detector_ballhead_center_z",
+        "m6_detector_ballhead_sensor_stud_center_x",
         "stg120_head_length",
         "stg120_active_length",
         "stg120_head_width",
@@ -1038,6 +1118,50 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
 def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     """Validate the active 45-degree L-sensor body rather than the legacy rail."""
 
+    source_text = SOURCE.read_text(encoding="utf-8")
+
+    def module_text(name: str) -> str:
+        marker = f"module {name}"
+        start = source_text.find(marker)
+        if start < 0:
+            raise RuntimeError(f"current M6 source module is missing: {name}")
+        next_module = source_text.find("\nmodule ", start + len(marker))
+        return source_text[start:] if next_module < 0 else source_text[start:next_module]
+
+    body_module = module_text("m6_detector_body_positive()")
+    body_envelope_module = module_text("m6_detector_body_envelope_positive()")
+    tail_thread_module = module_text("m6_detector_body_tail_thread_void_positive()")
+    fit_body_module = module_text("m6_detector_fit_body_positive()")
+    sensor_array_module = module_text("m6_detector_sensor_array_positive()")
+    fit_sensor_module = module_text("m6_detector_fit_sensor_positive(index)")
+    front_outer_module = module_text("m6_detector_front_outer_positive()")
+    rear_outer_module = module_text("m6_detector_shell_rear_outer_positive()")
+    front_shell_module = module_text("m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha)")
+    rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
+    bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
+    if (
+        "m6_detector_body_envelope_positive();" not in body_module
+        or "m6_detector_body_t_tail_positive();" not in body_envelope_module
+        or "m6_countersink_x(" not in tail_thread_module
+        or "m6_detector_body_tail_thread_void_positive();" not in body_module
+        or "m6_detector_body_envelope_positive();" not in fit_body_module
+        or "m6_detector_body_tail_thread_void_positive();" not in fit_body_module
+        or "m6_detector_sensor_fit_voids_positive();" not in body_module
+        or "m6_detector_sensor_fit_voids_positive();" not in fit_body_module
+        or "m6_detector_sensor_installed_positive(index);" not in sensor_array_module
+        or "m6_detector_sensor_installed_positive(index);" not in fit_sensor_module
+        or "m6_sensor_head_width_y + 1.6" in body_module
+        or "m6_detector_front_arc_footprint_positive();" not in front_outer_module
+        or "m6_detector_rear_rounded_footprint_positive();" not in rear_outer_module
+        or "m6_detector_body_tail_clearance_positive();" not in rear_shell_module
+        or "m6_detector_front_optical_holes_positive();" not in front_shell_module
+        or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
+    ):
+        raise RuntimeError(
+            "active M6 body/fit path diverged: integral T-tail, installed sensor "
+            "and shared AF8/through-bore voids plus the z+ split-cover footprints must be used"
+        )
+
     count = int(parameters["m6_sensor_count"])
     pitch = parameters["m6_sensor_center_pitch"]
     body_depth_limit = (
@@ -1061,6 +1185,12 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     expected_shell_width = (
         parameters["m6_detector_body_depth_y"]
         + 2 * parameters["m6_detector_shell_wall"]
+    )
+    expected_shell_split = (
+        parameters["m6_sensor_axis_x"] + parameters["m6_sensor_head_length_x"] / 2
+    )
+    expected_shell_min = (
+        expected_shell_split - parameters["m6_detector_front_cap_length_x"]
     )
     expected_shell_height = (
         expected_body_height
@@ -1169,10 +1299,22 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_detector_optical_bore_d"] < pitch
         and parameters["m6_detector_thread_clearance_d"]
         > parameters["m6_sensor_thread_d"]
+        and math.isclose(
+            parameters["m6_detector_hex_pocket_af"],
+            parameters["m6_sensor_head_hex_af"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["m6_detector_hex_pocket_af"]
-        > parameters["m6_sensor_lock_nut_af"]
+        < parameters["m6_sensor_lock_nut_af"]
         and 0 < parameters["m6_detector_hex_pocket_depth_y"]
         < parameters["m6_detector_body_length_x"]
+        and math.isclose(
+            parameters["m6_detector_hex_pocket_depth_y"],
+            parameters["m6_detector_fit_capture_depth_x"] + 0.1,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["m6_detector_hex_pocket_floor"] > 0
         and parameters["m6_detector_hex_pocket_floor"]
         < parameters["m6_detector_hex_pocket_depth_y"]
@@ -1208,6 +1350,23 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             rel_tol=0,
             abs_tol=1e-4,
         )
+        and math.isclose(
+            parameters["m6_detector_sensor_install_offset_x"],
+            parameters["m6_detector_fit_head_center_x"]
+            - parameters["m6_sensor_head_center_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_cable_exit_x"],
+            parameters["m6_sensor_cable_exit_x"]
+            + parameters["m6_detector_sensor_install_offset_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_shell_min_x"]
+        < parameters["m6_detector_cable_exit_x"]
+        < parameters["m6_detector_shell_max_x"]
     ):
         raise RuntimeError(f"minimal M6 fit-probe contract is inconsistent: {parameters}")
 
@@ -1231,6 +1390,20 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_detector_shell_min_x"]
         < parameters["m6_detector_shell_split_x"]
         < parameters["m6_detector_shell_max_x"]
+        and math.isclose(
+            parameters["m6_detector_shell_split_x"],
+            expected_shell_split,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_shell_min_x"],
+            expected_shell_min,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_front_cap_length_x"]
+        > parameters["m6_detector_shell_split_overlap_x"]
         and parameters["m6_detector_shell_front_max_x"]
         > parameters["m6_detector_shell_split_x"]
         and parameters["m6_detector_shell_rear_min_x"]
@@ -1259,33 +1432,87 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         > parameters["m6_detector_shell_tongue_clearance"]
         and parameters["m6_detector_shell_inner_min_x"]
         < parameters["m6_sensor_axis_x"]
+        and parameters["m6_detector_shell_inner_min_x"]
+        < parameters["m6_detector_fit_thread_tip_x"]
+        and parameters["m6_detector_shell_min_x"]
+        + parameters["m6_detector_shell_wall"]
+        < parameters["m6_detector_fit_thread_tip_x"]
+        and parameters["m6_detector_shell_wall"]
+        < parameters["m6_detector_shell_front_max_x"]
+        - parameters["m6_detector_shell_min_x"]
         and parameters["m6_detector_shell_inner_max_x"]
         > parameters["m6_sensor_overall_end_x"]
+        and parameters["m6_detector_shell_corner_radius"]
+        < min(
+            parameters["m6_detector_shell_max_x"]
+            - parameters["m6_detector_shell_rear_min_x"],
+            parameters["m6_detector_shell_width_y"],
+        )
+        / 2
         and parameters["m6_detector_shell_clearance"] > 0
         and parameters["m6_detector_shell_wall"]
         > parameters["m6_detector_shell_clearance"]
         and parameters["m6_detector_bottom_cover_t"] > 0
         and parameters["m6_detector_cable_exit_d"]
         < parameters["m6_detector_shell_width_y"]
+        and parameters["m6_detector_cable_exit_x"]
+        - parameters["m6_detector_cable_exit_d"] / 2
+        > parameters["m6_detector_shell_min_x"]
+        and parameters["m6_detector_cable_exit_x"]
+        + parameters["m6_detector_cable_exit_d"] / 2
+        < parameters["m6_detector_shell_max_x"]
     ):
         raise RuntimeError(f"current M6 split shell/bottom cover contract is inconsistent: {parameters}")
 
     if not (
         parameters["m6_detector_support_y"]
         < parameters["m6_detector_shell_min_y"]
-        and parameters["m6_detector_support_boss_depth_y"] > 0
-        and parameters["m6_detector_support_boss_width_x"] > 0
-        and parameters["m6_detector_support_boss_height_z"] > 0
+        and parameters["m6_detector_support_tail_extension_x"] >= 10
+        and parameters["m6_detector_support_tail_head_depth_y"]
+        > 2 * parameters["m6_detector_shell_clearance"]
+        and parameters["m6_detector_support_tail_height_z"] > 0
+        and parameters["m6_detector_support_tail_min_x"]
+        == parameters["m6_detector_body_min_x"]
+        and parameters["m6_detector_support_tail_max_x"]
+        == parameters["m6_detector_body_max_x"]
+        + parameters["m6_detector_support_tail_extension_x"]
+        and parameters["m6_detector_support_tail_width_x"]
+        == parameters["m6_detector_support_tail_max_x"]
+        - parameters["m6_detector_support_tail_min_x"]
+        and parameters["m6_detector_support_tail_max_y"]
+        > parameters["m6_detector_body_min_y"]
+        and parameters["m6_detector_support_tail_min_y"]
+        < parameters["m6_detector_body_min_y"]
+        and parameters["m6_detector_support_tail_max_x"]
+        <= parameters["m6_detector_shell_max_x"]
+        and parameters["m6_detector_support_tail_thread_pitch"] == 1.25
+        and parameters["m6_detector_support_tail_thread_depth_x"]
+        > parameters["m6_detector_support_tail_thread_mouth_depth_x"]
+        and parameters["m6_detector_support_tail_thread_depth_x"]
+        < parameters["m6_detector_support_tail_width_x"]
+        and parameters["m6_detector_support_tail_tap_drill_d"]
+        < parameters["m6_detector_support_thread_nominal_d"]
+        and parameters["m6_detector_support_tail_thread_mouth_d"]
+        > parameters["m6_detector_support_thread_nominal_d"]
+        and parameters["m6_detector_support_tail_thread_engagement_x"] > 0
+        and parameters["m6_detector_support_tail_thread_engagement_x"]
+        <= parameters["m6_ballhead_sensor_stud_length"]
+        and parameters["m6_detector_support_boss_depth_y"]
+        == parameters["m6_detector_support_tail_head_depth_y"]
+        and parameters["m6_detector_support_boss_width_x"]
+        == parameters["m6_detector_support_tail_width_x"]
+        and parameters["m6_detector_support_boss_height_z"]
+        == parameters["m6_detector_support_tail_height_z"]
         and parameters["m6_detector_support_boss_center_x"]
         > parameters["m6_detector_shell_split_x"]
         and parameters["m6_detector_support_boss_center_x"]
         - parameters["m6_detector_support_boss_width_x"] / 2
-        < parameters["m6_detector_shell_rear_min_x"]
+        == parameters["m6_detector_support_tail_min_x"]
         and parameters["m6_detector_support_boss_center_x"]
         + parameters["m6_detector_support_boss_width_x"] / 2
-        > parameters["m6_detector_shell_rear_min_x"]
+        == parameters["m6_detector_support_tail_max_x"]
         and parameters["m6_detector_support_arm_min_x"]
-        > parameters["m6_detector_body_max_x"]
+        > parameters["m6_detector_support_tail_max_x"]
         and parameters["m6_detector_support_arm_max_x"]
         > parameters["m6_detector_support_arm_min_x"]
         and parameters["m6_detector_support_leg_bottom_z"]
@@ -1301,13 +1528,22 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             abs_tol=1e-4,
         )
         and parameters["m6_detector_support_tap_d"]
-        > parameters["m6_detector_support_thread_nominal_d"]
-        and parameters["m6_detector_support_metal_insert_d"]
-        > parameters["m6_detector_support_tap_d"]
-        and parameters["m6_detector_support_metal_insert_length_x"]
-        > parameters["m6_detector_support_tap_depth_x"]
-        and parameters["m6_detector_support_metal_insert_length_x"]
-        <= parameters["m6_detector_support_boss_width_x"]
+        == parameters["m6_detector_support_tail_tap_drill_d"]
+        and parameters["m6_detector_support_tap_depth_x"]
+        == parameters["m6_detector_support_tail_thread_depth_x"]
+        and parameters["m6_detector_support_metal_insert_d"] == 0
+        and parameters["m6_detector_support_metal_insert_length_x"] == 0
+        and (
+            parameters["m6_detector_ballhead_sensor_stud_center_x"]
+            - parameters["m6_ballhead_sensor_stud_length"] / 2
+            < parameters["m6_detector_support_tail_thread_entry_x"]
+        )
+        and (
+            parameters["m6_detector_ballhead_sensor_stud_center_x"]
+            + parameters["m6_ballhead_sensor_stud_length"] / 2
+            > parameters["m6_detector_support_tail_thread_entry_x"]
+            - parameters["m6_detector_support_tail_thread_engagement_x"]
+        )
     ):
         raise RuntimeError(f"current M6 90-degree support load path is inconsistent: {parameters}")
 
@@ -1320,6 +1556,26 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and parameters["m6_detector_ballhead_center_x"]
         > parameters["m6_detector_support_boss_center_x"]
+        and math.isclose(
+            parameters["m6_detector_ballhead_center_y"],
+            parameters["m6_detector_support_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_ballhead_center_z"],
+            parameters["m6_detector_body_center_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_ballhead_sensor_stud_center_x"],
+            parameters["m6_detector_support_tail_thread_entry_x"]
+            + parameters["m6_ballhead_sensor_stud_length"] / 2
+            - parameters["m6_detector_support_tail_thread_engagement_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["m6_detector_ballhead_base_center_z"]
         < parameters["m6_detector_ballhead_center_z"]
         and parameters["m6_detector_ballhead_net_stud_center_z"]

@@ -41,6 +41,8 @@ def main() -> None:
             raise AssertionError("fit coupon local maximum changed")
         if manifest["bounds"]["size"] != [24, 42, 24]:
             raise AssertionError("fit coupon envelope changed")
+        if not isinstance(manifest.get("volume_mm3"), (int, float)) or manifest["volume_mm3"] <= 0:
+            raise AssertionError("fit coupon volume must be positive")
         if not manifest["topology"]["watertight_by_edge_topology"]:
             raise AssertionError("fit coupon must be watertight")
         disk_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

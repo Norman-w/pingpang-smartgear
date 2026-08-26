@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；PETG 只保护/桥接，主要载荷走铝主体和金属 M8 接口。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖只对一体 T 尾座让位，主要载荷由铝主体经直接 M8 接口传给金属球头和支撑。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -425,9 +425,9 @@ function makeProxyAssemblyItems(entries) {
     notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
 
-  // Current M6 assembly contract. The metal bar is the load-bearing body;
-  // the completed x-split PETG covers and metal M8 bridge are shown together
-  // so the installed orientation can be checked before exploded export.
+  // Current M6 assembly contract. The integral aluminum T-tail is the
+  // load-bearing M8 interface; the x-split PETG covers only protect and guide
+  // the sensor bundle and are shown together for installed-orientation checks.
   const m6Geometry = {
     axisX: 763,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
@@ -451,6 +451,7 @@ function makeProxyAssemblyItems(entries) {
     fitThreadLengthX: 14,
     fitThreadVisibleLengthX: 6,
     fitThreadTipAllowanceX: 1,
+    sensorInstallOffsetX: 6.25,
     cableGuardLength: 10,
     cablePreviewLength: 18,
     cableD: 3,
@@ -462,13 +463,15 @@ function makeProxyAssemblyItems(entries) {
     bodyBottomZ: 144.5,
     bodyHeightZ: 216,
     showShell: true,
-    shellMinX: 760.6,
+    shellMinX: 748,
     shellMaxX: 785.4,
     shellMinY: -30.4,
     shellMaxY: 30.4,
     shellWidthY: 60.8,
     shellBottomZ: 141.5,
     shellHeightZ: 222,
+    shellCornerRadius: 4,
+    frontCapLengthX: 18,
     splitX: 766,
     frontMaxX: 766.3,
     rearMinX: 765.7,
@@ -477,26 +480,44 @@ function makeProxyAssemblyItems(entries) {
     grooveMarginZ: 5,
     tongueClearance: 0.25,
     wall: 2.4,
-    hexPocketAF: 10.7,
-    hexPocketDepthX: 2.5,
+    hexPocketAF: 8,
+    hexPocketDepthX: 2.1,
     threadClearanceD: 6.6,
     cableExitD: 12,
     cableExitX: 766,
     headCenterX: 766,
-    threadEndX: 783,
-    receiverThreadMinX: 749,
-    receiverOpticalMinX: 748.6,
+    installedCableExitX: 772.25,
+    installedHeadMinX: 769.25,
+    threadEndX: 755.25,
+    receiverThreadMinX: 755.25,
+    receiverOpticalMinX: 754.85,
     receiverNutMinX: 756.25,
     mountX: 881,
     mountT: 6,
     mountWidth: 56,
     mountHeight: 228,
-    bossCenterX: 774.3,
-    bossWidthX: 18,
-    bossDepthY: 8,
-    bossHeightZ: 24,
-    supportY: -34.4,
-    supportArmMinX: 790.3,
+    tailExtensionX: 10,
+    tailHeadDepthY: 14,
+    tailOverlapY: 0.8,
+    tailHeightZ: 28,
+    tailMinX: 761.25,
+    tailMaxX: 781.25,
+    tailMinY: -41.2,
+    tailMaxY: -27.2,
+    tailBottomZ: 238.5,
+    tailTopZ: 266.5,
+    tailThreadEntryX: 781.25,
+    tailThreadDepthX: 12,
+    tailTapDrillD: 6.8,
+    tailThreadMouthD: 9.5,
+    tailThreadMouthDepthX: 1,
+    tailThreadEngagementX: 12,
+    bossCenterX: 771.25,
+    bossWidthX: 20,
+    bossDepthY: 14,
+    bossHeightZ: 28,
+    supportY: -34.2,
+    supportArmMinX: 785.25,
     supportArmMaxX: 889,
     supportArmZ: 227.5,
     supportArmWidthY: 18,
@@ -508,21 +529,21 @@ function makeProxyAssemblyItems(entries) {
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
-    ballheadCenterX: 806.3,
-    ballheadCenterY: -34.4,
+    ballheadCenterX: 801.25,
+    ballheadCenterY: -34.2,
     ballheadCenterZ: 252.5,
     ballheadBaseCenterZ: 235.5,
     ballheadBaseD: 32,
     ballheadBaseT: 8,
     ballheadNetStudCenterZ: 217.5,
     ballheadNetStudLength: 28,
-    ballheadSensorStudCenterX: 782.3,
+    ballheadSensorStudCenterX: 777.25,
     ballheadSensorStudD: 8,
     ballheadNetStudD: 8,
     supportThreadNominalD: 8,
     supportClearanceD: 8.6,
-    supportMetalInsertD: 12,
-    supportMetalInsertLengthX: 16,
+    supportMetalInsertD: 0,
+    supportMetalInsertLengthX: 0,
     ballheadSensorStudLength: 16,
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
@@ -573,7 +594,25 @@ function makeProxyAssemblyItems(entries) {
           m6Geometry.bodyHeightZ],
         side,
         explosion: [0, 0, 0],
-        notes: "本阶段只显示长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；壳子、支撑和云台暂不加入。",
+        notes: "本阶段只显示长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；一体 T 尾座、壳子、支撑和云台暂不加入。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-fit-body-tail:${sideLabel}`,
+        name_zh: `M6 一体铝合金 T 形尾座首样（${sideName}）`,
+        name_en: "integral aluminum T-tail first-article fit body",
+        kind: "机加工主体首样",
+        material: "6061-T6 铝合金",
+        group: "optical",
+        color: "#aeb5bb",
+        shape: "box",
+        base_min: [side > 0 ? m6Geometry.tailMinX : -m6Geometry.tailMaxX,
+          m6Geometry.tailMinY, m6Geometry.tailBottomZ],
+        size: [m6Geometry.tailMaxX - m6Geometry.tailMinX,
+          m6Geometry.tailHeadDepthY,
+          m6Geometry.tailHeightZ],
+        side,
+        explosion: [0, -18, 18],
+        notes: "与中央 10×56×216 mm 铝条一体；在 y- 外侧形成 14 mm 深、28 mm 高的 T 形尾座，并向本侧 x 外伸 10 mm。M8×1.25 连接内丝直接加工在铝件中，后盖不参与承力。",
       }));
       for (let index = 0; index < 10; index += 1) {
         const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -788,7 +827,24 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.bodyMaxX - m6Geometry.bodyMinX, m6Geometry.bodyDepthY, m6Geometry.bodyHeightZ],
       side,
       explosion: [side * 54, 0, 28],
-      notes: "当前验收 x=10 mm 厚、y=56 mm 宽的长条主体与真实三维激光头干涉：灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。两条 y± 边槽只导向前后盖舌片，主体仍是传感器和支撑的基准承力件。",
+      notes: "中央承力条仍为 x=10 mm 厚、y=56 mm 宽、z=216 mm；与 y- 外侧一体 T 形尾座连续，尾座向本侧 x 外伸 10 mm，直接承接 M8×1.25 内丝和金属球头。真实三维激光头的灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。两条 y± 边槽只导向前后盖舌片，PETG 壳不承担球头弯矩。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-detector-body-tail:${sideLabel}`,
+      name_zh: `铝合金一体 T 形尾座与 M8 内丝（${sideName}）`,
+      name_en: "integral aluminum T-tail with direct M8 female thread",
+      kind: "机加工承力主体（一体尾座）",
+      material: "6061-T6 铝合金",
+      group: "optical",
+      shape: "box",
+      base_min: [side > 0 ? m6Geometry.tailMinX : -m6Geometry.tailMaxX,
+        m6Geometry.tailMinY, m6Geometry.tailBottomZ],
+      size: [m6Geometry.tailMaxX - m6Geometry.tailMinX,
+        m6Geometry.tailHeadDepthY,
+        m6Geometry.tailHeightZ],
+      side,
+      explosion: [side * 70, -26, 12],
+      notes: "与中央长条一体，不是后盖承力件：y- 侧 T 形头向本侧 x 外伸 10 mm；x+ 端（左侧镜像为 x- 端）直接加工 M8×1.25 盲牙。金属球头螺柱进入铝件，后盖只在尾座周围让位。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-front:${sideLabel}`,
@@ -797,6 +853,11 @@ function makeProxyAssemblyItems(entries) {
       kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
+      shape: "front-arc",
+      shapeOptions: {
+        front_length_x: m6Geometry.frontMaxX - m6Geometry.shellMinX,
+        mirror_x: side < 0,
+      },
       base_min: [frontShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
       size: [m6Geometry.frontMaxX - m6Geometry.shellMinX,
         m6Geometry.shellWidthY,
@@ -807,20 +868,29 @@ function makeProxyAssemblyItems(entries) {
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
-      name_zh: `M6 后盖：x+ 圆角矩形与 y- M8 桥接 boss（${sideName}）`,
-      name_en: "M6 rear rounded cover and support boss",
-      kind: "保护壳/桥接件（非承力）",
+      name_zh: `M6 后盖：x+ 圆角矩形与 T 尾座让位（${sideName}）`,
+      name_en: "M6 rear rounded cover with integral-body tail relief",
+      kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
-      base_min: [rearShellMinX,
-        m6Geometry.shellMinY - m6Geometry.bossDepthY,
-        m6Geometry.shellBottomZ],
+      shape: "rounded-footprint-tail-relief",
+      shapeOptions: {
+        radius: m6Geometry.shellCornerRadius,
+        relief_x0: Math.max(0, m6Geometry.tailMinX - m6Geometry.rearMinX),
+        relief_x1: Math.min(
+          m6Geometry.shellMaxX - m6Geometry.rearMinX,
+          m6Geometry.tailMaxX - m6Geometry.rearMinX,
+        ),
+        relief_depth_y: Math.max(0, m6Geometry.tailMaxY - m6Geometry.shellMinY),
+        mirror_x: side < 0,
+      },
+      base_min: [rearShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
       size: [m6Geometry.shellMaxX - m6Geometry.rearMinX,
-        m6Geometry.shellWidthY + m6Geometry.bossDepthY,
+        m6Geometry.shellWidthY,
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖为圆角矩形，并在 y- 外侧带桥接 boss；boss 只提供金属 M8 外牙/衬套的定位和接口，弯矩经金属件、盖件螺钉和铝主体传递。",
+      notes: "x+ 线缆端后盖为圆角矩形；y- 外侧按一体 T 尾座外形做让位缺口，M8 连接不再经过 PETG 壳体。后盖只由沉头螺钉定位到铝主体，不承担球头弯矩。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -829,6 +899,15 @@ function makeProxyAssemblyItems(entries) {
       kind: "保护盖（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
+      shape: "combined-footprint",
+      shapeOptions: {
+        front_length_x: m6Geometry.frontMaxX - m6Geometry.shellMinX,
+        rear_x_offset: m6Geometry.rearMinX - m6Geometry.shellMinX,
+        rear_length_x: m6Geometry.shellMaxX - m6Geometry.rearMinX,
+        width_y: m6Geometry.shellWidthY,
+        radius: m6Geometry.shellCornerRadius,
+        mirror_x: side < 0,
+      },
       base_min: [shellMinX, -m6Geometry.shellWidthY / 2, m6Geometry.shellBottomZ - 3],
       size: [m6Geometry.shellMaxX - m6Geometry.shellMinX, m6Geometry.shellWidthY, 3],
       side,
@@ -880,8 +959,8 @@ function makeProxyAssemblyItems(entries) {
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
-      name_zh: `后盖 x 轴球头连接螺柱（${sideName}）`,
-      name_en: "ball-head sensor-side horizontal stud",
+      name_zh: `铝合金 T 尾座 x 轴 M8 连接螺柱（${sideName}）`,
+      name_en: "M8 horizontal ball-head stud into integral aluminum T-tail",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
@@ -895,7 +974,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadSensorStudD],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "M8 外牙金属螺柱沿 x- 插入 x+ 后盖 y- boss 的金属衬套/通孔；不是旧版水平球头背板的三孔结构。",
+      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入铝合金一体 T 尾座的 M8×1.25 内丝；后盖在尾座周围让位，不使用 PETG 衬套或薄壳承力。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
@@ -931,8 +1010,8 @@ function makeProxyAssemblyItems(entries) {
         shape: "cylinder",
         shapeOptions: { radius: 0.45, axis: "x" },
         base_min: side > 0
-          ? [m6Geometry.axisX - beamLength, -0.45, z - 0.45]
-          : [-m6Geometry.axisX, -0.45, z - 0.45],
+          ? [m6Geometry.fitThreadTipX - beamLength, -0.45, z - 0.45]
+          : [-m6Geometry.fitThreadTipX, -0.45, z - 0.45],
         size: [beamLength, 0.9, 0.9],
         side,
         explosion: [0, 0, 0],
@@ -945,8 +1024,8 @@ function makeProxyAssemblyItems(entries) {
       // aperture pass toward the smooth x- body face. The left emitter is the
       // complete x mirror of that package.
       const headMinX = side > 0
-        ? m6Geometry.axisX
-        : mirrorX(m6Geometry.axisX, m6Geometry.headLengthX);
+        ? m6Geometry.installedHeadMinX
+        : mirrorX(m6Geometry.installedHeadMinX, m6Geometry.headLengthX);
       const faceMinX = side > 0
         ? m6Geometry.receiverOpticalMinX
         : mirrorX(m6Geometry.receiverOpticalMinX, 0.4);
@@ -954,11 +1033,11 @@ function makeProxyAssemblyItems(entries) {
         ? m6Geometry.receiverThreadMinX
         : mirrorX(m6Geometry.receiverThreadMinX, m6Geometry.stemLength);
       const cableGuardMinX = mirrorX(
-        m6Geometry.cableExitX - m6Geometry.deviceD / 2,
+        m6Geometry.installedCableExitX - m6Geometry.deviceD / 2,
         m6Geometry.deviceD,
       );
       const cableMinX = mirrorX(
-        m6Geometry.cableExitX - m6Geometry.cableD / 2,
+        m6Geometry.installedCableExitX - m6Geometry.cableD / 2,
         m6Geometry.cableD,
       );
       const hexMinX = mirrorX(
@@ -1091,7 +1170,7 @@ function makeProxyAssemblyItems(entries) {
         group: "optical",
         shape: "hex",
         shapeOptions: {
-          radius: m6Geometry.hexPocketAF / 2,
+          radius: m6Geometry.hexPocketAF / (2 * Math.cos(Math.PI / 6)),
           axis: "x",
           rotation_x_deg: m6Geometry.sensorRollDeg,
           rotation_pivot: rotationPivotFor(hexBaseMin, z),
@@ -1100,7 +1179,7 @@ function makeProxyAssemblyItems(entries) {
         size: [m6Geometry.hexPocketDepthX, m6Geometry.hexPocketAF, m6Geometry.hexPocketAF],
         side,
         explosion: [side * 92, -130, 16],
-        notes: "2.5 mm x 向浅窝只卡住水平外丝上的六角，不压住六角与外丝接驳平面；实际对边按到货件复核。",
+        notes: "2.1 mm x 向浅窝按真实 AF8 六角外形加工，只卡住水平外丝上的六角，不压住六角与外丝接驳平面；最终公差按到货件复核。",
       }));
       items.push(makeAssemblyItem({
         id: `hardware:m6-device-thread:${sideLabel}:${index}`,
@@ -2278,6 +2357,100 @@ function addProxyPart(THREE, group, item, geometry, position, materialOptions = 
   return mesh;
 }
 
+function footprintPoints(kind, width, depth, options = {}) {
+  const mirrorX = Boolean(options.mirror_x);
+  const transform = ([x, y]) => [mirrorX ? width - x : x, y];
+  if (kind === "front-arc") {
+    const frontOffset = number(options.front_x_offset, 0);
+    const frontLength = number(options.front_length_x, width);
+    const frontEnd = frontOffset + frontLength;
+    const centerY = depth / 2;
+    const points = [[frontEnd, 0]];
+    for (let angle = -90; angle <= 90; angle += 5) {
+      const radians = angle * Math.PI / 180;
+      points.push([
+        frontEnd - frontLength * Math.cos(radians),
+        centerY + centerY * Math.sin(radians),
+      ]);
+    }
+    points.push([frontEnd, depth]);
+    return points.map(transform);
+  }
+
+  if (kind === "rounded-footprint-tail-relief") {
+    const radius = Math.min(
+      number(options.radius, 2),
+      Math.max(0.01, width / 2 - 0.01),
+      Math.max(0.01, depth / 2 - 0.01),
+    );
+    const reliefX0 = number(options.relief_x0, 0);
+    const reliefX1 = number(options.relief_x1, 0);
+    const reliefDepth = Math.min(depth, number(options.relief_depth_y, 0));
+    if (reliefX0 <= 0.01 && reliefX1 > reliefX0 && reliefDepth > 0) {
+      const points = [
+        [0, reliefDepth],
+        [Math.min(width - radius, reliefX1), reliefDepth],
+        [Math.min(width - radius, reliefX1), 0],
+        [width - radius, 0],
+      ];
+      const addArc = (cx, cy, start, end) => {
+        for (let angle = start; angle <= end; angle += 10) {
+          const radians = angle * Math.PI / 180;
+          points.push([cx + radius * Math.cos(radians), cy + radius * Math.sin(radians)]);
+        }
+      };
+      addArc(width - radius, radius, -90, 0);
+      points.push([width, depth - radius]);
+      addArc(width - radius, depth - radius, 0, 90);
+      points.push([radius, depth]);
+      addArc(radius, depth - radius, 90, 180);
+      points.push([0, Math.max(reliefDepth, radius)]);
+      return points.map(transform);
+    }
+  }
+
+  const x0 = number(options.x0, 0);
+  const x1 = number(options.x1, width);
+  const y0 = number(options.y0, 0);
+  const y1 = number(options.y1, depth);
+  const radius = Math.min(
+    number(options.radius, 2),
+    Math.max(0.01, (x1 - x0) / 2 - 0.01),
+    Math.max(0.01, (y1 - y0) / 2 - 0.01),
+  );
+  const points = [];
+  const addArc = (cx, cy, start, end) => {
+    for (let angle = start; angle <= end; angle += 10) {
+      const radians = angle * Math.PI / 180;
+      points.push([cx + radius * Math.cos(radians), cy + radius * Math.sin(radians)]);
+    }
+  };
+  points.push([x0 + radius, y0]);
+  points.push([x1 - radius, y0]);
+  addArc(x1 - radius, y0 + radius, -90, 0);
+  points.push([x1, y1 - radius]);
+  addArc(x1 - radius, y1 - radius, 0, 90);
+  points.push([x0 + radius, y1]);
+  addArc(x0 + radius, y1 - radius, 90, 180);
+  points.push([x0, y0 + radius]);
+  addArc(x0 + radius, y0 + radius, 180, 270);
+  return points.map(transform);
+}
+
+function footprintGeometry(THREE, kind, width, depth, height, options = {}) {
+  const shape = new THREE.Shape();
+  const points = footprintPoints(kind, width, depth, options);
+  shape.moveTo(points[0][0], points[0][1]);
+  for (const [x, y] of points.slice(1)) shape.lineTo(x, y);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: height,
+    bevelEnabled: false,
+    curveSegments: 16,
+    steps: 1,
+  });
+}
+
 function createAssemblyProxy(THREE, item) {
   const group = new THREE.Group();
   const [width, depth, height] = item.baseSize;
@@ -2293,7 +2466,39 @@ function createAssemblyProxy(THREE, item) {
   );
   if (rotationX) group.rotation.x = rotationX;
   const place = (position) => position.map((value, index) => value - pivot[index]);
-  if (item.shape === "cylinder" || item.shape === "hex") {
+  if (item.shape === "front-arc" || item.shape === "combined-footprint") {
+    const footprintKind = "front-arc";
+    const frontOptions = {
+      ...options,
+      front_length_x: number(options.front_length_x, width),
+    };
+    const front = footprintGeometry(THREE, footprintKind, width, depth, height, frontOptions);
+    addProxyPart(THREE, group, item, front, place([0, 0, 0]));
+    if (item.shape === "combined-footprint") {
+      const rearX = number(options.rear_x_offset, 0);
+      const rearLength = number(options.rear_length_x, width - rearX);
+      const rear = footprintGeometry(THREE, "rounded-footprint", width, depth, height, {
+        ...options,
+        x0: rearX,
+        x1: rearX + rearLength,
+        y0: 0,
+        y1: number(options.width_y, depth),
+      });
+      addProxyPart(THREE, group, item, rear, place([0, 0, 0]));
+    }
+  } else if (item.shape === "rounded-footprint" || item.shape === "rounded-footprint-tail-relief") {
+    const footprintKind = item.shape === "rounded-footprint-tail-relief"
+      ? "rounded-footprint-tail-relief"
+      : "rounded-footprint";
+    const outer = footprintGeometry(THREE, footprintKind, width, depth, height, {
+      ...options,
+      x0: number(options.outer_x_offset, 0),
+      x1: number(options.outer_x_offset, 0) + number(options.outer_width_x, width),
+      y0: number(options.outer_y_offset, 0),
+      y1: number(options.outer_y_offset, 0) + number(options.outer_depth_y, depth),
+    });
+    addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
+  } else if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);
     const radialSegments = item.shape === "hex" ? 6 : 24;
     const cylinderLength = options.axis === "x"

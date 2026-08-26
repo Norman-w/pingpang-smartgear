@@ -15,7 +15,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from validate_net_stand import _stl_topology
+from validate_net_stand import _stl_topology, _stl_volume
 from validate_scad import find_openscad, stl_bounds
 
 
@@ -87,6 +87,9 @@ def export_fit_coupon(
         raise RuntimeError(
             f"M6 试装样件不是封闭 STL: {topology_summary}"
         )
+    volume_mm3 = _stl_volume(stl_path)
+    if volume_mm3 <= 1e-6:
+        raise RuntimeError(f"M6 试装样件体积无效: {volume_mm3}")
     min_x, max_x, min_y, max_y, min_z, max_z = stl_bounds(stl_path)
     manifest: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
@@ -108,6 +111,7 @@ def export_fit_coupon(
                 _round(max_z - min_z),
             ],
         },
+        "volume_mm3": _round(volume_mm3),
         "topology": {
             "watertight_by_edge_topology": closed,
             "summary": topology_summary,

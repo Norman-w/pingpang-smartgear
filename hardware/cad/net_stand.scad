@@ -68,15 +68,17 @@
 // 头部穿过主体的头部让位孔，线缆留在主体外侧，不在铝材里挖线束槽；x 向
 // 浅六角座只卡住真实金属头的六角外形，M6 外丝直接穿过主体，在外表面只
 // 安装一枚原配 5 mm 螺帽，14 mm 外丝仍保留足够的外露长度。
-// 主体定型前不启用 PETG 前盖、后盖和底盖，后盖
-// 的 y- boss 以 x 轴内攻孔连接竖直姿态的采购 13 mm 球头，再经金属 90°
-// 支撑件和竖直网夹适配板连接到网架。铝合金件、M6 器件、球头、PVDF 薄膜、网布、
-// 金属螺杆和夹持软垫均为外购/机加工/装配边界，不能混入 PETG 打印清单。
+// 当前装配已包含 PETG 前盖、后盖和底盖候选件；铝主体在 y- 边一体做成
+// T 形尾座，尾座向本侧外向 x 延长至少 10 mm，并在 x+ 端攻 M8×1.25
+// 盲牙；左侧镜像后即为 x- 端。采购 13 mm 球头的 M8 外牙直接拧入铝尾座，
+// 再经金属 90° 支撑件和竖直网夹适配板连接到网架。铝合金件、M6 器件、球头、
+// PVDF 薄膜、网布、金属螺杆和夹持软垫均为外购/机加工/装配边界，不能混入
+// PETG 打印清单。
 // M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
 // 保留为历史诊断件，不再作为当前装配主线。
-// 前后盖沿 y 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
+// 前后盖沿 x 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
 // 盖件到主体的固定件，真正承力路径是“传感器六角/螺杆 -> 铝合金主体 ->
-// 后盖 boss/金属 90° 支撑 -> 竖直球头/网夹适配板 -> 网架”。线缆孔为开放孔，
+// 铝合金 T 尾座/M8 内丝 -> 金属 90° 支撑 -> 竖直球头/网夹适配板 -> 网架”。线缆孔为开放孔，
 // 没有密封设计，不能宣称防水。该文件验证机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性、实物螺纹/光学精度或 NPN 电气验收。
 
@@ -386,8 +388,15 @@ m6_detector_shell_top_lip_z = 3;
 // rear/cable x+. The old y split names below remain only as compatibility
 // aliases for manifests that still read them.
 m6_detector_shell_split_overlap_x = 0.3;
-m6_detector_shell_corner_radius = 2.2;
-m6_detector_front_cap_length_x = 8;
+// Top-view z+ footprint: the optical/front x- half is a positive arc and the
+// cable/rear x+ half is a rounded rectangle.  The front length deliberately
+// extends ahead of the optical datum so the cover reads like the user's
+// upper-arch sketch while the hollow optical tip remains open.
+m6_detector_shell_corner_radius = 4.0;
+// The enlarged front cap has a solid optical bulkhead; only ten small optical
+// bores pass through it, so the AF8 head, blue guard, and one supplied nut stay
+// inside the enclosure instead of being exposed at the front face.
+m6_detector_front_cap_length_x = 18;
 m6_detector_front_cap_reduction = 1.2;
 m6_detector_body_groove_width_x = 4;
 m6_detector_body_groove_depth_y = 1.2;
@@ -396,10 +405,10 @@ m6_detector_shell_tongue_depth_y = 1.0;
 m6_detector_shell_tongue_clearance = 0.25;
 m6_detector_optical_bore_d = 6.6;
 m6_detector_thread_clearance_d = 6.6;
-m6_detector_hex_pocket_af =
-    m6_sensor_lock_nut_af + 2 * m6_sensor_nut_pocket_clearance;
-m6_detector_hex_pocket_depth_x = 2.5;
-// Compatibility alias for old manifests; the active pocket is normal to x.
+m6_detector_hex_pocket_af = m6_sensor_head_hex_af;
+m6_detector_hex_pocket_depth_x = 2.1;
+// Compatibility aliases for old manifests; the active pocket is normal to x
+// and follows the purchased AF8 head itself, not the larger lock-nut envelope.
 m6_detector_hex_pocket_depth_y = m6_detector_hex_pocket_depth_x;
 m6_detector_hex_pocket_floor = 0.8;
 m6_detector_shell_screw_pilot_d = 3.4;
@@ -420,17 +429,34 @@ m6_detector_show_shell = true;
 // Inspection-only overlay; it is opt-in and never belongs to printable STL.
 m6_show_optical_direction = false;
 m6_detector_shell_alpha = 0.48;
-m6_detector_support_boss_width_x = 18;
-m6_detector_support_boss_depth_y = 8;
-m6_detector_support_boss_height_z = 24;
+// The support is an integral T-shaped extension of the 6061-T6 body.  The
+// central bar remains 10 x 56 x 216 mm; at the y- edge a wider x-direction
+// head projects outward by 10 mm and receives a direct M8x1.25 blind tap.
+// On SIDE=-1 this whole T head mirrors to x-, i.e. the left emitter side.
+m6_detector_support_tail_extension_x = 10;
+m6_detector_support_tail_head_depth_y = 14;
+m6_detector_support_tail_overlap_y = 0.8;
+m6_detector_support_tail_height_z = 28;
+m6_detector_support_tail_thread_pitch = 1.25;
+m6_detector_support_tail_thread_depth_x = 12;
+m6_detector_support_tail_tap_drill_d = 6.8;
+m6_detector_support_tail_thread_mouth_d = 9.5;
+m6_detector_support_tail_thread_mouth_depth_x = 1.0;
+// Compatibility names now describe the integral T-head, not a printed rear
+// shell boss.  They remain echoed for older manifests/readers.
+m6_detector_support_boss_width_x =
+    m6_detector_body_length_x + m6_detector_support_tail_extension_x;
+m6_detector_support_boss_depth_y = m6_detector_support_tail_head_depth_y;
+m6_detector_support_boss_height_z = m6_detector_support_tail_height_z;
 m6_detector_support_boss_x_fraction = 0.72;
 m6_detector_support_thread_nominal_d = 8.0;
-// The printed rear boss is a clearance envelope for a metal M8 stud/bushing;
-// it is not treated as a PETG tapped hole. Keep the old name for manifests.
-m6_detector_support_tap_d = 8.6;
-m6_detector_support_tap_depth_x = 12;
-m6_detector_support_metal_insert_d = 12;
-m6_detector_support_metal_insert_length_x = 16;
+// Compatibility names for the direct aluminum tap.  No PETG insert/boss is
+// used in the active load path; the thread helix is represented by its tap
+// drill and mouth envelope in this OpenSCAD handoff.
+m6_detector_support_tap_d = m6_detector_support_tail_tap_drill_d;
+m6_detector_support_tap_depth_x = m6_detector_support_tail_thread_depth_x;
+m6_detector_support_metal_insert_d = 0;
+m6_detector_support_metal_insert_length_x = 0;
 m6_detector_support_arm_t_z = 8;
 m6_detector_support_arm_width_y = 18;
 m6_detector_support_leg_t_x = 8;
@@ -669,7 +695,8 @@ m6_detector_body_height_z =
 m6_detector_body_center_z =
     (m6_detector_body_bottom_z + m6_detector_body_top_z) / 2;
 m6_detector_shell_min_x =
-    m6_sensor_axis_x - m6_detector_shell_wall;
+    m6_sensor_axis_x + m6_sensor_head_length_x / 2 -
+    m6_detector_front_cap_length_x;
 m6_detector_shell_max_x =
     m6_sensor_overall_end_x + m6_detector_shell_wall;
 m6_detector_shell_min_y =
@@ -699,7 +726,7 @@ m6_detector_shell_front_min_y =
 m6_detector_shell_rear_max_y =
     m6_detector_shell_max_y;
 m6_detector_shell_inner_min_x =
-    m6_sensor_axis_x - m6_detector_shell_clearance;
+    m6_detector_shell_min_x - m6_detector_shell_clearance;
 m6_detector_shell_inner_max_x =
     m6_sensor_overall_end_x + m6_detector_shell_clearance;
 m6_detector_shell_inner_min_y =
@@ -714,17 +741,6 @@ m6_detector_sensor_thread_start_y = m6_detector_body_min_y;
 m6_detector_sensor_thread_center_y = m6_detector_body_center_y;
 m6_detector_sensor_head_center_y = m6_detector_sensor_head_y_offset;
 m6_detector_sensor_body_center_y = m6_detector_sensor_head_center_y;
-m6_detector_cable_exit_x = m6_sensor_cable_exit_x;
-m6_detector_sensor_nut_base_center_x =
-    m6_detector_body_max_x + m6_sensor_lock_nut_h / 2;
-m6_detector_sensor_nut_center_x =
-    2 * m6_sensor_head_center_x - m6_detector_sensor_nut_base_center_x;
-m6_detector_sensor_nut_outer_x =
-    m6_detector_sensor_nut_center_x - m6_sensor_lock_nut_h / 2;
-m6_detector_sensor_thread_end_x =
-    2 * m6_sensor_head_center_x - m6_sensor_optical_aperture_x;
-m6_detector_thread_visible_length =
-    m6_detector_body_min_x - m6_detector_sensor_thread_end_x;
 // Minimal fit-probe coordinates.  Positive side is the right receiver: the
 // real gray AF8 sensor head enters from x+, its inner shoulder is captured
 // 2 mm inside the body, and the hollow M6 barrel continues through the body
@@ -749,6 +765,24 @@ m6_detector_fit_nut_min_x =
     m6_detector_body_min_x - m6_sensor_lock_nut_h;
 m6_detector_fit_nut_center_x =
     m6_detector_fit_nut_min_x + m6_sensor_lock_nut_h / 2;
+m6_detector_sensor_install_offset_x =
+    m6_detector_fit_head_center_x - m6_sensor_head_center_x;
+// The bottom-cover sleeve hole follows the installed cable branch, not the
+// raw purchased-model coordinate.  The raw sensor module remains reusable for
+// the standalone inspection preview; only the installed detector array gets
+// this x offset.
+m6_detector_cable_exit_x =
+    m6_sensor_cable_exit_x + m6_detector_sensor_install_offset_x;
+// These aliases describe the installed positive receiver.  The standalone
+// sensor preview derives its optional nut from the equivalent raw coordinate.
+m6_detector_sensor_thread_end_x = m6_detector_fit_thread_tip_x;
+m6_detector_thread_visible_length = m6_detector_fit_thread_visible_length_x;
+m6_detector_sensor_nut_center_x = m6_detector_fit_nut_center_x;
+m6_detector_sensor_nut_outer_x =
+    m6_detector_sensor_nut_center_x - m6_sensor_lock_nut_h / 2;
+m6_detector_sensor_nut_base_center_x =
+    2 * m6_sensor_head_center_x -
+    (m6_detector_fit_nut_center_x - m6_detector_sensor_install_offset_x);
 m6_detector_body_screw_z = [
     m6_detector_body_bottom_z + m6_detector_shell_screw_margin_z,
     m6_detector_body_top_z - m6_detector_shell_screw_margin_z
@@ -761,26 +795,66 @@ m6_detector_bottom_screw_x = [
     m6_detector_body_min_x + m6_detector_body_length_x / 4,
     m6_detector_body_max_x - m6_detector_body_length_x / 4
 ];
+// Integral T-tail for the metal load path.  The wider head sits at the body
+// y- edge, overlaps the bar by a small amount, and projects 10 mm toward the
+// outward x direction on the positive receiver.  Mirroring the complete
+// positive-side model puts the same head toward x- on the left emitter.
+m6_detector_support_tail_min_x = m6_detector_body_min_x;
+m6_detector_support_tail_max_x =
+    m6_detector_body_max_x + m6_detector_support_tail_extension_x;
+m6_detector_support_tail_width_x =
+    m6_detector_support_tail_max_x - m6_detector_support_tail_min_x;
+m6_detector_support_tail_max_y =
+    m6_detector_body_min_y + m6_detector_support_tail_overlap_y;
+m6_detector_support_tail_min_y =
+    m6_detector_support_tail_max_y -
+    m6_detector_support_tail_head_depth_y;
+m6_detector_support_tail_center_y =
+    (m6_detector_support_tail_min_y +
+     m6_detector_support_tail_max_y) / 2;
+m6_detector_support_tail_bottom_z =
+    m6_detector_body_center_z - m6_detector_support_tail_height_z / 2;
+m6_detector_support_tail_top_z =
+    m6_detector_body_center_z + m6_detector_support_tail_height_z / 2;
+m6_detector_support_tail_center_z = m6_detector_body_center_z;
+m6_detector_support_tail_center_x =
+    (m6_detector_support_tail_min_x +
+     m6_detector_support_tail_max_x) / 2;
+m6_detector_support_tail_thread_engagement_x =
+    min(m6_detector_support_tail_thread_depth_x,
+        m6_ballhead_sensor_stud_length - 4);
+m6_detector_support_tail_thread_entry_x =
+    m6_detector_support_tail_max_x;
+m6_detector_support_tail_thread_center_x =
+    m6_detector_support_tail_thread_entry_x -
+    m6_detector_support_tail_thread_depth_x / 2;
+// Compatibility aliases now point at the integral aluminum T-head.  They are
+// intentionally not derived from the PETG rear-cover envelope.
 m6_detector_support_boss_center_x =
-    m6_detector_shell_rear_min_x - 0.4 +
-    m6_detector_support_boss_width_x / 2;
+    m6_detector_support_tail_center_x;
 m6_detector_support_boss_min_x =
-    m6_detector_support_boss_center_x - m6_detector_support_boss_width_x / 2;
+    m6_detector_support_tail_min_x;
 m6_detector_support_boss_max_x =
-    m6_detector_support_boss_center_x + m6_detector_support_boss_width_x / 2;
-m6_detector_support_y =
-    m6_detector_shell_min_y - m6_detector_support_boss_depth_y / 2;
+    m6_detector_support_tail_max_x;
+m6_detector_support_y = m6_detector_support_tail_center_y;
 m6_detector_support_boss_min_y =
-    m6_detector_shell_min_y - m6_detector_support_boss_depth_y;
-m6_detector_support_boss_max_y = m6_detector_shell_min_y;
+    m6_detector_support_tail_min_y;
+m6_detector_support_boss_max_y =
+    m6_detector_support_tail_max_y;
 m6_detector_support_boss_center_z = m6_detector_body_center_z;
 m6_detector_support_arm_z =
     m6_detector_body_center_z - m6_ballhead_housing_length_x / 2 -
     m6_ballhead_base_t - m6_detector_support_arm_t_z / 2;
+m6_detector_ballhead_sensor_stud_center_x =
+    m6_detector_support_tail_thread_entry_x +
+    m6_ballhead_sensor_stud_length / 2 -
+    m6_detector_support_tail_thread_engagement_x;
 m6_detector_ballhead_center_x =
-    m6_detector_support_boss_center_x +
-    m6_ballhead_sensor_stud_length + m6_ballhead_housing_d / 2 +
-    m6_detector_detector_ballhead_gap_x;
+    m6_detector_support_tail_thread_entry_x +
+    (m6_ballhead_sensor_stud_length -
+     m6_detector_support_tail_thread_engagement_x) +
+    m6_detector_detector_ballhead_gap_x +
+    m6_ballhead_housing_d / 2;
 m6_detector_ballhead_center_y = m6_detector_support_y;
 m6_detector_ballhead_center_z = m6_detector_body_center_z;
 m6_detector_ballhead_base_center_z =
@@ -789,8 +863,6 @@ m6_detector_ballhead_base_center_z =
 m6_detector_ballhead_net_stud_center_z =
     m6_detector_ballhead_base_center_z - m6_ballhead_base_t / 2 -
     m6_ballhead_net_stud_length / 2;
-m6_detector_ballhead_sensor_stud_center_x =
-    m6_detector_support_boss_center_x + m6_ballhead_sensor_stud_length / 2;
 m6_detector_support_arm_min_x =
     m6_detector_ballhead_center_x - m6_ballhead_base_d / 2;
 m6_detector_support_arm_max_x =
@@ -1088,8 +1160,11 @@ assert(abs(m6_sensor_roll_deg) == 45 &&
            m6_detector_body_bottom_z < m6_sensor_z(0) &&
            m6_detector_body_top_z > m6_sensor_z(m6_sensor_count - 1),
        "current M6 body must fit ten 10 mm channels and leave one-nut horizontal-thread clearance");
-assert(m6_detector_hex_pocket_af > m6_sensor_lock_nut_af &&
+assert(m6_detector_hex_pocket_af >= m6_sensor_head_hex_af &&
+           m6_detector_hex_pocket_af < m6_sensor_lock_nut_af &&
            m6_detector_hex_pocket_depth_x > 0 &&
+           m6_detector_hex_pocket_depth_x >=
+               m6_detector_fit_capture_depth_x + 0.1 - 0.001 &&
            m6_detector_hex_pocket_depth_x +
                m6_detector_hex_pocket_floor < m6_detector_body_length_x &&
            m6_detector_hex_pocket_depth_x < m6_detector_body_length_x &&
@@ -1098,7 +1173,7 @@ assert(m6_detector_hex_pocket_af > m6_sensor_lock_nut_af &&
            m6_detector_optical_bore_d < m6_detector_body_height_z &&
            m6_detector_thread_visible_length >
                m6_sensor_lock_nut_h + m6_sensor_nut_pocket_clearance,
-       "shallow M6 hex pocket, through-bore and one external nut must be machinable");
+       "shallow AF8 M6 hex pocket, through-bore and one external nut must be machinable");
 assert(m6_detector_fit_head_length_x > m6_detector_fit_capture_depth_x &&
            m6_detector_fit_head_width_y > 0 &&
            m6_detector_fit_head_height_z > 0 &&
@@ -1117,9 +1192,21 @@ assert(m6_detector_shell_wall >= 2 &&
            m6_detector_shell_front_max_x > m6_detector_shell_rear_min_x &&
            m6_detector_shell_width_y > m6_detector_body_depth_y &&
            m6_detector_shell_height_z > m6_detector_body_height_z &&
+           m6_detector_front_cap_length_x >
+               m6_detector_shell_split_overlap_x &&
+           m6_detector_shell_min_x < m6_detector_fit_thread_tip_x &&
+           m6_detector_shell_inner_min_x < m6_detector_fit_thread_tip_x &&
+           m6_detector_shell_min_x + m6_detector_shell_wall <
+               m6_detector_fit_thread_tip_x &&
+           m6_detector_shell_wall <
+               m6_detector_shell_front_max_x -
+                   m6_detector_shell_min_x &&
            m6_detector_shell_corner_radius > 0 &&
            m6_detector_shell_corner_radius <
-               min(m6_detector_shell_width_y, m6_detector_shell_height_z) / 2,
+               min(m6_detector_shell_width_y, m6_detector_shell_height_z) / 2 &&
+           m6_detector_shell_corner_radius <
+               min(m6_detector_shell_max_x - m6_detector_shell_rear_min_x,
+                   m6_detector_shell_width_y) / 2,
        "front/rear PETG covers must leave a body cavity and printable rounded envelope");
 assert(m6_detector_body_groove_width_x > 0 &&
            m6_detector_body_groove_depth_y > 0 &&
@@ -1143,26 +1230,46 @@ assert(m6_detector_shell_screw_pilot_d > 0 &&
                2 * m6_detector_cable_exit_sleeve_clearance <
                m6_detector_shell_width_y + 2 * m6_detector_shell_wall,
        "cover countersinks and open cable sleeve exit must fit the printable covers");
-assert(m6_detector_support_boss_width_x > m6_detector_support_tap_depth_x &&
-           m6_detector_support_boss_depth_y > 0 &&
-           m6_detector_support_boss_height_z > 0 &&
-           m6_detector_support_boss_min_x < m6_detector_body_max_x &&
-           m6_detector_support_boss_max_x > m6_detector_body_min_x &&
-           m6_detector_support_y < m6_detector_shell_min_y &&
-           m6_detector_support_thread_nominal_d == 8 &&
-           m6_detector_support_tap_d >
+assert(m6_detector_support_tail_extension_x >= 10 &&
+           m6_detector_support_tail_width_x >=
+               m6_detector_body_length_x + 10 &&
+           m6_detector_support_tail_head_depth_y >
+               2 * m6_detector_shell_clearance &&
+           m6_detector_support_tail_max_y > m6_detector_body_min_y &&
+           m6_detector_support_tail_min_y < m6_detector_body_min_y &&
+           m6_detector_support_tail_bottom_z <
+               m6_detector_support_tail_center_z &&
+           m6_detector_support_tail_top_z >
+               m6_detector_support_tail_center_z &&
+           m6_detector_support_tail_max_x <=
+               m6_detector_shell_max_x &&
+           m6_detector_support_tail_thread_pitch == 1.25 &&
+           m6_detector_support_tail_thread_depth_x >
+               m6_detector_support_tail_thread_mouth_depth_x &&
+           m6_detector_support_tail_thread_depth_x <
+               m6_detector_support_tail_width_x &&
+           m6_detector_support_tail_tap_drill_d <
                m6_detector_support_thread_nominal_d &&
-           m6_detector_support_metal_insert_d >
-               m6_detector_support_tap_d &&
-           m6_detector_support_metal_insert_length_x >
-               m6_detector_support_tap_depth_x &&
-           m6_detector_support_metal_insert_length_x <=
-               m6_detector_support_boss_width_x &&
+           m6_detector_support_tail_thread_mouth_d >
+               m6_detector_support_thread_nominal_d &&
+           m6_detector_support_tail_thread_engagement_x > 0 &&
+           m6_detector_support_tail_thread_engagement_x <=
+               m6_ballhead_sensor_stud_length &&
+           m6_detector_support_boss_width_x ==
+               m6_detector_support_tail_width_x &&
+           m6_detector_support_boss_depth_y ==
+               m6_detector_support_tail_head_depth_y &&
+           m6_detector_support_boss_height_z ==
+               m6_detector_support_tail_height_z &&
            m6_detector_support_arm_max_x > m6_detector_support_arm_min_x &&
+           m6_detector_support_arm_min_x >
+               m6_detector_support_tail_max_x &&
            m6_detector_support_leg_height_z > m6_detector_support_arm_t_z &&
            m6_detector_support_leg_x >= m6_mount_plate_x &&
-           m6_detector_support_leg_x <= m6_mount_plate_x + m6_mount_plate_t,
-       "rear boss, metal M8 interface, vertical ballhead and 90-degree bracket must form one load path");
+           m6_detector_support_leg_x <= m6_mount_plate_x + m6_mount_plate_t &&
+           m6_detector_support_metal_insert_d == 0 &&
+           m6_detector_support_metal_insert_length_x == 0,
+       "integral aluminum T-tail, direct M8 female tap, vertical ballhead and 90-degree bracket must form one load path");
 assert(m6_detector_ballhead_center_z == m6_detector_body_center_z &&
            m6_detector_ballhead_base_center_z <
                m6_detector_ballhead_center_z &&
@@ -1170,6 +1277,13 @@ assert(m6_detector_ballhead_center_z == m6_detector_body_center_z &&
                m6_detector_ballhead_base_center_z &&
            m6_detector_ballhead_sensor_stud_center_x >
                m6_detector_support_boss_center_x &&
+           m6_detector_ballhead_sensor_stud_center_x -
+               m6_ballhead_sensor_stud_length / 2 <
+               m6_detector_support_tail_thread_entry_x &&
+           m6_detector_ballhead_sensor_stud_center_x +
+               m6_ballhead_sensor_stud_length / 2 >
+               m6_detector_support_tail_thread_entry_x -
+                   m6_detector_support_tail_thread_engagement_x &&
            m6_detector_ballhead_center_x >
                m6_detector_ballhead_sensor_stud_center_x,
        "commercial 13 mm ballhead must remain vertical with a rear x-axis sensor interface");
@@ -1755,6 +1869,51 @@ module m6_rounded_rect_prism_x(length_x, width_y, height_z, radius,
     }
 }
 
+// -----------------------------------------------------------------------------
+// M6 cover top-view footprints (z+)
+//
+// The user's sketch is a plan view with the optical/front x- end represented by
+// a positive semicircular/elliptic arc and the cable/rear x+ end represented by
+// a rounded rectangle.  These are 2-D footprints extruded in z; the split is
+// only a cover parting boundary and no center cable/bridge line is modeled.
+
+module m6_detector_front_arc_footprint_positive() {
+    front_length_x =
+        m6_detector_shell_front_max_x - m6_detector_shell_min_x;
+    y_center =
+        (m6_detector_shell_min_y + m6_detector_shell_max_y) / 2;
+    polygon(points = concat(
+        [[m6_detector_shell_front_max_x, m6_detector_shell_min_y]],
+        [for (angle = [-90:5:90])
+            [m6_detector_shell_front_max_x -
+                 front_length_x * cos(angle),
+             y_center + m6_detector_shell_width_y / 2 * sin(angle)]],
+        [[m6_detector_shell_front_max_x, m6_detector_shell_max_y]]));
+}
+
+module m6_detector_rear_rounded_footprint_positive() {
+    rear_length_x =
+        m6_detector_shell_max_x - m6_detector_shell_rear_min_x;
+    y_center =
+        (m6_detector_shell_min_y + m6_detector_shell_max_y) / 2;
+    translate([
+        (m6_detector_shell_rear_min_x + m6_detector_shell_max_x) / 2,
+        y_center])
+        offset(r = m6_detector_shell_corner_radius)
+            square([
+                rear_length_x - 2 * m6_detector_shell_corner_radius,
+                m6_detector_shell_width_y -
+                    2 * m6_detector_shell_corner_radius],
+                center = true);
+}
+
+module m6_detector_shell_footprint_positive() {
+    union() {
+        m6_detector_front_arc_footprint_positive();
+        m6_detector_rear_rounded_footprint_positive();
+    }
+}
+
 module m6_countersink_x(x_entry, direction, length_x, y_center, z_center,
                         pilot_d, head_d, head_depth) {
     // Explicit countersink: the broad cone mouth is at x_entry and the
@@ -2205,8 +2364,9 @@ module m6_ballhead_mount_positive() {
 // has ten optical/head openings and shallow rear hex seats. The M6 thread is
 // a simple clearance pass-through; one purchased nut sits on the outside
 // face. The cable stays outside the aluminum and is not pocketed.
-// The PETG covers are separate protection/bridge parts; they do not replace
-// the aluminum bar as the sensor datum or primary structural member.
+// The PETG covers are separate protection/relief parts; they do not replace
+// the aluminum bar or its integral T-tail as the sensor datum or primary
+// structural member.
 
 module m6_sensor_roll_frame(index) {
     z0 = m6_sensor_z(index);
@@ -2216,53 +2376,81 @@ module m6_sensor_roll_frame(index) {
                 children();
 }
 
+module m6_detector_body_t_tail_positive() {
+    // The body is one machined aluminum part: the 10 x 56 x 216 mm vertical
+    // bar is the stem of the top-view T, while this wider x-direction head
+    // grows from its y- edge.  The head overlaps the bar by 0.8 mm in y so
+    // the CSG result is a real connected solid, not a coincident attachment.
+    translate([m6_detector_support_tail_min_x,
+               m6_detector_support_tail_min_y,
+               m6_detector_support_tail_bottom_z])
+        cube([m6_detector_support_tail_width_x,
+              m6_detector_support_tail_head_depth_y,
+              m6_detector_support_tail_height_z]);
+}
+
+module m6_detector_body_envelope_positive() {
+    // Keep the central bar dimensions explicit while adding the integral
+    // T-tail that carries the M8 female interface directly into aluminum.
+    union() {
+        translate([m6_detector_body_min_x,
+                   m6_detector_body_min_y,
+                   m6_detector_body_bottom_z])
+            cube([m6_detector_body_length_x,
+                  m6_detector_body_depth_y,
+                  m6_detector_body_height_z]);
+        m6_detector_body_t_tail_positive();
+    }
+}
+
+module m6_detector_body_tail_thread_void_positive() {
+    // The supplier's M8 external ballhead stud enters from the positive x
+    // face of the T-head.  A real M8x1.25 blind tap is represented by its
+    // 6.8 mm tap-drill core plus a 9.5 mm entry chamfer; the helix itself is
+    // left to the machinist rather than approximated by a fragile STL thread.
+    m6_countersink_x(
+        m6_detector_support_tail_thread_entry_x + 0.1,
+        -1,
+        m6_detector_support_tail_thread_depth_x + 0.2,
+        m6_detector_support_y,
+        m6_detector_support_boss_center_z,
+        m6_detector_support_tail_tap_drill_d,
+        m6_detector_support_tail_thread_mouth_d,
+        m6_detector_support_tail_thread_mouth_depth_x);
+}
+
+module m6_detector_sensor_fit_voids_positive() {
+    // One shared subtraction defines the actual first-article interface for
+    // both the printable preview and the machined aluminum body.  The round
+    // clearance is the hollow M6 optical barrel; the shallow AF8 pocket is
+    // only 2.1 mm deep, so the gray head shoulder stops with 2 mm captured
+    // instead of passing through the 10 mm bar.
+    for (index = [0:m6_sensor_count - 1]) {
+        z0 = m6_sensor_z(index);
+        m6_cylinder_x(
+            m6_detector_thread_clearance_d,
+            m6_detector_body_length_x + 2,
+            m6_detector_body_center_x,
+            m6_detector_sensor_head_center_y,
+            z0);
+        m6_sensor_roll_frame(index)
+            m6_hex_prism_x(
+                m6_detector_hex_pocket_af,
+                m6_detector_hex_pocket_depth_x,
+                m6_detector_body_max_x -
+                    m6_detector_hex_pocket_depth_x / 2,
+                m6_detector_sensor_head_center_y,
+                z0);
+    }
+}
+
 module m6_detector_body_positive() {
     color("silver")
         difference() {
-            translate([m6_detector_body_min_x,
-                       m6_detector_body_min_y,
-                       m6_detector_body_bottom_z])
-                cube([m6_detector_body_length_x,
-                      m6_detector_body_depth_y,
-                      m6_detector_body_height_z]);
+            m6_detector_body_envelope_positive();
 
-            for (index = [0:m6_sensor_count - 1]) {
-                // The optical/head axis crosses the carrier. The round bore is
-                // only for the M6/thread axis; the larger rotated head relief
-                // keeps the real AF8 metal head from being swallowed by solid
-                // aluminum. The face remains on the table-facing side.
-                m6_cylinder_x(
-                    m6_detector_optical_bore_d,
-                    m6_detector_body_length_x + 2,
-                    m6_detector_body_center_x,
-                    m6_detector_sensor_head_center_y,
-                    m6_sensor_z(index));
-                m6_sensor_roll_frame(index)
-                    translate([
-                        m6_detector_body_min_x - 1,
-                        m6_detector_sensor_head_center_y -
-                            (m6_sensor_head_width_y + 1.6) / 2,
-                        m6_sensor_z(index) -
-                            (m6_sensor_head_height_z + 1.6) / 2])
-                        cube([m6_detector_body_length_x + 2,
-                              m6_sensor_head_width_y + 1.6,
-                              m6_sensor_head_height_z + 1.6]);
-
-                // The right-hand receiver is inserted from x+ and the
-                // mirrored left-hand emitter from x-.  This shallow x-normal
-                // hex seat is on the outward face of the carrier. It only
-                // prevents the real metal hex from turning; it does not bury
-                // the hex/thread shoulder in a deep cavity.
-                m6_sensor_roll_frame(index)
-                    m6_hex_prism_x(
-                        m6_detector_hex_pocket_af,
-                        m6_detector_hex_pocket_depth_x,
-                        m6_detector_body_max_x -
-                            m6_detector_hex_pocket_depth_x / 2,
-                        m6_detector_sensor_head_center_y,
-                        m6_sensor_z(index));
-
-            }
+            m6_detector_sensor_fit_voids_positive();
+            m6_detector_body_tail_thread_void_positive();
 
             // Do not cut a diagonal cable trench into the aluminum. The
             // rotated blue guard and stripped cable leave on the outside face
@@ -2322,60 +2510,15 @@ module m6_detector_body_positive() {
 module m6_detector_fit_body_positive() {
     color("silver")
         difference() {
-            translate([m6_detector_body_min_x,
-                       m6_detector_body_min_y,
-                       m6_detector_body_bottom_z])
-                cube([m6_detector_body_length_x,
-                      m6_detector_body_depth_y,
-                      m6_detector_body_height_z]);
+            m6_detector_body_envelope_positive();
 
-            for (index = [0:m6_sensor_count - 1]) {
-                z0 = m6_sensor_z(index);
-                // The round pass-through follows the actual M6 threaded
-                // barrel.  The shallow x-normal hex pocket is the negative
-                // of the real gray AF8 head and captures its inner 2 mm;
-                // the cross-section is rotated with the real -45° sensor
-                // roll, not replaced by a rectangular placeholder.
-                m6_cylinder_x(
-                    m6_detector_fit_thread_clearance_d,
-                    m6_detector_body_length_x + 2,
-                    m6_detector_body_center_x,
-                    m6_detector_sensor_head_center_y,
-                    z0);
-                m6_sensor_roll_frame(index)
-                    m6_hex_prism_x(
-                        m6_sensor_head_hex_af,
-                        m6_detector_fit_capture_depth_x + 0.1,
-                        m6_detector_body_max_x -
-                            m6_detector_fit_capture_depth_x / 2,
-                        m6_detector_sensor_head_center_y,
-                        z0);
-            }
+            m6_detector_sensor_fit_voids_positive();
+            m6_detector_body_tail_thread_void_positive();
         }
 }
 
 module m6_detector_fit_sensor_positive(index) {
-    // The installed positive-side sensor already has the correct right
-    // receiver orientation.  Its original head center is 766 mm; translate
-    // the whole real 3-D sensor so the inner shoulder lands at body_max-2 mm.
-    // The supplied nut is added below at the smooth body face. It is not
-    // embedded in the aluminum and is positioned from the enlarged body's
-    // actual inner x face, rather than copied from the full-assembly legacy
-    // coordinate.
-    translate([
-        m6_detector_fit_head_center_x - m6_sensor_head_center_x,
-        0,
-        0])
-        m6_detector_sensor_positive(index, false);
-    z0 = m6_sensor_z(index);
-    m6_sensor_roll_frame(index)
-        color("gold")
-            m6_hex_prism_x(
-                m6_sensor_lock_nut_af,
-                m6_sensor_lock_nut_h,
-                m6_detector_fit_nut_center_x,
-                m6_detector_sensor_head_center_y,
-                z0);
+    m6_detector_sensor_installed_positive(index);
 }
 
 module m6_detector_fit_probe_positive() {
@@ -2466,9 +2609,30 @@ module m6_detector_sensor_positive(index, show_nut = true) {
                 m6_detector_sensor_local_positive(index, show_nut);
 }
 
+module m6_detector_sensor_installed_positive(index, show_nut = true) {
+    // The raw purchased-device proxy is kept at its vendor-reference x
+    // coordinates for the single-sensor preview.  The installed detector
+    // translates the complete real L-shaped part so its AF8 head inner
+    // shoulder is exactly 2 mm inside the aluminum body.  The only hardware
+    // added here is one supplied nut on the smooth opposite body face.
+    translate([m6_detector_sensor_install_offset_x, 0, 0])
+        m6_detector_sensor_positive(index, false);
+    if (show_nut) {
+        z0 = m6_sensor_z(index);
+        m6_sensor_roll_frame(index)
+            color("gold")
+                m6_hex_prism_x(
+                    m6_sensor_lock_nut_af,
+                    m6_sensor_lock_nut_h,
+                    m6_detector_fit_nut_center_x,
+                    m6_detector_sensor_head_center_y,
+                    z0);
+    }
+}
+
 module m6_detector_sensor_array_positive() {
     for (index = [0:m6_sensor_count - 1]) {
-        m6_detector_sensor_positive(index);
+        m6_detector_sensor_installed_positive(index);
     }
 }
 
@@ -2494,52 +2658,30 @@ module m6_sensor_single_preview(side = 1) {
 }
 
 module m6_sensor_single_direction_preview(side = 1) {
+    single_optical_tip_x =
+        m6_sensor_head_center_x - m6_sensor_optical_aperture_x;
     if (side >= 0) {
         // Right receiver: incoming +x beam terminates at the hollow tip.
-        m6_optical_arrow_x(-30,
-                           -(m6_sensor_optical_aperture_x -
-                             m6_sensor_head_center_x) - 1.5,
+        m6_optical_arrow_x(single_optical_tip_x - 35,
+                           single_optical_tip_x,
                            0,
                            0);
     } else {
         // Left emitter: outgoing +x beam leaves the mirrored hollow tip.
         m6_optical_arrow_x(
-            (m6_sensor_optical_aperture_x - m6_sensor_head_center_x) + 1.5,
-            30,
+            -single_optical_tip_x,
+            -single_optical_tip_x + 30,
             0,
             0);
     }
 }
 
 module m6_detector_front_outer_positive() {
-    union() {
-        m6_rounded_rect_prism_x(
-            m6_detector_shell_front_max_x - m6_detector_shell_min_x,
-            m6_detector_shell_width_y,
-            m6_detector_shell_height_z,
-            m6_detector_shell_corner_radius,
-            (m6_detector_shell_front_max_x + m6_detector_shell_min_x) / 2,
-            0,
-            (m6_detector_shell_bottom_z + m6_detector_shell_top_z) / 2);
-        // A shallow circular hull at the beam-facing end makes the front cap
-        // read as a positive spherical arc without making a huge sphere.
-        hull() {
-            m6_cylinder_x(
-                m6_detector_shell_width_y,
-                0.8,
-                m6_detector_shell_min_x + 0.4,
-                0,
-                m6_detector_body_center_z);
-            m6_cylinder_x(
-                m6_detector_shell_width_y -
-                    m6_detector_front_cap_reduction,
-                0.8,
-                m6_detector_shell_min_x +
-                    m6_detector_front_cap_length_x,
-                0,
-                m6_detector_body_center_z);
-        }
-    }
+    // Positive front arc in the z+ footprint; the inner x- opening below
+    // leaves the hollow M6 optical tip unobstructed.
+    translate([0, 0, m6_detector_shell_bottom_z])
+        linear_extrude(height = m6_detector_shell_height_z, convexity = 10)
+            m6_detector_front_arc_footprint_positive();
 }
 
 module m6_detector_shell_tongue_positive(x_side, y_side) {
@@ -2595,16 +2737,13 @@ module m6_detector_shell_front_outer_positive() {
 
 module m6_detector_shell_rear_outer_positive() {
     // Rear/cable cover is the x+ segment of the rounded-rectangle envelope.
-    // Its y- boss is added separately below.
+    // The y- region is later relieved around the integral aluminum T-tail;
+    // the rear cover itself is not a structural boss.
     intersection() {
-        m6_rounded_rect_prism_x(
-            m6_detector_shell_max_x - m6_detector_shell_min_x,
-            m6_detector_shell_width_y,
-            m6_detector_shell_height_z,
-            m6_detector_shell_corner_radius,
-            (m6_detector_shell_max_x + m6_detector_shell_min_x) / 2,
-            0,
-            (m6_detector_shell_bottom_z + m6_detector_shell_top_z) / 2);
+        translate([0, 0, m6_detector_shell_bottom_z])
+            linear_extrude(height = m6_detector_shell_height_z,
+                           convexity = 10)
+                m6_detector_rear_rounded_footprint_positive();
         translate([m6_detector_shell_rear_min_x - 1,
                    m6_detector_shell_min_y - 1,
                    m6_detector_shell_bottom_z - 1])
@@ -2626,6 +2765,36 @@ module m6_detector_shell_inner_segment_positive(x_min, x_max) {
                   m6_detector_shell_inner_bottom_z]);
 }
 
+module m6_detector_front_optical_holes_positive() {
+    // The enlarged x- front cap is a bulkhead.  Only the ten optical-axis
+    // bores cross it; the real AF8 heads, blue guards, and supplied nuts are
+    // all recessed behind this wall.
+    for (index = [0:m6_sensor_count - 1]) {
+        m6_cylinder_x(
+            m6_detector_optical_bore_d,
+            m6_detector_shell_wall + 2,
+            m6_detector_shell_min_x + m6_detector_shell_wall / 2,
+            m6_detector_sensor_head_center_y,
+            m6_sensor_z(index));
+    }
+}
+
+module m6_detector_body_tail_clearance_positive() {
+    // Rear PETG is cut away around the T-tail with clearance.  The cutout is
+    // deliberately larger than the tail envelope so the shell cannot become
+    // a hidden load-bearing substitute for the aluminum body.
+    translate([m6_detector_support_tail_min_x - m6_detector_shell_clearance,
+               m6_detector_support_tail_min_y - m6_detector_shell_clearance,
+               m6_detector_support_tail_bottom_z -
+                   m6_detector_shell_clearance])
+        cube([m6_detector_support_tail_width_x +
+                  2 * m6_detector_shell_clearance,
+              m6_detector_support_tail_head_depth_y +
+                  2 * m6_detector_shell_clearance,
+              m6_detector_support_tail_height_z +
+                  2 * m6_detector_shell_clearance]);
+}
+
 module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
     // Front is the optical x- end. It keeps the positive spherical arc, spans
     // full y, owns the x- half of both side grooves, and is fixed from x- by
@@ -2635,8 +2804,9 @@ module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
             difference() {
                 m6_detector_shell_front_outer_positive();
                 m6_detector_shell_inner_segment_positive(
-                    m6_detector_shell_inner_min_x - 1,
+                    m6_detector_shell_min_x + m6_detector_shell_wall,
                     m6_detector_shell_front_max_x + 1);
+                m6_detector_front_optical_holes_positive();
                 for (z_position = m6_detector_body_screw_z) {
                     m6_countersink_x(
                         m6_detector_shell_min_x,
@@ -2656,25 +2826,18 @@ module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
 }
 
 module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
-    // Rear is the cable x+ end. It is rounded-rectangle shaped, carries the
-    // y- bridge boss, owns the x+ half of both side grooves, and is fixed from
-    // x+ by two countersunk screws on the y- screw track.
+    // Rear is the cable x+ end. It is rounded-rectangle shaped, owns the x+
+    // half of both side grooves, and is relieved around the integral body
+    // T-tail. It is fixed from x+ by two countersunk screws on the y- track;
+    // it does not carry the ballhead bending moment.
     union() {
         color("slategray", alpha)
             difference() {
-                union() {
-                    m6_detector_shell_rear_outer_positive();
-                    translate([m6_detector_support_boss_min_x,
-                               m6_detector_support_boss_min_y,
-                               m6_detector_support_boss_center_z -
-                                   m6_detector_support_boss_height_z / 2])
-                        cube([m6_detector_support_boss_width_x,
-                              m6_detector_support_boss_depth_y + 0.8,
-                              m6_detector_support_boss_height_z]);
-                }
+                m6_detector_shell_rear_outer_positive();
                 m6_detector_shell_inner_segment_positive(
                     m6_detector_shell_rear_min_x - 1,
                     m6_detector_shell_inner_max_x + 1);
+                m6_detector_body_tail_clearance_positive();
                 for (z_position = m6_detector_body_screw_z) {
                     m6_countersink_x(
                         m6_detector_shell_max_x,
@@ -2687,15 +2850,6 @@ module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
                         m6_detector_shell_screw_head_d,
                         m6_detector_shell_screw_head_depth);
                 }
-                // This is an M8 metal-stud clearance envelope, not a printed
-                // thread. The metal bushing/stud is shown in the hardware
-                // module and clamps the boss/load path to the aluminum body.
-                m6_cylinder_x(
-                    m6_detector_support_tap_d,
-                    m6_detector_support_boss_width_x + 4,
-                    m6_detector_support_boss_center_x,
-                    m6_detector_support_y,
-                    m6_detector_support_boss_center_z);
             }
         for (y_side = [-1, 1])
             m6_detector_shell_tongue_positive(1, y_side);
@@ -2705,13 +2859,13 @@ module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
 module m6_detector_bottom_cover_positive() {
     color("darkslategray")
         difference() {
-            translate([m6_detector_shell_min_x,
-                       m6_detector_shell_min_y,
+            translate([0,
+                       0,
                        m6_detector_shell_bottom_z -
                            m6_detector_bottom_cover_t])
-                cube([m6_detector_shell_max_x - m6_detector_shell_min_x,
-                      m6_detector_shell_width_y,
-                      m6_detector_bottom_cover_t]);
+                linear_extrude(height = m6_detector_bottom_cover_t,
+                               convexity = 10)
+                    m6_detector_shell_footprint_positive();
             m6_cylinder_z(
                 m6_detector_cable_exit_d,
                 m6_detector_bottom_cover_t + 2,
@@ -2786,10 +2940,10 @@ module m6_detector_support_positive() {
 
 module m6_detector_ballhead_positive() {
     // Purchased 13 mm ball head in the user's required vertical posture:
-    // housing/base/stud stack is z-oriented, while the sensor-side thread
-    // enters the rear-cover boss along x. The selected default is M8 external
-    // thread; the exact vendor transition remains a metal hardware envelope,
-    // not a printed thread.
+    // housing/base/stud stack is z-oriented, while the M8 sensor-side stud
+    // enters the integral aluminum T-tail along x. The selected default is
+    // M8 external thread; the exact vendor transition remains a metal
+    // hardware envelope, not a printed thread.
     color("silver") {
         translate([m6_detector_ballhead_center_x,
                    m6_detector_ballhead_center_y,
@@ -2832,27 +2986,13 @@ module m6_detector_ballhead_positive() {
 
 module m6_detector_support_hardware_positive() {
     color("gold") {
-        // A metal bushing/washer sits in the rear PETG boss. Its M8 clearance
-        // is shown as an annulus so the boss is not mistaken for a printed
-        // tapped hole.
-        difference() {
-            m6_cylinder_x(
-                m6_detector_support_metal_insert_d,
-                m6_detector_support_metal_insert_length_x,
-                m6_detector_support_boss_center_x,
-                m6_detector_support_y,
-                m6_detector_support_boss_center_z);
-            m6_cylinder_x(
-                m6_detector_support_tap_d + 0.2,
-                m6_detector_support_metal_insert_length_x + 2,
-                m6_detector_support_boss_center_x,
-                m6_detector_support_y,
-                m6_detector_support_boss_center_z);
-        }
-        // Sensor-side M8 external stud into the rear-cover x clearance.
+        // Sensor-side M8 external stud engages the female M8x1.25 blind tap
+        // directly in the aluminum T-tail.  There is no PETG insert or rear
+        // cover boss in this load path; the gold cylinder is only the
+        // purchased metal stud envelope.
         m6_cylinder_x(
             m6_ballhead_sensor_stud_d - 0.4,
-            m6_ballhead_sensor_stud_length + 2,
+            m6_ballhead_sensor_stud_length,
             m6_detector_ballhead_sensor_stud_center_x,
             m6_detector_ballhead_center_y,
             m6_detector_ballhead_center_z);
@@ -3513,14 +3653,14 @@ module m6_optical_direction_preview(side = 1) {
     for (index = [0:m6_sensor_count - 1]) {
         if (side >= 0) {
             m6_optical_arrow_x(
-                m6_sensor_axis_x - 30,
-                m6_sensor_axis_x - 1.5,
+                m6_detector_fit_thread_tip_x - 35,
+                m6_detector_fit_thread_tip_x,
                 m6_detector_sensor_head_center_y,
                 m6_sensor_z(index));
         } else {
             m6_optical_arrow_x(
-                -m6_sensor_axis_x + 1.5,
-                -m6_sensor_axis_x + 30,
+                -m6_detector_fit_thread_tip_x,
+                -m6_detector_fit_thread_tip_x + 35,
                 m6_detector_sensor_head_center_y,
                 m6_sensor_z(index));
         }
@@ -3532,8 +3672,8 @@ module m6_optical_full_direction_preview() {
     // when both detector assemblies are shown together.
     for (index = [0:m6_sensor_count - 1]) {
         m6_optical_arrow_x(
-            -m6_sensor_axis_x + 1.5,
-            m6_sensor_axis_x - 1.5,
+            -m6_detector_fit_thread_tip_x,
+            m6_detector_fit_thread_tip_x,
             m6_detector_sensor_head_center_y,
             m6_sensor_z(index));
     }
@@ -3546,14 +3686,14 @@ module m6_optical_exploded_direction_preview(side = 1) {
     for (index = [0:m6_sensor_count - 1]) {
         if (side >= 0) {
             m6_optical_arrow_x(
-                m6_sensor_axis_x - 35,
-                m6_sensor_axis_x + 27.5,
+                m6_detector_fit_thread_tip_x + 28 - 35,
+                m6_detector_fit_thread_tip_x + 28,
                 m6_detector_sensor_head_center_y,
                 m6_sensor_z(index));
         } else {
             m6_optical_arrow_x(
-                -m6_sensor_axis_x - 27.5,
-                -m6_sensor_axis_x + 35,
+                -(m6_detector_fit_thread_tip_x + 28),
+                -(m6_detector_fit_thread_tip_x + 28) + 35,
                 m6_detector_sensor_head_center_y,
                 m6_sensor_z(index));
         }
@@ -4135,6 +4275,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_sensor_thread_end_x=", m6_sensor_thread_end_x));
     echo(str("NETSTAND_PARAM m6_sensor_optical_aperture_x=", m6_sensor_optical_aperture_x));
     echo(str("NETSTAND_PARAM m6_sensor_overall_end_x=", m6_sensor_overall_end_x));
+    echo(str("NETSTAND_PARAM m6_sensor_head_center_x=", m6_sensor_head_center_x));
     echo(str("NETSTAND_PARAM m6_sensor_cable_exit_x=", m6_sensor_cable_exit_x));
     echo(str("NETSTAND_PARAM m6_sensor_lock_nut_h=", m6_sensor_lock_nut_h));
     echo(str("NETSTAND_PARAM m6_sensor_mount_plane_offset_z=", m6_sensor_mount_plane_offset_z));
@@ -4194,10 +4335,12 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_fit_thread_clearance_d=", m6_detector_fit_thread_clearance_d));
     echo(str("NETSTAND_PARAM m6_detector_fit_thread_tip_allowance_x=", m6_detector_fit_thread_tip_allowance_x));
     echo(str("NETSTAND_PARAM m6_detector_fit_head_inner_x=", m6_detector_fit_head_inner_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_center_x=", m6_detector_fit_head_center_x));
     echo(str("NETSTAND_PARAM m6_detector_fit_thread_tip_x=", m6_detector_fit_thread_tip_x));
     echo(str("NETSTAND_PARAM m6_detector_fit_thread_visible_length_x=", m6_detector_fit_thread_visible_length_x));
     echo(str("NETSTAND_PARAM m6_detector_fit_body_depth_limit_x=", m6_detector_fit_body_depth_limit_x));
     echo(str("NETSTAND_PARAM m6_detector_fit_nut_center_x=", m6_detector_fit_nut_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_sensor_install_offset_x=", m6_detector_sensor_install_offset_x));
     echo(str("NETSTAND_PARAM m6_detector_sensor_nut_center_x=", m6_detector_sensor_nut_center_x));
     echo(str("NETSTAND_PARAM m6_detector_thread_visible_length=", m6_detector_thread_visible_length));
     echo(str("NETSTAND_PARAM m6_detector_shell_wall=", m6_detector_shell_wall));
@@ -4241,6 +4384,15 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_support_boss_height_z=", m6_detector_support_boss_height_z));
     echo(str("NETSTAND_PARAM m6_detector_support_boss_x_fraction=", m6_detector_support_boss_x_fraction));
     echo(str("NETSTAND_PARAM m6_detector_support_thread_nominal_d=", m6_detector_support_thread_nominal_d));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_extension_x=", m6_detector_support_tail_extension_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_head_depth_y=", m6_detector_support_tail_head_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_overlap_y=", m6_detector_support_tail_overlap_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_height_z=", m6_detector_support_tail_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_pitch=", m6_detector_support_tail_thread_pitch));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_depth_x=", m6_detector_support_tail_thread_depth_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_tap_drill_d=", m6_detector_support_tail_tap_drill_d));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_mouth_d=", m6_detector_support_tail_thread_mouth_d));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_mouth_depth_x=", m6_detector_support_tail_thread_mouth_depth_x));
     echo(str("NETSTAND_PARAM m6_detector_support_tap_d=", m6_detector_support_tap_d));
     echo(str("NETSTAND_PARAM m6_detector_support_tap_depth_x=", m6_detector_support_tap_depth_x));
     echo(str("NETSTAND_PARAM m6_detector_support_metal_insert_d=", m6_detector_support_metal_insert_d));
@@ -4280,6 +4432,19 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_shell_inner_max_x=", m6_detector_shell_inner_max_x));
     echo(str("NETSTAND_PARAM m6_detector_support_boss_center_x=", m6_detector_support_boss_center_x));
     echo(str("NETSTAND_PARAM m6_detector_support_y=", m6_detector_support_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_min_x=", m6_detector_support_tail_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_max_x=", m6_detector_support_tail_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_width_x=", m6_detector_support_tail_width_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_min_y=", m6_detector_support_tail_min_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_max_y=", m6_detector_support_tail_max_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_center_y=", m6_detector_support_tail_center_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_bottom_z=", m6_detector_support_tail_bottom_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_top_z=", m6_detector_support_tail_top_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_center_z=", m6_detector_support_tail_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_center_x=", m6_detector_support_tail_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_engagement_x=", m6_detector_support_tail_thread_engagement_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_entry_x=", m6_detector_support_tail_thread_entry_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_tail_thread_center_x=", m6_detector_support_tail_thread_center_x));
     echo(str("NETSTAND_PARAM m6_detector_support_arm_z=", m6_detector_support_arm_z));
     echo(str("NETSTAND_PARAM m6_detector_support_arm_min_x=", m6_detector_support_arm_min_x));
     echo(str("NETSTAND_PARAM m6_detector_support_arm_max_x=", m6_detector_support_arm_max_x));

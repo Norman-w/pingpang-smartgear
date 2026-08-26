@@ -7,14 +7,28 @@ not a replacement for OpenSCAD geometry validation or a strength calculation.
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from matplotlib.patches import Circle, Polygon, Rectangle
 
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "preview.png"
+
+# The preview is consumed as a Chinese design-review image.  Prefer the
+# built-in macOS CJK font when it is available, while retaining a portable
+# Latin fallback for CI/Linux hosts where that system font does not exist.
+_CJK_FONT = Path("/System/Library/Fonts/Hiragino Sans GB.ttc")
+if _CJK_FONT.is_file():
+    font_manager.fontManager.addfont(str(_CJK_FONT))
+    plt.rcParams["font.family"] = "Hiragino Sans GB"
+else:
+    plt.rcParams["font.family"] = "sans-serif"
+    plt.rcParams["font.sans-serif"] = ["Noto Sans CJK SC", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
 
 TABLE_WIDTH = 1525.0
 TABLE_THICKNESS = 25.0
@@ -91,6 +105,7 @@ M6_SENSOR_HEAD_HEX_AF = 8.0
 M6_SENSOR_BODY_D = 6.0
 M6_SENSOR_BODY_LENGTH = 22.0
 M6_SENSOR_MOUNT_STEM_LENGTH = 14.0
+M6_SENSOR_LOCK_NUT_H = 5.0
 M6_RAIL_T = 8.0
 M6_RAIL_WIDTH_Y = 42.0
 M6_RAIL_TAB_T = 6.0
@@ -152,8 +167,8 @@ M6_DETECTOR_SHELL_CLEARANCE = 0.6
 M6_DETECTOR_SHELL_BOTTOM_LIP_Z = 3.0
 M6_DETECTOR_SHELL_TOP_LIP_Z = 3.0
 M6_DETECTOR_SHELL_SPLIT_OVERLAP_X = 0.3
-M6_DETECTOR_SHELL_CORNER_RADIUS = 2.2
-M6_DETECTOR_FRONT_CAP_LENGTH_X = 8.0
+M6_DETECTOR_SHELL_CORNER_RADIUS = 4.0
+M6_DETECTOR_FRONT_CAP_LENGTH_X = 18.0
 M6_DETECTOR_FRONT_CAP_REDUCTION = 1.2
 M6_DETECTOR_BODY_GROOVE_WIDTH_X = 4.0
 M6_DETECTOR_BODY_GROOVE_DEPTH_Y = 1.2
@@ -162,9 +177,9 @@ M6_DETECTOR_SHELL_TONGUE_DEPTH_Y = 1.0
 M6_DETECTOR_SHELL_TONGUE_CLEARANCE = 0.25
 M6_DETECTOR_OPTICAL_BORE_D = 6.6
 M6_DETECTOR_THREAD_CLEARANCE_D = 6.6
-M6_DETECTOR_HEX_POCKET_AF = 10.7
-M6_DETECTOR_HEX_POCKET_DEPTH_X = 2.5
-M6_DETECTOR_HEX_POCKET_DEPTH_Y = 2.5
+M6_DETECTOR_HEX_POCKET_AF = 8.0
+M6_DETECTOR_HEX_POCKET_DEPTH_X = 2.1
+M6_DETECTOR_HEX_POCKET_DEPTH_Y = 2.1
 M6_DETECTOR_HEX_POCKET_FLOOR = 0.8
 M6_DETECTOR_SHELL_SCREW_PILOT_D = 3.4
 M6_DETECTOR_SHELL_SCREW_HEAD_D = 6.8
@@ -178,15 +193,31 @@ M6_DETECTOR_BOTTOM_COVER_SCREW_HEAD_DEPTH = 1.6
 M6_DETECTOR_BOTTOM_COVER_SCREW_INSET_X = 9.0
 M6_DETECTOR_CABLE_EXIT_D = 12.0
 M6_DETECTOR_CABLE_EXIT_SLEEVE_CLEARANCE = 1.0
-M6_DETECTOR_SUPPORT_BOSS_WIDTH_X = 18.0
-M6_DETECTOR_SUPPORT_BOSS_DEPTH_Y = 8.0
-M6_DETECTOR_SUPPORT_BOSS_HEIGHT_Z = 24.0
+M6_SENSOR_INSTALL_OFFSET_X = 6.25
+M6_SENSOR_INSTALLED_HEAD_MIN_X = 769.25
+M6_SENSOR_INSTALLED_THREAD_TIP_X = 755.25
+M6_SENSOR_INSTALLED_CABLE_EXIT_X = 772.25
+M6_DETECTOR_NUT_MIN_X = 756.25
+M6_DETECTOR_SUPPORT_TAIL_EXTENSION_X = 10.0
+M6_DETECTOR_SUPPORT_TAIL_HEAD_DEPTH_Y = 14.0
+M6_DETECTOR_SUPPORT_TAIL_OVERLAP_Y = 0.8
+M6_DETECTOR_SUPPORT_TAIL_HEIGHT_Z = 28.0
+M6_DETECTOR_SUPPORT_TAIL_THREAD_PITCH = 1.25
+M6_DETECTOR_SUPPORT_TAIL_THREAD_DEPTH_X = 12.0
+M6_DETECTOR_SUPPORT_TAIL_TAP_DRILL_D = 6.8
+M6_DETECTOR_SUPPORT_TAIL_THREAD_MOUTH_D = 9.5
+M6_DETECTOR_SUPPORT_TAIL_THREAD_MOUTH_DEPTH_X = 1.0
+# Compatibility aliases for older preview/manifest readers.
+M6_DETECTOR_SUPPORT_TAIL_DEPTH_Y = M6_DETECTOR_SUPPORT_TAIL_HEAD_DEPTH_Y
+M6_DETECTOR_SUPPORT_BOSS_WIDTH_X = M6_DETECTOR_BODY_LENGTH_X + M6_DETECTOR_SUPPORT_TAIL_EXTENSION_X
+M6_DETECTOR_SUPPORT_BOSS_DEPTH_Y = M6_DETECTOR_SUPPORT_TAIL_DEPTH_Y
+M6_DETECTOR_SUPPORT_BOSS_HEIGHT_Z = M6_DETECTOR_SUPPORT_TAIL_HEIGHT_Z
 M6_DETECTOR_SUPPORT_BOSS_X_FRACTION = 0.72
 M6_DETECTOR_SUPPORT_THREAD_NOMINAL_D = 8.0
-M6_DETECTOR_SUPPORT_TAP_D = 8.6
-M6_DETECTOR_SUPPORT_TAP_DEPTH_X = 12.0
-M6_DETECTOR_SUPPORT_METAL_INSERT_D = 12.0
-M6_DETECTOR_SUPPORT_METAL_INSERT_LENGTH_X = 16.0
+M6_DETECTOR_SUPPORT_TAP_D = M6_DETECTOR_SUPPORT_TAIL_TAP_DRILL_D
+M6_DETECTOR_SUPPORT_TAP_DEPTH_X = M6_DETECTOR_SUPPORT_TAIL_THREAD_DEPTH_X
+M6_DETECTOR_SUPPORT_METAL_INSERT_D = 0.0
+M6_DETECTOR_SUPPORT_METAL_INSERT_LENGTH_X = 0.0
 M6_DETECTOR_SUPPORT_ARM_T_Z = 8.0
 M6_DETECTOR_SUPPORT_ARM_WIDTH_Y = 18.0
 M6_DETECTOR_SUPPORT_LEG_T_X = 8.0
@@ -270,14 +301,16 @@ def draw_front(ax) -> None:
             fontsize=7,
         )
 
-    body_min_x = M6_SENSOR_AXIS_X - M6_DETECTOR_BODY_FRONT_MARGIN_X
+    body_min_x = M6_SENSOR_MOUNT_HOLE_X - M6_DETECTOR_BODY_LENGTH_X / 2
     body_max_x = body_min_x + M6_DETECTOR_BODY_LENGTH_X
     body_bottom = NET_HEIGHT + M6_SENSOR_FIRST_HEIGHT - M6_DETECTOR_BODY_MARGIN_Z
     body_top = body_bottom + (
         (BEAM_COUNT - 1) * M6_SENSOR_CENTER_PITCH
         + 2 * M6_DETECTOR_BODY_MARGIN_Z
     )
-    shell_min_x = M6_SENSOR_AXIS_X - M6_DETECTOR_SHELL_WALL
+    body_height = body_top - body_bottom
+    shell_split_x = M6_SENSOR_AXIS_X + M6_SENSOR_HEAD_LENGTH_X / 2
+    shell_min_x = shell_split_x - M6_DETECTOR_FRONT_CAP_LENGTH_X
     shell_max_x = (
         M6_SENSOR_AXIS_X
         + M6_SENSOR_HEAD_LENGTH_X
@@ -286,9 +319,54 @@ def draw_front(ax) -> None:
     )
     shell_bottom = body_bottom - M6_DETECTOR_SHELL_BOTTOM_LIP_Z
     shell_top = body_top + M6_DETECTOR_SHELL_TOP_LIP_Z
-    for side, label in ((-1, "M6 45° L型长条主体（壳体待重画）"), (1, "_nolegend_")):
+    front_max_x = shell_split_x + M6_DETECTOR_SHELL_SPLIT_OVERLAP_X
+    rear_min_x = shell_split_x - M6_DETECTOR_SHELL_SPLIT_OVERLAP_X
+    front_width = front_max_x - shell_min_x
+    rear_width = shell_max_x - rear_min_x
+    tail_min_x = body_min_x
+    tail_max_x = body_max_x + M6_DETECTOR_SUPPORT_TAIL_EXTENSION_X
+    tail_bottom = body_bottom + body_height / 2 - M6_DETECTOR_SUPPORT_TAIL_HEIGHT_Z / 2
+    for side, label in ((-1, "M6 x向分体壳/底盖与45° L型长条主体"), (1, "_nolegend_")):
         body_x = body_min_x if side > 0 else -body_max_x
-        shell_x = shell_min_x if side > 0 else -shell_max_x
+        front_shell_x = shell_min_x if side > 0 else -front_max_x
+        rear_shell_x = rear_min_x if side > 0 else -shell_max_x
+        ax.add_patch(
+            Rectangle(
+                (front_shell_x, shell_bottom),
+                front_width,
+                shell_top - shell_bottom,
+                facecolor="#6f7f90",
+                edgecolor="#3e4b57",
+                alpha=0.10,
+                label="x- 前盖正球弧候选" if side < 0 else "_nolegend_",
+            )
+        )
+        # The two x-segments are drawn as light outlines; keep the optical
+        # parts above them so this overview remains readable.
+        ax.add_patch(
+            Rectangle(
+                (rear_shell_x, shell_bottom),
+                rear_width,
+                shell_top - shell_bottom,
+                facecolor="#8796a5",
+                edgecolor="#3e4b57",
+                alpha=0.08,
+                label="x+ 后盖圆角矩形；y- 为一体 T 尾座让位" if side < 0 else "_nolegend_",
+            )
+        )
+        tail_x = tail_min_x if side > 0 else -tail_max_x
+        ax.add_patch(
+            Rectangle(
+                (tail_x, tail_bottom),
+                tail_max_x - tail_min_x,
+                M6_DETECTOR_SUPPORT_TAIL_HEIGHT_Z,
+                facecolor="#8e989f",
+                edgecolor="#38434c",
+                linewidth=1.2,
+                alpha=0.96,
+                label="铝合金一体 T 尾座：直接 M8 内丝" if side < 0 else "_nolegend_",
+            )
+        )
         ax.add_patch(
             Rectangle(
                 (body_x, body_bottom),
@@ -301,16 +379,20 @@ def draw_front(ax) -> None:
         )
         for index in range(BEAM_COUNT):
             z = NET_HEIGHT + M6_SENSOR_FIRST_HEIGHT + index * M6_SENSOR_CENTER_PITCH
-            head_x = M6_SENSOR_AXIS_X if side > 0 else -M6_SENSOR_AXIS_X - M6_SENSOR_HEAD_LENGTH_X
-            thread_x = (
-                M6_SENSOR_AXIS_X + M6_SENSOR_HEAD_LENGTH_X
+            head_x = (
+                M6_SENSOR_INSTALLED_HEAD_MIN_X
                 if side > 0
-                else -M6_SENSOR_AXIS_X - M6_SENSOR_HEAD_LENGTH_X - M6_SENSOR_MOUNT_STEM_LENGTH
+                else -M6_SENSOR_INSTALLED_HEAD_MIN_X - M6_SENSOR_HEAD_LENGTH_X
+            )
+            thread_x = (
+                M6_SENSOR_INSTALLED_THREAD_TIP_X
+                if side > 0
+                else -M6_SENSOR_INSTALLED_THREAD_TIP_X - M6_SENSOR_MOUNT_STEM_LENGTH
             )
             cable_x = (
-                M6_SENSOR_AXIS_X + M6_SENSOR_HEAD_LENGTH_X / 2 - M6_SENSOR_BODY_D / 2
+                M6_SENSOR_INSTALLED_CABLE_EXIT_X - M6_SENSOR_BODY_D / 2
                 if side > 0
-                else -M6_SENSOR_AXIS_X - M6_SENSOR_HEAD_LENGTH_X / 2 - M6_SENSOR_BODY_D / 2
+                else -M6_SENSOR_INSTALLED_CABLE_EXIT_X - M6_SENSOR_BODY_D / 2
             )
             ax.add_patch(
                 Rectangle(
@@ -353,7 +435,9 @@ def draw_front(ax) -> None:
                 alpha=0.95,
             )
             ax.plot(
-                M6_SENSOR_MOUNT_HOLE_X if side > 0 else -M6_SENSOR_MOUNT_HOLE_X,
+                M6_SENSOR_INSTALLED_THREAD_TIP_X
+                if side > 0
+                else -M6_SENSOR_INSTALLED_THREAD_TIP_X,
                 z,
                 marker="o",
                 markersize=2.8,
@@ -362,7 +446,11 @@ def draw_front(ax) -> None:
             # One purchased nut sits directly on the outward body face.  It
             # is not a countersunk/embedded fixing screw and there is no
             # second lock nut in the current installation contract.
-            nut_x = body_max_x if side > 0 else -body_max_x - 5
+            nut_x = (
+                M6_DETECTOR_NUT_MIN_X
+                if side > 0
+                else -M6_DETECTOR_NUT_MIN_X - M6_SENSOR_LOCK_NUT_H
+            )
             ax.add_patch(
                 Rectangle(
                     (nut_x, z - 5),
@@ -374,7 +462,7 @@ def draw_front(ax) -> None:
                 )
             )
             if index == 0 and side < 0:
-                ax.plot([], [], color="#3c65d7", linewidth=3.0, label="蓝色护套：局部 z− 绕光束 x 轴 -45°")
+                ax.plot([], [], color="#3c65d7", linewidth=3.0, label="蓝色护套：局部 z- 绕光束 x 轴 -45°")
                 ax.plot([], [], color="#c1c7cc", linewidth=2.0, label="水平 M6 外丝 / 光学轴")
         # The side-specific vertical adapter and 90-degree support are shown
         # as an outline so the front view exposes the load path without
@@ -482,12 +570,14 @@ def draw_side(ax) -> None:
         alpha=0.45,
         label="10 个 20 mm 节距通道的 x 轴投影",
     )
-    support_arm_min_x = 807.24 - TABLE_EDGE
+    # The arm begins outside the integral aluminum T-tail; the horizontal
+    # connection is not a PETG rear-cover boss.
+    support_arm_min_x = 785.25 - TABLE_EDGE
     support_arm_max_x = 889.0 - TABLE_EDGE
-    support_arm_z = 182.5
+    support_arm_z = 227.5
     support_leg_x = 884.0 - TABLE_EDGE
-    support_leg_bottom = 126.5
-    support_leg_top = 186.5
+    support_leg_bottom = 171.5
+    support_leg_top = 231.5
     ax.add_patch(
         Rectangle(
             (support_arm_min_x, support_arm_z - 4),
@@ -535,8 +625,8 @@ def draw_side(ax) -> None:
             label="vertical net-clamp adapter",
         )
     )
-    ballhead_x = 823.24 - TABLE_EDGE
-    ballhead_z = NET_HEIGHT + 55.0
+    ballhead_x = 801.25 - TABLE_EDGE
+    ballhead_z = body_bottom + body_height / 2
     ax.add_patch(
         Rectangle(
             (ballhead_x - 14, ballhead_z - 13),
@@ -565,11 +655,11 @@ def draw_side(ax) -> None:
         label="vertical ball-head stud",
     )
     ax.plot(
-        [body_max_x - TABLE_EDGE, ballhead_x - 14],
+        [body_max_x + M6_DETECTOR_SUPPORT_TAIL_EXTENSION_X - TABLE_EDGE, ballhead_x - 14],
         [body_bottom + body_height / 2, ballhead_z],
         color="#b6bdc3",
         linewidth=4.0,
-        label="horizontal rear boss connection",
+        label="horizontal M8 connection into integral aluminum T-tail",
     )
     ax.add_patch(
         Rectangle(
@@ -740,7 +830,7 @@ def draw_side(ax) -> None:
         color="#3c65d7",
         linewidth=5.0,
         solid_capstyle="round",
-        label="蓝色护套：局部 z− 绕 x 轴 -45°",
+        label="蓝色护套：局部 z- 绕 x 轴 -45°",
     )
     cable_tail_end = (
         cable_end[0] - 14 * 2**-0.5,
@@ -769,7 +859,7 @@ def draw_side(ax) -> None:
     inset.set_ylim(-18, 8)
     inset.set_aspect("equal", adjustable="box")
     inset.set_title("y-z 局部：斜向 7 字安装", fontsize=8)
-    inset.set_xlabel("y（后方为 −）", fontsize=7)
+    inset.set_xlabel("y（后方为 -）", fontsize=7)
     inset.set_ylabel("z", fontsize=7)
     inset.tick_params(labelsize=6)
     inset.grid(True, alpha=0.2)
@@ -782,12 +872,200 @@ def draw_side(ax) -> None:
     ax.legend(unique.values(), unique.keys(), loc="upper left", fontsize=7)
 
 
+def front_arc_points(x_min: float, x_max: float, y_min: float, y_max: float):
+    """Return the z+ plan-view positive arc used by the x- front cover."""
+
+    length = x_max - x_min
+    y_center = (y_min + y_max) / 2
+    half_width = (y_max - y_min) / 2
+    points = [(x_max, y_min)]
+    for angle in range(-90, 91, 5):
+        radians = math.radians(angle)
+        points.append(
+            (
+                x_max - length * math.cos(radians),
+                y_center + half_width * math.sin(radians),
+            )
+        )
+    points.append((x_max, y_max))
+    return points
+
+
+def rounded_rect_points(
+    x_min: float, x_max: float, y_min: float, y_max: float, radius: float
+):
+    """Return a sampled rounded rectangle in the x/y plan plane."""
+
+    radius = min(radius, (x_max - x_min) / 2, (y_max - y_min) / 2)
+    points = [(x_min + radius, y_min), (x_max - radius, y_min)]
+    for start, end, cx, cy in (
+        (-90, 0, x_max - radius, y_min + radius),
+        (0, 90, x_max - radius, y_max - radius),
+        (90, 180, x_min + radius, y_max - radius),
+        (180, 270, x_min + radius, y_min + radius),
+    ):
+        for angle in range(start, end + 1, 10):
+            radians = math.radians(angle)
+            points.append((cx + radius * math.cos(radians), cy + radius * math.sin(radians)))
+    return points
+
+
+def draw_top(ax) -> None:
+    """Draw the user's z+ shell silhouette with x- at the top of the panel."""
+
+    body_min_x = M6_SENSOR_MOUNT_HOLE_X - M6_DETECTOR_BODY_LENGTH_X / 2
+    body_max_x = body_min_x + M6_DETECTOR_BODY_LENGTH_X
+    shell_split_x = M6_SENSOR_AXIS_X + M6_SENSOR_HEAD_LENGTH_X / 2
+    shell_min_x = shell_split_x - M6_DETECTOR_FRONT_CAP_LENGTH_X
+    shell_max_x = (
+        M6_SENSOR_AXIS_X
+        + M6_SENSOR_HEAD_LENGTH_X
+        + M6_SENSOR_MOUNT_STEM_LENGTH
+        + M6_DETECTOR_SHELL_WALL
+    )
+    shell_min_y = -M6_DETECTOR_BODY_DEPTH_Y / 2 - M6_DETECTOR_SHELL_WALL
+    shell_max_y = M6_DETECTOR_BODY_DEPTH_Y / 2 + M6_DETECTOR_SHELL_WALL
+    front_max_x = shell_split_x + M6_DETECTOR_SHELL_SPLIT_OVERLAP_X
+    rear_min_x = shell_split_x - M6_DETECTOR_SHELL_SPLIT_OVERLAP_X
+
+    # Plot y horizontally and -(x - split) vertically.  This puts x- (the
+    # optical/front end) above x+ (the cable/rear end), matching the sketch.
+    def plan(points):
+        return [(y, -(x - shell_split_x)) for x, y in points]
+
+    front = plan(front_arc_points(shell_min_x, front_max_x, shell_min_y, shell_max_y))
+    rear = plan(
+        rounded_rect_points(
+            rear_min_x,
+            shell_max_x,
+            shell_min_y,
+            shell_max_y,
+            M6_DETECTOR_SHELL_CORNER_RADIUS,
+        )
+    )
+    ax.add_patch(
+        Polygon(
+            front,
+            closed=True,
+            facecolor="#3567d6",
+            edgecolor="#173d9b",
+            linewidth=1.8,
+            alpha=0.32,
+            label="x- 前盖：正圆弧俯视轮廓",
+        )
+    )
+    ax.add_patch(
+        Polygon(
+            rear,
+            closed=True,
+            facecolor="#36a852",
+            edgecolor="#197331",
+            linewidth=1.8,
+            alpha=0.28,
+            label="x+ 后盖：圆角矩形俯视轮廓",
+        )
+    )
+
+    body_plan = plan(
+        [
+            (body_min_x, -M6_DETECTOR_BODY_DEPTH_Y / 2),
+            (body_max_x, -M6_DETECTOR_BODY_DEPTH_Y / 2),
+            (body_max_x, M6_DETECTOR_BODY_DEPTH_Y / 2),
+            (body_min_x, M6_DETECTOR_BODY_DEPTH_Y / 2),
+        ]
+    )
+    ax.add_patch(
+        Polygon(
+            body_plan,
+            closed=True,
+            facecolor="#9da7b0",
+            edgecolor="#4d5964",
+            linewidth=1.2,
+            alpha=0.85,
+            label="6061-T6 铝合金主体（10 × 56 mm）",
+        )
+    )
+    tail_min_x = body_min_x
+    tail_max_x = body_max_x + M6_DETECTOR_SUPPORT_TAIL_EXTENSION_X
+    tail_min_y = -M6_DETECTOR_BODY_DEPTH_Y / 2 - M6_DETECTOR_SUPPORT_TAIL_DEPTH_Y + M6_DETECTOR_SUPPORT_TAIL_OVERLAP_Y
+    tail_max_y = -M6_DETECTOR_BODY_DEPTH_Y / 2 + M6_DETECTOR_SUPPORT_TAIL_OVERLAP_Y
+    tail_plan = plan(
+        [
+            (tail_min_x, tail_min_y),
+            (tail_max_x, tail_min_y),
+            (tail_max_x, tail_max_y),
+            (tail_min_x, tail_max_y),
+        ]
+    )
+    ax.add_patch(
+        Polygon(
+            tail_plan,
+            closed=True,
+            facecolor="#7f8a93",
+            edgecolor="#38434c",
+            linewidth=1.5,
+            alpha=0.96,
+            label="铝合金一体 T 尾座（向本侧 x 外伸 10 mm，M8 内丝）",
+        )
+    )
+    cable_hole_y = 0.0
+    cable_hole_plot = (cable_hole_y, -(M6_SENSOR_INSTALLED_CABLE_EXIT_X - shell_split_x))
+    ax.add_patch(
+        Circle(
+            cable_hole_plot,
+            M6_DETECTOR_CABLE_EXIT_D / 2,
+            facecolor="#f7f9fb",
+            edgecolor="#26333e",
+            linewidth=1.2,
+            alpha=0.95,
+            label="底盖 D12 mm 统一套管孔",
+        )
+    )
+    ax.plot(
+        [shell_min_y, shell_max_y],
+        [0, 0],
+        linestyle=(0, (5, 3)),
+        color="#4d5964",
+        linewidth=1.0,
+        label="前/后盖分型边界（非连线）",
+    )
+    ax.annotate(
+        "x- 光学端",
+        xy=(0, -(shell_min_x - shell_split_x)),
+        xytext=(0, -(shell_min_x - shell_split_x) + 3),
+        ha="center",
+        color="#173d9b",
+        arrowprops={"arrowstyle": "-|>", "color": "#173d9b"},
+        fontsize=9,
+    )
+    ax.annotate(
+        "x+ 线缆端",
+        xy=(0, -(shell_max_x - shell_split_x)),
+        xytext=(0, -(shell_max_x - shell_split_x) - 3),
+        ha="center",
+        color="#197331",
+        arrowprops={"arrowstyle": "-|>", "color": "#197331"},
+        fontsize=9,
+    )
+    ax.set_xlim(-36, 36)
+    ax.set_ylim(-24, 16)
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_title("z+ 俯视：前盖正弧 + 后盖圆角矩形")
+    ax.set_xlabel("y（球台前后）/ mm")
+    ax.set_ylabel("-(x-分型面) / mm；上方为 x- 光学端")
+    ax.grid(True, alpha=0.22)
+    handles, labels = ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+    ax.legend(unique.values(), unique.keys(), loc="lower center", fontsize=7, ncol=2)
+
+
 def make_preview() -> None:
-    fig, (front, side) = plt.subplots(1, 2, figsize=(16, 8), constrained_layout=True)
+    fig, (front, side, top) = plt.subplots(1, 3, figsize=(21, 8), constrained_layout=True)
     draw_front(front)
     draw_side(side)
+    draw_top(top)
     fig.suptitle(
-        "Pingpang SmartGear: integrated net stand and height grid (intent, not STL validation)",
+        "Pingpang SmartGear: integrated net stand, M6 x-split shell, and z+ footprint (intent, not STL validation)",
         fontsize=14,
     )
     fig.savefig(OUT, dpi=160)

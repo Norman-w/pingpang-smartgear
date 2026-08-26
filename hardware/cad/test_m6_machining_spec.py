@@ -33,9 +33,9 @@ def main() -> None:
         for entry in parts.values()
     ):
         raise AssertionError("current aluminum part schedule changed")
-    if parts["m6_machining_detector_body"]["blank_mm"] != [10, 56, 216]:
-        raise AssertionError("detector body blank changed")
-    if parts["m6_machining_support"]["blank_mm"] != [101.7, 18, 60]:
+    if parts["m6_machining_detector_body"]["blank_mm"] != [20, 69.2, 216]:
+        raise AssertionError("detector T-tail body envelope changed")
+    if parts["m6_machining_support"]["blank_mm"] != [106.75, 18, 60]:
         raise AssertionError("90-degree support envelope changed")
     if parts["m6_machining_adapter"]["blank_mm"] != [6, 56, 228]:
         raise AssertionError("vertical adapter envelope changed")
@@ -47,6 +47,8 @@ def main() -> None:
         or sensors["height_schedule_mm"] != list(range(10, 191, 20))
         or sensors["body_blank_mm"] != [10, 56, 216]
         or sensors["body_global_min_mm"] != [761.25, -28, 144.5]
+        or sensors["body_envelope_mm"] != [20, 69.2, 216]
+        or sensors["body_envelope_global_min_mm"] != [761.25, -41.2, 144.5]
         or sensors["body_center_y_global_mm"] != 0
         or sensors["sensor_roll_deg"] != -45
         or sensors["body_depth_limit_from_stem_and_one_nut_mm"] != 10
@@ -57,8 +59,8 @@ def main() -> None:
         or sensors["cable_branch_roll_deg_about_x"] != -45
         or sensors["cable_guard_length_mm"] != 10
         or sensors["cable_d_mm"] != 3
-        or sensors["hex_pocket_af_mm"] != 10.7
-        or sensors["hex_pocket_depth_local_axis_mm"] != 2.5
+        or sensors["hex_pocket_af_mm"] != 8
+        or sensors["hex_pocket_depth_local_axis_mm"] != 2.1
         or sensors["insertion_axis"] != "right x+ / left x- outward entry; outer gray hex captured by shallow pocket; hollow threaded optical barrel and one nut pass toward the smooth opposite body face"
         or sensors["lane_layout"] != "单列竖直安装，所有光学中心 y=0；主体为 x=10 mm 厚、y=56 mm 宽并居中 y=0；十路中心高度为 +10、+30…+190 mm，不采用旧的左右交错双列"
         or sensors["cable_pocketed_in_body"] is not False
@@ -66,7 +68,7 @@ def main() -> None:
         or sensors["optical_aperture_location"] != "M6 中空外丝筒的末端中心孔；灰色六角处不再画独立黑色光学面"
         or sensors["sensor_nut_count_per_channel"] != 1
         or sensors["sensor_nut_position"] != "主体平滑的另一侧表面；不嵌入主体；不使用打印固定螺丝"
-        or sensors["thread_visible_after_body_mm"] != 12.25
+        or sensors["thread_visible_after_body_mm"] != 6
     ):
         raise AssertionError("45-degree L-sensor contract changed")
     schedule = sensors["channel_schedule"]
@@ -77,13 +79,17 @@ def main() -> None:
 
     shell = spec["shell_contract"]
     if (
-        shell["outer_envelope_mm"] != [24.8, 60.8, 222]
+        shell["outer_envelope_mm"] != [37.4, 60.8, 222]
         or shell["split_axis"] != "x"
         or shell["split_x_global_mm"] != 766
+        or shell["top_view_profile"]
+        != "z+ 俯视：x- 光学端为正圆弧，x+ 线缆端为圆角矩形；中间仅为前后盖分型边界，不建连线"
+        or shell["front_cap_length_x_mm"] != 18
+        or shell["rear_corner_radius_mm"] != 4
         or shell["front_max_x_global_mm"] != 766.3
         or shell["rear_min_x_global_mm"] != 765.7
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧带 M8 金属桥接 boss；主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧为一体铝合金 T 尾座让位，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -98,13 +104,23 @@ def main() -> None:
 
     support = spec["support_contract"]
     if (
-        support["thread_nominal_d_mm"] != 8
-        or support["metal_insert_d_mm"] != 12
-        or support["metal_insert_length_x_mm"] != 16
-        or support["printed_boss_clearance_d_mm"] != 8.6
-        or "后盖 boss -> 90°金属支撑水平臂" not in support["load_path"]
+        support["tail_extension_x_mm"] != 10
+        or support["tail_head_depth_y_mm"] != 14
+        or support["tail_overlap_y_mm"] != 0.8
+        or support["tail_height_z_mm"] != 28
+        or support["tail_global_min_mm"] != [761.25, -41.2, 238.5]
+        or support["tail_global_max_mm"] != [781.25, -27.2, 266.5]
+        or support["thread_entry_x_global_mm"] != 781.25
+        or support["thread_depth_x_mm"] != 12
+        or support["thread_engagement_x_mm"] != 12
+        or support["thread_nominal_d_mm"] != 8
+        or support["thread_pitch_mm"] != 1.25
+        or support["tap_drill_d_mm"] != 6.8
+        or support["thread_mouth_d_mm"] != 9.5
+        or support["thread_mouth_depth_x_mm"] != 1
+        or "铝合金主体 -> 一体 T 形尾座 M8×1.25 内丝" not in support["load_path"]
     ):
-        raise AssertionError("M8 metal bridge contract changed")
+        raise AssertionError("direct aluminum T-tail M8 contract changed")
 
     ballhead = spec["ballhead_contract"]
     if (

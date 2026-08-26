@@ -137,6 +137,8 @@ def validate_manifest(path: Path) -> None:
         topology = entry.get("topology")
         if not isinstance(topology, dict) or topology.get("watertight_by_edge_topology") is not True:
             raise AssertionError(f"manifest topology is not watertight for {filename}")
+        if not isinstance(entry.get("volume_mm3"), (int, float)) or entry["volume_mm3"] <= 0:
+            raise AssertionError(f"manifest volume is not positive for {filename}")
         bounds = entry.get("bounds")
         if not isinstance(bounds, dict) or not all(
             isinstance(bounds.get(key), list) and len(bounds[key]) == 3

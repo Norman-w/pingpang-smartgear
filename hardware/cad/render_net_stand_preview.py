@@ -205,7 +205,7 @@ def main() -> None:
         args.output_dir / "net-stand-m6-detector-mount-right.png",
         1100,
         1300,
-        definitions=("SIDE=1",),
+        definitions=("SIDE=1", "m6_show_optical_direction=true"),
     )
     render(
         openscad,
@@ -213,7 +213,55 @@ def main() -> None:
         args.output_dir / "net-stand-m6-detector-mount-left.png",
         1100,
         1300,
-        definitions=("SIDE=-1",),
+        definitions=("SIDE=-1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_detector_exploded",
+        args.output_dir / "net-stand-m6-detector-exploded-right.png",
+        1500,
+        1400,
+        definitions=("SIDE=1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_detector_exploded",
+        args.output_dir / "net-stand-m6-detector-exploded-left.png",
+        1500,
+        1400,
+        definitions=("SIDE=-1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_detector_fit_probe",
+        args.output_dir / "net-stand-m6-detector-fit-probe-right.png",
+        1000,
+        1300,
+        definitions=("SIDE=1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_detector_fit_probe",
+        args.output_dir / "net-stand-m6-detector-fit-probe-left.png",
+        1000,
+        1300,
+        definitions=("SIDE=-1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_sensor_single",
+        args.output_dir / "net-stand-m6-sensor-single-right.png",
+        900,
+        900,
+        definitions=("SIDE=1", "m6_show_optical_direction=true"),
+    )
+    render(
+        openscad,
+        "m6_sensor_single",
+        args.output_dir / "net-stand-m6-sensor-single-left.png",
+        900,
+        900,
+        definitions=("SIDE=-1", "m6_show_optical_direction=true"),
     )
     render(
         openscad,

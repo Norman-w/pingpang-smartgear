@@ -36,6 +36,8 @@ def main() -> None:
                     raise AssertionError("machining previews must stay outside print manifest")
                 if not entry["topology"]["watertight_by_edge_topology"]:  # type: ignore[index]
                     raise AssertionError("machining preview is not watertight")
+                if not isinstance(entry.get("volume_mm3"), (int, float)) or entry["volume_mm3"] <= 0:
+                    raise AssertionError("machining preview volume must be positive")
                 output = output_dir / entry["file"]  # type: ignore[index]
                 if not output.is_file() or output.stat().st_size == 0:
                     raise AssertionError(f"missing machining preview: {output.name}")
@@ -43,14 +45,14 @@ def main() -> None:
         def size(part: str) -> list[float]:
             return grouped[part][0]["bounds"]["size"]  # type: ignore[index,return-value]
 
-        if size("m6_machining_detector_body") != [10, 56, 216]:
-            raise AssertionError("detector body local envelope changed")
-        if size("m6_machining_support") != [101.7, 18, 60]:
+        if size("m6_machining_detector_body") != [20, 69.2, 216]:
+            raise AssertionError("detector T-tail local envelope changed")
+        if size("m6_machining_support") != [106.75, 18, 60]:
             raise AssertionError("90-degree support local envelope changed")
         if size("m6_machining_adapter") != [6, 56, 228]:
             raise AssertionError("adapter plate envelope changed")
 
-    print("M6_MACHINING_PREVIEWS_TEST_OK (6 watertight body/support/adapter previews)")
+    print("M6_MACHINING_PREVIEWS_TEST_OK (6 watertight T-tail/support/adapter previews)")
 
 
 if __name__ == "__main__":

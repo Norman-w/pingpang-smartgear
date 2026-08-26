@@ -16,7 +16,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from validate_net_stand import _stl_topology
+from validate_net_stand import _stl_topology, _stl_volume
 from validate_scad import find_openscad, stl_bounds
 
 
@@ -461,6 +461,9 @@ def _manifest_entry(output: Path, spec: ExportSpec) -> dict[str, object]:
         raise RuntimeError(
             f"打印件不是封闭 STL: {spec.filename}: {topology_summary}"
         )
+    volume_mm3 = _stl_volume(output)
+    if volume_mm3 <= 1e-6:
+        raise RuntimeError(f"打印件体积无效: {spec.filename}: {volume_mm3}")
     min_x, max_x, min_y, max_y, min_z, max_z = stl_bounds(output)
     return {
         "file": output.name,
@@ -483,6 +486,7 @@ def _manifest_entry(output: Path, spec: ExportSpec) -> dict[str, object]:
             "max": [max_x, max_y, max_z],
             "size": [max_x - min_x, max_y - min_y, max_z - min_z],
         },
+        "volume_mm3": volume_mm3,
         "topology": {
             "watertight_by_edge_topology": closed,
             "summary": topology_summary,

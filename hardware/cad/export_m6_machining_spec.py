@@ -23,7 +23,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v0.6-20-mm-pitch-l-sensor"
+SCHEMA_VERSION = "m6-machining-spec-v0.7-20-mm-pitch-l-sensor-t-tail"
 
 
 def _r(value: float) -> float | int:
@@ -73,6 +73,22 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
     body_min = [
         _r(parameters["m6_detector_body_min_x"]),
         _r(parameters["m6_detector_body_min_y"]),
+        _r(parameters["m6_detector_body_bottom_z"]),
+    ]
+    body_envelope_size = [
+        _r(
+            parameters["m6_detector_support_tail_max_x"]
+            - parameters["m6_detector_support_tail_min_x"]
+        ),
+        _r(
+            parameters["m6_detector_body_max_y"]
+            - parameters["m6_detector_support_tail_min_y"]
+        ),
+        _r(parameters["m6_detector_body_height_z"]),
+    ]
+    body_envelope_min = [
+        _r(parameters["m6_detector_support_tail_min_x"]),
+        _r(parameters["m6_detector_support_tail_min_y"]),
         _r(parameters["m6_detector_body_bottom_z"]),
     ]
     shell_size = [
@@ -128,13 +144,13 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "part_schedule": [
             {
                 "part": "m6_machining_detector_body",
-                "name_zh": "十路 45° L 型长条传感器主体",
+                "name_zh": "十路 45° L 型长条传感器主体（一体 T 形尾座）",
                 "material": "6061-T6 aluminum",
-                "blank_mm": body_size,
+                "blank_mm": body_envelope_size,
                 "per_side": 1,
                 "total": 2,
                 "preview_is_printable": False,
-                "process": "铣削/钻孔；主体为 x 向 10 mm 厚、y 向 56 mm 宽、z 向 216 mm 竖直长条，十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、绕 x 轴 -45° 的尾线让位和 x 向浅六角座；壳体盲孔暂不作为主体放行条件",
+                "process": "铣削/钻孔；中央主体为 x 向 10 mm 厚、y 向 56 mm 宽、z 向 216 mm 竖直长条，在 y- 外侧一体加出向本侧 x 外伸 10 mm 的 T 形尾座；尾座用于直接加工 M8×1.25 内丝。十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、绕 x 轴 -45° 的尾线让位和 x 向浅六角座；PETG 壳体只让位不承力",
                 "fit_before_release": "先用一只真实 M6 直角对射头验证灰色六角外形、M6 中空外丝中心光学孔、蓝色尾线局部 z- 后绕 x 轴 -45°、六角窝、有效外丝、至少一枚原配螺帽和光轴高度",
             },
             {
@@ -170,10 +186,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "part": "m6_detector_shell_rear",
-                "name_zh": "后方桥接壳（PETG）",
+                "name_zh": "后盖（PETG，T 尾座让位）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端并带 y- 后置 boss；boss 中央沿 x- 指向光学端，使用金属 M8 外牙/衬套连接采购球头/转接件。",
+                "notes": "覆盖 x+ 线缆端；y- 外侧按铝合金一体 T 形尾座做让位缺口，M8 接口不经过 PETG，后盖只保护和导向。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -198,6 +214,8 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ],
             "body_blank_mm": body_size,
             "body_global_min_mm": body_min,
+            "body_envelope_mm": body_envelope_size,
+            "body_envelope_global_min_mm": body_envelope_min,
             "body_center_y_global_mm": _r(parameters["m6_detector_body_center_y"]),
             "sensor_roll_deg": _r(parameters["m6_sensor_roll_deg"]),
             "body_depth_limit_from_stem_and_one_nut_mm": _r(body_depth_limit),
@@ -251,6 +269,13 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "body_clearance_mm": _r(parameters["m6_detector_shell_clearance"]),
             "split_axis": "x",
             "split_x_global_mm": _r(parameters["m6_detector_shell_split_x"]),
+            "top_view_profile": "z+ 俯视：x- 光学端为正圆弧，x+ 线缆端为圆角矩形；中间仅为前后盖分型边界，不建连线",
+            "front_cap_length_x_mm": _r(
+                parameters["m6_detector_front_cap_length_x"]
+            ),
+            "rear_corner_radius_mm": _r(
+                parameters["m6_detector_shell_corner_radius"]
+            ),
             "front_max_x_global_mm": _r(
                 parameters["m6_detector_shell_front_max_x"]
             ),
@@ -264,15 +289,26 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "tongue_clearance_mm": _r(parameters["m6_detector_shell_tongue_clearance"]),
                 "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
             },
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧带 M8 金属桥接 boss；主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧为一体铝合金 T 尾座让位，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
         },
         "support_contract": {
-            "boss_width_x_mm": _r(parameters["m6_detector_support_boss_width_x"]),
-            "boss_depth_y_mm": _r(parameters["m6_detector_support_boss_depth_y"]),
-            "boss_height_z_mm": _r(parameters["m6_detector_support_boss_height_z"]),
-            "boss_center_x_global_mm": _r(
-                parameters["m6_detector_support_boss_center_x"]
-            ),
+            "tail_extension_x_mm": _r(parameters["m6_detector_support_tail_extension_x"]),
+            "tail_head_depth_y_mm": _r(parameters["m6_detector_support_tail_head_depth_y"]),
+            "tail_overlap_y_mm": _r(parameters["m6_detector_support_tail_overlap_y"]),
+            "tail_height_z_mm": _r(parameters["m6_detector_support_tail_height_z"]),
+            "tail_global_min_mm": [
+                _r(parameters["m6_detector_support_tail_min_x"]),
+                _r(parameters["m6_detector_support_tail_min_y"]),
+                _r(parameters["m6_detector_support_tail_bottom_z"]),
+            ],
+            "tail_global_max_mm": [
+                _r(parameters["m6_detector_support_tail_max_x"]),
+                _r(parameters["m6_detector_support_tail_max_y"]),
+                _r(parameters["m6_detector_support_tail_top_z"]),
+            ],
+            "thread_entry_x_global_mm": _r(parameters["m6_detector_support_tail_thread_entry_x"]),
+            "thread_depth_x_mm": _r(parameters["m6_detector_support_tail_thread_depth_x"]),
+            "thread_engagement_x_mm": _r(parameters["m6_detector_support_tail_thread_engagement_x"]),
             "support_y_global_mm": _r(parameters["m6_detector_support_y"]),
             "arm_z_global_mm": _r(parameters["m6_detector_support_arm_z"]),
             "arm_width_y_mm": _r(parameters["m6_detector_support_arm_width_y"]),
@@ -283,10 +319,11 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "leg_top_z_global_mm": _r(parameters["m6_detector_support_leg_top_z"]),
             "gusset_t_y_mm": _r(parameters["m6_detector_support_gusset_t_y"]),
             "thread_nominal_d_mm": _r(parameters["m6_detector_support_thread_nominal_d"]),
-            "metal_insert_d_mm": _r(parameters["m6_detector_support_metal_insert_d"]),
-            "metal_insert_length_x_mm": _r(parameters["m6_detector_support_metal_insert_length_x"]),
-            "printed_boss_clearance_d_mm": _r(parameters["m6_detector_support_tap_d"]),
-            "load_path": "后盖 boss -> 90°金属支撑水平臂 -> 竖直腿 -> 网夹适配板/网架",
+            "thread_pitch_mm": _r(parameters["m6_detector_support_tail_thread_pitch"]),
+            "tap_drill_d_mm": _r(parameters["m6_detector_support_tail_tap_drill_d"]),
+            "thread_mouth_d_mm": _r(parameters["m6_detector_support_tail_thread_mouth_d"]),
+            "thread_mouth_depth_x_mm": _r(parameters["m6_detector_support_tail_thread_mouth_depth_x"]),
+            "load_path": "铝合金主体 -> 一体 T 形尾座 M8×1.25 内丝 -> 金属 M8 外牙球头 -> 90°金属支撑水平臂 -> 竖直腿 -> 网夹适配板/网架",
         },
         "ballhead_contract": {
             "ball_d_mm": _r(parameters["m6_ballhead_ball_d"]),
@@ -300,7 +337,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "posture": "球头主体竖直；下方螺柱接 90° 支撑，上方/侧向锁紧后盖总成",
+            "posture": "球头主体竖直；下方螺柱接 90° 支撑，侧向 M8 外牙直接锁入铝合金一体 T 尾座，后盖只做让位",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -341,10 +378,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "id": "detector_to_ballhead",
-                "name_zh": "后盖 boss 到采购球头",
+                "name_zh": "铝合金一体 T 尾座到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead thread/adapter; current visual proxy is M8 external with metal bushing",
+                "spec": "selected 13 mm ballhead thread/adapter; current visual proxy is M8 external, directly engaged in the aluminum T-tail blind thread",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
             {
