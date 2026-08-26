@@ -1768,16 +1768,14 @@ module post_positive() {
 }
 
 // -----------------------------------------------------------------------------
-// 当前 M6 十路铝合金基座与三轴微调
+// 当前 M6 十路铝合金主体、T 尾座与采购球头微调接口
 //
-// 机械契约：6061-T6 铝合金板/圆盘由机加工或激光/水刀后加工完成；FDM
-// 只用于尺寸样件和网夹本体。无密封件、无分型面；器件从球台中心侧装入，
-// 基座从网夹/立柱侧用 M6 螺钉锁紧。四个层次的受力路径是：
-// M6×0.75 器件螺纹 -> 铝合金梳齿安装条 -> 滚转板 -> 俯仰叉架 -> 偏航上转台
-// -> (2×M5) 竖直承载板连接 -> 偏航下转台 -> (2×M6) 固定适配板连接
-// -> 网夹立柱。粗调由 z 轴弧槽/切向长孔完成，
-// M4 顶丝只负责微调，
-// 最终由 M6 锁紧螺钉承受工作载荷。
+// 机械契约：6061-T6 铝合金主体、T 尾座、90° 支撑和适配板由机加工/金属
+// 工艺完成；FDM 只用于 PETG 壳体和尺寸样件。当前承力路径是：
+// M6×0.75 器件六角/主体 -> 10×56×216 mm 铝合金长条与 y- 一体 T 尾座
+// -> 直接加工的 M8×1.25 内丝 -> 金属 M8 球头 -> 竖直 90° 支撑 -> 网夹适配板。
+// 采购球头提供偏航/俯仰/滚转的微调接口；前后壳和底盖只负责保护、导向和
+// 线缆出口，不承担球头弯矩。
 
 module m6_cylinder_x(d, h, x_center, y_center, z_center) {
     translate([x_center, y_center, z_center])
@@ -1973,7 +1971,8 @@ module m6_arc_slot_z(x_center, y_center, z_center, radius,
 }
 
 module m6_sensor_rail_positive() {
-    // 这是铝合金机加工件的 1:1 外形和攻牙位置，不是 PETG 打印件。
+    // 旧版兼容诊断件：这是铝合金梳齿方案的 1:1 外形和攻牙位置，不是
+    // 当前 T 形主体主线，也不是 PETG 打印件。保留它只为历史回溯。
     // 竖直背骨承接十个水平托舌；每个托舌有一个 M6×0.75 竖直攻牙孔。
     // 偶数/奇数通道的托舌沿 y 交错，避免 14 mm 安装杆在 10 mm 节距上相撞。
     color("silver")
@@ -2042,10 +2041,8 @@ module m6_sensor_rail_positive() {
 }
 
 module m6_sensor_test_coupon_positive() {
-    // The coupon is intentionally a local, low-cost fit check.  It contains
-    // one real tab plus a short section of the 8 mm backbone, so the buyer can
-    // verify the M6 right-angle head, lock nut, anti-rotation pocket and the
-    // Ø10 cable/body relief before cutting two full aluminum comb rails.
+    // 旧版兼容诊断件：coupon 是低成本的梳齿托舌配合检查，不属于当前
+    // T 形长条主体；保留它只用于历史资料/旧几何回归。
     //
     // The coupon hole is clearance, not a claim about the final M6×0.75 tap.
     // The real sensor is installed from the top; its hex nut sits in the open

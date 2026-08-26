@@ -80,6 +80,8 @@ python3 hardware/cad/test_m6_machining_spec.py
 python3 hardware/cad/export_m6_machining_spec.py
 python3 hardware/cad/test_m6_machining_previews.py
 python3 hardware/cad/export_m6_machining_previews.py --clean
+python3 hardware/cad/test_m6_component_previews.py
+python3 hardware/cad/export_m6_component_previews.py --clean
 ```
 
-这些输出是首样/报价输入，不替代真实装配强度、球台兼容性、光学精度或 NPN 电气验收。
+组件预览包位于 `hardware/cad/exports/net-stand-v0.1/m6-component-previews/`，包含主体、前后盖、底盖、90°支撑和竖直网夹适配板的左右完整 STL；它与正式 PETG/TPU 打印清单分开，`manifest.json` 会明确材料和 `printable` 候选状态。主体内的 `M8×1.25` 仍需由加工方按 `Ø6.8 mm` 底孔实际攻牙，STL 不模拟螺旋牙。这些输出是首样/报价输入，不替代真实装配强度、球台兼容性、光学精度或 NPN 电气验收。

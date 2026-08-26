@@ -45,7 +45,10 @@ python3 hardware/cad/validate_net_stand.py
 python3 hardware/cad/test_preview_consistency.py
 python3 hardware/cad/test_m6_machining_spec.py
 python3 hardware/cad/test_m6_machining_previews.py
+python3 hardware/cad/test_m6_component_previews.py
 python3 hardware/cad/render_net_stand_preview.py
+python3 hardware/cad/render_m6_views.py --part m6_detector_mount
+python3 hardware/cad/render_m6_views.py --part m6_detector_exploded
 ```
 
 所有 STL/PNG 都是几何和装配意图证据；最终强度、实物接口、光学对准和电气行为必须由首样记录关闭。

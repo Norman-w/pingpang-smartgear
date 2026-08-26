@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Export the standalone M6 sensor fit coupon.
+"""Export the legacy standalone M6 sensor fit coupon.
 
-The coupon is a real first-article print used to check one purchased M6
-right-angle sensor, its lock nut and cable exit before the two aluminum comb
-rails are machined.  It intentionally has its own output directory and never
-enters the 26-piece PETG/TPU print manifest.
+This short coupon belongs to the retained comb-rail compatibility diagnostics.
+The current T-tail first-article path is ``m6_detector_fit_probe`` and the
+current component package is emitted by ``export_m6_component_previews.py``.
+This coupon intentionally has its own output directory and never enters the
+26-piece PETG/TPU print manifest.
 """
 
 from __future__ import annotations
@@ -98,7 +99,7 @@ def export_fit_coupon(
         "part": 'PART="m6_sensor_test_coupon"',
         "units": "mm",
         "material": "PETG",
-        "purpose": "加工两根铝合金梳齿条前，验证一枚真实 M6 直角器件、锁紧螺母、防转窝、头部方向和线缆让位。",
+        "purpose": "旧版梳齿兼容诊断：验证一枚真实 M6 直角器件、锁紧螺母、防转窝、头部方向和线缆让位；当前 T 尾座首样请使用 m6_detector_fit_probe。",
         "formal_print_manifest": False,
         "stl": STL_NAME,
         "local_origin": "试装样件背骨 x-min、y=0 中心线、z=0 底面",
