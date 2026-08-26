@@ -297,18 +297,18 @@ def main() -> None:
     )
     render(
         openscad,
-        "m6_detector_support",
-        args.output_dir / "net-stand-m6-detector-90-degree-support-right.png",
-        1000,
-        1000,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
         "m6_ballhead",
         args.output_dir / "net-stand-m6-vertical-ballhead-right.png",
         900,
         900,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_exploded",
+        args.output_dir / "net-stand-m6-detector-exploded-right.png",
+        1000,
+        1300,
         definitions=("SIDE=1",),
     )
     render(

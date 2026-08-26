@@ -45,14 +45,13 @@ def main() -> None:
         def size(part: str) -> list[float]:
             return grouped[part][0]["bounds"]["size"]  # type: ignore[index,return-value]
 
-        if size("m6_machining_detector_body") != [20, 69.2, 216]:
-            raise AssertionError("detector T-tail local envelope changed")
-        if size("m6_machining_support") != [106.75, 18, 60]:
-            raise AssertionError("90-degree support local envelope changed")
-        if size("m6_machining_adapter") != [6, 56, 228]:
-            raise AssertionError("adapter plate envelope changed")
+        if size("m6_machining_detector_body") != [10, 56, 216]:
+            raise AssertionError("rectangular PETG body local envelope changed")
+        body_entry = grouped["m6_machining_detector_body"][0]
+        if "PETG" not in body_entry["material"] or "一体 T 形尾座" in body_entry["notes"]:
+            raise AssertionError("machining preview still advertises an integral T-tail")
 
-    print("M6_MACHINING_PREVIEWS_TEST_OK (6 watertight T-tail/support/adapter previews)")
+    print("M6_MACHINING_PREVIEWS_TEST_OK (2 watertight rectangular-body previews; ballhead purchased)")
 
 
 if __name__ == "__main__":

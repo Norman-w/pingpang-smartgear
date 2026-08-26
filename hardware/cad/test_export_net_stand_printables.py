@@ -43,7 +43,6 @@ PREVIEW_ONLY_PARTS = {
     "optical_strip",
     "m6_sensor_rail",
     "m6_sensor_array",
-    "m6_mount_adapter",
     "m6_gimbal",
     "stg120_preview",
     "sensor_mount",

@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖只对一体 T 尾座让位，主要载荷由铝主体经直接 M8 接口传给金属球头和支撑。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 y- 侧加厚 M8 boss，直接接保持竖直的采购 13 mm 球头，球头自带竖直接口连接商品网夹。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -425,9 +425,9 @@ function makeProxyAssemblyItems(entries) {
     notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
 
-  // Current M6 assembly contract. The integral aluminum T-tail is the
-  // load-bearing M8 interface; the x-split PETG covers only protect and guide
-  // the sensor bundle and are shown together for installed-orientation checks.
+  // Current M6 assembly contract. The detector is a plain PETG rectangle;
+  // the rear PETG cover has the visible thickened M8 boss and the metal
+  // support/ballhead closes the load path to the net clamp.
   const m6Geometry = {
     axisX: 763,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
@@ -492,58 +492,37 @@ function makeProxyAssemblyItems(entries) {
     receiverThreadMinX: 755.25,
     receiverOpticalMinX: 754.85,
     receiverNutMinX: 756.25,
-    mountX: 881,
-    mountT: 6,
-    mountWidth: 56,
-    mountHeight: 228,
-    tailExtensionX: 10,
-    tailHeadDepthY: 14,
-    tailOverlapY: 0.8,
-    tailHeightZ: 28,
-    tailMinX: 761.25,
-    tailMaxX: 781.25,
-    tailMinY: -41.2,
-    tailMaxY: -27.2,
-    tailBottomZ: 238.5,
-    tailTopZ: 266.5,
-    tailThreadEntryX: 781.25,
-    tailThreadDepthX: 12,
-    tailTapDrillD: 6.8,
-    tailThreadMouthD: 9.5,
-    tailThreadMouthDepthX: 1,
-    tailThreadEngagementX: 12,
-    bossCenterX: 771.25,
-    bossWidthX: 20,
-    bossDepthY: 14,
-    bossHeightZ: 28,
-    supportY: -34.2,
-    supportArmMinX: 785.25,
-    supportArmMaxX: 889,
-    supportArmZ: 227.5,
-    supportArmWidthY: 18,
-    supportArmT: 8,
-    supportLegX: 884,
-    supportGussetInsetX: 8,
-    supportLegBottomZ: 171.5,
-    supportLegTopZ: 231.5,
+    shellSupportBossMinX: 767.4,
+    shellSupportBossMaxX: 781.4,
+    shellSupportBossLengthX: 14,
+    shellSupportBossEndInsetX: 4,
+    shellSupportBossMinY: -45.4,
+    shellSupportBossMaxY: -27.4,
+    shellSupportBossDepthY: 18,
+    shellSupportBossCenterX: 774.4,
+    shellSupportBossCenterY: -36.4,
+    shellSupportBossBottomZ: 234.5,
+    shellSupportBossTopZ: 270.5,
+    shellSupportBossHeightZ: 36,
+    shellSupportBossRadius: 2,
+    shellSupportHoleD: 8.6,
+    shellSupportHoleDepthX: 14,
+    shellSupportHoleEntryX: 781.4,
+    shellSupportStudEngagementX: 12,
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
-    ballheadCenterX: 801.25,
-    ballheadCenterY: -34.2,
+    ballheadCenterX: 801.4,
+    ballheadCenterY: -36.4,
     ballheadCenterZ: 252.5,
     ballheadBaseCenterZ: 235.5,
     ballheadBaseD: 32,
     ballheadBaseT: 8,
     ballheadNetStudCenterZ: 217.5,
     ballheadNetStudLength: 28,
-    ballheadSensorStudCenterX: 777.25,
+    ballheadSensorStudCenterX: 777.4,
     ballheadSensorStudD: 8,
     ballheadNetStudD: 8,
-    supportThreadNominalD: 8,
-    supportClearanceD: 8.6,
-    supportMetalInsertD: 0,
-    supportMetalInsertLengthX: 0,
     ballheadSensorStudLength: 16,
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
@@ -572,8 +551,6 @@ function makeProxyAssemblyItems(entries) {
     const ballheadStudMinX = side > 0
       ? m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2
       : -m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2;
-    const supportEnvelopeMaxX = m6Geometry.supportLegX + m6Geometry.supportGussetInsetX;
-
     if (m6Geometry.fitProbeOnly) {
       const fitHeadInnerX = m6Geometry.bodyMaxX - m6Geometry.fitCaptureDepthX;
       const fitHeadCenterX = fitHeadInnerX + m6Geometry.fitHeadLengthX / 2;
@@ -584,7 +561,7 @@ function makeProxyAssemblyItems(entries) {
         name_zh: `M6 首样长条主体（${sideName}）`,
         name_en: "M6 first-article rectangular fit body",
         kind: "机加工主体首样",
-        material: "6061-T6 铝合金",
+        material: "PETG 首样；后续可换 6061-T6 CNC",
         group: "optical",
         color: "#aeb5bb",
         shape: "box",
@@ -594,25 +571,7 @@ function makeProxyAssemblyItems(entries) {
           m6Geometry.bodyHeightZ],
         side,
         explosion: [0, 0, 0],
-        notes: "本阶段只显示长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；一体 T 尾座、壳子、支撑和云台暂不加入。",
-      }));
-      items.push(makeAssemblyItem({
-        id: `hardware:m6-fit-body-tail:${sideLabel}`,
-        name_zh: `M6 一体铝合金 T 形尾座首样（${sideName}）`,
-        name_en: "integral aluminum T-tail first-article fit body",
-        kind: "机加工主体首样",
-        material: "6061-T6 铝合金",
-        group: "optical",
-        color: "#aeb5bb",
-        shape: "box",
-        base_min: [side > 0 ? m6Geometry.tailMinX : -m6Geometry.tailMaxX,
-          m6Geometry.tailMinY, m6Geometry.tailBottomZ],
-        size: [m6Geometry.tailMaxX - m6Geometry.tailMinX,
-          m6Geometry.tailHeadDepthY,
-          m6Geometry.tailHeightZ],
-        side,
-        explosion: [0, -18, 18],
-        notes: "与中央 10×56×216 mm 铝条一体；在 y- 外侧形成 14 mm 深、28 mm 高的 T 形尾座，并向本侧 x 外伸 10 mm。M8×1.25 连接内丝直接加工在铝件中，后盖不参与承力。",
+        notes: "本阶段只显示 PETG 长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；后盖 boss、壳子和采购球头在完整装配模式显示。",
       }));
       for (let index = 0; index < 10; index += 1) {
         const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -804,47 +763,18 @@ function makeProxyAssemblyItems(entries) {
     }
 
     items.push(makeAssemblyItem({
-      id: `hardware:m6-mount-adapter:${sideLabel}`,
-      name_zh: `竖直网夹适配板（${sideName}）`,
-      name_en: "vertical net-clamp adapter plate",
-      kind: "机加工网架接口",
-      material: "6061-T6 铝合金",
-      group: "optical",
-      base_min: [side > 0 ? m6Geometry.mountX : -m6Geometry.mountX - m6Geometry.mountT, -m6Geometry.mountWidth / 2, m6Geometry.ballheadCenterZ - m6Geometry.mountHeight / 2],
-      size: [m6Geometry.mountT, m6Geometry.mountWidth, m6Geometry.mountHeight],
-      side,
-      explosion: explosionVector("optical", side),
-      notes: "竖直金属适配板通过两条 M6 长孔固定到网架；当前不再使用旧的水平球头三孔背板模式。",
-    }));
-    items.push(makeAssemblyItem({
       id: `hardware:m6-detector-body:${sideLabel}`,
-      name_zh: `M6 长条铝合金主体（${sideName}）`,
-      name_en: "M6 long aluminum detector body",
-      kind: "机加工承力主体",
-      material: "6061-T6 铝合金",
+      name_zh: `M6 PETG 长条主体（${sideName}）`,
+      name_en: "M6 rectangular PETG detector body, future CNC-compatible",
+      kind: "可打印结构主体",
+      material: "PETG 首样；后续可换 6061-T6 CNC",
       group: "optical",
+      color: "#4a7da8",
       base_min: [bodyMinX, m6Geometry.bodyCenterY - m6Geometry.bodyDepthY / 2, m6Geometry.bodyBottomZ],
       size: [m6Geometry.bodyMaxX - m6Geometry.bodyMinX, m6Geometry.bodyDepthY, m6Geometry.bodyHeightZ],
       side,
       explosion: [side * 54, 0, 28],
-      notes: "中央承力条仍为 x=10 mm 厚、y=56 mm 宽、z=216 mm；与 y- 外侧一体 T 形尾座连续，尾座向本侧 x 外伸 10 mm，直接承接 M8×1.25 内丝和金属球头。真实三维激光头的灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。两条 y± 边槽只导向前后盖舌片，PETG 壳不承担球头弯矩。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `hardware:m6-detector-body-tail:${sideLabel}`,
-      name_zh: `铝合金一体 T 形尾座与 M8 内丝（${sideName}）`,
-      name_en: "integral aluminum T-tail with direct M8 female thread",
-      kind: "机加工承力主体（一体尾座）",
-      material: "6061-T6 铝合金",
-      group: "optical",
-      shape: "box",
-      base_min: [side > 0 ? m6Geometry.tailMinX : -m6Geometry.tailMaxX,
-        m6Geometry.tailMinY, m6Geometry.tailBottomZ],
-      size: [m6Geometry.tailMaxX - m6Geometry.tailMinX,
-        m6Geometry.tailHeadDepthY,
-        m6Geometry.tailHeightZ],
-      side,
-      explosion: [side * 70, -26, 12],
-      notes: "与中央长条一体，不是后盖承力件：y- 侧 T 形头向本侧 x 外伸 10 mm；x+ 端（左侧镜像为 x- 端）直接加工 M8×1.25 盲牙。金属球头螺柱进入铝件，后盖只在尾座周围让位。",
+      notes: "主体就是 x=10 mm 厚、y=56 mm 宽、z=216 mm 的连续矩形长条；真实 M6 L 型器件从外侧沿 x 装入，灰色 AF8 六角卡入浅窝，中空外丝朝台内穿出并由一枚原配螺帽锁紧。两条 y± 边槽只导向前后盖舌片，主体不带 T 尾座、M8 孔或主体内线缆槽。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-front:${sideLabel}`,
@@ -864,33 +794,38 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * -92, 0, 46],
-      notes: "x- 光学端前盖为正球弧，从主体 z+ 套入；它占两条 y± 边槽的 x- 半，M3/M4 沉头螺钉只锁入铝主体导孔。",
+      notes: "x- 光学端前盖为正球弧，从主体 z+ 套入；它占两条 y± 边槽的 x- 半，M3/M4 沉头螺钉只锁入主体导孔。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
-      name_zh: `M6 后盖：x+ 圆角矩形与 T 尾座让位（${sideName}）`,
-      name_en: "M6 rear rounded cover with integral-body tail relief",
+      name_zh: `M6 后盖：x+ 圆角矩形与加厚 M8 支撑 boss（${sideName}）`,
+      name_en: "M6 rear rounded cover with thickened M8 support boss",
       kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
-      shape: "rounded-footprint-tail-relief",
+      shape: "rounded-footprint-support-boss",
       shapeOptions: {
         radius: m6Geometry.shellCornerRadius,
-        relief_x0: Math.max(0, m6Geometry.tailMinX - m6Geometry.rearMinX),
-        relief_x1: Math.min(
-          m6Geometry.shellMaxX - m6Geometry.rearMinX,
-          m6Geometry.tailMaxX - m6Geometry.rearMinX,
-        ),
-        relief_depth_y: Math.max(0, m6Geometry.tailMaxY - m6Geometry.shellMinY),
+        outer_y_offset: m6Geometry.shellMinY - m6Geometry.shellSupportBossMinY,
+        outer_depth_y: m6Geometry.shellMaxY - m6Geometry.shellMinY,
+        boss_x_offset: m6Geometry.shellSupportBossMinX - m6Geometry.rearMinX,
+        boss_y_offset: 0,
+        boss_z_offset: m6Geometry.shellSupportBossBottomZ - m6Geometry.shellBottomZ,
+        boss_length_x: m6Geometry.shellSupportBossLengthX,
+        boss_depth_y: m6Geometry.shellSupportBossMaxY - m6Geometry.shellSupportBossMinY,
+        boss_height_z: m6Geometry.shellSupportBossHeightZ,
+        boss_radius: m6Geometry.shellSupportBossRadius,
+        boss_hole_d: m6Geometry.shellSupportHoleD,
+        boss_hole_depth_x: m6Geometry.shellSupportHoleDepthX,
         mirror_x: side < 0,
       },
-      base_min: [rearShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
+      base_min: [rearShellMinX, m6Geometry.shellSupportBossMinY, m6Geometry.shellBottomZ],
       size: [m6Geometry.shellMaxX - m6Geometry.rearMinX,
-        m6Geometry.shellWidthY,
+        m6Geometry.shellMaxY - m6Geometry.shellSupportBossMinY,
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖为圆角矩形；y- 外侧按一体 T 尾座外形做让位缺口，M8 连接不再经过 PETG 壳体。后盖只由沉头螺钉定位到铝主体，不承担球头弯矩。",
+      notes: "x+ 线缆端后盖为圆角矩形；y− 后方适当增厚形成支撑 boss，并开 x 向 Ø8.6 M8 通孔。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -913,19 +848,6 @@ function makeProxyAssemblyItems(entries) {
       side,
       explosion: [side * 42, 0, -46],
       notes: "底盖按下方截面封闭，两个沉头螺钉固定到主体；Ø12 mm 孔贯通用于剥皮后统一线缆套管，当前明确为非密封设计。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `hardware:m6-support-bracket:${sideLabel}`,
-      name_zh: `金属 90° 支撑件（${sideName}）`,
-      name_en: "metal 90-degree detector support",
-      kind: "机加工承力支撑",
-      material: "6061-T6 铝合金/金属件",
-      group: "optical",
-      base_min: [side > 0 ? m6Geometry.supportArmMinX : -supportEnvelopeMaxX, m6Geometry.supportY - m6Geometry.supportArmWidthY / 2, m6Geometry.supportLegBottomZ],
-      size: [supportEnvelopeMaxX - m6Geometry.supportArmMinX, m6Geometry.supportArmWidthY, m6Geometry.supportLegTopZ - m6Geometry.supportLegBottomZ],
-      side,
-      explosion: [side * 138, 18, -16],
-      notes: "水平托臂承接球头底部，竖直腿贴合网夹适配板，内角加三角侧肋；这是主体到网架的真实承力路径。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-housing:${sideLabel}`,
@@ -955,12 +877,12 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
       side,
       explosion: [side * 154, -28, -4],
-      notes: "底座把竖直球头传给 90° 金属支撑；可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改接口件。",
+      notes: "底座是采购云台的一部分；竖直姿态下直接接商品网夹。可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改采购接口件。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
-      name_zh: `铝合金 T 尾座 x 轴 M8 连接螺柱（${sideName}）`,
-      name_en: "M8 horizontal ball-head stud into integral aluminum T-tail",
+      name_zh: `后盖 boss x 轴 M8 连接螺柱（${sideName}）`,
+      name_en: "M8 horizontal ball-head stud into rear-cover boss",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
@@ -974,12 +896,12 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadSensorStudD],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入铝合金一体 T 尾座的 M8×1.25 内丝；后盖在尾座周围让位，不使用 PETG 衬套或薄壳承力。",
+      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入后盖 y− 加厚 boss 的通孔；主体保持长方条，不制作 T 尾座。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
-      name_zh: `球头到 90° 支撑的竖直螺柱（${sideName}）`,
-      name_en: "vertical ball-head support stud",
+      name_zh: `采购球头到商品网夹的竖直接口（${sideName}）`,
+      name_en: "purchased ball-head vertical net-clamp interface",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
@@ -994,7 +916,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "竖直姿态下用 M8 外牙把球头底部接到金属 90° 支撑托臂；实际端部螺纹由采购 SKU 决定。",
+      notes: "采购球头自身的竖直螺柱/底座直接接商品网夹；实际端部螺纹由采购 SKU 决定，不制作自有 90° 支撑。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -1166,7 +1088,7 @@ function makeProxyAssemblyItems(entries) {
         name_zh: `x+ 后方水平浅六角沉孔 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
         name_en: "rear shallow horizontal hex anti-rotation pocket",
         kind: "主体加工特征",
-        material: "6061-T6 铝合金主体",
+        material: "PETG 首样主体；后续可换 6061-T6 CNC",
         group: "optical",
         shape: "hex",
         shapeOptions: {
@@ -1759,7 +1681,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型宽体主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、90°支撑和竖直采购球头按装配清单显示。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss 和竖直采购 13 mm 球头按装配清单显示。球头自带竖直接口直接连接商品网夹。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
@@ -2498,6 +2420,60 @@ function createAssemblyProxy(THREE, item) {
       y1: number(options.outer_y_offset, 0) + number(options.outer_depth_y, depth),
     });
     addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
+  } else if (item.shape === "rounded-footprint-support-boss") {
+    const outer = footprintGeometry(THREE, "rounded-footprint", width, depth, height, {
+      ...options,
+      x0: number(options.outer_x_offset, 0),
+      x1: number(options.outer_x_offset, 0) + number(options.outer_width_x, width),
+      y0: number(options.outer_y_offset, 0),
+      y1: number(options.outer_y_offset, 0) + number(options.outer_depth_y, depth),
+    });
+    addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
+
+    // The rear-cover boss is a separate thickened PETG volume.  The browser
+    // proxy keeps it separate so the y- overhang and the x-axis M8 interface
+    // remain obvious in the assembly even though the SCAD part is one union.
+    const bossLength = number(options.boss_length_x, 0);
+    const bossDepth = number(options.boss_depth_y, 0);
+    const bossHeight = number(options.boss_height_z, 0);
+    const bossXOffset = number(options.boss_x_offset, 0);
+    const bossYOffset = number(options.boss_y_offset, 0);
+    const bossZOffset = number(options.boss_z_offset, 0);
+    const bossX = options.mirror_x
+      ? width - bossXOffset - bossLength
+      : bossXOffset;
+    if (bossLength > 0 && bossDepth > 0 && bossHeight > 0) {
+      const boss = new THREE.BoxGeometry(bossLength, bossDepth, bossHeight);
+      addProxyPart(
+        THREE,
+        group,
+        item,
+        boss,
+        place([
+          bossX + bossLength / 2,
+          bossYOffset + bossDepth / 2,
+          bossZOffset + bossHeight / 2,
+        ]),
+      );
+      const holeD = number(options.boss_hole_d, 0);
+      const holeDepth = number(options.boss_hole_depth_x, bossLength);
+      if (holeD > 0 && holeDepth > 0) {
+        const hole = new THREE.CylinderGeometry(holeD / 2, holeD / 2, holeDepth + 0.4, 24);
+        hole.rotateZ(Math.PI / 2);
+        addProxyPart(
+          THREE,
+          group,
+          item,
+          hole,
+          place([
+            bossX + bossLength / 2,
+            bossYOffset + bossDepth / 2,
+            bossZOffset + bossHeight / 2,
+          ]),
+          { color: "#26313b", opacity: 0.86, depthWrite: false, metalness: 0.2 },
+        );
+      }
+    }
   } else if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);
     const radialSegments = item.shape === "hex" ? 6 : 24;

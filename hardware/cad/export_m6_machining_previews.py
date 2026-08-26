@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Export the independent aluminum M6 machining previews.
+"""Export the future-CNC M6 body preview.
 
-These STL files are inspection/quotation aids, not printable parts.  Every
-piece is emitted from the same ``net_stand.scad`` geometry as the assembly,
-but in a local coordinate system documented in the manifest.  The output
-directory is Git-ignored and is intentionally separate from the PETG print
-manifest.
+This STL is an inspection/quotation aid, not the formal PETG print manifest.
+The body is the same plain rectangular first article used for PETG; a future
+6061-T6 CNC version can reuse its envelope. The vertical 13 mm ballhead and
+its net-clamp interface are purchased and therefore have no self-made STL.
 """
 
 from __future__ import annotations
@@ -24,7 +23,7 @@ from validate_scad import find_openscad, stl_bounds
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-previews"
-SCHEMA_VERSION = "m6-machining-previews-0.5-20-mm-pitch-l-sensor-t-tail"
+SCHEMA_VERSION = "m6-machining-previews-0.6-20-mm-pitch-petg-body-rear-boss"
 
 
 @dataclass(frozen=True)
@@ -40,23 +39,9 @@ PREVIEW_PARTS = (
     MachiningPreviewSpec(
         "m6_machining_detector_body",
         "m6-detector-body",
-        "M6 十路 45° L 型长条主体（铝合金）",
-        "主体一体 T 尾座外包络 x-min、y-min、z-min；中央长条基准 10×56×216 mm，局部毛坯约 20×69.2×216 mm",
-        "6061-T6 主体，中央长条与 y- 外侧 T 形尾座一体加工，尾座向本侧 x 外伸 10 mm 并直接加工 M8×1.25 内丝；十个中心按 20 mm 节距排列；每路有沿 x 的光学/外丝通孔、绕 x 轴 -45° 的尾线让位和浅六角防转沉孔；线缆不在铝材中挖槽，壳体、底盖、传感器和球头均不包含。",
-    ),
-    MachiningPreviewSpec(
-        "m6_machining_support",
-        "m6-90-degree-support",
-        "M6 90°金属支撑件",
-        "支撑件 x-min、y-min、z-min；局部坐标只描述金属 L 形承力件",
-        "水平承托臂、竖直连接腿和两侧三角加固肋一体加工/折弯边界；球头、网夹适配板和螺栓不包含。",
-    ),
-    MachiningPreviewSpec(
-        "m6_machining_adapter",
-        "m6-net-clamp-adapter",
-        "M6 网夹/立柱固定适配板",
-        "板材 x-min、y=0 中心线、板材 z-min",
-        "含当前竖直网夹/立柱的安装孔位；采购 13 mm 球头通过铝合金一体 T 尾座和 90° 支撑连接，不把球头本体当作加工件。商品网夹接口仍待实测。",
+        "M6 十路 45° L 型矩形主体（PETG 首样；后续可换 CNC）",
+        "主体 x-min、y-min、z-min；当前是 10×56×216 mm 矩形长条，未来 CNC 沿用同一包络",
+        "当前首样用 PETG 打印；后续可换 6061-T6 CNC。主体只有十个 20 mm 节距光学孔、浅 AF8 防转窝、盖件孔和 y± 边槽，不带 T 尾座、M8 接口或主体内线缆槽；后盖另有 PETG 加厚 boss，13 mm 采购球头保持竖直姿态并直接接商品网夹。",
     ),
 )
 
@@ -112,7 +97,7 @@ def _manifest_entry(output: Path, spec: MachiningPreviewSpec, side: str, side_va
         "side": side,
         "side_value": side_value,
         "units": "mm",
-        "material": "6061-T6 aluminum; finish TBD",
+        "material": "PETG first article; future 6061-T6 CNC option",
         "local_origin": spec.local_origin,
         "bounds": {
             "min": [_round(min_x), _round(min_y), _round(min_z)],
@@ -170,16 +155,14 @@ def export_machining_previews(
 
     manifest: dict[str, object] = {
         "schema_version": SCHEMA_VERSION,
-        "status": "机加工/报价预览；不是最终放行图",
+        "status": "未来 CNC 主体/采购云台接口预览；不是最终放行图",
         "source": "hardware/cad/net_stand.scad",
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "units": "mm",
-        "material": "6061-T6 aluminum; finish TBD",
+        "material": "PETG first article body; future 6061-T6 CNC option",
         "quantity": {
             "detector_bodies": 2,
-            "support_brackets": 2,
-            "net_clamp_adapters": 2,
-            "purchased_ballheads": 2,
+            "purchased_vertical_ballheads": 2,
             "preview_files": len(entries),
         },
         "coordinate_system": {

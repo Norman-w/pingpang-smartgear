@@ -35,6 +35,8 @@ def main() -> None:
         )
         entries = _entries(manifest)
         expected_parts = {spec.part for spec in COMPONENTS}
+        if "m6_mount_adapter" in expected_parts:
+            raise AssertionError("removed gray adapter must not be an active component")
         if manifest.get("schema_version") != SCHEMA_VERSION:
             raise AssertionError("unexpected M6 component preview schema")
         if manifest.get("source") != "hardware/cad/net_stand.scad":
@@ -80,8 +82,13 @@ def main() -> None:
                 raise AssertionError(f"printability metadata changed for {part}")
 
         body_size = _size(by_part["m6_detector_body"][0])
-        if body_size != [20, 69.2, 216]:
-            raise AssertionError(f"integral T-tail body envelope changed: {body_size}")
+        if body_size != [10, 56, 216]:
+            raise AssertionError(f"rectangular PETG body envelope changed: {body_size}")
+        body_spec = spec_by_part["m6_detector_body"]
+        if not body_spec.preview_is_printable or "PETG" not in body_spec.material:
+            raise AssertionError("detector body must be a PETG printable first article")
+        if "一体 T 形尾座" in body_spec.notes or "直接加工 M8" in body_spec.notes:
+            raise AssertionError("body metadata still advertises the removed integral T-tail")
         for part in (
             "m6_detector_shell_front",
             "m6_detector_shell_rear",
@@ -97,7 +104,7 @@ def main() -> None:
         if not math.isclose(float(body_z), 216.0, abs_tol=0.01):
             raise AssertionError("body vertical height changed")
 
-    print("M6_COMPONENT_PREVIEWS_TEST_OK (12 watertight body/cover/support/adapter previews)")
+    print("M6_COMPONENT_PREVIEWS_TEST_OK (8 watertight PETG body/cover previews; ballhead purchased)")
 
 
 if __name__ == "__main__":

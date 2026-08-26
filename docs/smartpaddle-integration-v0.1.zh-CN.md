@@ -1,6 +1,6 @@
 # SmartPaddle 复用与接入边界 v0.1
 
-> 当前硬件已切换为用户指定的 M6 直角十路光电器件阵列 + 铝合金长条主体/y− 一体 T 尾座 + 采购球头/金属支撑微调链。本文提到的 10 路光栅位图和 GPIO 只是业务契约背景；在 M6 NPN 输出数量、电流、接口保护和最终引脚确认前，ESP32-S3/App 不得把机械十个通道位置当作已冻结的物理接口或有效高度数据。
+> 当前硬件已切换为用户指定的 M6 直角十路光电器件阵列 + 10×56×216 mm PETG 长条主体/后盖 y− 加厚 M8 boss + 竖直采购球头直连商品网夹。本文提到的 10 路光栅位图和 GPIO 只是业务契约背景；在 M6 NPN 输出数量、电流、接口保护和最终引脚确认前，ESP32-S3/App 不得把机械十个通道位置当作已冻结的物理接口或有效高度数据。
 
 本文记录网高工程与 SmartPaddle 的目标接入边界。参考 checkout 位于当前项目平级目录 `../SmartPaddle`，本次核对的 commit 为 `df3fb6b`。关键证据来自 `firmware/main/ws_data_server.h/.cpp`、`web/src/lib/deviceImuProtocol.ts`、`web/vite.config.ts`、`server/main.go`、`pcb/lib/esp32s3wroom1/pinmap.py` 和 `firmware/main/config.h`。本项目工作树仍不复制 SmartPaddle 固件/App；外部工程的压电板、引脚表或四路击球采集器也不能直接当成网高设备的硬件实现。
 

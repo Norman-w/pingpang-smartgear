@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Export the current M6 detector components as a reproducible side package.
 
-This auxiliary package keeps the aluminum machining parts and PETG cover
-candidates visible as independent, whole components.  It is intentionally
-separate from the 26-piece PETG print manifest: the body, support and adapter
-are metal parts, while the three covers are printable candidates that still
-need first-article fit confirmation.
+This auxiliary package keeps the PETG first-article body/covers visible as
+independent, whole components.  The rectangular body is intentionally also
+CNC-compatible later; the purchased 13 mm ballhead and fasteners remain
+assembly interfaces rather than exported print parts.
 """
 
 from __future__ import annotations
@@ -24,7 +23,7 @@ from validate_scad import find_openscad, stl_bounds
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-component-previews"
-SCHEMA_VERSION = "m6-component-previews-0.1-20-mm-pitch-t-tail"
+SCHEMA_VERSION = "m6-component-previews-0.2-20-mm-pitch-petg-body-rear-boss"
 
 
 @dataclass(frozen=True)
@@ -44,13 +43,13 @@ COMPONENTS = (
     ComponentSpec(
         "m6_detector_body",
         "m6-detector-body",
-        "M6 十路传感器主体（一体 T 形尾座）",
-        "铝合金机加工件预览",
-        "6061-T6 aluminum; finish TBD",
-        False,
+        "M6 十路传感器主体（PETG 长方条；后续可换 CNC）",
+        "PETG 可打印首样 / 后续 CNC 兼容",
+        "PETG first article; future CNC-compatible 6061-T6 option",
+        True,
         "保持 OpenSCAD 全局姿态；x 为光束方向，y 为球台前后，z 为竖直",
         "OpenSCAD 全局坐标；不做局部平移",
-        "中央长条 10×56×216 mm，y- 一体 T 尾座向本侧 x 外伸 10 mm；含十路 20 mm 节距光学孔、浅 AF8 防转窝、盖件固定孔、边槽和直接 M8×1.25 内丝的 Ø6.8 攻牙底孔/入口沉台。真实螺旋牙由加工方攻制。",
+        "主体就是 10×56×216 mm 的连续矩形长条；含十路 20 mm 节距光学孔、浅 AF8 防转窝、盖件固定孔和 y± 边槽。主体不再带 T 尾座、M8 孔或独立线缆槽；云台接口位于 PETG 后盖 boss，首样确认后可按同一包络改 CNC。",
     ),
     ComponentSpec(
         "m6_detector_shell_front",
@@ -72,7 +71,7 @@ COMPONENTS = (
         True,
         "z+ 套入；x+ 线缆端圆角矩形朝外",
         "OpenSCAD 全局坐标；与主体装配基准一致",
-        "后盖与前盖共用 y± 连续侧槽的 x+ 半段，并对 y- 一体铝合金 T 尾座做净空让位；沉头螺丝只固定壳体，PETG 不承受 M8 球头弯矩。",
+        "后盖与前盖共用 y± 连续侧槽的 x+ 半段；y− 后方适当增厚形成 PETG 支撑 boss，开 x 向 Ø8.6 M8 通孔供采购球头的水平 M8 外牙连接。采购球头保持竖直并直接接商品网夹；首样需用实物固定件复核 boss 的承力与耐久。",
     ),
     ComponentSpec(
         "m6_detector_bottom_cover",
@@ -84,28 +83,6 @@ COMPONENTS = (
         "z- 独立盖合；与壳体俯视轮廓一致",
         "OpenSCAD 全局坐标；与主体装配基准一致",
         "独立平板按前后壳组合轮廓封闭底部，含两枚沉头固定孔和约 Ø12 mm 统一线缆套管开放孔；不做密封承诺。",
-    ),
-    ComponentSpec(
-        "m6_detector_support",
-        "m6-90-degree-support",
-        "M6 90°金属支撑件",
-        "金属机加工/折弯件预览",
-        "6061-T6 aluminum or equivalent metal; process TBD",
-        False,
-        "保持竖直姿态；水平臂接球头，竖直腿接网夹适配板",
-        "OpenSCAD 全局坐标；不做局部平移",
-        "水平承托臂、竖直连接腿和夹具下方两侧三角加固肋组成完整金属承力件；球头、紧固件和网夹适配板不并入本 STL。",
-    ),
-    ComponentSpec(
-        "m6_mount_adapter",
-        "m6-net-clamp-adapter",
-        "M6 竖直网夹/立柱适配板",
-        "铝合金机加工件预览",
-        "6061-T6 aluminum; finish TBD",
-        False,
-        "竖直安装；板面承接金属支撑腿和网夹接口",
-        "OpenSCAD 全局坐标；不做局部平移",
-        "保持当前竖直网夹适配板孔位，作为金属 90°支撑到网架的接口；商品网夹外伸、孔距和垫片叠层仍需实测。",
     ),
 )
 
@@ -241,7 +218,7 @@ def export_component_previews(
         "units": "mm",
         "coordinate_system": {
             "x": "beam direction; left emitter exits +x, right receiver aperture faces -x",
-            "y": "table front/rear direction; integral T-tail is on y-",
+        "y": "table front/rear direction; rear-cover support boss is on y-",
             "z": "vertical direction",
             "side_files": "right=SIDE 1, left=SIDE -1; left is the x mirror of right",
             "frame": "entries remain in global OpenSCAD coordinates so they align with assembly and machining spec",
@@ -250,8 +227,8 @@ def export_component_previews(
             "sides": 2,
             "component_types": len(COMPONENTS),
             "stl_files": len(entries),
-            "metal_parts_per_side": 3,
-            "petg_cover_candidates_per_side": 3,
+            "purchased_ballheads_per_side": 1,
+            "petg_print_candidates_per_side": 4,
         },
         "parts": entries,
     }

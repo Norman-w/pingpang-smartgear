@@ -99,7 +99,7 @@ def export_fit_coupon(
         "part": 'PART="m6_sensor_test_coupon"',
         "units": "mm",
         "material": "PETG",
-        "purpose": "旧版梳齿兼容诊断：验证一枚真实 M6 直角器件、锁紧螺母、防转窝、头部方向和线缆让位；当前 T 尾座首样请使用 m6_detector_fit_probe。",
+        "purpose": "旧版梳齿兼容诊断：验证一枚真实 M6 直角器件、锁紧螺母、防转窝、头部方向和线缆让位；当前矩形主体首样请使用 m6_detector_fit_probe。",
         "formal_print_manifest": False,
         "stl": STL_NAME,
         "local_origin": "试装样件背骨 x-min、y=0 中心线、z=0 底面",

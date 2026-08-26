@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Export the current M6 45-degree L-sensor machining handoff.
+"""Export the current M6 first-article/CNC handoff.
 
-The OpenSCAD ``parameter_probe`` is the numerical source of truth. This
-handoff describes the aluminum body, the separate 90-degree metal support and
-the vertical net-clamp adapter. PETG covers and the purchased 13 mm ballhead
-are documented as assembly interfaces, not silently promoted to machined
-parts.
+The OpenSCAD ``parameter_probe`` is the numerical source of truth. The active
+detector body is a printable PETG rectangle that can later be reproduced in
+CNC; the rear cover carries the M8 clearance interface for the purchased
+vertical 13 mm ballhead. No custom 90-degree support is part of this handoff.
 """
 
 from __future__ import annotations
@@ -23,7 +22,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v0.7-20-mm-pitch-l-sensor-t-tail"
+SCHEMA_VERSION = "m6-machining-spec-v0.8-20-mm-pitch-petg-body-rear-boss"
 
 
 def _r(value: float) -> float | int:
@@ -75,48 +74,24 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         _r(parameters["m6_detector_body_min_y"]),
         _r(parameters["m6_detector_body_bottom_z"]),
     ]
-    body_envelope_size = [
-        _r(
-            parameters["m6_detector_support_tail_max_x"]
-            - parameters["m6_detector_support_tail_min_x"]
-        ),
-        _r(
-            parameters["m6_detector_body_max_y"]
-            - parameters["m6_detector_support_tail_min_y"]
-        ),
-        _r(parameters["m6_detector_body_height_z"]),
-    ]
-    body_envelope_min = [
-        _r(parameters["m6_detector_support_tail_min_x"]),
-        _r(parameters["m6_detector_support_tail_min_y"]),
-        _r(parameters["m6_detector_body_bottom_z"]),
-    ]
+    body_envelope_size = body_size[:]
+    body_envelope_min = body_min[:]
     shell_size = [
         _r(
             parameters["m6_detector_shell_max_x"]
             - parameters["m6_detector_shell_min_x"]
         ),
-        _r(parameters["m6_detector_shell_width_y"]),
-        _r(parameters["m6_detector_shell_height_z"]),
-    ]
-    support_min_x = parameters["m6_detector_support_arm_min_x"]
-    support_max_x = max(
-        parameters["m6_detector_support_arm_max_x"],
-        parameters["m6_detector_support_leg_x"]
-        + parameters["m6_detector_support_gusset_inset_x"],
-    )
-    support_size = [
-        _r(support_max_x - support_min_x),
-        _r(parameters["m6_detector_support_arm_width_y"]),
         _r(
-            parameters["m6_detector_support_leg_top_z"]
-            - parameters["m6_detector_support_leg_bottom_z"]
+            max(
+                parameters["m6_detector_shell_max_y"],
+                parameters["m6_detector_shell_support_boss_max_y"],
+            )
+            - min(
+                parameters["m6_detector_shell_min_y"],
+                parameters["m6_detector_shell_support_boss_min_y"],
+            )
         ),
-    ]
-    adapter_size = [
-        _r(parameters["m6_mount_plate_t"]),
-        _r(parameters["m6_mount_plate_width_y"]),
-        _r(parameters["m6_mount_plate_height_z"]),
+        _r(parameters["m6_detector_shell_height_z"]),
     ]
     body_depth_limit = (
         parameters["m6_detector_fit_thread_length_x"]
@@ -130,12 +105,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "source": "hardware/cad/net_stand.scad",
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "units": "mm",
-        "status": "当前首样加工输入；真实传感器、球头和网夹实测前不得视为最终放行图",
-        "material": "6061-T6 aluminum; finish and anodizing TBD",
+        "status": "当前 PETG 首样/CNC 复用输入；真实传感器、球头和网夹实测前不得视为最终放行图",
+        "material": "PETG first article body and covers; future 6061-T6 CNC body option; purchased metal ballhead",
         "quantity": {
             "detector_bodies": 2,
-            "support_brackets": 2,
-            "net_clamp_adapters": 2,
             "printed_front_covers": 2,
             "printed_rear_covers": 2,
             "printed_bottom_covers": 2,
@@ -144,36 +117,14 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "part_schedule": [
             {
                 "part": "m6_machining_detector_body",
-                "name_zh": "十路 45° L 型长条传感器主体（一体 T 形尾座）",
-                "material": "6061-T6 aluminum",
-                "blank_mm": body_envelope_size,
+                "name_zh": "十路 45° L 型 PETG 长方条主体（后续可换 CNC）",
+                "material": "PETG first article; future 6061-T6 CNC-compatible option",
+                "blank_mm": body_size,
                 "per_side": 1,
                 "total": 2,
-                "preview_is_printable": False,
-                "process": "铣削/钻孔；中央主体为 x 向 10 mm 厚、y 向 56 mm 宽、z 向 216 mm 竖直长条，在 y- 外侧一体加出向本侧 x 外伸 10 mm 的 T 形尾座；尾座用于直接加工 M8×1.25 内丝。十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、绕 x 轴 -45° 的尾线让位和 x 向浅六角座；PETG 壳体只让位不承力",
-                "fit_before_release": "先用一只真实 M6 直角对射头验证灰色六角外形、M6 中空外丝中心光学孔、蓝色尾线局部 z- 后绕 x 轴 -45°、六角窝、有效外丝、至少一枚原配螺帽和光轴高度",
-            },
-            {
-                "part": "m6_machining_support",
-                "name_zh": "90°金属承力支撑件",
-                "material": "6061-T6 aluminum or equivalent metal; process TBD",
-                "blank_mm": support_size,
-                "per_side": 1,
-                "total": 2,
-                "preview_is_printable": False,
-                "process": "折弯/铣削一体件或金属板件加工；水平臂、竖直腿、两侧三角加固肋共同承力",
-                "fit_before_release": "实测球头下方螺纹、支撑臂高度和网夹适配板的孔位后冻结",
-            },
-            {
-                "part": "m6_machining_adapter",
-                "name_zh": "竖直网夹/立柱固定适配板",
-                "material": "6061-T6 aluminum",
-                "blank_mm": adapter_size,
-                "per_side": 1,
-                "total": 2,
-                "preview_is_printable": False,
-                "process": "板材钻铣；当前模型显示与 90° 支撑腿的两枚横向连接孔",
-                "fit_before_release": "真实商品网夹固定面、夹具外伸、孔距、垫片和通栓叠层实测后再下最终订单",
+                "preview_is_printable": True,
+                "process": "FDM PETG 首样打印；后续可按同一 10×56×216 mm 包络改为 6061-T6 CNC。十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、绕 x 轴 -45° 的尾线让位和 x 向浅六角座；主体不带 T 尾座、M8 孔或主体内线缆槽",
+                "fit_before_release": "先用一只真实 M6 直角对射头验证灰色六角外形、M6 中空外丝中心光学孔、蓝色尾线局部 z- 后绕光束 x 轴 -45°、六角窝、有效外丝、至少一枚原配螺帽和光轴高度",
             },
         ],
         "printed_cover_schedule": [
@@ -186,10 +137,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "part": "m6_detector_shell_rear",
-                "name_zh": "后盖（PETG，T 尾座让位）",
+                "name_zh": "后盖（PETG，后方加厚 M8 接口 boss）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端；y- 外侧按铝合金一体 T 形尾座做让位缺口，M8 接口不经过 PETG，后盖只保护和导向。",
+                "notes": "覆盖 x+ 线缆端；y− 后方加厚形成支撑 boss，开 x 向 Ø8.6 M8 通孔，供金属球头/转接件连接；首样不把薄壳当作唯一弯矩承力件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -289,41 +240,41 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "tongue_clearance_mm": _r(parameters["m6_detector_shell_tongue_clearance"]),
                 "ownership": "前盖占 x- 半、后盖占 x+ 半；两盖共享 y± 两条连续竖槽",
             },
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧为一体铝合金 T 尾座让位，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核",
+            "support_boss": {
+                "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
+                "min_global_mm": [
+                    _r(parameters["m6_detector_shell_support_boss_min_x"]),
+                    _r(parameters["m6_detector_shell_support_boss_min_y"]),
+                    _r(parameters["m6_detector_shell_support_boss_bottom_z"]),
+                ],
+                "max_global_mm": [
+                    _r(parameters["m6_detector_shell_support_boss_max_x"]),
+                    _r(parameters["m6_detector_shell_support_boss_max_y"]),
+                    _r(parameters["m6_detector_shell_support_boss_top_z"]),
+                ],
+                "length_x_mm": _r(parameters["m6_detector_shell_support_boss_length_x"]),
+                "depth_y_mm": _r(parameters["m6_detector_shell_support_boss_depth_y"]),
+                "height_z_mm": _r(parameters["m6_detector_shell_support_boss_height_z"]),
+                "hole_axis": "x- from the rear x+ face toward the optical side",
+                "hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
+                "hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
+                "hole_entry_x_global_mm": _r(parameters["m6_detector_shell_support_hole_entry_x"]),
+            },
         },
         "support_contract": {
-            "tail_extension_x_mm": _r(parameters["m6_detector_support_tail_extension_x"]),
-            "tail_head_depth_y_mm": _r(parameters["m6_detector_support_tail_head_depth_y"]),
-            "tail_overlap_y_mm": _r(parameters["m6_detector_support_tail_overlap_y"]),
-            "tail_height_z_mm": _r(parameters["m6_detector_support_tail_height_z"]),
-            "tail_global_min_mm": [
-                _r(parameters["m6_detector_support_tail_min_x"]),
-                _r(parameters["m6_detector_support_tail_min_y"]),
-                _r(parameters["m6_detector_support_tail_bottom_z"]),
-            ],
-            "tail_global_max_mm": [
-                _r(parameters["m6_detector_support_tail_max_x"]),
-                _r(parameters["m6_detector_support_tail_max_y"]),
-                _r(parameters["m6_detector_support_tail_top_z"]),
-            ],
-            "thread_entry_x_global_mm": _r(parameters["m6_detector_support_tail_thread_entry_x"]),
-            "thread_depth_x_mm": _r(parameters["m6_detector_support_tail_thread_depth_x"]),
-            "thread_engagement_x_mm": _r(parameters["m6_detector_support_tail_thread_engagement_x"]),
-            "support_y_global_mm": _r(parameters["m6_detector_support_y"]),
-            "arm_z_global_mm": _r(parameters["m6_detector_support_arm_z"]),
-            "arm_width_y_mm": _r(parameters["m6_detector_support_arm_width_y"]),
-            "leg_x_global_mm": _r(parameters["m6_detector_support_leg_x"]),
-            "leg_bottom_z_global_mm": _r(
-                parameters["m6_detector_support_leg_bottom_z"]
-            ),
-            "leg_top_z_global_mm": _r(parameters["m6_detector_support_leg_top_z"]),
-            "gusset_t_y_mm": _r(parameters["m6_detector_support_gusset_t_y"]),
-            "thread_nominal_d_mm": _r(parameters["m6_detector_support_thread_nominal_d"]),
-            "thread_pitch_mm": _r(parameters["m6_detector_support_tail_thread_pitch"]),
-            "tap_drill_d_mm": _r(parameters["m6_detector_support_tail_tap_drill_d"]),
-            "thread_mouth_d_mm": _r(parameters["m6_detector_support_tail_thread_mouth_d"]),
-            "thread_mouth_depth_x_mm": _r(parameters["m6_detector_support_tail_thread_mouth_depth_x"]),
-            "load_path": "铝合金主体 -> 一体 T 形尾座 M8×1.25 内丝 -> 金属 M8 外牙球头 -> 90°金属支撑水平臂 -> 竖直腿 -> 网夹适配板/网架",
+            "type": "purchased 13 mm ballhead/gimbal",
+            "posture": "vertical; the purchased part itself supplies adjustment and net-clamp support",
+            "boss_hole_axis": "x- from the rear cover boss toward the optical side",
+            "boss_hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
+            "boss_hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
+            "boss_hole_entry_x_global_mm": _r(parameters["m6_detector_shell_support_hole_entry_x"]),
+            "ballhead_stud_engagement_x_mm": _r(parameters["m6_detector_shell_support_stud_engagement_x"]),
+            "ballhead_center_x_global_mm": _r(parameters["m6_detector_ballhead_center_x"]),
+            "ballhead_center_y_global_mm": _r(parameters["m6_detector_ballhead_center_y"]),
+            "ballhead_center_z_global_mm": _r(parameters["m6_detector_ballhead_center_z"]),
+            "net_interface": "采购球头自带竖直螺柱/底座直接接商品网夹；不制作自有 90° 支撑 STL",
+            "load_path": "PETG 后盖加厚 boss / 后续 CNC 或金属嵌件 -> M8 外牙采购球头 -> 球头自带竖直网夹接口",
         },
         "ballhead_contract": {
             "ball_d_mm": _r(parameters["m6_ballhead_ball_d"]),
@@ -337,7 +288,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "posture": "球头主体竖直；下方螺柱接 90° 支撑，侧向 M8 外牙直接锁入铝合金一体 T 尾座，后盖只做让位",
+            "posture": "球头主体竖直；侧向 M8 外牙进入后盖 y− 加厚 boss 的 x 向通孔，下方竖直接口直接接商品网夹；最终承力以采购金属件和首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -362,7 +313,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "id": "cover_to_body",
-                "name_zh": "前后盖到铝主体沉头螺丝",
+                "name_zh": "前后盖到 PETG/CNC 主体沉头螺丝",
                 "per_side": 4,
                 "total": 8,
                 "spec": "M3/M4 class screw; hole/head dimensions remain first-article hardware choice",
@@ -378,28 +329,28 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "id": "detector_to_ballhead",
-                "name_zh": "铝合金一体 T 尾座到采购球头",
+                "name_zh": "后盖加厚 boss 到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead thread/adapter; current visual proxy is M8 external, directly engaged in the aluminum T-tail blind thread",
+                "spec": "selected 13 mm ballhead; current visual proxy is M8 external through the rear-cover boss, with first-article washer/insert decision pending",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
             {
-                "id": "support_to_adapter",
-                "name_zh": "90°支撑到竖直网夹适配板",
-                "per_side": 2,
-                "total": 4,
-                "spec": "nominal M5/M6 through-bolts; current CAD uses Ø5.5 clearance",
-                "status": "freeze after real clamp interface measurement",
+                "id": "purchased_ballhead_to_net_clamp",
+                "name_zh": "采购球头竖直接口到商品网夹",
+                "per_side": 1,
+                "total": 2,
+                "spec": "use the selected 13 mm ballhead's supplied vertical stud/base and the purchased net-clamp interface; no custom support bracket",
+                "status": "freeze after real ballhead and clamp measurement",
             },
         ],
         "release_checks": [
             "收到真实 M6 对射器件后复核 M6x0.75 有效外丝长度、头部六角 AF、六角轴向厚度、光学中心和原配螺帽厚度",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
-            "确认左右件只做 x 镜像：左侧发射光轴朝 x+，右侧接收光轴朝 x-，两侧主体后方均为各自外侧 y-",
+            "确认左右件只做 x 镜像：左侧发射光轴朝 x+，右侧接收光轴朝 x-，两侧后盖 boss 均位于各自外侧 y-",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
-            "真实网夹安装面、球网外伸和孔距实测后，冻结竖直适配板及 90°支撑连接孔",
+            "真实网夹安装面、球网外伸和孔距实测后，核对采购球头竖直螺柱/底座的直接安装界面，不再制作独立灰色适配板或 90°支撑件",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
             "机加工件不进入 PETG 打印清单；底盖线缆孔是开放孔，不作防水承诺",
         ],

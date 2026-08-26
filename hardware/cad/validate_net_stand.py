@@ -50,10 +50,8 @@ PARTS = (
     "m6_detector_shell_front",
     "m6_detector_shell_rear",
     "m6_detector_bottom_cover",
-    "m6_detector_support",
     "m6_detector_mount",
     "m6_ballhead",
-    "m6_mount_adapter",
     "m6_gimbal",
     "stg120_outer_carrier",
     "stg120_center_bridge",
@@ -87,7 +85,6 @@ PREVIEW_ONLY_PARTS = {
     "m6_detector_fit_body",
     "m6_detector_mount",
     "m6_ballhead",
-    "m6_mount_adapter",
     "m6_gimbal",
     "stg120_preview",
     "sensor_mount",
@@ -633,31 +630,15 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_detector_thread_axis_x",
         "m6_detector_sensor_thread_center_y",
         "m6_detector_sensor_head_center_y",
-        "m6_detector_support_boss_width_x",
-        "m6_detector_support_boss_depth_y",
-        "m6_detector_support_boss_height_z",
-        "m6_detector_support_boss_x_fraction",
-        "m6_detector_support_thread_nominal_d",
-        "m6_detector_support_tail_extension_x",
-        "m6_detector_support_tail_head_depth_y",
-        "m6_detector_support_tail_overlap_y",
-        "m6_detector_support_tail_height_z",
-        "m6_detector_support_tail_thread_pitch",
-        "m6_detector_support_tail_thread_depth_x",
-        "m6_detector_support_tail_tap_drill_d",
-        "m6_detector_support_tail_thread_mouth_d",
-        "m6_detector_support_tail_thread_mouth_depth_x",
-        "m6_detector_support_tap_d",
-        "m6_detector_support_tap_depth_x",
-        "m6_detector_support_metal_insert_d",
-        "m6_detector_support_metal_insert_length_x",
-        "m6_detector_support_arm_t_z",
-        "m6_detector_support_arm_width_y",
-        "m6_detector_support_leg_t_x",
-        "m6_detector_support_leg_bottom_drop_z",
-        "m6_detector_support_gusset_t_y",
-        "m6_detector_support_gusset_inset_x",
-        "m6_detector_support_fastener_d",
+        "m6_detector_shell_support_boss_length_x",
+        "m6_detector_shell_support_boss_end_inset_x",
+        "m6_detector_shell_support_boss_depth_y",
+        "m6_detector_shell_support_boss_overlap_y",
+        "m6_detector_shell_support_boss_height_z",
+        "m6_detector_shell_support_boss_radius",
+        "m6_detector_shell_support_hole_d",
+        "m6_detector_shell_support_hole_depth_x",
+        "m6_detector_shell_support_stud_engagement_x",
         "m6_detector_detector_ballhead_gap_x",
         "m6_detector_sensor_head_y_offset",
         "m6_detector_body_min_x",
@@ -685,27 +666,18 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_inner_min_x",
         "m6_detector_shell_inner_max_x",
         "m6_detector_detector_thread_axis_x",
-        "m6_detector_support_boss_center_x",
-        "m6_detector_support_y",
-        "m6_detector_support_tail_min_x",
-        "m6_detector_support_tail_max_x",
-        "m6_detector_support_tail_width_x",
-        "m6_detector_support_tail_min_y",
-        "m6_detector_support_tail_max_y",
-        "m6_detector_support_tail_center_y",
-        "m6_detector_support_tail_bottom_z",
-        "m6_detector_support_tail_top_z",
-        "m6_detector_support_tail_center_z",
-        "m6_detector_support_tail_center_x",
-        "m6_detector_support_tail_thread_engagement_x",
-        "m6_detector_support_tail_thread_entry_x",
-        "m6_detector_support_tail_thread_center_x",
-        "m6_detector_support_arm_z",
-        "m6_detector_support_arm_min_x",
-        "m6_detector_support_arm_max_x",
-        "m6_detector_support_leg_x",
-        "m6_detector_support_leg_bottom_z",
-        "m6_detector_support_leg_top_z",
+        "m6_detector_shell_support_boss_min_x",
+        "m6_detector_shell_support_boss_max_x",
+        "m6_detector_shell_support_boss_min_y",
+        "m6_detector_shell_support_boss_max_y",
+        "m6_detector_shell_support_boss_center_x",
+        "m6_detector_shell_support_boss_center_y",
+        "m6_detector_shell_support_boss_bottom_z",
+        "m6_detector_shell_support_boss_top_z",
+        "m6_detector_shell_support_boss_center_z",
+        "m6_detector_shell_support_hole_entry_x",
+        "m6_detector_shell_support_hole_center_x",
+        "m6_detector_ballhead_center_x",
         "m6_detector_ballhead_center_y",
         "m6_detector_ballhead_center_z",
         "m6_detector_ballhead_sensor_stud_center_x",
@@ -1130,22 +1102,25 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
 
     body_module = module_text("m6_detector_body_positive()")
     body_envelope_module = module_text("m6_detector_body_envelope_positive()")
-    tail_thread_module = module_text("m6_detector_body_tail_thread_void_positive()")
     fit_body_module = module_text("m6_detector_fit_body_positive()")
     sensor_array_module = module_text("m6_detector_sensor_array_positive()")
     fit_sensor_module = module_text("m6_detector_fit_sensor_positive(index)")
     front_outer_module = module_text("m6_detector_front_outer_positive()")
     rear_outer_module = module_text("m6_detector_shell_rear_outer_positive()")
+    rear_boss_module = module_text("m6_detector_shell_support_boss_positive()")
+    rear_hole_module = module_text("m6_detector_shell_support_hole_positive()")
     front_shell_module = module_text("m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha)")
     rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
+    mount_module = module_text("m6_detector_mount_positive()")
+    exploded_module = module_text("m6_detector_exploded_positive()")
     if (
         "m6_detector_body_envelope_positive();" not in body_module
-        or "m6_detector_body_t_tail_positive();" not in body_envelope_module
-        or "m6_countersink_x(" not in tail_thread_module
-        or "m6_detector_body_tail_thread_void_positive();" not in body_module
+        or "cube([m6_detector_body_length_x" not in body_envelope_module
+        or "m6_detector_body_t_tail_positive" in body_envelope_module
+        or "m6_detector_body_tail_thread_void_positive" in body_module
         or "m6_detector_body_envelope_positive();" not in fit_body_module
-        or "m6_detector_body_tail_thread_void_positive();" not in fit_body_module
+        or "m6_detector_body_tail_thread_void_positive" in fit_body_module
         or "m6_detector_sensor_fit_voids_positive();" not in body_module
         or "m6_detector_sensor_fit_voids_positive();" not in fit_body_module
         or "m6_detector_sensor_installed_positive(index);" not in sensor_array_module
@@ -1153,13 +1128,21 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_sensor_head_width_y + 1.6" in body_module
         or "m6_detector_front_arc_footprint_positive();" not in front_outer_module
         or "m6_detector_rear_rounded_footprint_positive();" not in rear_outer_module
-        or "m6_detector_body_tail_clearance_positive();" not in rear_shell_module
+        or "m6_detector_shell_support_boss_positive();" not in rear_outer_module
+        or "m6_detector_shell_support_hole_positive();" not in rear_shell_module
+        or "m6_detector_body_tail_clearance_positive" in rear_shell_module
+        or "m6_rounded_rect_prism_x(" not in rear_boss_module
+        or "m6_cylinder_x(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
+        or "m6_mount_adapter_positive();" in mount_module
+        or "m6_post_mount_hardware_positive();" in mount_module
+        or "m6_mount_adapter_positive();" in exploded_module
+        or "m6_post_mount_hardware_positive();" in exploded_module
     ):
         raise RuntimeError(
-            "active M6 body/fit path diverged: integral T-tail, installed sensor "
-            "and shared AF8/through-bore voids plus the z+ split-cover footprints must be used"
+            "active M6 body/fit path diverged: rectangular body, installed sensor "
+            "voids, rear-cover boss/hole and z+ split-cover footprints must be used"
         )
 
     count = int(parameters["m6_sensor_count"])
@@ -1465,87 +1448,54 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         raise RuntimeError(f"current M6 split shell/bottom cover contract is inconsistent: {parameters}")
 
     if not (
-        parameters["m6_detector_support_y"]
+        parameters["m6_detector_shell_support_boss_min_y"]
         < parameters["m6_detector_shell_min_y"]
-        and parameters["m6_detector_support_tail_extension_x"] >= 10
-        and parameters["m6_detector_support_tail_head_depth_y"]
-        > 2 * parameters["m6_detector_shell_clearance"]
-        and parameters["m6_detector_support_tail_height_z"] > 0
-        and parameters["m6_detector_support_tail_min_x"]
-        == parameters["m6_detector_body_min_x"]
-        and parameters["m6_detector_support_tail_max_x"]
-        == parameters["m6_detector_body_max_x"]
-        + parameters["m6_detector_support_tail_extension_x"]
-        and parameters["m6_detector_support_tail_width_x"]
-        == parameters["m6_detector_support_tail_max_x"]
-        - parameters["m6_detector_support_tail_min_x"]
-        and parameters["m6_detector_support_tail_max_y"]
-        > parameters["m6_detector_body_min_y"]
-        and parameters["m6_detector_support_tail_min_y"]
-        < parameters["m6_detector_body_min_y"]
-        and parameters["m6_detector_support_tail_max_x"]
-        <= parameters["m6_detector_shell_max_x"]
-        and parameters["m6_detector_support_tail_thread_pitch"] == 1.25
-        and parameters["m6_detector_support_tail_thread_depth_x"]
-        > parameters["m6_detector_support_tail_thread_mouth_depth_x"]
-        and parameters["m6_detector_support_tail_thread_depth_x"]
-        < parameters["m6_detector_support_tail_width_x"]
-        and parameters["m6_detector_support_tail_tap_drill_d"]
-        < parameters["m6_detector_support_thread_nominal_d"]
-        and parameters["m6_detector_support_tail_thread_mouth_d"]
-        > parameters["m6_detector_support_thread_nominal_d"]
-        and parameters["m6_detector_support_tail_thread_engagement_x"] > 0
-        and parameters["m6_detector_support_tail_thread_engagement_x"]
-        <= parameters["m6_ballhead_sensor_stud_length"]
-        and parameters["m6_detector_support_boss_depth_y"]
-        == parameters["m6_detector_support_tail_head_depth_y"]
-        and parameters["m6_detector_support_boss_width_x"]
-        == parameters["m6_detector_support_tail_width_x"]
-        and parameters["m6_detector_support_boss_height_z"]
-        == parameters["m6_detector_support_tail_height_z"]
-        and parameters["m6_detector_support_boss_center_x"]
-        > parameters["m6_detector_shell_split_x"]
-        and parameters["m6_detector_support_boss_center_x"]
-        - parameters["m6_detector_support_boss_width_x"] / 2
-        == parameters["m6_detector_support_tail_min_x"]
-        and parameters["m6_detector_support_boss_center_x"]
-        + parameters["m6_detector_support_boss_width_x"] / 2
-        == parameters["m6_detector_support_tail_max_x"]
-        and parameters["m6_detector_support_arm_min_x"]
-        > parameters["m6_detector_support_tail_max_x"]
-        and parameters["m6_detector_support_arm_max_x"]
-        > parameters["m6_detector_support_arm_min_x"]
-        and parameters["m6_detector_support_leg_bottom_z"]
-        < parameters["m6_detector_support_leg_top_z"]
-        and parameters["m6_detector_support_arm_t_z"] > 0
-        and parameters["m6_detector_support_arm_width_y"] > 0
-        and parameters["m6_detector_support_gusset_t_y"] > 0
-        and parameters["m6_detector_support_gusset_inset_x"] > 0
+        < parameters["m6_detector_shell_support_boss_max_y"]
+        and parameters["m6_detector_shell_support_boss_max_y"]
+        - parameters["m6_detector_shell_support_boss_min_y"]
+        == parameters["m6_detector_shell_support_boss_depth_y"]
+        and parameters["m6_detector_shell_support_boss_max_x"]
+        < parameters["m6_detector_shell_max_x"]
         and math.isclose(
-            parameters["m6_detector_support_thread_nominal_d"],
-            8.0,
+            parameters["m6_detector_shell_support_boss_end_inset_x"],
+            parameters["m6_detector_shell_max_x"]
+            - parameters["m6_detector_shell_support_boss_max_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_support_tap_d"]
-        == parameters["m6_detector_support_tail_tap_drill_d"]
-        and parameters["m6_detector_support_tap_depth_x"]
-        == parameters["m6_detector_support_tail_thread_depth_x"]
-        and parameters["m6_detector_support_metal_insert_d"] == 0
-        and parameters["m6_detector_support_metal_insert_length_x"] == 0
+        and parameters["m6_detector_shell_support_boss_min_x"]
+        >= parameters["m6_detector_shell_rear_min_x"]
+        and parameters["m6_detector_shell_support_boss_top_z"]
+        > parameters["m6_detector_shell_support_boss_bottom_z"]
+        and parameters["m6_detector_shell_support_boss_bottom_z"]
+        < parameters["m6_detector_body_center_z"]
+        < parameters["m6_detector_shell_support_boss_top_z"]
+        and parameters["m6_detector_shell_support_boss_length_x"]
+        == parameters["m6_detector_shell_support_boss_max_x"]
+        - parameters["m6_detector_shell_support_boss_min_x"]
+        and parameters["m6_detector_shell_support_boss_height_z"]
+        == parameters["m6_detector_shell_support_boss_top_z"]
+        - parameters["m6_detector_shell_support_boss_bottom_z"]
+        and parameters["m6_detector_shell_support_boss_radius"] > 0
+        and parameters["m6_detector_shell_support_hole_d"]
+        > parameters["m6_ballhead_sensor_stud_d"]
+        and parameters["m6_detector_shell_support_hole_depth_x"]
+        <= parameters["m6_detector_shell_support_boss_length_x"]
+        and parameters["m6_detector_shell_support_hole_entry_x"]
+        == parameters["m6_detector_shell_support_boss_max_x"]
         and (
             parameters["m6_detector_ballhead_sensor_stud_center_x"]
             - parameters["m6_ballhead_sensor_stud_length"] / 2
-            < parameters["m6_detector_support_tail_thread_entry_x"]
+            < parameters["m6_detector_shell_support_hole_entry_x"]
         )
         and (
             parameters["m6_detector_ballhead_sensor_stud_center_x"]
             + parameters["m6_ballhead_sensor_stud_length"] / 2
-            > parameters["m6_detector_support_tail_thread_entry_x"]
-            - parameters["m6_detector_support_tail_thread_engagement_x"]
+            > parameters["m6_detector_shell_support_hole_entry_x"]
+            - parameters["m6_detector_shell_support_stud_engagement_x"]
         )
     ):
-        raise RuntimeError(f"current M6 90-degree support load path is inconsistent: {parameters}")
+        raise RuntimeError(f"current M6 rear-cover boss and purchased ballhead interface is inconsistent: {parameters}")
 
     if not (
         math.isclose(
@@ -1555,10 +1505,10 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             abs_tol=1e-4,
         )
         and parameters["m6_detector_ballhead_center_x"]
-        > parameters["m6_detector_support_boss_center_x"]
+        > parameters["m6_detector_shell_support_hole_entry_x"]
         and math.isclose(
             parameters["m6_detector_ballhead_center_y"],
-            parameters["m6_detector_support_y"],
+            parameters["m6_detector_shell_support_boss_center_y"],
             rel_tol=0,
             abs_tol=1e-4,
         )
@@ -1570,9 +1520,9 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and math.isclose(
             parameters["m6_detector_ballhead_sensor_stud_center_x"],
-            parameters["m6_detector_support_tail_thread_entry_x"]
+            parameters["m6_detector_shell_support_hole_entry_x"]
             + parameters["m6_ballhead_sensor_stud_length"] / 2
-            - parameters["m6_detector_support_tail_thread_engagement_x"],
+            - parameters["m6_detector_shell_support_stud_engagement_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
@@ -1675,7 +1625,6 @@ def main() -> None:
             "m6_detector_shell_front",
             "m6_detector_shell_rear",
             "m6_detector_bottom_cover",
-            "m6_detector_support",
             "m6_detector_mount",
             "stg120_outer_carrier",
             "sensor_mount",

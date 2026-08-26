@@ -21,24 +21,16 @@ def main() -> None:
         raise AssertionError("machining spec source hash mismatch")
 
     parts = {entry["part"]: entry for entry in spec["part_schedule"]}
-    expected_parts = {
-        "m6_machining_detector_body",
-        "m6_machining_support",
-        "m6_machining_adapter",
-    }
+    expected_parts = {"m6_machining_detector_body"}
     if set(parts) != expected_parts or any(
         entry["per_side"] != 1
         or entry["total"] != 2
-        or entry["preview_is_printable"] is not False
+        or entry["preview_is_printable"] is not True
         for entry in parts.values()
     ):
-        raise AssertionError("current aluminum part schedule changed")
-    if parts["m6_machining_detector_body"]["blank_mm"] != [20, 69.2, 216]:
-        raise AssertionError("detector T-tail body envelope changed")
-    if parts["m6_machining_support"]["blank_mm"] != [106.75, 18, 60]:
-        raise AssertionError("90-degree support envelope changed")
-    if parts["m6_machining_adapter"]["blank_mm"] != [6, 56, 228]:
-        raise AssertionError("vertical adapter envelope changed")
+        raise AssertionError("current PETG/CNC part schedule changed")
+    if parts["m6_machining_detector_body"]["blank_mm"] != [10, 56, 216]:
+        raise AssertionError("rectangular PETG body envelope changed")
 
     sensors = spec["sensor_contract"]
     if (
@@ -47,8 +39,8 @@ def main() -> None:
         or sensors["height_schedule_mm"] != list(range(10, 191, 20))
         or sensors["body_blank_mm"] != [10, 56, 216]
         or sensors["body_global_min_mm"] != [761.25, -28, 144.5]
-        or sensors["body_envelope_mm"] != [20, 69.2, 216]
-        or sensors["body_envelope_global_min_mm"] != [761.25, -41.2, 144.5]
+        or sensors["body_envelope_mm"] != [10, 56, 216]
+        or sensors["body_envelope_global_min_mm"] != [761.25, -28, 144.5]
         or sensors["body_center_y_global_mm"] != 0
         or sensors["sensor_roll_deg"] != -45
         or sensors["body_depth_limit_from_stem_and_one_nut_mm"] != 10
@@ -79,7 +71,7 @@ def main() -> None:
 
     shell = spec["shell_contract"]
     if (
-        shell["outer_envelope_mm"] != [37.4, 60.8, 222]
+        shell["outer_envelope_mm"] != [37.4, 75.8, 222]
         or shell["split_axis"] != "x"
         or shell["split_x_global_mm"] != 766
         or shell["top_view_profile"]
@@ -89,7 +81,7 @@ def main() -> None:
         or shell["front_max_x_global_mm"] != 766.3
         or shell["rear_min_x_global_mm"] != 765.7
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧为一体铝合金 T 尾座让位，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 y- 外侧适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -104,23 +96,22 @@ def main() -> None:
 
     support = spec["support_contract"]
     if (
-        support["tail_extension_x_mm"] != 10
-        or support["tail_head_depth_y_mm"] != 14
-        or support["tail_overlap_y_mm"] != 0.8
-        or support["tail_height_z_mm"] != 28
-        or support["tail_global_min_mm"] != [761.25, -41.2, 238.5]
-        or support["tail_global_max_mm"] != [781.25, -27.2, 266.5]
-        or support["thread_entry_x_global_mm"] != 781.25
-        or support["thread_depth_x_mm"] != 12
-        or support["thread_engagement_x_mm"] != 12
-        or support["thread_nominal_d_mm"] != 8
-        or support["thread_pitch_mm"] != 1.25
-        or support["tap_drill_d_mm"] != 6.8
-        or support["thread_mouth_d_mm"] != 9.5
-        or support["thread_mouth_depth_x_mm"] != 1
-        or "铝合金主体 -> 一体 T 形尾座 M8×1.25 内丝" not in support["load_path"]
+        support["type"] != "purchased 13 mm ballhead/gimbal"
+        or support["posture"]
+        != "vertical; the purchased part itself supplies adjustment and net-clamp support"
+        or support["boss_hole_axis"]
+        != "x- from the rear cover boss toward the optical side"
+        or support["boss_hole_d_mm"] != 8.6
+        or support["boss_hole_depth_x_mm"] != 14
+        or support["boss_hole_entry_x_global_mm"] != 781.4
+        or support["ballhead_stud_engagement_x_mm"] != 12
+        or support["ballhead_center_x_global_mm"] != 801.4
+        or support["ballhead_center_y_global_mm"] != -36.4
+        or support["ballhead_center_z_global_mm"] != 252.5
+        or "不制作自有 90° 支撑 STL" not in support["net_interface"]
+        or "球头自带竖直网夹接口" not in support["load_path"]
     ):
-        raise AssertionError("direct aluminum T-tail M8 contract changed")
+        raise AssertionError("rear-cover boss/purchased ballhead interface contract changed")
 
     ballhead = spec["ballhead_contract"]
     if (
@@ -139,7 +130,7 @@ def main() -> None:
     ]:
         raise AssertionError("ballhead variant list changed")
 
-    print("M6_MACHINING_SPEC_TEST_OK (body/support/adapter, 10 rolled L-sensor channels at 20 mm pitch)")
+    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body/purchased vertical ballhead, 10 rolled L-sensor channels at 20 mm pitch)")
 
 
 if __name__ == "__main__":
