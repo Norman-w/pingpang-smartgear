@@ -6,7 +6,7 @@
 
 ## 1. 打印件
 
-从 [`cad/net_stand.scad`](cad/net_stand.scad) 通过 [`export_net_stand_printables.py`](cad/export_net_stand_printables.py) 导出当前 29 件首样包：
+从 [`cad/net_stand.scad`](cad/net_stand.scad) 通过 [`export_net_stand_printables.py`](cad/export_net_stand_printables.py) 导出当前 26 件首样包：
 
 ```text
 python3 cad/export_net_stand_printables.py --clean
@@ -17,12 +17,13 @@ python3 cad/test_export_net_stand_printables.py
 
 | 类别 | 数量 | 首样材料/说明 |
 | --- | ---: | --- |
-| PETG 结构件 | 立柱、下段一体夹体、接缝套筒/内芯、网顶承载条、承托座、STG-120ML 外侧托架、中央背靠背支撑桥、PVDF 座、旋钮、标定规 | PETG；按 manifest 中的 29 件导出矩阵打印 |
+| PETG 结构件 | 立柱、下段一体夹体、台边外伸三角侧肋、接缝套筒/内芯、网顶承载条、承托座、PVDF 座、旋钮、标定规 | PETG；按 manifest 中的 26 件导出矩阵打印；网顶承载条名义总宽 `1830 mm`，每侧网柱外边界距台边 `152.5 mm` |
+| M6 单件试装样件 | 1 | `m6_sensor_test_coupon`；PETG，单独导出，不计入正式 26 件拼盘；先装真实 M6 器件、螺母和线缆验证接口 |
 | 上表面保护垫 | 2 | TPU 或裁切硅胶片；位于固定上夹板与桌面之间，不承担 C 形夹结构力路 |
 | 台底压块/软垫 | 2 | TPU、硅胶或耐磨弹性片优先；PETG 只用于几何试装 |
 | PVDF 压片 | 2 套 | 由 `sensor_clamp_lip` 提供，可先打印 PETG 试装，再根据薄膜厚度决定 TPU 版本 |
 
-`table_clamp`、`table_clamp_section`、`left_stand`、`right_stand`、`optical_strip` 和 `sensor_mount` 是组合/剖面预览，不应混入打印包；旧外挂 X 夹具的零件也不应混入当前首样。`--clean` 是为了避免历史 STL 静默混入。
+`table_clamp`、`table_clamp_section`、`left_stand`、`right_stand`、`m6_sensor_rail`、`m6_sensor_array`、`m6_mount_adapter`、`m6_gimbal` 和 `sensor_mount` 是组合/剖面或外购件预览，不应混入 PETG 打印包；旧外挂 X 夹具和 STG-120ML 历史托架的零件也不应混入当前首样。`--clean` 是为了避免历史 STL 静默混入。
 
 ## 2. 机械非打印件与网布
 
@@ -33,8 +34,7 @@ python3 cad/test_export_net_stand_printables.py
 | M8×1.25 金属夹紧螺杆，圆头或配圆头端件 | 2 | 左右各 1；圆头只接触台底压块；先按 25 mm 台厚检查有效行程，长度不要仅凭 CAD 外观冻结 | 待实物确认 |
 | M8 六角螺母 | 6 | 左右各 1 枚捕获在固定下臂；左右各 2 枚预先对锁后装入旋钮，刚性带动螺杆 | 已由 CAD 固化 |
 | M3 螺钉 + 螺母/垫片 | 至少 4 套 | 两片网顶拼接片各有 2 个孔；网顶承载条搭接处使用 | 已由 CAD 固化孔位 |
-| M3 紧固件 | 按托架试装起购 | STG-120ML 外侧托架和网顶拼接片使用；不把商品详情图中的孔位当作已冻结接口 | 待实物确认 |
-| 真实乒乓球网/网布及白边 | 1 套 | 预装在网顶承载条上，替换原球网；网宽、白边厚度和张力需要与目标球台匹配 | 待实物确认 |
+| 真实乒乓球网/网布及白边 | 1 套 | 预装在名义总宽 `1830 mm` 的网顶承载条上，替换原球网；左右外伸各 `152.5 mm`，网宽、白边厚度和张力需要与目标球台匹配 | 待实物确认 |
 | 备用 TPU/硅胶片 | 1 份 | 上夹板和台底压块各留备用，避免首样因压痕或厚度不合适停工 | 建议采购 |
 
 M8 螺杆的有效长度由台面厚度、软垫厚度、压块位置和旋钮捕获关系共同决定。当前参数只提供首样几何边界，不宣称 18/25/30 mm 球台都能直接共用同一长度；先用目标台厚样块确认旋钮圈数、螺纹啮合和圆头接触，再冻结采购长度。
@@ -47,22 +47,23 @@ M8 螺杆的有效长度由台面厚度、软垫厚度、压块位置和旋钮�
 | --- | ---: | --- |
 | PVDF 压电薄膜片 | 2 | 左右网顶各 1；可拆装，不能当静态拉力传感器 |
 | PVDF 双通道 AFE 试验板/前端 | 1 套 | 每路：保护/偏置/增益/带通，分出 ADC1 连续采样与可调阈值比较器 |
-| STG-120ML 金属光纤头 | 2 对 | 按全宽两段布置：左右外侧各 1 根，中央背靠背支撑桥内各 1 根；商品图标注 120 mm、32×Ø0.25 mm、3.87 mm 点距、最大 1000 mm 检测距离 |
-| STG-120ML 配套放大器 | 2 套 | 每个检测分段至少 1 套；当前购物车 SKU 只证明光纤头，不包含已确认的放大器型号 |
-| 放大器到 ESP32-S3 隔离/电平接口 | 按输出通道 | NPN/PNP/模拟量输出均不得未经确认直接接 ESP32-S3；先拿到输出电压、电流和语义 |
-| 12 V 电源或 5 V→12 V 升压模块 | 1 套 | 商品图显示配套放大器 DC 12–24 V；5 V 充电宝不能直连，功耗和启动峰值待实测 |
-| ESP32-S3 主控板 | 1 | 复用 SmartPaddle 的基础设施；当前仓库 GPIO/ADC 仍是首轮占位映射 |
-| 3.3 V 电源、线束、接插件和应变释放 | 1 套 | 左右支架长线接入；光纤线按最小弯曲半径和应变释放固定 |
+| M6 直角对射光电器件 | 20 枚 | 左右各 10 枚，对应 `+10…+100 mm`；用户选定商品 SKU `6122579349941`（M6、NPN、0–20 m）；图片中的 `VJTL06-20NZ/N3` 只作型号映射候选，当前“对射”条目标注 M6×0.75、头部约 8 mm、安装杆约 14 mm，最终后缀与输出数量待卖家确认 |
+| 6061-T6 铝合金梳齿安装条 | 2 根 | 连续背骨毛坯 `8×42×114 mm`；因网柱外边界外伸 `152.5 mm`，含长托舌/防转窝后的成品外包络约 `125.5×42×116 mm`；M6×0.75 竖直安装孔，奇偶通道 y 交错避免 14 mm 安装杆干涉；首根需做刚度/角度漂移复核 |
+| 铝合金三轴微调基座 | 2 套 | 固定适配板 + 水平 z 轴双层偏航转台 + y 轴俯仰叉架 + x 轴滚转盘；M4 顶丝负责切向微调；安装面和锁紧空间待量测 |
+| M6 枢轴/锁紧件与 M4 顶丝 | 按两套基座 | M6 锁紧承载，M4×0.5 顶丝只微调；基座与器件锁紧头型、长度和防松方式待确认 |
+| M6 十路边沿采集载板 | 1 | 10 路独立光耦输入 + 本地双边沿定时器/FIFO + 3.3 V SPI/IRQ；当前工程候选 `STM32G031K8U6/UFQFPN32`，接口候选和 CRC/序号协议见 [`m6-capture-carrier-v0.1.zh-CN.md`](electronics/m6-capture-carrier-v0.1.zh-CN.md)，具体 pin map 见 [`m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md`](electronics/m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md)，首样连接器/测试点/画板顺序见 [`m6-capture-carrier-first-article-bom-v0.1.zh-CN.md`](electronics/m6-capture-carrier-first-article-bom-v0.1.zh-CN.md)，仍待原型验证和 PCB 冻结 |
+| ESP32-S3 主控板 | 1 | 复用 SmartPaddle 的基础设施；M6 NPN 输出必须先经过 [`m6-npn-interface-v0.1.zh-CN.md`](electronics/m6-npn-interface-v0.1.zh-CN.md) 规定的负载/光耦和独立载板，当前仓库直连 GPIO/ADC 仍是首轮占位映射 |
+| 3.3 V/器件电源、线束、接插件和应变释放 | 1 套 | 左右基座长线接入；按器件线缆出口和最小弯曲半径固定 |
 | RGB 指示灯/蜂鸣器 | 各 1 | 本体反馈；正常、擦网和 unknown 使用不同提示 |
 
-电子件在装到真实支架前，先按 [`electronics/bring-up-v0.1.zh-CN.md`](electronics/bring-up-v0.1.zh-CN.md) 做断电、GPIO、放大器输出通道和 PVDF 基线记录。没有健康快照、放大器输出证据和校准 ID 时，固件必须保持 `unknown`，不能用“ESP32-S3 能编译”代替接板通过。
+电子件在装到真实支架前，先按 [`electronics/bring-up-v0.1.zh-CN.md`](electronics/bring-up-v0.1.zh-CN.md) 做断电、GPIO、M6 器件输出通道和 PVDF 基线记录。没有健康快照、器件输出证据和校准 ID 时，固件必须保持 `unknown`，不能用“ESP32-S3 能编译”代替接板通过。
 
 ## 4. 首样装配顺序
 
 1. 先只打印/装配左右 `lower_stand_segment`、上保护垫、台底压块、旋钮，并把每侧两枚 M8 螺母预先对锁在夹紧螺杆下端；再用目标台厚样块完成桌下夹持检查；不装球网、不接电。
 2. 装上段立柱、`post_joint_sleeve` 和 `post_joint_key`，检查接缝抗扭、立柱垂直和拆卸方向。
-3. 装两侧 `net_rail_saddle`，拼接三段 `net_rail_segment`，用 `net_rail_splice` 锁定搭接，再装真实网布；记录网顶 0 基准、张力和左右平行度。
-4. 装两侧 `stg120_outer_carrier` 和中央 `stg120_center_bridge`；把两段 STG-120ML 头按“外侧—中央”相对出光面装入托架，分段跨度先按约 763 mm 布置，检查线缆弯曲、中央桥脚和球路净空；用标定规按 3.87 mm 光点间距记录高度基准。
+3. 装两侧 `net_rail_saddle`，拼接三段 `net_rail_segment` 成名义总宽 `1830 mm` 的网顶承载条，用 `net_rail_splice` 锁定搭接；确认网柱外边界分别比台边外伸 `152.5 mm`，三角侧肋位于台边外且不影响夹紧开口，再装真实网布，记录网顶 0 基准、张力和左右平行度。
+4. 先打印并用真实器件试装 `m6_sensor_test_coupon`，确认锁紧螺母防转、头部方向、Ø10 线缆让位和有效螺纹长度；再装左右两套 `m6_mount_adapter` / `m6_gimbal` 与梳齿铝合金安装条。每侧装入 10 个器件，按 `+10…+100 mm` 对应高度布置，检查 y 交错、线缆弯曲、网夹净空和球路；先用最低/最高/中间通道完成偏航、俯仰、滚转微调，再做通道级高度补偿并锁紧。
 5. 在网顶安装左右 PVDF 薄膜和可拆压片，线束做应变释放；先采安静、轻触、真实擦网、旋钮操作和夹具碰撞波形，再决定阈值和 AFE 参数。
 6. 最后接 ESP32-S3 和 SmartPaddle 传输适配，按 `B-06/B-08 → S-01/S-03 → T-01/T-02 → E-01` 顺序放行；任何健康门失败都不得生成有效高度/擦网结论。
 
@@ -71,8 +72,8 @@ M8 螺杆的有效长度由台面厚度、软垫厚度、压块位置和旋钮�
 - PETG 在目标夹紧力下是否滑移、变形、倾斜或损伤球台；
 - M8 实际长度、螺纹啮合、旋钮手感和软垫压缩；
 - 网布白边与 PVDF 的真实耦合、AFE 增益/带宽/阈值和机械误报；
-- STG-120ML 配套放大器的具体型号、输出语义（单一 NPN/PNP、位置量还是逐点位图）、工作/启动电流、环境光抑制、两段同步方式和球体遮挡宽度；
-- 5 V 充电宝经升压后是否能带动两套放大器、ESP32-S3、PVDF 前端和提示器；在空载、正常遮挡和启动瞬间实测前，不给出功耗承诺；
+- M6 器件最终后缀、M6×0.75 有效螺纹长度、头部防转、光学中心、发射/接收方向、输出语义和工作电流；
+- M6 阵列的 10–30 V 供电/光耦或电平转换接口板、环境光抑制、邻道串扰、球体遮挡宽度和左右对应关系；
 - 最终 PCB 引脚、SmartPaddle/App 实时传输和外部设备时间戳回放。
 
-这些项目必须写入 [`docs/field-validation-record-template.zh-CN.md`](../docs/field-validation-record-template.zh-CN.md)。在有照片、量具/示波器/逻辑分析仪记录、原始波形或真实事件日志前，记录状态保持 `pending`。
+这些项目必须写入 [`docs/field-validation-record-template.zh-CN.md`](../docs/field-validation-record-template.zh-CN.md)。M6 阵列和三轴基座说明见 [`docs/m6-optical-array-design-v0.1.zh-CN.md`](../docs/m6-optical-array-design-v0.1.zh-CN.md)。在有照片、量具/示波器/逻辑分析仪记录、原始波形或真实事件日志前，记录状态保持 `pending`。

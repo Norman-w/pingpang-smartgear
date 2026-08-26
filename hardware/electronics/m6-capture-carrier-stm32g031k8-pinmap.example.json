@@ -1,0 +1,38 @@
+{
+  "schema_version": "m6-carrier-stm32g031k8-pinmap-v0.1",
+  "status": "pending",
+  "mcu": "STM32G031K8U6",
+  "package": "UFQFPN32",
+  "source_urls": [
+    "https://www.st.com/en/microcontrollers-microprocessors/stm32g031k8.html",
+    "https://www.st.com/resource/en/datasheet/stm32g031k8.pdf"
+  ],
+  "host_gpio": {
+    "sck": 10,
+    "mosi": 11,
+    "miso": 12,
+    "cs_n": 13,
+    "irq_n": 14,
+    "reset_n": 5
+  },
+  "signals": [
+    {"name": "carrier_in_00", "mcu_pin": "PA1", "package_pin": 8, "direction": "input", "exti_line": 1},
+    {"name": "carrier_in_01", "mcu_pin": "PA2", "package_pin": 9, "direction": "input", "exti_line": 2},
+    {"name": "carrier_in_02", "mcu_pin": "PA3", "package_pin": 10, "direction": "input", "exti_line": 3},
+    {"name": "carrier_in_03", "mcu_pin": "PA4", "package_pin": 11, "direction": "input", "exti_line": 4},
+    {"name": "carrier_in_04", "mcu_pin": "PA5", "package_pin": 12, "direction": "input", "exti_line": 5},
+    {"name": "carrier_in_05", "mcu_pin": "PA6", "package_pin": 13, "direction": "input", "exti_line": 6},
+    {"name": "carrier_in_06", "mcu_pin": "PA7", "package_pin": 14, "direction": "input", "exti_line": 7},
+    {"name": "carrier_in_07", "mcu_pin": "PA9", "package_pin": 19, "direction": "input", "exti_line": 9},
+    {"name": "carrier_in_08", "mcu_pin": "PA10", "package_pin": 21, "direction": "input", "exti_line": 10},
+    {"name": "carrier_in_09", "mcu_pin": "PA15", "package_pin": 26, "direction": "input", "exti_line": 15},
+    {"name": "spi_cs_n", "mcu_pin": "PB0", "package_pin": 15, "direction": "input", "alternate_function": "SPI1_NSS/AF0+EXTI0"},
+    {"name": "spi_sck", "mcu_pin": "PB3", "package_pin": 27, "direction": "input", "alternate_function": "SPI1_SCK/AF0"},
+    {"name": "spi_miso", "mcu_pin": "PB4", "package_pin": 28, "direction": "output", "alternate_function": "SPI1_MISO/AF0"},
+    {"name": "spi_mosi", "mcu_pin": "PB5", "package_pin": 29, "direction": "input", "alternate_function": "SPI1_MOSI/AF0"},
+    {"name": "irq_n", "mcu_pin": "PB8", "package_pin": 32, "direction": "output", "alternate_function": "GPIO"},
+    {"name": "reset_n", "mcu_pin": "PF2-NRST", "package_pin": 6, "direction": "reset_input", "alternate_function": "NRST"},
+    {"name": "swdio", "mcu_pin": "PA13", "package_pin": 24, "direction": "bidirectional", "alternate_function": "SWDIO"},
+    {"name": "swclk", "mcu_pin": "PA14", "package_pin": 25, "direction": "input", "alternate_function": "SWCLK"}
+  ]
+}

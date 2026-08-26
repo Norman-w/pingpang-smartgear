@@ -199,6 +199,78 @@ def main() -> None:
         1800,
         900,
     )
+    render(
+        openscad,
+        "m6_detector_mount",
+        args.output_dir / "net-stand-m6-detector-mount-right.png",
+        1100,
+        1300,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_mount",
+        args.output_dir / "net-stand-m6-detector-mount-left.png",
+        1100,
+        1300,
+        definitions=("SIDE=-1",),
+    )
+    render(
+        openscad,
+        "m6_detector_body",
+        args.output_dir / "net-stand-m6-detector-body-right.png",
+        700,
+        1300,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_shell_front",
+        args.output_dir / "net-stand-m6-detector-shell-front-right.png",
+        900,
+        1300,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_shell_rear",
+        args.output_dir / "net-stand-m6-detector-shell-rear-right.png",
+        900,
+        1300,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_bottom_cover",
+        args.output_dir / "net-stand-m6-detector-bottom-cover-right.png",
+        900,
+        700,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_detector_support",
+        args.output_dir / "net-stand-m6-detector-90-degree-support-right.png",
+        1000,
+        1000,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_ballhead",
+        args.output_dir / "net-stand-m6-vertical-ballhead-right.png",
+        900,
+        900,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "m6_sensor_array",
+        args.output_dir / "net-stand-m6-sensor-array-right.png",
+        700,
+        1300,
+        definitions=("SIDE=1",),
+    )
     render(openscad, "sensor_mount", args.output_dir / "net-stand-sensor-mount.png", 1000, 800)
     render(openscad, "pvdf_film", args.output_dir / "net-stand-pvdf-film.png", 800, 600)
     render(

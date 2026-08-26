@@ -23,23 +23,25 @@ PVDF
 - 左、右通道分别记录峰值、能量、持续时间和波形引用；
 - 安静基线在启动自检和每次安装后采集，阈值从基线加裕量开始。
 
-## 10 路调制红外光栅
+## 10 路 M6 NPN 光电输入
 
 ```text
-定时调制发射器 × 10  ── 全网宽度光路 ── 光电二极管 × 10
-                                          │
-                                      TIA/滤波
-                                          │
-                                      比较器 × 10
-                                          │
-                                  ESP32-S3 GPIO/中断
+M6 发射器 × 10 ── 对射光路 ── M6 接收器 × 10
+                                      │ BN/BU/BK
+                                 10 路 NPN 开集电极
+                                      │
+                           每路 R_IN + 光耦隔离
+                                      │
+                              3.3 V 上拉 + GPIO
 ```
 
-- 每路独立输出，禁止用低速逐路轮询代替并行采集；
-- 发射端与接收端的调制频率、占空比和同步方式要在板级试验中固定；
-- 接收前端必须考虑环境光、球网白边反射和邻道串扰；
+- 每路独立输出，禁止用低速逐路轮询或把十路 BK 并联代替并行采集；
+- 发射端只按卖家确认的 BN/BU 供电，接收端 BK 经过额定的 `R_IN + 光耦`，不得把 10–30 V 节点直接接 ESP32-S3 GPIO；
+- 首样参考拓扑、`1.8 kΩ/1 W` 输入电阻、3.3 V 侧上拉、测试点和功耗边界见 [`m6-npn-interface-v0.1.zh-CN.md`](m6-npn-interface-v0.1.zh-CN.md)；
+- 5 ms 只表示状态变化到输出完成变化的响应语义；1–10 ms 已知脉冲的输入/输出波形必须按 [`docs/m6-response-time-validation-v0.1.zh-CN.md`](../../docs/m6-response-time-validation-v0.1.zh-CN.md) 留档；
+- 接收前端必须考虑环境光、球网白边反射、邻道串扰和光耦/线缆传播延迟；
 - 每路都需要启动自检：发射端断开、接收端偏移、持续遮挡和正常对准至少要能区分；
-- 光学座提供俯仰、偏航微调，参考线提供机械高度复核；
+- 光学座提供 z 轴偏航、y 轴俯仰和 x 轴滚转微调，参考线提供机械高度复核；
 - 只有 `+10…+100 mm` 的 10 根有效光束参与业务事件。
 
 ## ESP32-S3 接口边界
@@ -53,7 +55,7 @@ PVDF
 1. PVDF 夹片的机械预紧量与最佳贴合位置；
 2. AFE 的输入保护、偏置电压、增益、带通频段和比较器迟滞；
 3. 光电二极管有效距离、调制频率、接收增益和阳光/室内灯抗扰；
-4. 10 根光束之间的串扰和实际球体遮挡宽度；
+4. 10 根光束之间的串扰、实际球体遮挡宽度和 M6 5 ms 响应对应的最小输入/输出脉宽（按 [`docs/m6-response-time-validation-v0.1.zh-CN.md`](../../docs/m6-response-time-validation-v0.1.zh-CN.md) 留存波形）；
 5. 采样缓存、GPIO 中断负载和最终板级引脚复用。
 
 板级 hook、逻辑通道顺序、fail-closed 规则和可运行 CSV 回放见 [`docs/sensor-interface-v0.1.zh-CN.md`](../../docs/sensor-interface-v0.1.zh-CN.md)；实物装配、逐光束自检、PVDF 原始波形和断链补发按 [`docs/field-validation-record-template.zh-CN.md`](../../docs/field-validation-record-template.zh-CN.md) 留档；第一次接板按 [`bring-up-v0.1.zh-CN.md`](bring-up-v0.1.zh-CN.md) 顺序执行。

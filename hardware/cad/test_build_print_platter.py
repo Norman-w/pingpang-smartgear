@@ -51,6 +51,15 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
     source_manifest = source_manifest_path or path.parent.parent / "manifest.json"
     if not source_manifest.is_file():
         raise AssertionError(f"源打印件 manifest 不存在: {source_manifest}")
+    declared_source_manifest = data.get("source_manifest")
+    if not isinstance(declared_source_manifest, str) or not declared_source_manifest:
+        raise AssertionError("拼盘 manifest 缺少 source_manifest 相对路径")
+    declared_source_path = (path.parent / declared_source_manifest).resolve()
+    if declared_source_path != source_manifest.resolve():
+        raise AssertionError(
+            "拼盘 manifest 的 source_manifest 路径与实际输入不一致: "
+            f"{declared_source_path} != {source_manifest.resolve()}"
+        )
     source = json.loads(source_manifest.read_text(encoding="utf-8"))
     expected_files = {str(item["file"]) for item in source["parts"]}
     entries = data.get("parts")
@@ -69,6 +78,14 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
         if not isinstance(plate_group, str) or not plate_group:
             raise AssertionError(f"{plate['id']} 缺少材料组")
         plate_file = path.parent / str(plate["file"])
+        plate_path = path.parent / str(plate.get("path", ""))
+        if not plate_path.is_file():
+            raise AssertionError(f"拼盘 manifest 的 path 不存在: {plate_path}")
+        if plate_path.resolve() != plate_file.resolve():
+            raise AssertionError(
+                f"{plate['id']} 的 file/path 指向不同文件: "
+                f"{plate_file} != {plate_path}"
+            )
         mesh = load_binary_stl(plate_file)
         size = tuple(mesh.bounds[1][axis] - mesh.bounds[0][axis] for axis in range(3))
         if size[0] > width + 1e-3 or size[1] > depth + 1e-3 or size[2] > height + 1e-3:
@@ -126,7 +143,7 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 26:
+    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 23:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "PETG", "TPU/柔性"]:

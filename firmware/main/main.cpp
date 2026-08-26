@@ -1,6 +1,9 @@
 #include "beam_capture.h"
+#include "beam_channel_map.h"
 #include "feedback.h"
 #include "feedback_gpio.h"
+#include "m6_carrier_adapter.h"
+#include "m6_carrier_config.h"
 #include "net_event_aggregator.h"
 #include "net_event_delivery.h"
 #include "net_event_transport.h"
@@ -22,6 +25,7 @@
 #include <utility>
 
 #include "driver/gpio.h"
+#include "m6_carrier_spi.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -57,6 +61,39 @@ volatile bool s_sensor_queue_overflow = false;
 std::array<SensorRoute, smartgear::config::kBeamCount +
                             smartgear::config::kPiezoCount>
     s_routes{};
+
+constexpr bool carrier_candidate_is_disjoint_from_direct_io() {
+    for (const int carrier_pin :
+         smartgear::carrier_config::kSmartPaddleCarrierGpioPins) {
+        for (const int beam_pin : smartgear::config::kBeamGpioPins) {
+            if (carrier_pin == beam_pin) {
+                return false;
+            }
+        }
+        for (const int piezo_pin :
+             smartgear::config::kPiezoComparatorGpioPins) {
+            if (carrier_pin == piezo_pin) {
+                return false;
+            }
+        }
+        for (const int adc_pin : smartgear::config::kPiezoAdcGpioPins) {
+            if (carrier_pin == adc_pin) {
+                return false;
+            }
+        }
+        for (const int feedback_pin : smartgear::config::kFeedbackGpioPins) {
+            if (carrier_pin == feedback_pin) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static_assert(!smartgear::carrier_config::kUseM6Carrier ||
+                  carrier_candidate_is_disjoint_from_direct_io(),
+              "M6 carrier candidate pins conflict with direct sensor or "
+              "feedback GPIOs; audit the final board mapping first");
 
 void IRAM_ATTR sensor_isr(void* argument) {
     auto* route = static_cast<SensorRoute*>(argument);
@@ -98,7 +135,7 @@ void on_piezo_adc_sample(const std::uint8_t channel,
     }
 }
 
-void configure_sensor_inputs() {
+void configure_sensor_inputs(const bool use_m6_carrier) {
     s_sensor_queue = xQueueCreate(32, sizeof(SensorEdge));
     ESP_ERROR_CHECK(s_sensor_queue != nullptr ? ESP_OK : ESP_ERR_NO_MEM);
 
@@ -112,16 +149,19 @@ void configure_sensor_inputs() {
                         : isr_service_error);
 
     std::size_t route_index = 0;
-    for (std::size_t channel = 0; channel < smartgear::config::kBeamCount;
-         ++channel, ++route_index) {
-        auto& route = s_routes[route_index];
-        route = {SensorKind::kBeam,
-                 static_cast<std::uint8_t>(channel),
-                 static_cast<gpio_num_t>(smartgear::config::kBeamGpioPins[channel])};
-        ESP_ERROR_CHECK(gpio_set_direction(route.pin, GPIO_MODE_INPUT));
-        ESP_ERROR_CHECK(gpio_set_pull_mode(route.pin, GPIO_PULLUP_ONLY));
-        ESP_ERROR_CHECK(gpio_set_intr_type(route.pin, GPIO_INTR_ANYEDGE));
-        ESP_ERROR_CHECK(gpio_isr_handler_add(route.pin, sensor_isr, &route));
+    if (!use_m6_carrier) {
+        for (std::size_t channel = 0; channel < smartgear::config::kBeamCount;
+             ++channel, ++route_index) {
+            auto& route = s_routes[route_index];
+            route = {SensorKind::kBeam,
+                     static_cast<std::uint8_t>(channel),
+                     static_cast<gpio_num_t>(
+                         smartgear::config::kBeamGpioPins[channel])};
+            ESP_ERROR_CHECK(gpio_set_direction(route.pin, GPIO_MODE_INPUT));
+            ESP_ERROR_CHECK(gpio_set_pull_mode(route.pin, GPIO_PULLUP_ONLY));
+            ESP_ERROR_CHECK(gpio_set_intr_type(route.pin, GPIO_INTR_ANYEDGE));
+            ESP_ERROR_CHECK(gpio_isr_handler_add(route.pin, sensor_isr, &route));
+        }
     }
     for (std::size_t channel = 0; channel < smartgear::config::kPiezoCount;
          ++channel, ++route_index) {
@@ -169,6 +209,15 @@ void sync_transport(smartgear::NetEventDelivery& delivery) {
 }
 
 void sync_sensor_health(smartgear::NetEventAggregator& aggregator) {
+    // The raw beam mapping is still a provisional active-low candidate. Do
+    // not let a board adapter accidentally authorize height events before the
+    // purchased SKU, NPN NO/NC polarity, isolator path and a real channel
+    // self-test have frozen that mapping and this firmware is rebuilt.
+    if (!smartgear::config::kBeamPolarityConfirmed) {
+        smartgear::apply_sensor_health_unavailable(aggregator);
+        return;
+    }
+
     char calibration_id[64] = {};
     std::uint16_t healthy_beam_mask = 0;
     bool beam_health_valid = false;
@@ -208,6 +257,8 @@ extern "C" void app_main() {
                                    config::kTouchOnlyTimeoutUs,
                                    config::kTouchCompletionGraceUs});
     NetEventDelivery delivery;
+    M6CarrierBeamAdapter carrier_adapter(
+        beam_capture, carrier_config::kCarrierToHostOffsetUs);
 #ifdef ESP_PLATFORM
     FeedbackGpio feedback_gpio({
         static_cast<gpio_num_t>(config::kFeedbackLedRedGpio),
@@ -215,15 +266,46 @@ extern "C" void app_main() {
         static_cast<gpio_num_t>(config::kFeedbackLedBlueGpio),
         static_cast<gpio_num_t>(config::kFeedbackBuzzerGpio),
     });
+    M6CarrierSpiMaster carrier_spi({
+        SPI2_HOST,
+        static_cast<gpio_num_t>(carrier_config::kSpiSckGpio),
+        static_cast<gpio_num_t>(carrier_config::kSpiMosiGpio),
+        static_cast<gpio_num_t>(carrier_config::kSpiMisoGpio),
+        static_cast<gpio_num_t>(carrier_config::kSpiCsGpio),
+        static_cast<gpio_num_t>(carrier_config::kIrqGpio),
+        static_cast<gpio_num_t>(carrier_config::kResetGpio),
+        carrier_config::kSpiClockHz,
+    });
+    bool carrier_ready = false;
+    M6CarrierClockCalibration carrier_clock_calibration;
+    bool carrier_clock_ready = carrier_config::kCarrierClockOffsetConfirmed;
+    if (carrier_clock_ready) {
+        // This path is reserved for a separately recorded, board-specific
+        // calibration constant. The default remains false; runtime samples
+        // below are the normal way to establish the offset.
+        carrier_adapter.set_clock_offset(
+            carrier_config::kCarrierToHostOffsetUs);
+    }
 #endif
 
-    // 启动自检完成并使用机械参考件确认 10 路光栅前，事件统一标记 unknown。
+    // 启动自检完成并使用机械参考件确认 10 路 M6 光电通道前，事件统一标记 unknown。
     // 校准成功后由设备状态层调用：
     //   aggregator.set_calibration("cal-<version>", true);
     aggregator.set_calibration("boot-self-test-pending", false);
     aggregator.set_beam_health(0, false);
     aggregator.set_piezo_baseline(false);
-    configure_sensor_inputs();
+    configure_sensor_inputs(carrier_config::kUseM6Carrier);
+#ifdef ESP_PLATFORM
+    if (carrier_config::kUseM6Carrier) {
+        const auto carrier_error = carrier_spi.init();
+        if (carrier_error == ESP_OK) {
+            carrier_ready = true;
+        } else {
+            ESP_LOGW(kTag, "M6 carrier SPI init deferred: %s",
+                     esp_err_to_name(carrier_error));
+        }
+    }
+#endif
     sync_transport(delivery);
     sync_sensor_health(aggregator);
 #ifdef ESP_PLATFORM
@@ -246,6 +328,7 @@ extern "C" void app_main() {
 
     SensorEdge edge{};
     std::uint64_t next_health_poll_us = 0;
+    std::uint64_t next_clock_sync_poll_us = 0;
     while (true) {
         const std::uint64_t now_us =
             static_cast<std::uint64_t>(esp_timer_get_time());
@@ -262,6 +345,98 @@ extern "C" void app_main() {
             aggregator.mark_input_overflow();
             ESP_LOGW(kTag, "sensor GPIO queue overflow; next event is unknown");
         }
+#ifdef ESP_PLATFORM
+        if (carrier_ready) {
+            if (now_us >= next_clock_sync_poll_us) {
+                const bool was_clock_ready = carrier_clock_ready;
+                M6CarrierClockSyncSample sample{};
+                bool sample_available = false;
+                SmartgearM6CarrierClockSyncReading reading;
+                if (smartgear_board_read_m6_carrier_clock_sync(&reading) &&
+                    reading.exchange_verified) {
+                    sample = {
+                        reading.host_sent_us,
+                        reading.host_received_us,
+                        reading.carrier_received_us,
+                        reading.carrier_sent_us,
+                    };
+                    sample_available = true;
+                }
+                if (!sample_available &&
+                    carrier_config::kUseCarrierSpiClockSync) {
+                    sample_available =
+                        carrier_spi.exchange_clock_sync(&sample) == ESP_OK;
+                }
+                if (sample_available) {
+                    const bool accepted =
+                        carrier_clock_calibration.add_sample(sample);
+                    const bool confirmed =
+                        accepted && carrier_clock_calibration.confirm();
+                    const auto offset = confirmed
+                                             ? carrier_clock_calibration
+                                                   .confirmed_offset_us()
+                                             : std::nullopt;
+                    if (offset.has_value()) {
+                        carrier_adapter.set_clock_offset(*offset);
+                        carrier_clock_ready = true;
+                        ESP_LOGI(
+                            kTag,
+                            "M6 carrier clock confirmed: offset=%lldus samples=%u best_rtt=%lluus spread=%lluus drift=%lluus",
+                            static_cast<long long>(*offset),
+                            static_cast<unsigned>(
+                                carrier_clock_calibration.sample_count()),
+                            static_cast<unsigned long long>(
+                                carrier_clock_calibration.best_round_trip_us()),
+                            static_cast<unsigned long long>(
+                                carrier_clock_calibration.offset_spread_us()),
+                            static_cast<unsigned long long>(
+                                carrier_clock_calibration
+                                    .inter_sample_drift_us()));
+                    } else {
+                        carrier_clock_ready = false;
+                    }
+                }
+                if (was_clock_ready && !carrier_clock_ready) {
+                    carrier_adapter.reset_sequence();
+                    beam_capture.reset();
+                    aggregator.mark_input_overflow();
+                    ESP_LOGW(kTag,
+                             "M6 carrier clock calibration lost; events remain unknown");
+                }
+                next_clock_sync_poll_us = now_us + 1'000'000ULL;
+            }
+            M6CarrierFrame carrier_frame{};
+            const auto carrier_result = carrier_spi.poll(&carrier_frame);
+            if (carrier_result == M6CarrierSpiPollResult::kFrame) {
+                if (!carrier_clock_ready) {
+                    // A carrier timestamp cannot be compared with esp_timer
+                    // until the runtime estimator has confirmed a real sync
+                    // exchange. Keep collecting neither a plausible event
+                    // nor a stale BeamCapture boundary in that state.
+                    carrier_adapter.reset_sequence();
+                    beam_capture.reset();
+                    aggregator.mark_input_overflow();
+                } else {
+                    const auto adapted = carrier_adapter.ingest(carrier_frame);
+                    if (!adapted.input_boundary_valid) {
+                        carrier_adapter.reset_sequence();
+                        aggregator.mark_input_overflow();
+                    } else {
+                        for (std::size_t index = 0;
+                             index < adapted.observation_count; ++index) {
+                            aggregator.on_beam(remap_configured_beam_observation(
+                                adapted.observations[index]));
+                        }
+                    }
+                }
+            } else if (carrier_result == M6CarrierSpiPollResult::kBoundaryError ||
+                       carrier_result == M6CarrierSpiPollResult::kSpiError) {
+                carrier_adapter.reset_sequence();
+                beam_capture.reset();
+                aggregator.mark_input_overflow();
+            }
+        }
+#endif
         sync_transport(delivery);
         if (now_us >= next_health_poll_us) {
             sync_sensor_health(aggregator);
@@ -278,10 +453,12 @@ extern "C" void app_main() {
             do {
                 if (edge.kind == SensorKind::kBeam) {
                     const bool blocked =
-                        edge.level == config::kBeamBlockedLevel;
+                        config::beam_blocked_at_level(
+                            config::kBeamInputPolarity, edge.level);
                     if (auto observation = beam_capture.on_edge(
                             edge.channel, blocked, edge.timestamp_us)) {
-                        aggregator.on_beam(*observation);
+                        aggregator.on_beam(
+                            remap_configured_beam_observation(*observation));
                     }
                 } else if (edge.level == config::kPiezoTriggeredLevel) {
                     char waveform_reference[48] = {};
@@ -345,7 +522,8 @@ extern "C" void app_main() {
         }
 
         if (auto observation = beam_capture.poll(now_us)) {
-            aggregator.on_beam(*observation);
+            aggregator.on_beam(
+                remap_configured_beam_observation(*observation));
         }
         if (auto observation = piezo_capture.poll(now_us)) {
             aggregator.on_touch(*observation);

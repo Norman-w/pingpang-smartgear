@@ -47,6 +47,7 @@ const refs = {
   assemblyToolbar: $("#assembly-toolbar"),
   assemblyStatusBadge: $("#assembly-status-badge"),
   assemblySelectionBadge: $("#assembly-selection-badge"),
+  fitM6: $("#fit-m6"),
   assemblyHoverLabel: $("#assembly-hover-label"),
   assemblyGuideCard: $("#assembly-guide-card"),
   assemblyStepList: $("#assembly-step-list"),
@@ -76,25 +77,25 @@ const PRESETS = {
 const COLORS = {
   stand: { label: "立柱 / 夹持", color: "#f6bd67" },
   rail: { label: "网顶 / 导轨", color: "#b28cff" },
-  optical: { label: "STG-120ML 光栅", color: "#74a7ff" },
+  optical: { label: "M6 十路光电阵列", color: "#74a7ff" },
   sensor: { label: "PVDF 传感", color: "#62e4d1" },
   calibration: { label: "标定 / 参考", color: "#fb817c" },
   other: { label: "其他", color: "#a9bbc0" },
 };
 
 const ASSEMBLY_STEPS = [
-  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘。" },
-  { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上。" },
-  { number: 3, label: "网顶承载条与网布", description: "三段网顶承载条用拼接片锁紧，网布挂在完整的网顶基准之间。" },
-  { number: 4, label: "STG-120ML 光栅与 PVDF", description: "两段 STG-120ML 光纤头由外侧托架和中央背靠背支撑桥承载；网顶前侧夹入左右 PVDF 薄膜。" },
-  { number: 5, label: "参考线与最终检查", description: "用 3.87 mm 标定规和机械参考线核对两段检测窗口、网顶高度与平行度；放大器输出参数仍以实测证据为准。" },
+  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
+  { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
+  { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
+  { number: 4, label: "M6 45° L 型主体、壳体与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，前盖 y+ 正球弧、后盖 y- 圆角矩形和底盖按实际总成显示，壳体只保护/桥接，不承担主体载荷。" },
+  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
 const ASSEMBLY_GROUPS = {
   clamp: { label: "台下夹紧", color: "#f6bd67", stage: 1 },
   post: { label: "左右立柱", color: "#f28b50", stage: 2 },
   rail: { label: "网顶承载", color: "#e9eef0", stage: 3 },
-  optical: { label: "STG-120ML 光栅", color: "#74a7ff", stage: 4 },
+  optical: { label: "M6 十路光电阵列", color: "#74a7ff", stage: 4 },
   sensor: { label: "PVDF 擦网", color: "#62e4d1", stage: 4 },
   reference: { label: "标定参考", color: "#fb817c", stage: 5 },
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
@@ -122,6 +123,7 @@ const state = {
     step: ASSEMBLY_STEPS.length,
     selectedId: null,
     hoveredId: null,
+    focusM6: false,
     showTable: true,
     showNonPrinted: true,
     items: [],
@@ -138,6 +140,9 @@ const state = {
     camera: null,
     controls: null,
     modelRoot: null,
+    grid: null,
+    globalAxes: null,
+    m6AxesHelper: null,
     loadId: 0,
     raycaster: null,
     pointer: null,
@@ -185,7 +190,7 @@ function partName(entry) {
 
 function categoryKey(entry) {
   const text = `${entry?.part || ""} ${entry?.file || ""} ${entry?.name_zh || ""}`.toLowerCase();
-  if (text.includes("stg120") || text.includes("stg-120") || text.includes("光纤")
+  if (text.includes("m6") || text.includes("十路") || text.includes("stg120") || text.includes("stg-120") || text.includes("光纤")
       || text.includes("optical") || text.includes("module") || text.includes("光学")) return "optical";
   if (text.includes("sensor") || text.includes("pvdf") || text.includes("film")) return "sensor";
   if (text.includes("rail") || text.includes("net-rail")) return "rail";
@@ -268,7 +273,7 @@ function assemblyGroupKey(entry) {
   if (part.includes("clamp") || part.includes("knob") || part.includes("lower_stand")) return "clamp";
   if (part.includes("post")) return "post";
   if (part.includes("net_rail")) return "rail";
-  if (part.includes("stg120") || part.includes("stg-120") || part.includes("optical")) return "optical";
+  if (part.includes("m6") || part.includes("stg120") || part.includes("stg-120") || part.includes("optical")) return "optical";
   if (part.includes("sensor") || part.includes("pvdf")) return "sensor";
   if (part.includes("reference") || part.includes("calibration") || part.includes("pin")) return "reference";
   return "hardware";
@@ -373,8 +378,8 @@ function makeProxyAssemblyItems(entries) {
   };
   const railEntries = entries.filter((entry) => entry.part === "net_rail_segment");
   const railBounds = railEntries.map(boundsFromEntry).filter(Boolean);
-  const railMinX = railBounds.length ? Math.min(...railBounds.map((item) => item.min[0])) : -785.5;
-  const railMaxX = railBounds.length ? Math.max(...railBounds.map((item) => item.max[0])) : 785.5;
+  const railMinX = railBounds.length ? Math.min(...railBounds.map((item) => item.min[0])) : -915;
+  const railMaxX = railBounds.length ? Math.max(...railBounds.map((item) => item.max[0])) : 915;
   const railTopZ = railBounds.length ? Math.min(...railBounds.map((item) => item.min[2])) : 142.5;
   const netSpan = railMaxX - railMinX;
 
@@ -408,8 +413,8 @@ function makeProxyAssemblyItems(entries) {
   }));
   items.push(makeAssemblyItem({
     id: "hardware:reference-line",
-    name_zh: "STG-120ML 机械参考线（+50.31 mm 示例）",
-    name_en: "STG-120ML mechanical reference line example",
+    name_zh: "M6 十路机械参考线（+50 mm 示例）",
+    name_en: "M6 ten-channel mechanical reference line example",
     kind: "机械校准参考",
     material: "外购线材",
     group: "reference",
@@ -417,8 +422,714 @@ function makeProxyAssemblyItems(entries) {
     base_min: [railMinX, -0.5, 202],
     size: [netSpan, 1, 1],
     explosion: [0, -78, 48],
-    notes: "只用于核对两段检测窗口和机械高度；当前不依赖旧版 10 mm 定位销导轨，电子高度输出必须以放大器接口证据为准。",
+    notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
+
+  // Current M6 body-first assembly contract.  The metal bar is the
+  // load-bearing body; the current view intentionally omits the PETG covers
+  // until the 45-degree L-device orientation is visually accepted.
+  const m6Geometry = {
+    axisX: 763,
+    // Vendor drawing: 20 mm overall from the gray cable-side hex to the
+    // threaded optical tip, with the final 14 mm being the hollow M6x0.75
+    // barrel. The blue guard is a perpendicular local-z cable branch, not an
+    // x-axis cable body.
+    headLengthX: 6,
+    headDepthY: 10,
+    headWidthZ: 8,
+    headHexAF: 8,
+    sensorPitch: 20,
+    deviceD: 6,
+    sensorOpticalBoreD: 3,
+    stemLength: 14,
+    fitProbeOnly: true,
+    fitCaptureDepthX: 2,
+    fitHeadLengthX: 6,
+    fitHeadWidthY: 10,
+    fitHeadHeightZ: 8,
+    fitThreadTipX: 755.25,
+    fitThreadLengthX: 14,
+    fitThreadVisibleLengthX: 6,
+    fitThreadTipAllowanceX: 1,
+    cableGuardLength: 10,
+    cablePreviewLength: 18,
+    cableD: 3,
+    bodyMinX: 761.25,
+    bodyMaxX: 771.25,
+    sensorRollDeg: -45,
+    bodyCenterY: 0,
+    bodyDepthY: 56,
+    bodyBottomZ: 144.5,
+    bodyHeightZ: 216,
+    showShell: true,
+    shellMinX: 760.6,
+    shellMaxX: 785.4,
+    shellMinY: -30.4,
+    shellMaxY: 30.4,
+    shellWidthY: 60.8,
+    shellBottomZ: 141.5,
+    shellHeightZ: 222,
+    splitY: 0,
+    frontMinY: -0.3,
+    rearMaxY: 0.3,
+    wall: 2.4,
+    hexPocketAF: 10.7,
+    hexPocketDepthX: 2.5,
+    threadClearanceD: 6.6,
+    cableExitD: 12,
+    cableExitX: 766,
+    headCenterX: 766,
+    threadEndX: 783,
+    receiverThreadMinX: 749,
+    receiverOpticalMinX: 748.6,
+    receiverNutMinX: 756.25,
+    mountX: 881,
+    mountT: 6,
+    mountWidth: 56,
+    mountHeight: 228,
+    bossCenterX: 766.25,
+    bossWidthX: 18,
+    bossDepthY: 8,
+    bossHeightZ: 24,
+    supportY: -34.4,
+    supportArmMinX: 784,
+    supportArmMaxX: 889,
+    supportArmZ: 227.5,
+    supportArmWidthY: 18,
+    supportArmT: 8,
+    supportLegX: 884,
+    supportGussetInsetX: 8,
+    supportLegBottomZ: 171.5,
+    supportLegTopZ: 231.5,
+    ballheadBallD: 13,
+    ballheadHousingD: 28,
+    ballheadHousingLength: 26,
+    ballheadCenterX: 798.25,
+    ballheadCenterY: -34.4,
+    ballheadCenterZ: 252.5,
+    ballheadBaseCenterZ: 235.5,
+    ballheadBaseD: 32,
+    ballheadBaseT: 8,
+    ballheadNetStudCenterZ: 217.5,
+    ballheadNetStudLength: 28,
+    ballheadSensorStudCenterX: 774.25,
+    ballheadSensorStudLength: 16,
+    ballheadTiltDeg: 90,
+    ballheadRotationDeg: 360,
+  };
+  for (const sideLabel of ["left", "right"]) {
+    const side = sideLabel === "left" ? -1 : 1;
+    const sideName = side < 0 ? "左" : "右";
+    const mirrorX = (minX, sizeX) => side > 0 ? minX : -minX - sizeX;
+    const bodyMinX = side > 0 ? m6Geometry.bodyMinX : -m6Geometry.bodyMaxX;
+    const shellMinX = side > 0 ? m6Geometry.shellMinX : -m6Geometry.shellMaxX;
+    // Rotation pivots are expressed relative to each item's base_min. The
+    // actual axis is the global x line at y=0 and the sensor's z center.
+    const rotationPivotFor = (baseMin, sensorZ) => [
+      0,
+      -baseMin[1],
+      sensorZ - baseMin[2],
+    ];
+    const ballheadMinX = side > 0
+      ? m6Geometry.ballheadCenterX - m6Geometry.ballheadHousingD / 2
+      : -m6Geometry.ballheadCenterX - m6Geometry.ballheadHousingD / 2;
+    const ballheadBaseMinX = side > 0
+      ? m6Geometry.ballheadCenterX - m6Geometry.ballheadBaseD / 2
+      : -m6Geometry.ballheadCenterX - m6Geometry.ballheadBaseD / 2;
+    const ballheadStudMinX = side > 0
+      ? m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2
+      : -m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2;
+    const supportEnvelopeMaxX = m6Geometry.supportLegX + m6Geometry.supportGussetInsetX;
+
+    if (m6Geometry.fitProbeOnly) {
+      const fitHeadInnerX = m6Geometry.bodyMaxX - m6Geometry.fitCaptureDepthX;
+      const fitHeadCenterX = fitHeadInnerX + m6Geometry.fitHeadLengthX / 2;
+      const fitTranslationX = fitHeadCenterX - m6Geometry.headCenterX;
+      const fitCableExitX = m6Geometry.cableExitX + fitTranslationX;
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-fit-body:${sideLabel}`,
+        name_zh: `M6 首样长条主体（${sideName}）`,
+        name_en: "M6 first-article rectangular fit body",
+        kind: "机加工主体首样",
+        material: "6061-T6 铝合金",
+        group: "optical",
+        color: "#aeb5bb",
+        shape: "box",
+        base_min: [bodyMinX, -m6Geometry.bodyDepthY / 2, m6Geometry.bodyBottomZ],
+        size: [m6Geometry.bodyMaxX - m6Geometry.bodyMinX,
+          m6Geometry.bodyDepthY,
+          m6Geometry.bodyHeightZ],
+        side,
+        explosion: [0, 0, 0],
+        notes: "本阶段只显示长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；壳子、支撑和云台暂不加入。",
+      }));
+      for (let index = 0; index < 10; index += 1) {
+        const z = 162.5 + index * m6Geometry.sensorPitch;
+        const headMinX = side > 0
+          ? fitHeadInnerX
+          : mirrorX(fitHeadInnerX, m6Geometry.fitHeadLengthX);
+        const threadMinX = side > 0
+          ? m6Geometry.fitThreadTipX
+          : mirrorX(m6Geometry.fitThreadTipX, m6Geometry.fitThreadLengthX);
+        const apertureMinX = side > 0
+          ? m6Geometry.fitThreadTipX - 0.4
+          : mirrorX(m6Geometry.fitThreadTipX - 0.4, 0.4);
+        const cableGuardMinX = mirrorX(
+          fitCableExitX - m6Geometry.deviceD / 2,
+          m6Geometry.deviceD,
+        );
+        const cableMinX = mirrorX(
+          fitCableExitX - m6Geometry.cableD / 2,
+          m6Geometry.cableD,
+        );
+        const headBaseMin = [
+          headMinX,
+          -m6Geometry.fitHeadWidthY / 2,
+          z - m6Geometry.fitHeadHeightZ / 2,
+        ];
+        const guardBaseMin = [
+          cableGuardMinX,
+          -m6Geometry.deviceD / 2,
+          z - m6Geometry.fitHeadHeightZ / 2 - m6Geometry.cableGuardLength,
+        ];
+        const cableBaseMin = [
+          cableMinX,
+          -m6Geometry.cableD / 2,
+          z - m6Geometry.fitHeadHeightZ / 2 -
+            m6Geometry.cableGuardLength - m6Geometry.cablePreviewLength,
+        ];
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-head:${sideLabel}:${index}`,
+          name_zh: `真实三维 M6 L 型激光头（卡入 2 mm）+${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "real 3D M6 right-angle laser head captured 2 mm into body",
+          kind: "外购器件三维包络",
+          material: "用户指定 M6 L 型对射器件",
+          group: "optical",
+          color: "#69747d",
+          shape: "hex",
+          base_min: headBaseMin,
+          size: [m6Geometry.fitHeadLengthX,
+            m6Geometry.fitHeadWidthY,
+            m6Geometry.fitHeadHeightZ],
+          shapeOptions: {
+            radius: m6Geometry.headHexAF / (2 * Math.cos(Math.PI / 6)),
+            axis: "x",
+            rotation_x_deg: m6Geometry.sensorRollDeg,
+            rotation_pivot: rotationPivotFor(headBaseMin, z),
+          },
+          side,
+          explosion: [0, 0, 0],
+          notes: "灰色 AF8 六角是线缆侧主体/防转面，外侧有 4 mm 露出，内侧 2 mm 被主体的同形浅六角窝卡住；它不是光学端。",
+        }));
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-guard:${sideLabel}:${index}`,
+          name_zh: `真实蓝色 L 型护套 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "real 3D blue right-angle cable guard",
+          kind: "外购器件三维包络",
+          material: "用户指定 M6 L 型对射器件",
+          group: "optical",
+          color: "#2764d7",
+          shape: "cylinder",
+          shapeOptions: {
+            radius: m6Geometry.deviceD / 2,
+            axis: "z",
+            rotation_x_deg: m6Geometry.sensorRollDeg,
+            rotation_pivot: rotationPivotFor(guardBaseMin, z),
+          },
+          base_min: guardBaseMin,
+          size: [m6Geometry.deviceD, m6Geometry.deviceD, m6Geometry.cableGuardLength],
+          side,
+          explosion: [0, 0, 0],
+          notes: "蓝色 L 型护套从灰色六角侧沿局部 z- 出线，再绕光束 x 轴 -45° 斜向 y-/z-，用于给相邻 20 mm 通道让线。",
+        }));
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-cable:${sideLabel}:${index}`,
+          name_zh: `真实黑色尾线 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "real 3D cable continuation",
+          kind: "外购器件三维包络",
+          material: "用户指定 M6 L 型对射器件",
+          group: "optical",
+          color: "#20252b",
+          shape: "cylinder",
+          shapeOptions: {
+            radius: m6Geometry.cableD / 2,
+            axis: "z",
+            rotation_x_deg: m6Geometry.sensorRollDeg,
+            rotation_pivot: rotationPivotFor(cableBaseMin, z),
+          },
+          base_min: cableBaseMin,
+          size: [m6Geometry.cableD, m6Geometry.cableD, m6Geometry.cablePreviewLength],
+          side,
+          explosion: [0, 0, 0],
+          notes: "黑色尾线沿蓝色护套继续斜向下；这里只显示实际器件的短线缆代理，后续底盖统一套管另行设计。",
+        }));
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-thread:${sideLabel}:${index}`,
+          name_zh: `中空 M6 外丝筒 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "hollow M6 threaded optical barrel",
+          kind: "外购器件简化包络",
+          material: "用户指定 M6 L 型对射器件",
+          group: "optical",
+          color: "#b9c0c5",
+          shape: "cylinder",
+          shapeOptions: { radius: m6Geometry.deviceD / 2, axis: "x" },
+          base_min: [threadMinX, -m6Geometry.deviceD / 2, z - m6Geometry.deviceD / 2],
+          size: [m6Geometry.fitThreadLengthX, m6Geometry.deviceD, m6Geometry.deviceD],
+          side,
+          explosion: [0, 0, 0],
+          notes: "M6 外丝不是单纯安装螺丝；它是中空光学筒，末端中心孔朝球台中心。10 mm 主体内侧露出 6 mm，容纳 5 mm 厚螺帽并保留约 1 mm 端部余量。",
+        }));
+        const nutHeight = 5;
+        const nutAF = 10;
+        const nutMinX = side > 0
+          ? m6Geometry.bodyMinX - nutHeight
+          : mirrorX(m6Geometry.bodyMinX - nutHeight, nutHeight);
+        const nutBaseMin = [
+          nutMinX,
+          -nutAF / 2,
+          z - nutAF / 2,
+        ];
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-nut:${sideLabel}:${index}`,
+          name_zh: `M6 原配螺帽（朝台内平滑面）+${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "one supplied M6 lock nut on the smooth inner face",
+          kind: "外购紧固件三维包络",
+          material: "随 M6 L 型对射器件附带",
+          group: "hardware",
+          color: "#d0a72b",
+          shape: "hex",
+          shapeOptions: {
+            radius: nutAF / (2 * Math.cos(Math.PI / 6)),
+            axis: "x",
+            rotation_x_deg: m6Geometry.sensorRollDeg,
+            rotation_pivot: rotationPivotFor(nutBaseMin, z),
+          },
+          base_min: nutBaseMin,
+          size: [nutHeight, nutAF, nutAF],
+          side,
+          explosion: [0, 0, 0],
+          notes: "只带一枚原配 M6 螺帽；位于主体朝台内的平滑面，螺帽不嵌入主体，固定螺丝也不进入主体。",
+        }));
+        items.push(makeAssemblyItem({
+          id: `hardware:m6-fit-aperture:${sideLabel}:${index}`,
+          name_zh: `中空 M6 末端中心孔 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+          name_en: "hollow M6 tip aperture",
+          kind: "光学端视觉标记",
+          material: "显示参考，不是独立零件",
+          group: "optical",
+          color: "#111820",
+          shape: "cylinder",
+          shapeOptions: { radius: m6Geometry.sensorOpticalBoreD / 2, axis: "x" },
+          base_min: [apertureMinX,
+            -m6Geometry.sensorOpticalBoreD / 2,
+            z - m6Geometry.sensorOpticalBoreD / 2],
+          size: [0.4, m6Geometry.sensorOpticalBoreD, m6Geometry.sensorOpticalBoreD],
+          side,
+          explosion: [0, 0, 0],
+          notes: "黑色只表示中空 M6 外丝末端的中心孔；灰色 AF8 六角和蓝色尾部都没有独立光学面。",
+        }));
+        items.push(makeAssemblyItem({
+          id: `reference:m6-fit-beam:${sideLabel}:${index}`,
+          name_zh: `M6 光束方向（${sideName}，+${10 + index * m6Geometry.sensorPitch} mm）`,
+          name_en: "M6 beam direction reference",
+          kind: "光束方向参考",
+          material: "显示参考，不是实体",
+          group: "reference",
+          color: "#f35f5f",
+          shape: "cylinder",
+          shapeOptions: { radius: 0.45, axis: "x" },
+          base_min: side > 0
+            ? [m6Geometry.fitThreadTipX - 80, -0.45, z - 0.45]
+            : [-m6Geometry.fitThreadTipX, -0.45, z - 0.45],
+          size: [80, 0.9, 0.9],
+          side,
+          explosion: [0, 0, 0],
+          notes: side > 0
+            ? "右侧接收端：中心孔位于 x-，光束由左向右进入。"
+            : "左侧发射端：中心孔位于 x+，光束由这里向右发出。",
+        }));
+      }
+      continue;
+    }
+
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-mount-adapter:${sideLabel}`,
+      name_zh: `竖直网夹适配板（${sideName}）`,
+      name_en: "vertical net-clamp adapter plate",
+      kind: "机加工网架接口",
+      material: "6061-T6 铝合金",
+      group: "optical",
+      base_min: [side > 0 ? m6Geometry.mountX : -m6Geometry.mountX - m6Geometry.mountT, -m6Geometry.mountWidth / 2, m6Geometry.ballheadCenterZ - m6Geometry.mountHeight / 2],
+      size: [m6Geometry.mountT, m6Geometry.mountWidth, m6Geometry.mountHeight],
+      side,
+      explosion: explosionVector("optical", side),
+      notes: "竖直金属适配板通过两条 M6 长孔固定到网架；当前不再使用旧的水平球头三孔背板模式。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-detector-body:${sideLabel}`,
+      name_zh: `M6 长条铝合金主体（${sideName}）`,
+      name_en: "M6 long aluminum detector body",
+      kind: "机加工承力主体",
+      material: "6061-T6 铝合金",
+      group: "optical",
+      base_min: [bodyMinX, m6Geometry.bodyCenterY - m6Geometry.bodyDepthY / 2, m6Geometry.bodyBottomZ],
+      size: [m6Geometry.bodyMaxX - m6Geometry.bodyMinX, m6Geometry.bodyDepthY, m6Geometry.bodyHeightZ],
+      side,
+      explosion: [side * 54, 0, 28],
+      notes: "当前验收 x=10 mm 厚、y=56 mm 宽的长条主体与真实三维激光头干涉：灰色 AF8 六角从外侧插入并卡入约 2 mm；中空 M6 外丝穿过主体，朝台内平滑面带一枚原配螺帽。壳子、线槽、支撑和云台暂不作为本阶段结构。",
+    }));
+    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+      id: `hardware:m6-shell-front:${sideLabel}`,
+      name_zh: `M6 前盖：y+ 球弧（${sideName}）`,
+      name_en: "M6 front spherical-arc cover",
+      kind: "保护壳（非承力）",
+      material: "PETG 尺寸样件",
+      group: "optical",
+      base_min: [shellMinX, m6Geometry.frontMinY, m6Geometry.shellBottomZ],
+      size: [m6Geometry.shellMaxX - m6Geometry.shellMinX,
+        m6Geometry.shellMaxY - m6Geometry.frontMinY,
+        m6Geometry.shellHeightZ],
+      side,
+      explosion: [side * 92, -18, 46],
+      notes: "y+ 前盖为正球弧外形，从主体上方套入；M3/M4 沉头螺钉进入铝主体导孔。",
+    }));
+    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+      id: `hardware:m6-shell-rear:${sideLabel}`,
+      name_zh: `M6 后盖：圆角矩形与支撑 boss（${sideName}）`,
+      name_en: "M6 rear rounded cover and support boss",
+      kind: "保护壳/桥接件（非承力）",
+      material: "PETG 尺寸样件",
+      group: "optical",
+      base_min: [shellMinX,
+        m6Geometry.shellMinY - m6Geometry.bossDepthY,
+        m6Geometry.shellBottomZ],
+      size: [m6Geometry.shellMaxX - m6Geometry.shellMinX,
+        m6Geometry.rearMaxY - m6Geometry.shellMinY + m6Geometry.bossDepthY,
+        m6Geometry.shellHeightZ],
+      side,
+      explosion: [side * 118, -32, 38],
+      notes: "y- 后盖为圆角矩形并带居中桥接 boss；boss 的 x 轴螺纹孔连接金属固定器/球头。",
+    }));
+    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+      id: `hardware:m6-bottom-cover:${sideLabel}`,
+      name_zh: `M6 底盖与线缆套管孔（${sideName}）`,
+      name_en: "M6 bottom cover with cable sleeve exit",
+      kind: "保护盖（非承力）",
+      material: "PETG 尺寸样件",
+      group: "optical",
+      base_min: [shellMinX, -m6Geometry.shellWidthY / 2, m6Geometry.shellBottomZ - 3],
+      size: [m6Geometry.shellMaxX - m6Geometry.shellMinX, m6Geometry.shellWidthY, 3],
+      side,
+      explosion: [side * 42, 0, -46],
+      notes: "底盖按下方截面封闭，两个沉头螺钉固定到主体；Ø12 mm 孔用于剥皮后统一线缆套管，当前无密封。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-support-bracket:${sideLabel}`,
+      name_zh: `金属 90° 支撑件（${sideName}）`,
+      name_en: "metal 90-degree detector support",
+      kind: "机加工承力支撑",
+      material: "6061-T6 铝合金/金属件",
+      group: "optical",
+      base_min: [side > 0 ? m6Geometry.supportArmMinX : -supportEnvelopeMaxX, m6Geometry.supportY - m6Geometry.supportArmWidthY / 2, m6Geometry.supportLegBottomZ],
+      size: [supportEnvelopeMaxX - m6Geometry.supportArmMinX, m6Geometry.supportArmWidthY, m6Geometry.supportLegTopZ - m6Geometry.supportLegBottomZ],
+      side,
+      explosion: [side * 138, 18, -16],
+      notes: "水平托臂承接球头底部，竖直腿贴合网夹适配板，内角加三角侧肋；这是主体到网架的真实承力路径。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-ballhead-housing:${sideLabel}`,
+      name_zh: `13 mm 采购球头（竖直姿态，${sideName}）`,
+      name_en: "13 mm purchased ball head, vertical posture",
+      kind: "外购云台占位",
+      material: "外购金属件（非打印）",
+      group: "optical",
+      shape: "cylinder",
+      shapeOptions: { radius: m6Geometry.ballheadHousingD / 2, axis: "z" },
+      base_min: [ballheadMinX, m6Geometry.ballheadCenterY - m6Geometry.ballheadHousingD / 2, m6Geometry.ballheadCenterZ - m6Geometry.ballheadHousingLength / 2],
+      size: [m6Geometry.ballheadHousingD, m6Geometry.ballheadHousingD, m6Geometry.ballheadHousingLength],
+      side,
+      explosion: [side * 154, -28, 20],
+      notes: "云台本体不打印；当前按 13 mm 球、360° 旋转、90° 开口和竖直壳体姿态占位，实际螺纹选项/旋钮净空待到货复核。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-ballhead-base:${sideLabel}`,
+      name_zh: `采购球头底座与竖直外牙（${sideName}）`,
+      name_en: "purchased ball-head base and vertical stud",
+      kind: "外购云台接口占位",
+      material: "外购金属件（非打印）",
+      group: "optical",
+      shape: "cylinder",
+      shapeOptions: { radius: m6Geometry.ballheadBaseD / 2, axis: "z" },
+      base_min: [ballheadBaseMinX, m6Geometry.ballheadCenterY - m6Geometry.ballheadBaseD / 2, m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2],
+      size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
+      side,
+      explosion: [side * 154, -28, -4],
+      notes: "底座把竖直球头传给 90° 金属支撑；可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改接口件。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
+      name_zh: `后盖 x 轴球头连接螺柱（${sideName}）`,
+      name_en: "ball-head sensor-side horizontal stud",
+      kind: "外购云台接口占位",
+      material: "外购金属件（非打印）",
+      group: "optical",
+      shape: "cylinder",
+      shapeOptions: { radius: 3, axis: "x" },
+      base_min: [ballheadStudMinX, m6Geometry.ballheadCenterY - 3, m6Geometry.ballheadCenterZ - 3],
+      size: [m6Geometry.ballheadSensorStudLength, 6, 6],
+      side,
+      explosion: [side * 162, -28, 24],
+      notes: "沿 x 插入后盖 y- boss 的内攻孔；不是旧版水平球头背板的三孔结构。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
+      name_zh: `球头到 90° 支撑的竖直螺柱（${sideName}）`,
+      name_en: "vertical ball-head support stud",
+      kind: "外购云台接口占位",
+      material: "外购金属件（非打印）",
+      group: "optical",
+      shape: "cylinder",
+      shapeOptions: { radius: 3, axis: "z" },
+      base_min: [mirrorX(m6Geometry.ballheadCenterX - 3, 6), m6Geometry.ballheadCenterY - 3, m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2],
+      size: [6, 6, m6Geometry.ballheadNetStudLength],
+      side,
+      explosion: [side * 154, -28, -24],
+      notes: "竖直姿态下把球头底部接到支撑托臂；实际端部螺纹由采购 SKU 决定。",
+    }));
+    for (let index = 0; index < 10; index += 1) {
+      const z = 162.5 + index * m6Geometry.sensorPitch;
+      const beamLength = 80;
+      items.push(makeAssemblyItem({
+        id: `reference:m6-beam-direction:${sideLabel}:${index}`,
+        name_zh: `M6 光束方向（${sideName}，+${10 + index * m6Geometry.sensorPitch} mm）`,
+        name_en: "M6 optical beam direction",
+        kind: "光束方向参考",
+        material: "显示参考，不是实体",
+        group: "optical",
+        color: "#f35f5f",
+        shape: "cylinder",
+        shapeOptions: { radius: 0.45, axis: "x" },
+        base_min: side > 0
+          ? [m6Geometry.axisX - beamLength, -0.45, z - 0.45]
+          : [-m6Geometry.axisX, -0.45, z - 0.45],
+        size: [beamLength, 0.9, 0.9],
+        side,
+        explosion: [0, 0, 0],
+        notes: side > 0
+          ? "右侧接收器：红线从左侧进入，终止在中空 M6 外丝末端的中心孔（x-）。"
+          : "左侧发射器：中心孔位于中空 M6 外丝末端（x+），红线从这里向球台中心发出。",
+      }));
+      // Positive geometry is the installed right receiver. Its gray
+      // cable-side head is at x+; the hollow threaded barrel and optical
+      // aperture pass toward the smooth x- body face. The left emitter is the
+      // complete x mirror of that package.
+      const headMinX = side > 0
+        ? m6Geometry.axisX
+        : mirrorX(m6Geometry.axisX, m6Geometry.headLengthX);
+      const faceMinX = side > 0
+        ? m6Geometry.receiverOpticalMinX
+        : mirrorX(m6Geometry.receiverOpticalMinX, 0.4);
+      const threadMinX = side > 0
+        ? m6Geometry.receiverThreadMinX
+        : mirrorX(m6Geometry.receiverThreadMinX, m6Geometry.stemLength);
+      const cableGuardMinX = mirrorX(
+        m6Geometry.cableExitX - m6Geometry.deviceD / 2,
+        m6Geometry.deviceD,
+      );
+      const cableMinX = mirrorX(
+        m6Geometry.cableExitX - m6Geometry.cableD / 2,
+        m6Geometry.cableD,
+      );
+      const hexMinX = mirrorX(
+        m6Geometry.bodyMaxX - m6Geometry.hexPocketDepthX,
+        m6Geometry.hexPocketDepthX,
+      );
+      const nutMinX = side > 0
+        ? m6Geometry.receiverNutMinX
+        : mirrorX(m6Geometry.receiverNutMinX, 5);
+      const headBaseMin = [
+        headMinX,
+        -m6Geometry.headDepthY / 2,
+        z - m6Geometry.headWidthZ / 2,
+      ];
+      const faceBaseMin = [
+        faceMinX,
+        -m6Geometry.sensorOpticalBoreD / 2,
+        z - m6Geometry.sensorOpticalBoreD / 2,
+      ];
+      const bodyBaseMin = [
+        cableGuardMinX,
+        -m6Geometry.deviceD / 2,
+        z - m6Geometry.headWidthZ / 2 - m6Geometry.cableGuardLength,
+      ];
+      const cableBaseMin = [
+        cableMinX,
+        -m6Geometry.cableD / 2,
+        z - m6Geometry.headWidthZ / 2 -
+          m6Geometry.cableGuardLength - m6Geometry.cablePreviewLength,
+      ];
+      const hexBaseMin = [
+        hexMinX,
+        -m6Geometry.hexPocketAF / 2,
+        z - m6Geometry.hexPocketAF / 2,
+      ];
+      const threadBaseMin = [
+        threadMinX,
+        -m6Geometry.deviceD / 2,
+        z - m6Geometry.deviceD / 2,
+      ];
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-head:${sideLabel}:${index}`,
+        name_zh: `M6 直角光学头 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 right-angle optical head proxy",
+        kind: "外购光学器件占位",
+        material: "用户指定 M6 SKU 6122579349941",
+        group: "optical",
+        color: "#69747d",
+        shape: "hex",
+        base_min: headBaseMin,
+        size: [m6Geometry.headLengthX, m6Geometry.headDepthY, m6Geometry.headWidthZ],
+        shapeOptions: {
+          radius: m6Geometry.headHexAF / (2 * Math.cos(Math.PI / 6)),
+          axis: "x",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(headBaseMin, z),
+        },
+        side,
+        explosion: [side * 68, -96, 16],
+        notes: "灰色六角是尾线连接/防转主体，位于外侧浅窝；中空 M6 外丝筒沿 x 伸向球台中心，末端中心孔才是光学端。右侧从 x+、左侧从 x- 外侧装入；蓝色尾线随后绕光束 x 轴 -45°。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-face:${sideLabel}:${index}`,
+        name_zh: `M6 中空外丝末端中心光学孔 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 hollow-thread tip optical aperture",
+        kind: "外购光学器件占位",
+        material: "用户指定 M6 SKU 6122579349941",
+        group: "optical",
+        shape: "cylinder",
+        shapeOptions: {
+          radius: m6Geometry.sensorOpticalBoreD / 2,
+          axis: "x",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(faceBaseMin, z),
+        },
+        base_min: faceBaseMin,
+        size: [0.4, m6Geometry.sensorOpticalBoreD, m6Geometry.sensorOpticalBoreD],
+        side,
+        explosion: [side * 68, -102, 16],
+        notes: "黑色只表示中空 M6 外丝筒末端的中心孔；灰色六角处没有独立黑色光学面。左右件由镜像得到，孔口均朝向球台中心。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-body:${sideLabel}:${index}`,
+        name_zh: `M6 蓝色 L 型线缆护套 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 right-angle blue cable guard proxy",
+        kind: "外购光学器件占位",
+        material: "用户指定 M6 SKU 6122579349941",
+        group: "optical",
+        shape: "cylinder",
+        color: "#2764d7",
+        shapeOptions: {
+          radius: m6Geometry.deviceD / 2,
+          axis: "z",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(bodyBaseMin, z),
+        },
+        base_min: bodyBaseMin,
+        size: [m6Geometry.deviceD, m6Geometry.deviceD, m6Geometry.cableGuardLength],
+        side,
+        explosion: [side * 76, -106, 16],
+        notes: "蓝色护套从头部沿局部 z- 出线；绕光束 x 轴 -45° 后朝 y-/z-，不与红色 x 向光束同轴。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-cable:${sideLabel}:${index}`,
+        name_zh: `M6 黑色尾线 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 cable continuation proxy",
+        kind: "外购光学器件占位",
+        material: "用户指定 M6 SKU 6122579349941",
+        group: "optical",
+        shape: "cylinder",
+        color: "#20252b",
+        shapeOptions: {
+          radius: m6Geometry.cableD / 2,
+          axis: "z",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(cableBaseMin, z),
+        },
+        base_min: cableBaseMin,
+        size: [m6Geometry.cableD, m6Geometry.cableD, m6Geometry.cablePreviewLength],
+        side,
+        explosion: [side * 80, -112, 14],
+        notes: "黑色线缆沿蓝色护套继续向局部 z-；这里只画装配内的短代理，实际线缆将剥皮后汇入底盖套管。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-rear-hex-seat:${sideLabel}:${index}`,
+        name_zh: `x+ 后方水平浅六角沉孔 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "rear shallow horizontal hex anti-rotation pocket",
+        kind: "主体加工特征",
+        material: "6061-T6 铝合金主体",
+        group: "optical",
+        shape: "hex",
+        shapeOptions: {
+          radius: m6Geometry.hexPocketAF / 2,
+          axis: "x",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(hexBaseMin, z),
+        },
+        base_min: hexBaseMin,
+        size: [m6Geometry.hexPocketDepthX, m6Geometry.hexPocketAF, m6Geometry.hexPocketAF],
+        side,
+        explosion: [side * 92, -130, 16],
+        notes: "2.5 mm x 向浅窝只卡住水平外丝上的六角，不压住六角与外丝接驳平面；实际对边按到货件复核。",
+      }));
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-thread:${sideLabel}:${index}`,
+        name_zh: `M6×0.75 水平外丝 +${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 x 0.75 horizontal threaded barrel",
+        kind: "外购光学器件占位",
+        material: "304 不锈钢 / 用户指定 M6 SKU 6122579349941",
+        group: "optical",
+        color: "#b9c0c5",
+        shape: "cylinder",
+        shapeOptions: {
+          radius: m6Geometry.deviceD / 2,
+          axis: "x",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(threadBaseMin, z),
+        },
+        base_min: threadBaseMin,
+        size: [m6Geometry.stemLength, m6Geometry.deviceD, m6Geometry.deviceD],
+        side,
+        explosion: [side * 72, -120, 18],
+        notes: "这是中空 M6×0.75 光学外丝筒，不是实心安装螺丝；右侧从 x+ 外侧进入后筒端朝 x-，左侧镜像后筒端朝 x+。",
+      }));
+      const nutBaseMin = [
+        nutMinX,
+        -m6Geometry.hexPocketAF / 2,
+        z - m6Geometry.hexPocketAF / 2,
+      ];
+      items.push(makeAssemblyItem({
+        id: `hardware:m6-device-nut:${sideLabel}:${index}`,
+        name_zh: `M6 外螺帽（主体平滑面单枚）+${10 + index * m6Geometry.sensorPitch} mm（${sideName}）`,
+        name_en: "M6 supplied lock nut, minimum one",
+        kind: "外购紧固件占位",
+        material: "不锈钢/随传感器附带",
+        group: "hardware",
+        color: "#d0a72b",
+        shape: "hex",
+        shapeOptions: {
+          radius: 5,
+          axis: "x",
+          rotation_x_deg: m6Geometry.sensorRollDeg,
+          rotation_pivot: rotationPivotFor(nutBaseMin, z),
+        },
+        base_min: nutBaseMin,
+        size: [5, 10, 10],
+        side,
+        explosion: [side * 86, 112, 16],
+        notes: "一枚原配螺帽位于主体平滑的另一侧表面，用来压紧中空外丝筒；螺帽不嵌入主体，不使用打印固定螺丝，也不再显示第二枚螺帽。",
+      }));
+    }
+  }
   const gauge = firstEntry(entries, (entry) => entry.part === "calibration_gauge");
   const gaugeBounds = boundsFromEntry(gauge);
   if (gaugeBounds) {
@@ -434,7 +1145,7 @@ function makeProxyAssemblyItems(entries) {
       base_min: [900, 120, 0],
       size: gaugeBounds.size,
       explosion: [0, 128, 56],
-      notes: "这是独立的 32 点 / 3.87 mm 间距标定工具，不安装在网架上；用于核对 STG-120ML 有效检测面和两段窗口。",
+      notes: "这是历史 STG-120ML 的 32 点 / 3.87 mm 间距标定工具，不安装在当前 M6 网架上；只用于历史资料回溯。",
     }));
   }
 
@@ -463,7 +1174,7 @@ function makeProxyAssemblyItems(entries) {
         size: [stgHead.thickness, stgHead.width, stgHead.length],
         side,
         explosion: explosionVector("optical", side),
-        notes: "商品页选中的 STG-120ML 金属线/精度 3.87 mm 光纤头；本体需要配套放大器，当前只显示安装包络。",
+        notes: "历史 STG-120ML 金属光纤头兼容占位；不属于当前 M6 采购主线，只保留用于旧 manifest 回溯。",
       }));
       items.push(makeAssemblyItem({
         id: `hardware:stg120-window:${entry.file}`,
@@ -478,7 +1189,7 @@ function makeProxyAssemblyItems(entries) {
         size: [Math.abs(segmentMaxX - segmentMinX), 0.8, stgHead.activeLength],
         side,
         explosion: explosionVector("optical", side),
-        notes: "仅表示两段对射光路的机械覆盖范围；放大器是否能输出逐点高度信息仍待确认。",
+        notes: "历史 STG-120ML 两段光路兼容占位；不作为当前 M6 逐通道输出或精度证据。",
       }));
     }
     if (entry.part === "stg120_center_bridge") {
@@ -500,7 +1211,7 @@ function makeProxyAssemblyItems(entries) {
           size: [stgHead.thickness, stgHead.width, stgHead.length],
           side: 0,
           explosion: explosionVector("optical", 0),
-          notes: "中央桥内背靠背安装的一只 STG-120ML 光纤头；左右两段各占一只。",
+          notes: "历史中央桥背靠背 STG-120ML 兼容占位；当前 M6 主线不使用。",
         }));
       });
     }
@@ -518,7 +1229,7 @@ function makeProxyAssemblyItems(entries) {
         size: [12, 18, 6],
         side,
         explosion: explosionVector("optical", side),
-        notes: "真实发射/接收模块不在打印 STL 中；此处只显示安装包络和光轴方向。",
+        notes: "旧版离散红外发射/接收模块兼容占位；当前主线使用 M6 直角对射器件。",
       }));
     }
     if (entry.part === "sensor_mount_body") {
@@ -616,7 +1327,7 @@ function makeProxyAssemblyItems(entries) {
       size: [3, 30, 3],
       side,
       explosion: explosionVector("reference", side),
-      notes: "仅保留为旧版参考 carriage 的兼容诊断对象；当前 STG-120ML 结构不使用这套 10 mm 导轨定位销。",
+      notes: "仅保留为历史参考 carriage 的兼容诊断对象；当前 M6 结构不使用这套旧版定位销。",
     }));
   }
   return items;
@@ -635,9 +1346,37 @@ function assemblyItemById(id) {
   return state.assembly.items.find((item) => item.id === id) || null;
 }
 
+function isM6FocusItem(item) {
+  if (!item || item.side !== 1) return false;
+  const key = `${item.id || ""} ${item.name_zh || ""}`.toLowerCase();
+  return key.includes("m6");
+}
+
+function setM6FocusVisuals(focus) {
+  const { THREE, scene } = state.three;
+  if (!THREE || !scene) return;
+  if (!state.three.m6AxesHelper) {
+    const helper = new THREE.AxesHelper(34);
+    // Local origin: center of the right M6 body. Positive x is the beam
+    // direction, positive y is toward the table/front, and positive z is up.
+    helper.position.set(768, 0, 207.5);
+    helper.traverse((child) => {
+      if (!child.material) return;
+      child.material.depthTest = false;
+      child.material.depthWrite = false;
+    });
+    scene.add(helper);
+    state.three.m6AxesHelper = helper;
+  }
+  if (state.three.grid) state.three.grid.visible = !focus;
+  if (state.three.globalAxes) state.three.globalAxes.visible = !focus;
+  state.three.m6AxesHelper.visible = focus;
+}
+
 function assemblyVisible(item) {
   if (item.context && !state.assembly.showTable) return false;
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
+  if (state.assembly.focusM6 && !isM6FocusItem(item)) return false;
   return true;
 }
 
@@ -869,7 +1608,7 @@ function render() {
   refs.oversizedBadge.textContent = `${(state.layout.oversized || []).length} 件`;
   if (refs.oversizeNoteTitle) refs.oversizeNoteTitle.textContent = `当前有 ${(state.layout.oversized || []).length} 件需要处理`;
   if (refs.oversizeNoteText) refs.oversizeNoteText.textContent = (state.layout.oversized || []).length
-    ? "网顶承载条约 537 mm，不能硬塞进当前打印床。页面会保留它们，等待换大床或再次拆分。"
+    ? "网顶承载条约 623 mm，不能硬塞进当前打印床。页面会保留它们，等待换大床或再次拆分。"
     : "当前打印床可以容纳源清单中的全部零件。仍需在切片器中复核方向、支撑和首层。";
 
   if (state.activePlateIndex >= plates.length) state.activePlateIndex = Math.max(0, plates.length - 1);
@@ -920,8 +1659,8 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "完整装配关系预览；球台、网布、PVDF、STG-120ML 光纤头、两段检测窗口和已确认的标准件按装配清单显示。";
-    refs.assemblyStatusBadge.textContent = `${state.assembly.items.length} 个装配对象 · mm`;
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型宽体主体、20 mm 节距、y 前后分段壳体、斜向 7 字让位孔、90°支撑和竖直采购球头按装配清单显示。";
+    refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
     refs.assemblyStepOutput.textContent = state.assembly.step >= ASSEMBLY_STEPS.length
@@ -1424,10 +2163,15 @@ function addGeometryMesh(THREE, geometry, color, entry = null, center = false) {
   return mesh;
 }
 
-function fitThreeCamera() {
+function fitThreeCamera(filter = null) {
   const { THREE, camera, controls, modelRoot } = state.three;
   if (!THREE || !camera || !controls || !modelRoot || !modelRoot.children.length) return;
-  const box = new THREE.Box3().setFromObject(modelRoot);
+  const candidates = modelRoot.children.filter((object) => (
+    object.visible && (!filter || filter(object.userData.assemblyItem))
+  ));
+  if (!candidates.length) return;
+  const box = new THREE.Box3();
+  candidates.forEach((object) => box.expandByObject(object));
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z, 1);
@@ -1438,6 +2182,38 @@ function fitThreeCamera() {
   camera.updateProjectionMatrix();
   controls.target.copy(center);
   controls.update();
+}
+
+function fitM6OrientationCamera() {
+  state.assembly.focusM6 = !state.assembly.focusM6;
+  if (state.assembly.focusM6) {
+    state.assembly.showTable = false;
+    refs.showTable.checked = false;
+    refs.fitM6.textContent = "恢复完整装配";
+    refs.fitM6.classList.add("active");
+  } else {
+    state.assembly.showTable = true;
+    refs.showTable.checked = true;
+    refs.fitM6.textContent = "M6 右侧近景";
+    refs.fitM6.classList.remove("active");
+  }
+  setM6FocusVisuals(state.assembly.focusM6);
+  updateAssemblyScene();
+  render();
+  fitThreeCamera(state.assembly.focusM6 ? isM6FocusItem : null);
+  if (state.assembly.focusM6 && state.three.camera && state.three.controls) {
+    // Use a rear elevation for the check: x reads left-to-right on screen,
+    // z reads bottom-to-top, and the -45 degree roll remains visible in the
+    // y-z plane instead of looking down the optical axis from +x.
+    const target = state.three.controls.target.clone();
+    const distance = state.three.camera.position.distanceTo(target) * 0.68;
+    state.three.camera.position.set(
+      target.x + distance * 0.32,
+      target.y - distance,
+      target.z + distance * 0.18,
+    );
+    state.three.controls.update();
+  }
 }
 
 function resizeThree() {
@@ -1483,27 +2259,42 @@ function addProxyPart(THREE, group, item, geometry, position, materialOptions = 
 
 function createAssemblyProxy(THREE, item) {
   const group = new THREE.Group();
-  group.position.set(...item.baseMin);
   const [width, depth, height] = item.baseSize;
   const options = item.shapeOptions || {};
+  const pivot = Array.isArray(options.rotation_pivot)
+    ? options.rotation_pivot.map((value) => number(value, 0))
+    : [0, 0, 0];
+  const rotationX = number(options.rotation_x_deg, 0) * Math.PI / 180;
+  group.position.set(
+    item.baseMin[0] + pivot[0],
+    item.baseMin[1] + pivot[1],
+    item.baseMin[2] + pivot[2],
+  );
+  if (rotationX) group.rotation.x = rotationX;
+  const place = (position) => position.map((value, index) => value - pivot[index]);
   if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);
     const radialSegments = item.shape === "hex" ? 6 : 24;
-    const geometry = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
+    const cylinderLength = options.axis === "x"
+      ? width
+      : options.axis === "y"
+        ? depth
+        : height;
+    const geometry = new THREE.CylinderGeometry(radius, radius, cylinderLength, radialSegments);
     if (options.axis === "x") geometry.rotateZ(Math.PI / 2);
     if (options.axis === "z") geometry.rotateX(Math.PI / 2);
-    addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, height / 2]);
+    addProxyPart(THREE, group, item, geometry, place([width / 2, depth / 2, height / 2]));
   } else if (item.shape === "hex-stack") {
     const nutHeight = 6.5;
     for (const z of [0, nutHeight + 0.4]) {
       const geometry = new THREE.CylinderGeometry(number(options.radius, 7), number(options.radius, 7), nutHeight, 6);
       geometry.rotateX(Math.PI / 2);
-      addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, z + nutHeight / 2], { metalness: 0.72 });
+      addProxyPart(THREE, group, item, geometry, place([width / 2, depth / 2, z + nutHeight / 2]), { metalness: 0.72 });
     }
   } else {
     const geometry = new THREE.BoxGeometry(width, depth, height);
     const isBeamWindow = item.shape === "stg120-beam-window";
-    addProxyPart(THREE, group, item, geometry, [width / 2, depth / 2, height / 2], {
+    addProxyPart(THREE, group, item, geometry, place([width / 2, depth / 2, height / 2]), {
       color: isBeamWindow ? "#fb817c" : undefined,
       opacity: isBeamWindow ? 0.18 : (item.group === "rail" && item.nonPrinted ? 0.34 : undefined),
       depthWrite: isBeamWindow ? false : (item.group !== "rail" || !item.nonPrinted),
@@ -1512,7 +2303,7 @@ function createAssemblyProxy(THREE, item) {
       const slit = new THREE.BoxGeometry(0.35, Math.max(1, depth - 2), Math.min(height - 10, 120));
       const faceDirection = number(options.face_direction, 1);
       const slitX = faceDirection < 0 ? width - 0.18 : 0.18;
-      addProxyPart(THREE, group, item, slit, [slitX, depth / 2, Math.min(height - 5, 125) / 2 + 5], {
+      addProxyPart(THREE, group, item, slit, place([slitX, depth / 2, Math.min(height - 5, 125) / 2 + 5]), {
         color: "#fb817c",
         roughness: 0.22,
         metalness: 0.18,
@@ -1522,7 +2313,7 @@ function createAssemblyProxy(THREE, item) {
     if (item.shape === "optical-module") {
       const lens = new THREE.CylinderGeometry(2, 2, 3, 24);
       lens.rotateZ(Math.PI / 2);
-      addProxyPart(THREE, group, item, lens, [1.5, depth / 2, height / 2], {
+      addProxyPart(THREE, group, item, lens, place([1.5, depth / 2, height / 2]), {
         color: "#fb817c",
         roughness: 0.22,
         metalness: 0.2,
@@ -1555,10 +2346,16 @@ function updateAssemblyScene() {
     const object = item.object;
     if (!object) continue;
     object.visible = assemblyVisible(item);
+    const pivot = Array.isArray(item.shapeOptions?.rotation_pivot)
+      ? item.shapeOptions.rotation_pivot.map((value) => number(value, 0))
+      : [0, 0, 0];
+    // createAssemblyProxy positions a rotated group at base_min + pivot.
+    // Keep that offset when the assembly/explosion state refreshes; dropping
+    // it detached the M6 head, stem, hex and nut and made the axes look wrong.
     object.position.set(
-      item.baseMin[0] + item.explosion[0] * amount,
-      item.baseMin[1] + item.explosion[1] * amount,
-      item.baseMin[2] + item.explosion[2] * amount,
+      item.baseMin[0] + pivot[0] + item.explosion[0] * amount,
+      item.baseMin[1] + pivot[1] + item.explosion[1] * amount,
+      item.baseMin[2] + pivot[2] + item.explosion[2] * amount,
     );
     const future = state.assembly.step < ASSEMBLY_STEPS.length && item.stage > state.assembly.step;
     const progressAlpha = future ? 0.18 : 1;
@@ -1788,6 +2585,8 @@ async function initThree() {
     state.three.camera = camera;
     state.three.controls = controls;
     state.three.modelRoot = new THREE.Group();
+    state.three.grid = grid;
+    state.three.globalAxes = axes;
     state.three.raycaster = new THREE.Raycaster();
     state.three.pointer = new THREE.Vector2();
     scene.add(state.three.modelRoot);
@@ -1840,6 +2639,9 @@ async function loadManifest() {
     state.assembly.loaded = false;
     state.assembly.selectedId = null;
     state.assembly.hoveredId = null;
+    state.assembly.focusM6 = false;
+    refs.fitM6.textContent = "M6 右侧近景";
+    refs.fitM6.classList.remove("active");
     setBedInputs(state.layout.print_bed);
     const sourceHref = state.manifest.source_manifest
       ? new URL(state.manifest.source_manifest, state.manifestUrl).href
@@ -1912,6 +2714,7 @@ refs.resetButton.addEventListener("click", () => {
 refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
 refs.fitModel.addEventListener("click", fitThreeCamera);
+refs.fitM6?.addEventListener("click", fitM6OrientationCamera);
 refs.downloadLayout.addEventListener("click", downloadLayout);
 refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
   button.addEventListener("click", () => setViewMode(button.dataset.viewMode));

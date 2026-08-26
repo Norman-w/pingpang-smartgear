@@ -245,6 +245,8 @@ select.control-input { appearance: auto; }
 .model-caption { min-height: 35px; padding: 10px 17px 13px; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .assembly-toolbar { display: flex; align-items: center; gap: 9px; min-height: 32px; padding: 0 17px 10px; }
 .assembly-selection-badge { min-width: 0; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.assembly-axis-legend { margin-left: auto; color: var(--cyan); font-size: 10px; white-space: nowrap; }
+.tiny-button.active { border-color: rgba(98, 228, 209, .8); color: var(--cyan); background: rgba(98, 228, 209, .1); }
 .assembly-hover-label { position: absolute; z-index: 4; max-width: min(300px, calc(100% - 16px)); padding: 8px 10px; border: 1px solid rgba(98, 228, 209, .72); border-radius: 8px; color: var(--text); background: rgba(5, 16, 21, .94); box-shadow: 0 10px 28px rgba(0, 0, 0, .36); font-size: 10px; line-height: 1.35; pointer-events: none; }
 .assembly-hover-label strong, .assembly-hover-label span { display: block; }
 .assembly-hover-label span { margin-top: 3px; color: var(--muted); }

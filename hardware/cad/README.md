@@ -1,6 +1,10 @@
 # OpenSCAD CAD
 
-当前机械主线是 `net_stand.scad`：直接做出一套替换传统球网的内置式球网支架，网布和网顶 PVDF 振动监测预装在支架上，左右端通过传统的桌下 C 形夹体固定到球台。M8×1.25 螺杆完全位于台面下方，向上顶台底可动压块；螺杆不穿过球台，不要求也不允许给球桌打孔。它不再依赖原球网立柱，也不再使用外挂式 X 夹具。
+当前机械主线是 `net_stand.scad`：直接做出一套替换传统球网的内置式球网支架，网布和网顶 PVDF 振动监测预装在支架上，左右端通过传统的桌下 C 形夹体固定到球台。M8×1.25 螺杆完全位于台面下方，向上顶台底可动压块；螺杆不穿过球台，不要求也不允许给球桌打孔。光学主线是左右各一套十路 M6 直角对射 NPN 器件：每侧使用一根竖直 `10×56×216 mm` 加宽加厚长条铝合金主体，光学/M6 外丝轴沿 x 朝球台中心，右侧从 x+、左侧从 x- 外侧装入；蓝色护套/尾线局部沿 z-，整件绕光束 x 轴旋转 -45°，在外侧沿 x 穿入并向 y-/z- 让线；十个中心按 `20 mm` 节距排列，避开原来过密的器件干涉。主体用 x 向浅六角沉孔定位，M6 外丝直穿，朝台内的平滑面带一枚原配螺帽，固定螺丝不嵌入主体，线缆也不在铝材里挖槽。当前完整装配候选还包含 y+ 球弧前盖、y- 圆角矩形后盖/桥接 boss 和底盖；它们只保护、导向和提供接口，不替代铝主体承力，真实器件尺寸确认后再放行打印。之后再接 90° 金属支撑、竖直姿态的采购 13 mm 球头/云台和网夹接口。左右总成只保留实际需要的偏航、俯仰、旋转微调链，不再使用旧的梳齿条和水平三层云台方案。
+
+本轮首样暂时冻结在 `m6_detector_fit_probe`：只检查长条主体与真实三维 L 型激光头本体的几何卡入。器件按真实关系表示为灰色 `AF8` 六角主体、空心 `M6×0.75` 外丝光学筒、蓝色直角护套和黑色尾线；整件绕光束 x 轴 `-45°` 让线，从外侧插入主体约 `2 mm`。中空 M6 外丝贯穿主体，光学中心孔朝球台中心；本验证件不含原配螺帽、壳体、支撑或云台，孔径仍以到货 SKU 实测为准。
+
+微调结构和 M6 器件待确认项见 [`../../docs/m6-optical-array-design-v0.1.zh-CN.md`](../../docs/m6-optical-array-design-v0.1.zh-CN.md)。
 
 当前渲染对象和人工核验边界记录在 [`docs/visual-audit-v0.1.zh-CN.md`](../../docs/visual-audit-v0.1.zh-CN.md)；该记录把 CAD 可视结论与仍需实物验证的项目分开。
 
@@ -8,17 +12,24 @@
 
 支持以下 `PART`：
 
-- `assembly`：含球台截面、网布、网顶承载条、双侧立柱、桌下夹持、两段 STG-120ML 光纤头、外侧托架、中央背靠背支撑桥、PVDF 网顶安装座和检测窗口的装配预览；
-- `left_stand` / `right_stand`：左右单侧结构检查件，包含立柱、传统桌下夹持、网顶承托座和 STG-120ML 外侧托架；PVDF 座位于全宽网顶承载条中段，在 `assembly` 或 `sensor_mount` 中检查；
+- `assembly`：含球台截面、网布、网顶承载条、双侧立柱、桌下夹持、左右各十路 45° L 型 M6 直角器件、长条铝合金主体、90°支撑、竖直采购球头、PVDF 网顶安装座和十条名义光轴的装配预览；当前主体优先，壳体候选默认隐藏；
+- `left_stand` / `right_stand`：左右单侧结构检查件，包含立柱、传统桌下夹持、网顶承托座和 M6 铝合金光学基座；PVDF 座位于全宽网顶承载条中段，在 `assembly` 或 `sensor_mount` 中检查；
 - `table_clamp_section`：桌板剖面可视校验件，明确显示桌板上下表面、独立台底压块、圆头 M8×1.25 螺杆、固定下臂螺母和旋钮内两枚对锁螺母；它只是证据预览，不是打印件；
 - `post`：单侧立柱主体装配预览；`post_segment`：两段约 153 mm 的可打印立柱，`post_segment_index=1` 是首样上段；`lower_stand_segment`：把 `post_segment_index=0` 下段与固定 C 形夹一体打印，避免首样装配时两个实体相互干涉；`post_joint_sleeve` / `post_joint_key`：接缝外套筒与内芯；`table_clamp`：单侧桌下夹持装配预览；`table_clamp_body`：固定 C 形夹体和下臂 M8 螺母捕获窝的几何检查件；`clamp_top_pad`：固定上夹板与桌面之间的可替换 TPU/硅胶保护垫；`clamp_pressure_pad`：台底可动压块/软垫占位；`clamp_screw`：带圆头的 M8×1.25 标准螺杆占位；`clamp_body_nut`：固定下臂中的标准 M8 螺母；`clamp_knob`：带 M8 通孔和两枚对锁螺母捕获窝的手拧旋钮；`clamp_knob_nut`：旋钮内捕获的两枚标准 M8 对锁螺母；
-- `net`：网布装配占位，不是 PETG 打印件；`net_rail`：三段带搭接和拼接片的网顶承载条装配预览；`net_rail_segment`：约 536 mm 的可打印单段；`net_rail_splice`：带 M3 孔的拼接片；`net_rail_saddle`：两侧立柱内侧的承托/端部限位座；
-- `stg120_outer_carrier`：单侧 STG-120ML 130×19×6 mm 光纤头包络托架；`stg120_center_bridge`：中央背靠背支撑桥，同时承载左右两段的中央光纤头；`stg120_preview`：两段光路和 32 个 3.87 mm 光点位置的装配预览，不作为单件打印；旧版 `optical_rail` / `optical_module_carrier` 仅保留在 SCAD 中作历史兼容诊断，不进入当前打印清单；
+- `net`：网布装配占位，不是 PETG 打印件；`net_rail`：名义总跨度 `1830 mm`、三段带搭接和拼接片的网顶承载条装配预览；`net_rail_segment`：约 `623.33 mm` 的可打印单段；`net_rail_splice`：带 M3 孔的拼接片；`net_rail_saddle`：两侧立柱内侧的承托/端部限位座；
+- `m6_detector_body`：6061-T6 铝合金长条主体，名义 `10×56×216 mm`；10 个 `20 mm` 节距的 x 向水平光学/M6 外丝让位和绕 x 轴 -45° 的尾线让位孔，右侧从 x+、左侧从 x- 外侧装入，后方为浅 `AF10.7×2.5 mm` x 向六角定位沉孔，主体厚度按 14 mm 水平外丝段、2 mm 头部卡入、5 mm 螺帽和约 1 mm 端部余量收敛；M6 外丝直穿，朝台内平滑面只保留一枚原配螺帽；
+- `m6_detector_fit_probe` / `m6_detector_fit_body`：当前首样的最小验证件，只包含长条主体、按真实 `AF8` 六角头外形切出的浅 x 向卡槽和中空 M6 外丝通孔；配套显示真实三维灰色六角、空心光学筒、蓝色 L 型护套和 `-45°` 斜下尾线。右侧从 x+ 插入，左侧由镜像得到，轴向卡入量为 `2 mm`，不包含螺帽、壳体、支撑或云台；
+- `m6_detector_shell_front` / `m6_detector_shell_rear` / `m6_detector_bottom_cover`：PETG y+ 球弧前盖、y- 圆角矩形后盖/桥接 boss 和底盖候选件；当前已按完整总成显示，槽/舌、沉头孔和底盖 Ø12 mm 线缆套管孔仍需真实器件首样复核；
+- `m6_detector_support` / `m6_detector_mount`：90° 金属支撑和网夹接口。支撑由水平臂、竖直腿以及位于夹具下方受力路径的三角加固肋构成；`m6_detector_mount` 当前用于主体优先的左右装配关系预览，壳体默认隐藏，球头使用竖直姿态的采购件，不直接打印；`m6_ballhead` 是 13 mm 球头和 90° 开口/转接件的外购件包络；
+- `m6_sensor_array`：左右各十枚 M6 直角发射/接收器件的外购包络预览；`m6_gimbal`、`m6_sensor_rail`、`m6_mount_adapter` 及旧 `m6_machining_*` 名称仅保留为兼容/历史诊断入口，不代表当前加工方案；
+- `stg120_outer_carrier` / `stg120_center_bridge` / `stg120_preview`：旧 STG-120ML 方案的历史兼容诊断件；旧版 `optical_rail` / `optical_module_carrier` 也只保留作回溯，不进入当前打印清单；
 - `sensor_mount`：单侧网顶 PVDF 夹片装配预览；`sensor_mount_body`：不含薄膜和压片包络的可打印 PETG 座体；`pvdf_film` / `sensor_clamp_lip`：可拆薄膜和两侧压片包络；旧版 `reference_carriage` / `reference_pin` 只保留作历史标定几何诊断，不进入当前 STG-120ML 打印包；
 - `calibration_gauge`：按 STG-120ML 的 3.87 mm 光点间距制作的高度标定规；
 - `parameter_probe`：验证脚本读取的参数清单，不是打印件。
 
-首轮几何参数是球台宽度 `1525 mm`、网顶高度 `152.5 mm`、STG-120ML 有效检测窗口约 `0…120 mm`、光点间距 `3.87 mm`、两侧 `M8×1.25` 竖直夹紧螺杆。单对光纤头的标称最大检测距离为 `1000 mm`，所以全宽采用左右两段、中央背靠背支撑桥；两侧托架只按商品头部外形包络夹持，线缆出口预留弯曲和应变释放空间，不未经量测写死商品孔位。网顶承载条拆成 3 段、每段约 `536 mm`、搭接 `20 mm`，便于常见打印幅面或改用铝型材。夹紧受力路径明确为固定下臂 M8 螺母、两枚预先对锁并由旋钮捕获的 M8 螺母、圆头 M8×1.25 螺杆和独立台底压块；不使用 PETG 内螺纹，也不让旋钮与固定下臂形成未定义的双螺纹约束。球网、光纤头、配套放大器、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性、放大器输出语义或光学精度验收。
+M6 铝合金件的加工输入和可复现孔位表见 [`docs/m6-aluminum-machining-spec-v0.1.zh-CN.md`](../../docs/m6-aluminum-machining-spec-v0.1.zh-CN.md)，首样零件/紧固件清单和装配放行顺序见 [`../../docs/m6-first-article-release-v0.1.zh-CN.md`](../../docs/m6-first-article-release-v0.1.zh-CN.md)。运行 `python3 export_m6_machining_spec.py` 可从当前 SCAD 参数探针生成主体、90°支撑、网夹接口、三件 PETG 盖件、传感器和球头选项的 JSON；运行 `python3 export_m6_machining_previews.py --clean` 可生成主体、90°支撑和网夹接口三类局部坐标铝件 STL 及 `manifest.json`。加工前仍需用真实 M6 SKU、传感器六角/有效螺纹、采购球头螺纹选项和网夹安装面实测结果更新/复核。
+
+首轮几何参数是球台宽度 `1525 mm`、网柱外边界距台边 `152.5 mm`、名义网架总宽 `1830 mm`、网顶高度 `152.5 mm`、10 个高度通道 `+10…+190 mm`、M6×0.75 直角对射器件和两侧 `M8×1.25` 竖直夹紧螺杆。M6 主体当前按 `10×56×216 mm` 建模：水平光学/M6 外丝轴沿 x，蓝色尾线局部沿 z- 后绕 x 轴 -45°，主体中心在 y=0，右侧从 x+、左侧从 x- 外侧装入，单列中心距 `20 mm`；10 mm x 厚度通过 2 mm 头部卡入、5 mm 螺帽和约 1 mm 端部余量闭合，首件需复核公差和螺帽真实厚度。壳体当前已按 y 前后分段重画为装配候选：y+ 前盖保留浅球弧，y- 后盖为圆角矩形并带 x 向桥接 boss，底盖有统一线缆套管过孔；槽舌、沉头孔和真实器件净空仍需首样复核，不视为最终打印放行。后续后盖到 90° 金属支撑的连接孔沿 x 方向，采购 13 mm 球头保持竖直姿态，传感器固定金属件和网夹通过球头/支撑链完成偏航、俯仰、旋转微调。依据 ITTF Technical Leaflet T2，当前自定义夹体最外点收敛为台边外 `160 mm`，仍满足项目下限 `130 mm`；它不是 ITTF 认证网夹，若复用商品夹，必须另测开口和台下投影。台边外伸段的前后两侧各有 `8 mm` 厚三角侧肋，实际 PETG 层向、夹紧力、网布张力、球路净空和金属支撑刚度仍需首样验证。球网、M6 光电器件、铝合金主体/支撑/接口、13 mm 球头、PVDF 薄膜、线束、夹持软垫和金属标准件仍属于装配边界；OpenSCAD 结果不等同于最终强度、球台兼容性、电气输出语义或光学精度验收。
 
 导出示例：
 
@@ -34,9 +45,19 @@ openscad -D 'PART="clamp_body_nut"' -D 'SIDE=1' -o right-clamp-body-nut.stl net_
 openscad -D 'PART="clamp_screw"' -D 'SIDE=1' -o right-clamp-screw.stl net_stand.scad
 openscad -D 'PART="clamp_knob"' -D 'SIDE=1' -o right-clamp-knob.stl net_stand.scad
 openscad -D 'PART="clamp_knob_nut"' -D 'SIDE=1' -o right-clamp-knob-nut.stl net_stand.scad
-openscad -D 'PART="stg120_outer_carrier"' -D 'SIDE=1' -o right-stg120-outer-carrier.stl net_stand.scad
-openscad -D 'PART="stg120_center_bridge"' -o stg120-center-bridge.stl net_stand.scad
-openscad -D 'PART="stg120_preview"' -o stg120-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_mount"' -D 'SIDE=1' -o right-m6-detector-mount-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_mount"' -D 'SIDE=-1' -o left-m6-detector-mount-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_body"' -D 'SIDE=1' -o right-m6-detector-body-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_fit_probe"' -D 'SIDE=1' -o right-m6-detector-fit-probe-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_fit_probe"' -D 'SIDE=-1' -o left-m6-detector-fit-probe-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_shell_front"' -D 'SIDE=1' -o right-m6-detector-front-cover-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_shell_rear"' -D 'SIDE=1' -o right-m6-detector-rear-cover-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_bottom_cover"' -D 'SIDE=1' -o right-m6-detector-bottom-cover-preview.stl net_stand.scad
+openscad -D 'PART="m6_detector_support"' -D 'SIDE=1' -o right-m6-detector-support-preview.stl net_stand.scad
+# 独立输出并验证 M6 主体/支撑/网夹接口的局部机加工预览
+python3 export_m6_machining_previews.py --clean
+python3 test_m6_machining_previews.py
+# STG-120ML 的旧 PART 仍可单独渲染回溯，但不属于当前首样。
 openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
 openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=1' -o net-rail-segment-1.stl net_stand.scad
 openscad -D 'PART="net_rail_splice"' -D 'rail_splice_index=0' -o net-rail-splice-0.stl net_stand.scad
@@ -50,13 +71,22 @@ python3 export_net_stand_printables.py --clean
 python3 test_export_net_stand_printables.py
 ```
 
-脚本把独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、包围盒和封闭拓扑摘要）。输出目录若有旧版 STL，必须显式加 `--clean` 才会清理，避免历史外挂夹或旧光学载台混入当前首样；`test_export_net_stand_printables.py` 会固定当前 29 件导出矩阵，并拒绝清单之外的 STL。`assembly`、左右支架、`table_clamp`、`sensor_mount`、`stg120_preview` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
+脚本把正式独立打印件写入被 Git 忽略的 `exports/net-stand-v0.1/`，同时生成 `manifest.json`（单位、来源 `PART`、左右侧、包围盒和封闭拓扑摘要）。输出目录若有旧版 STL，必须显式加 `--clean` 才会清理，避免历史外挂夹或旧光学载台混入当前首样；`test_export_net_stand_printables.py` 会固定当前 26 件 PETG/TPU 导出矩阵，并拒绝清单之外的 STL。M6 主体、90°支撑和网夹接口是机加工/外购件；前后盖和底盖才是当前 M6 检测器总成的 PETG 打印覆盖件。`assembly`、左右支架、`table_clamp`、`sensor_mount`、`m6_detector_mount` 等仍是组合装配预览，不进入这个打印包；输出 STL 仍需在切片软件中按实际材料、喷嘴和方向复核。
 
-`preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧光学模块、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
+机加工独立预览包单独输出，不与打印清单混用：
+
+```text
+python3 export_m6_machining_previews.py --clean
+python3 test_m6_machining_previews.py
+```
+
+生成物位于 `exports/net-stand-v0.1/m6-machining-previews/`：当前导出主体、90°支撑和网夹接口三类局部坐标封闭 STL（左右完整装配另由 `m6_detector_mount` 预览），`manifest.json` 记录源文件哈希、局部坐标原点、包围盒和拓扑摘要。它们是给加工方做尺寸/孔位核对和报价的预览，不是最终放行图，也不应拿去切片打印。
+
+`preview.py` 在没有 OpenSCAD 的环境中生成当前内置支架的正视/侧面意图图，用于检查网顶、传统桌下夹持、双侧 M6 直角阵列、参考线和 PVDF 安装座关系；它不是 STL 几何验证器。
 
 ## 打印拼盘与预览页
 
-拼盘脚本只对已经导出的独立 STL 做 0/90° 旋转和平移，不缩放、不裁切、不把零件布尔合并。默认按 `256 × 256 × 256 mm` 打印床、边缘余量 `5 mm`、零件间距 `5 mm` 生成合并拼盘 STL；不同 `material_group` 严格分盘，当前源清单是 29 件，3 段约 `537 × 18 × 10 mm` 的网顶承载条明确列为超尺寸件，板数和已排版数量以最新 manifest 为准。
+拼盘脚本只对已经导出的独立 STL 做 0/90° 旋转和平移，不缩放、不裁切、不把零件布尔合并。默认按 `256 × 256 × 256 mm` 打印床、边缘余量 `5 mm`、零件间距 `5 mm` 生成合并拼盘 STL；不同 `material_group` 严格分盘，当前源清单是 26 件，3 段约 `623.33 × 18 × 10 mm` 的网顶承载条明确列为超尺寸件，铝合金光学基座不进入拼盘，板数和已排版数量以最新 manifest 为准。
 
 ```text
 python3 hardware/cad/export_net_stand_printables.py --clean
@@ -68,7 +98,7 @@ python3 hardware/cad/test_build_print_platter.py --default
 
 独立预览页是 `hardware/cad/preview/index.html`，它参考 SmartPaddle 的拼盘操作方式，并扩展为四个查看模式：
 
-- `装配预览`：加载 29 个打印 STL 的真实装配坐标，同时显示球台、网布、两段 STG-120ML 光纤头/检测窗口、配套放大器边界、PVDF、M8 螺杆/螺母等非打印占位；
+- `装配预览`：加载 26 个打印 STL 的真实装配坐标，同时显示球台、网布、左右各十路 45° L 型 M6 直角光电器件、长条铝合金主体、90°支撑、竖直采购球头、PVDF、M8 螺杆/螺母等非打印占位；壳体候选暂不显示；
 - `爆炸预览`：通过爆炸程度滑杆和装配步骤查看各组零件的分离方向、中文名称、材料与装配说明；
 - `打印拼盘`：提供打印床切换、间距/余量调节、自动重新排版、板次切换、俯视图点击选件、Three.js STL 预览、源 STL/拼盘 STL 下载和布局 JSON 下载；
 - `零件清单`：集中查看所有打印件的中文名、材料组、尺寸和 STL 下载入口。
@@ -82,7 +112,7 @@ python3 -m http.server 8000
 
 页面默认读取 `exports/net-stand-v0.1/print-platter-256/manifest.json`；如果页面显示清单读取失败，先执行上面的导出和拼盘命令。Three.js 从 CDN 加载，网络不可用时俯视图、自动排版和 JSON 下载仍可用，但 3D STL 检查器会降级为提示。
 
-本机安装 OpenSCAD 后运行：
+本机已验证 OpenSCAD `2026.04.26 (git b38f6888)`；安装后运行：
 
 ```text
 python3 validate_net_stand.py
@@ -90,7 +120,7 @@ python3 test_preview_consistency.py
 python3 render_net_stand_preview.py
 ```
 
-`test_preview_consistency.py` 不需要 OpenSCAD，用于防止无 OpenSCAD 的轻量意图图继续沿用旧外挂夹具的关键参数；`validate_net_stand.py` 编译当前 `PART`、左右支架、桌板剖面夹持证据、下段立柱+夹体一体件、STG-120ML 外侧托架/中央桥、圆头螺杆/固定下臂 M8 螺母/旋钮内两枚对锁螺母、参数探针、18/25/30 mm 台厚免打孔夹持矩阵和非法参数路径；除 `assembly`、左右单侧结构、`post`、`table_clamp`、`net_rail`、`stg120_preview` 等装配/渲染预览外，成功导出的独立打印零件还会做 STL 封闭边拓扑检查。装配预览允许桌板、网布和电子/标准件包络重叠，只用于 PNG，不是打印件。后者从同一份参数源渲染当前装配、左右支架、桌下夹持及其桌板剖面、圆头螺杆、固定螺母和对锁螺母叠层、带捕获窝旋钮、STG-120ML 光纤头/中央桥装配预览、PVDF 座和标定规，输出到 `rendered/net-stand-*.png`。CI 会把当前和历史两套渲染证据分别保存。
+`test_preview_consistency.py` 不需要 OpenSCAD，用于防止无 OpenSCAD 的轻量意图图继续沿用旧外挂夹具的关键参数；`validate_net_stand.py` 编译当前 `PART`、左右支架、桌板剖面夹持证据、下段立柱+夹体一体件、M6 45° L 型主体/斜向 7 字孔/90°支撑/主体优先完整装配、圆头螺杆/固定下臂 M8 螺母/旋钮内两枚对锁螺母、参数探针、18/25/30 mm 台厚免打孔夹持矩阵和非法参数路径；参数探针还会在 Python 级别复核 M6 的 `20 mm` 节距、`+10…+190 mm` 高度、x 轴 -45° 姿态、后方浅六角定位、主体厚度和竖直球头/三角支撑受力路径。`test_m6_machining_previews.py` 会实际导出主体、90°支撑和网夹接口的局部铝件预览并检查封闭拓扑和关键包围盒。除组合装配预览外，成功导出的独立打印零件还会做 STL 封闭边拓扑检查。装配预览允许桌板、网布和电子/标准件包络重叠，只用于 PNG，不是打印件。后者从同一份参数源渲染当前装配、左右支架、桌下夹持、45° L 型 M6 光电阵列、90°支撑、竖直球头、PVDF 座和标定规，输出到 `rendered/net-stand-*.png`。CI 会把当前和历史两套渲染证据分别保存。
 
 ## 历史方案
 

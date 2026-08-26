@@ -148,6 +148,28 @@ def main() -> None:
     print("BEAM_SCHEMA_MAPPING_OK (1023 masks)")
     print(f"TRACE_SCHEMA_OK ({len(trace_events)} events)")
 
+    carrier_result = subprocess.run(
+        [str(BUILD / "m6_carrier_protocol_tests")],
+        cwd=HERE,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    print(carrier_result.stdout, end="")
+    if "M6_CARRIER_PROTOCOL_OK" not in carrier_result.stdout:
+        raise AssertionError("M6 carrier protocol test did not report success")
+
+    stm32_port_result = subprocess.run(
+        [str(BUILD / "m6_carrier_stm32g031_port_tests")],
+        cwd=HERE,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    print(stm32_port_result.stdout, end="")
+    if "M6_CARRIER_STM32G031_PORT_OK" not in stm32_port_result.stdout:
+        raise AssertionError("STM32G031 carrier port test did not report success")
+
 
 if __name__ == "__main__":
     main()

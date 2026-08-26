@@ -1,0 +1,18 @@
+{
+  "schema_version": "m6-channel-map-v0.1",
+  "calibration_id": "pending-calibration",
+  "evidence_root": "evidence",
+  "notes": "模板；output_bit 是主控原始输入 bit，固件通过 kBeamLogicalIndexByInput 映射到对应高度；没有实物通道证据时保持 pending。",
+  "channels": [
+    {"index": 0, "height_mm": 10, "transmitter_id": "TX-PENDING-00", "receiver_id": "RX-PENDING-00", "output_bit": 0, "status": "pending", "evidence": []},
+    {"index": 1, "height_mm": 20, "transmitter_id": "TX-PENDING-01", "receiver_id": "RX-PENDING-01", "output_bit": 1, "status": "pending", "evidence": []},
+    {"index": 2, "height_mm": 30, "transmitter_id": "TX-PENDING-02", "receiver_id": "RX-PENDING-02", "output_bit": 2, "status": "pending", "evidence": []},
+    {"index": 3, "height_mm": 40, "transmitter_id": "TX-PENDING-03", "receiver_id": "RX-PENDING-03", "output_bit": 3, "status": "pending", "evidence": []},
+    {"index": 4, "height_mm": 50, "transmitter_id": "TX-PENDING-04", "receiver_id": "RX-PENDING-04", "output_bit": 4, "status": "pending", "evidence": []},
+    {"index": 5, "height_mm": 60, "transmitter_id": "TX-PENDING-05", "receiver_id": "RX-PENDING-05", "output_bit": 5, "status": "pending", "evidence": []},
+    {"index": 6, "height_mm": 70, "transmitter_id": "TX-PENDING-06", "receiver_id": "RX-PENDING-06", "output_bit": 6, "status": "pending", "evidence": []},
+    {"index": 7, "height_mm": 80, "transmitter_id": "TX-PENDING-07", "receiver_id": "RX-PENDING-07", "output_bit": 7, "status": "pending", "evidence": []},
+    {"index": 8, "height_mm": 90, "transmitter_id": "TX-PENDING-08", "receiver_id": "RX-PENDING-08", "output_bit": 8, "status": "pending", "evidence": []},
+    {"index": 9, "height_mm": 100, "transmitter_id": "TX-PENDING-09", "receiver_id": "RX-PENDING-09", "output_bit": 9, "status": "pending", "evidence": []}
+  ]
+}

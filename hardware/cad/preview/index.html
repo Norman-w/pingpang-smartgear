@@ -13,7 +13,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./style.css?v=stg120ml-v2">
+  <link rel="stylesheet" href="./style.css?v=m6-axis-fix-v4">
 </head>
 <body>
   <header class="topbar">
@@ -35,7 +35,7 @@
       <section class="intro-block">
         <div class="section-kicker">装配 / 爆炸 / 拼盘</div>
         <h2>网架首样<br><em>看清楚再打印</em></h2>
-        <p>这是一套替换传统球网的网架首样：先确认左右夹台、网顶和 STG-120ML 两段光栅怎么装，再拆开检查打印件与采购件，最后进入按材料分盘的打印清单。</p>
+        <p>这是一套替换传统球网的网架首样：先确认左右夹台、网顶和 M6 直角十路光电阵列怎么装，再拆开检查打印件与采购件，最后进入按材料分盘的打印清单。</p>
       </section>
 
       <section class="control-card assembly-control-card" id="assembly-control-card">
@@ -49,8 +49,8 @@
         <label class="field-label" for="assembly-step">装配进度 <output id="assembly-step-output">完整</output></label>
         <input id="assembly-step" class="range-input" type="range" min="0" max="5" step="1" value="5">
         <label class="check-row"><input id="show-table" type="checkbox" checked><span>显示球台与球网背景</span></label>
-        <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、STG 光纤头、传感器和标准件</span></label>
-        <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；STG-120ML 光纤头和配套放大器仍按采购件处理。</p>
+        <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、M6 光电器件、PVDF 和标准件</span></label>
+        <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；M6 光电器件、铝合金基座和金属标准件按外购/机加工件处理。</p>
       </section>
 
       <section class="control-card print-control" data-print-only>
@@ -167,6 +167,8 @@
           <div id="assembly-toolbar" class="assembly-toolbar" hidden>
             <span id="assembly-status-badge" class="soft-badge">装配坐标 · mm</span>
             <span id="assembly-selection-badge" class="assembly-selection-badge">悬停或点击三维零件查看中文名称</span>
+            <button id="fit-m6" class="tiny-button" type="button">M6 右侧近景</button>
+            <span class="assembly-axis-legend">坐标：x=光束左右 · y=前后(+y前) · z=竖直(+z上)</span>
           </div>
           <div id="model-host" class="model-host">
             <div id="model-placeholder" class="model-placeholder">
@@ -184,7 +186,7 @@
         <div class="data-card-head">
           <div>
             <div class="card-label">装配顺序 / 结构分组</div>
-            <h3>按步骤检查网架、STG-120ML 和擦网传感器</h3>
+            <h3>按步骤检查网架、M6 阵列和擦网传感器</h3>
           </div>
           <button id="clear-assembly-selection" class="tiny-button" type="button">清除选中</button>
         </div>
@@ -245,6 +247,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=stg120ml-v2"></script>
+  <script type="module" src="./app.js?v=m6-axis-fix-v4"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@
 #include <string>
 
 #include "beam_capture.h"
+#include "beam_channel_map.h"
 #include "net_event.h"
 #include "net_event_aggregator.h"
 #include "piezo_capture.h"
@@ -86,7 +87,8 @@ class TraceReplay {
         if (row.kind == "beam") {
             if (auto observation = beam_capture_.on_edge(
                     row.channel, row.value != 0, row.timestamp_us)) {
-                aggregator_.on_beam(*observation);
+                aggregator_.on_beam(
+                    smartgear::remap_configured_beam_observation(*observation));
             }
         } else if (row.kind == "touch") {
             const std::string reference =
@@ -144,7 +146,8 @@ class TraceReplay {
         waveform_capture_.expire(timestamp_us);
         process_ready_waveforms();
         if (auto observation = beam_capture_.poll(timestamp_us)) {
-            aggregator_.on_beam(*observation);
+            aggregator_.on_beam(
+                smartgear::remap_configured_beam_observation(*observation));
         }
         if (auto observation = piezo_capture_.poll(timestamp_us)) {
             aggregator_.on_touch(*observation);

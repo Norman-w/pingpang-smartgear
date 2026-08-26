@@ -88,8 +88,55 @@ static_assert(disjoint(kBeamGpioPins, kPiezoComparatorGpioPins) &&
                   disjoint(kPiezoAdcGpioPins, kFeedbackGpioPins),
               "sensor and feedback GPIO mappings must be disjoint");
 
-// 比较器电平约定：光束被遮挡时为低，PVDF 比较器触发时为高。
-constexpr int kBeamBlockedLevel = 0;
+// Physical MCU input bit -> logical height index.  The acceptance channel map
+// records this same relationship as output_bit for each +10..+100 mm row.  It
+// is identity for the provisional harness; if the delivered cable/PCB order
+// differs, change this permutation after evidence is captured and rebuild.
+constexpr std::array<std::uint8_t, kBeamCount> kBeamLogicalIndexByInput = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+template <std::size_t Size>
+constexpr bool is_permutation_0_to_n_minus_1(
+    const std::array<std::uint8_t, Size>& values) {
+    for (std::size_t left = 0; left < Size; ++left) {
+        if (values[left] >= Size) {
+            return false;
+        }
+        for (std::size_t right = left + 1; right < Size; ++right) {
+            if (values[left] == values[right]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static_assert(is_permutation_0_to_n_minus_1(kBeamLogicalIndexByInput),
+              "beam input-to-height mapping must be a 0..9 permutation");
+
+// M6 传感器的最终常开/常闭后缀和隔离前端极性仍待卖家/实物确认。
+// 先把当前参考拓扑的“遮挡为低”保存为可审计的候选配置，但在证据
+// 到位并重新编译前，main.cpp 不允许健康快照授权有效高度事件。
+enum class BeamInputPolarity : std::uint8_t {
+    kBlockedLow,
+    kBlockedHigh,
+};
+
+constexpr BeamInputPolarity kBeamInputPolarity =
+    BeamInputPolarity::kBlockedLow;
+constexpr bool kBeamPolarityConfirmed = false;
+
+constexpr int beam_blocked_level_for(const BeamInputPolarity polarity) {
+    return polarity == BeamInputPolarity::kBlockedLow ? 0 : 1;
+}
+
+constexpr bool beam_blocked_at_level(const BeamInputPolarity polarity,
+                                     const int level) {
+    return level == beam_blocked_level_for(polarity);
+}
+
+constexpr int kBeamBlockedLevel = beam_blocked_level_for(kBeamInputPolarity);
+// PVDF 比较器触发仍按上升沿处理。
 constexpr int kPiezoTriggeredLevel = 1;
 
 constexpr int kBeamFirstHeightMm = 10;
@@ -105,6 +152,10 @@ constexpr std::size_t kPiezoPreTriggerSamples =
 constexpr std::size_t kPiezoPostTriggerSamples =
     kPiezoSampleRateHz * kPiezoPostTriggerMs / 1'000;
 
+// 光束全部恢复后用于结束一次事件的安静窗口；它不是 M6 传感器的
+// 响应时间，也不是要求物体连续遮挡的最小脉宽。M6 的 5 ms 响应和
+// 最小输入/输出脉宽必须按 docs/m6-response-time-validation-v0.1.zh-CN.md
+// 用实物波形确认。
 constexpr std::uint64_t kBeamQuietUs = 5'000;
 constexpr std::uint64_t kBeamMaxEventUs = 250'000;
 constexpr std::uint64_t kTouchMergeUs = 5'000;

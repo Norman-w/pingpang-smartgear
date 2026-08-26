@@ -28,8 +28,6 @@ EXPECTED_COUNTS = {
     "net_rail_segment": 3,
     "net_rail_splice": 2,
     "net_rail_saddle": 2,
-    "stg120_outer_carrier": 2,
-    "stg120_center_bridge": 1,
     "sensor_mount_body": 2,
     "sensor_clamp_lip": 2,
     "calibration_gauge": 1,
@@ -43,6 +41,10 @@ PREVIEW_ONLY_PARTS = {
     "table_clamp",
     "net_rail",
     "optical_strip",
+    "m6_sensor_rail",
+    "m6_sensor_array",
+    "m6_mount_adapter",
+    "m6_gimbal",
     "stg120_preview",
     "sensor_mount",
     "reference_carriage",
@@ -50,8 +52,8 @@ PREVIEW_ONLY_PARTS = {
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 29:
-        raise AssertionError(f"expected 29 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 26:
+        raise AssertionError(f"expected 26 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -71,17 +73,6 @@ def validate_export_specs() -> None:
                 raise AssertionError(f"side value without side label: {spec}")
         elif spec.side not in {"left", "right"} or spec.side_value not in {-1, 1}:
             raise AssertionError(f"invalid mirror metadata: {spec}")
-
-    stg_outer_specs = [spec for spec in EXPORT_SPECS if spec.part == "stg120_outer_carrier"]
-    if sorted((spec.side, spec.side_value) for spec in stg_outer_specs) != [
-        ("left", -1),
-        ("right", 1),
-    ]:
-        raise AssertionError("STG-120ML outer carrier mirror matrix changed")
-    stg_center_specs = [spec for spec in EXPORT_SPECS if spec.part == "stg120_center_bridge"]
-    if len(stg_center_specs) != 1 or stg_center_specs[0].side is not None:
-        raise AssertionError("STG-120ML center bridge must be one non-mirrored print")
-
 
 def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -177,9 +168,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (29 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (26 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (29 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (26 specs, manifest not present)")
 
 
 if __name__ == "__main__":

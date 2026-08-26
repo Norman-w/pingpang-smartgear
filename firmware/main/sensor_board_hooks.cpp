@@ -16,4 +16,9 @@ extern "C" SMARTGEAR_WEAK bool smartgear_board_read_sensor_health(
     return false;
 }
 
+extern "C" SMARTGEAR_WEAK bool smartgear_board_read_m6_carrier_clock_sync(
+    SmartgearM6CarrierClockSyncReading* /*reading*/) {
+    return false;
+}
+
 #undef SMARTGEAR_WEAK

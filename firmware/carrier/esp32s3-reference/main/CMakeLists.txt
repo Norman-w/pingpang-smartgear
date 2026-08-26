@@ -1,0 +1,15 @@
+idf_component_register(
+    SRCS
+        "main.cpp"
+        "../../../main/m6_carrier_protocol.cpp"
+        "../../m6_carrier_capture_core.cpp"
+        "../../m6_carrier_spi_slave_transport.cpp"
+    INCLUDE_DIRS
+        "."
+        "../../../main"
+        "../.."
+    REQUIRES
+        driver
+        esp_timer
+        freertos
+)

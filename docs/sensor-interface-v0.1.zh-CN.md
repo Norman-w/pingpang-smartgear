@@ -1,14 +1,14 @@
 # 乒乓智配传感器板级接口契约 v0.1
 
-> 当前 STG-120ML 采购件的放大器型号、输出通道数量和输出语义尚未确认。本契约中原有的 10 路 `BEAM_BLOCKED[i]` 仅作为历史业务兼容接口，不能当作当前 ESP32-S3 物理接线表；在卖家手册和实测波形回来前，光栅高度结果必须保持 `unknown`。
+> 当前主线是用户选定的商品 SKU `6122579349941`：M6 直角对射 NPN，左右各 10 枚发射/接收器件，组成 10 对光路。资料中的“对射”条目给出 10–30 V DC、M6×0.75、20 m 和 NPN 接线示意；同图“反射”条目的 M6×0.5 不适用于当前主线。商家确认的 5 ms 是状态变化到输出完成变化的响应时间，不是最小连续遮挡保证，最小输入/输出脉宽仍待实测。该 SKU 对应的最终型号后缀（常开/常闭）、接收端输出数量、实际电流/负载和线缆仍需卖家/实物确认。棕线接 +V、蓝线接 0 V、黑线为 NPN 开集电极输出，必须经负载、光耦或电平转换进入 ESP32-S3，不能直接把 10–30 V 接 GPIO；未完成这些证据前，光栅高度结果必须保持 `unknown`。
 
-本文定义业务固件与传感器板、SmartPaddle 既有连接层之间的边界。它不是最终 PCB 原理图、引脚表或器件 BOM；在真实 AFE、PCB 和球网样机确认前，所有 GPIO/ADC 引脚都只能按“首轮占位”理解。
+本文定义业务固件与传感器板、未来 SmartPaddle/目标连接层之间的边界。M6 十路 NPN 的首样隔离前端参考拓扑见 [`hardware/electronics/m6-npn-interface-v0.1.zh-CN.md`](../hardware/electronics/m6-npn-interface-v0.1.zh-CN.md)。SmartPaddle 已在当前项目平级目录 `../SmartPaddle` 完成只读 WebSocket/资源冲突核对，并由 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md) 记录；联合 target、真实传感器板、最终 PCB 和设备端回环仍是待接入验收项。本文不是最终 PCB 原理图、引脚表或器件 BOM；在真实 AFE、PCB 和球网样机确认前，所有 GPIO/ADC 引脚都只能按“首轮占位”理解。
 
 ## 1. 逻辑信号
 
 | 信号 | 数量 | 方向/边沿 | 当前约定 | 当前占位 |
 | --- | ---: | --- | --- | --- |
-| `STG_OBSERVATION` | 待确认 | 经光耦/电平/模拟接口 | 由配套放大器决定是单一 NPN/PNP、模拟量还是位置/逐点数据；未确认前不冻结 GPIO 数量 | 待定 |
+| `M6_BEAM_BLOCKED[i]` | 10 | M6 接收端 NPN，经负载/光耦/电平转换 | `i=0…9` 是固件的逻辑高度顺序；物理原始 GPIO bit 先经 `kBeamLogicalIndexByInput` 映射后再进入 `beam_mask`。SKU 已由用户选定，实际常开/常闭后缀、接收输出数量和负载方式待确认 | 待定 |
 | `PVDF_TRIGGER[i]` | 2 | GPIO，上升沿 | 高电平表示比较器候选触发；`i=0` 左，`i=1` 右 | GPIO 14、15 |
 | `PVDF_ADC[i]` | 2 | ADC1 continuous/DMA | AFE 波形输入；每路业务采样率初始 16 kHz | ADC GPIO 1、2 |
 | 反馈 LED | 3 | GPIO 输出 | 由业务状态映射 RGB 提示 | GPIO 16…18 |
@@ -19,7 +19,8 @@
 ## 2. 时序与采集边界
 
 - ESP32-S3 GPIO 事件由 ISR 只采集通道、电平和 `esp_timer_get_time()` 单调微秒时间戳，再交给业务任务归并；ISR 不做 JSON、阈值学习或波形分析。
-- STG 放大器输入按最终输出语义接入；只有证实存在逐点输出后，才允许生成 `beam_mask`、最低/最高命中点和高度区间。单一开关量只能表示分段遮挡。
+- M6 接收端按最终 NPN 后缀和负载方式接入；只有确认十个接收端通道一一对应并完成遮挡自检后，才允许生成 `beam_mask`、最低/最高命中点和高度区间。单一开关量只能表示对应的一条光路遮挡。
+- M6 5 ms 响应只用于估计输出延迟；不得在固件中加入“必须遮挡 5 ms”的检测门，也不得把短于 5 ms 的事件自动视为可检出。最小脉宽/输出脉宽实测前，快速遮挡事件应按硬件验收结果决定是否放行。
 - PVDF 比较器只产生低延迟候选；ADC1 连续采样保存触发前 20 ms、触发后 80 ms 的双通道短波形。
 - 比较器触发后才从 DMA 派发、但时间戳仍早于触发点的样本会回填当前帧预触发尾部；时间戳不早于触发点的样本才消耗后触发槽位。
 - 迟到的 DMA 样本只有在 `trigger_us - sample_timestamp_us` 不超过配置的预触发时间窗时才允许回填；更早的旧 backlog 会被丢弃，不能冒充当前事件的预触发证据。
@@ -33,7 +34,7 @@
 
 ### 3.1 传输
 
-已有连接层实现 `net_event_transport.h` 中的两个 C hook 即可接入 WebSocket、BLE、MQTT 或 SSE 中的任一适配器：
+目标连接层实现 `net_event_transport.h` 中的两个 C hook 即可接入 WebSocket、BLE、MQTT 或 SSE 中的任一适配器：
 
 ```cpp
 bool smartgear_board_transport_connected();
@@ -56,7 +57,7 @@ bool smartgear_board_read_sensor_health(
     bool* calibration_valid);
 ```
 
-`healthy_beam_mask` 的 bit 顺序必须与 `BEAM_BLOCKED[i]` 一致。健康快照不可用、校准 ID 为空/未终止，或健康位图包含第 10 路以外的 bit 时，固件会主动设置无效标记并让后续事件进入 `unknown`。
+`healthy_beam_mask` 使用固件的逻辑高度顺序，必须与映射后的 `BEAM_BLOCKED[i]` 一致；它不是未经换算的物理 GPIO bit 顺序。原始板级自检若按物理输入编号产生位图，必须先按 `kBeamLogicalIndexByInput` 映射，再交给健康 hook。健康快照不可用、校准 ID 为空/未终止，或健康位图包含第 10 路以外的 bit 时，固件会主动设置无效标记并让后续事件进入 `unknown`。
 
 板级实现可直接复用 `firmware/main/sensor_self_test.h` 中的
 `evaluate_beam_self_test()`、`piezo_baseline_is_quiet()` 和
@@ -98,6 +99,6 @@ bool smartgear_board_on_piezo_waveform(
 
 `firmware/host-tests/trace_replay.cpp` 使用真实的光栅、PVDF、短波形采集和事件归并类读取 `fixtures/net_trace_v0.1.csv`。它会生成紧凑的预触发/后触发样本并检查 `waveform_ref`、持续时间和状态派生，再验证 JSON Schema；它不模拟 ADC 电气噪声、光学串扰、夹具滑移或真实无线链路。
 
-SmartPaddle 当前工程的实际 WebSocket 接口、压电资源冲突和强 hook 接入示例见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)。
+目标 SmartPaddle 工程的 WebSocket 接口、压电资源冲突和强 hook 接入示例见 [`smartpaddle-integration-v0.1.zh-CN.md`](smartpaddle-integration-v0.1.zh-CN.md)；当前已核验设备端 `/ws`、开发代理 `/device/ws` 与 Go 服务端 `/ws/paddle` 的边界，但尚未完成联合 target 编译和设备端回环。
 
 修改信号命名、通道顺序、时间窗口或 `NetEvent` 字段时，应同步更新该 CSV、回放测试和本契约，并保留实测原始波形/逻辑分析仪证据。

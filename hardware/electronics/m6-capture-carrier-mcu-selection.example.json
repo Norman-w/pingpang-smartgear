@@ -1,0 +1,74 @@
+{
+  "schema_version": "m6-carrier-mcu-selection-v0.1",
+  "status": "pending",
+  "selected_mcu": "STM32G031K8U6",
+  "selected_package": "UFQFPN32",
+  "selection_basis": "m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md",
+  "required_interfaces": {
+    "logic_voltage_v": 3.3,
+    "input_channels": 10,
+    "edge_capture": "rising_and_falling",
+    "timestamp_resolution_target_us": 1,
+    "spi_role": "slave",
+    "spi_mode": 0,
+    "spi_clock_hz": 1000000,
+    "max_tx_frame_bytes": 152,
+    "irq_polarity": "active_low",
+    "reset_polarity": "active_low",
+    "watchdog_required": true
+  },
+  "candidates": [
+    {
+      "name": "RP2040",
+      "status": "candidate",
+      "evidence": [
+        "https://www.raspberrypi.com/products/rp2040/specifications/",
+        "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf"
+      ]
+    },
+    {
+      "name": "STM32G031K8",
+      "status": "candidate",
+      "evidence": [
+        "https://www.st.com/en/microcontrollers-microprocessors/stm32g031k8.html",
+        "https://www.st.com/resource/en/datasheet/stm32g031k8.pdf",
+        "m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md"
+      ]
+    },
+    {
+      "name": "ESP32-C3",
+      "status": "candidate",
+      "evidence": [
+        "https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-reference/peripherals/spi_slave.html"
+      ]
+    }
+  ],
+  "pin_budget": {
+    "status": "pending",
+    "mandatory_gpio_count": 18,
+    "recommended_gpio_count": 22,
+    "signals": [
+      {"name": "carrier_in", "count": 10, "direction": "input", "status": "pending"},
+      {"name": "spi_sck", "count": 1, "direction": "input", "status": "pending"},
+      {"name": "spi_mosi", "count": 1, "direction": "input", "status": "pending"},
+      {"name": "spi_miso", "count": 1, "direction": "output", "status": "pending"},
+      {"name": "spi_cs_n", "count": 1, "direction": "input", "status": "pending"},
+      {"name": "irq_n", "count": 1, "direction": "output", "status": "pending"},
+      {"name": "reset_n", "count": 1, "direction": "input", "status": "pending"},
+      {"name": "debug", "count": 2, "direction": "bidirectional", "status": "pending"}
+    ],
+    "optional_signals": [
+      {"name": "uart", "count": 2, "direction": "bidirectional", "status": "pending"},
+      {"name": "status_led", "count": 1, "direction": "output", "status": "pending"}
+    ]
+  },
+  "gates": {
+    "datasheet_and_package": {"status": "pending", "evidence": []},
+    "ten_input_edge_capture": {"status": "pending", "evidence": []},
+    "spi_slave_tx_preload": {"status": "pending", "evidence": []},
+    "irq_reset_waveform": {"status": "pending", "evidence": []},
+    "clock_sync_and_drift": {"status": "pending", "evidence": []},
+    "bringup_and_production_debug": {"status": "pending", "evidence": []}
+  },
+  "evidence": []
+}

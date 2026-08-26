@@ -33,10 +33,14 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir firmware/host-tests/build-sanitize --output-on-failure
 
       - name: Compile Python validation scripts
-        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/validate_net_stand.py hardware/cad/export_net_stand_printables.py hardware/cad/test_export_net_stand_printables.py hardware/cad/build_print_platter.py hardware/cad/test_build_print_platter.py hardware/cad/preview.py hardware/cad/test_preview_consistency.py hardware/cad/render_net_stand_preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py
+        run: python -m py_compile firmware/host-tests/run_tests.py hardware/cad/validate_scad.py hardware/cad/validate_geometry.py hardware/cad/validate_net_stand.py hardware/cad/export_net_stand_printables.py hardware/cad/test_export_net_stand_printables.py hardware/cad/export_m6_machining_spec.py hardware/cad/test_m6_machining_spec.py hardware/cad/export_m6_machining_previews.py hardware/cad/test_m6_machining_previews.py hardware/cad/export_m6_fit_coupon.py hardware/cad/test_m6_fit_coupon.py hardware/cad/build_print_platter.py hardware/cad/test_build_print_platter.py hardware/cad/preview.py hardware/cad/test_preview_consistency.py hardware/cad/render_net_stand_preview.py tools/validate_field_record.py tools/test_validate_field_record.py tools/correlate_net_events.py tools/test_correlate_net_events.py tools/analyze_m6_response.py tools/test_analyze_m6_response.py tools/test_m6_response_workflow.py tools/init_m6_acceptance_run.py tools/test_init_m6_acceptance_run.py tools/validate_m6_interface.py tools/test_validate_m6_interface.py tools/validate_m6_channel_map.py tools/test_validate_m6_channel_map.py tools/validate_m6_response_batch.py tools/test_validate_m6_response_batch.py tools/validate_m6_acceptance_bundle.py tools/test_validate_m6_acceptance_bundle.py tools/validate_m6_carrier_mcu_selection.py tools/test_validate_m6_carrier_mcu_selection.py tools/validate_smartpaddle_reference.py
 
       - name: Check lightweight preview consistency
         run: python hardware/cad/test_preview_consistency.py
+
+      - name: Compile STM32G031 pin-map validator
+        run: |
+          python -m py_compile tools/validate_m6_carrier_stm32_pinmap.py tools/test_validate_m6_carrier_stm32_pinmap.py
 
       - name: Test printable export matrix
         run: python hardware/cad/test_export_net_stand_printables.py
@@ -49,6 +53,23 @@ jobs:
 
       - name: Test timestamp correlation helper
         run: python tools/test_correlate_net_events.py
+
+      - name: Validate M6 electrical margin and pending channel-map template
+        run: |
+          python tools/validate_m6_interface.py
+          python tools/test_validate_m6_interface.py
+          python tools/test_analyze_m6_response.py
+          python tools/test_m6_response_workflow.py
+          python tools/test_init_m6_acceptance_run.py
+          python tools/test_validate_m6_channel_map.py
+          python tools/test_validate_m6_response_batch.py
+          python tools/validate_m6_channel_map.py docs/vendor/m6-laser-opposed/channel-map.example.json
+          python tools/test_validate_m6_acceptance_bundle.py
+          python tools/validate_m6_acceptance_bundle.py docs/vendor/m6-laser-opposed/acceptance-bundle.example.json
+          python tools/test_validate_m6_carrier_mcu_selection.py
+          python tools/validate_m6_carrier_mcu_selection.py
+          python tools/test_validate_m6_carrier_stm32_pinmap.py
+          python tools/validate_m6_carrier_stm32_pinmap.py
 
       - name: Generate visual preview
         run: python hardware/cad/preview.py
@@ -80,6 +101,25 @@ jobs:
       - name: Validate current integrated net stand
         run: python hardware/cad/validate_net_stand.py
 
+      - name: Validate and export M6 aluminum machining contract
+        run: |
+          python hardware/cad/test_m6_machining_spec.py
+          python hardware/cad/export_m6_machining_spec.py --output "$RUNNER_TEMP/m6-machining-spec.json"
+
+      - name: Validate and export M6 independent machining previews
+        run: |
+          python hardware/cad/test_m6_machining_previews.py
+          python hardware/cad/export_m6_machining_previews.py \
+            --clean \
+            --output-dir "$RUNNER_TEMP/m6-machining-previews"
+
+      - name: Validate and export standalone M6 fit coupon
+        run: |
+          python hardware/cad/test_m6_fit_coupon.py
+          python hardware/cad/export_m6_fit_coupon.py \
+            --clean \
+            --output-dir "$RUNNER_TEMP/m6-fit-coupon"
+
       - name: Export and validate printable net-stand package
         run: |
           python hardware/cad/export_net_stand_printables.py \
@@ -106,6 +146,9 @@ jobs:
           path: |
             ${{ runner.temp }}/pingpang-smartgear-net-stand-export
             ${{ runner.temp }}/pingpang-smartgear-net-stand-platter-256
+            ${{ runner.temp }}/m6-machining-spec.json
+            ${{ runner.temp }}/m6-machining-previews
+            ${{ runner.temp }}/m6-fit-coupon
 
       - name: Validate historical X-clamp parts and mirrors
         run: python hardware/cad/validate_scad.py
@@ -140,3 +183,34 @@ jobs:
           esp_idf_version: v5.5.1
           target: esp32s3
           path: firmware
+
+      - name: Build ESP32-S3 carrier reference
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.5.1
+          target: esp32s3
+          path: firmware/carrier/esp32s3-reference
+
+  smartpaddle:
+    name: SmartPaddle reference boundary audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Pingpang-SmartGear
+        uses: actions/checkout@v4
+        with:
+          path: Pingpang-SmartGear
+
+      - name: Check out the audited SmartPaddle reference
+        uses: actions/checkout@v4
+        with:
+          repository: Norman-w/SmartPaddle
+          ref: df3fb6b19aa3480f161ac606d16933c945fab318
+          path: SmartPaddle
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Audit device and server WebSocket paths and GPIO reservations
+        run: python Pingpang-SmartGear/tools/validate_smartpaddle_reference.py

@@ -1,0 +1,103 @@
+{
+  "schema_version": "m6-acceptance-bundle-v0.1",
+  "item_id": "1071628886139",
+  "sku_id": "6122579349941",
+  "selected_variant": "M6 激光 L 型对射，0–20 m，NPN 输出",
+  "evidence_root": "evidence",
+  "overall_status": "pending",
+  "procurement": {
+    "status": "pending",
+    "model_status": "pending",
+    "seller_model": "pending",
+    "output_polarity": "pending",
+    "receiver_output_count": null,
+    "seller_response_time_ms": 5,
+    "seller_response_semantics": "input_state_change_to_output_change_complete",
+    "continuous_obstruction_5ms_required": false,
+    "minimum_input_pulse_ms": null,
+    "seller_response_source": "user_transcribed_seller_chat_2026-08-25",
+    "evidence": []
+  },
+  "devices": {
+    "status": "pending",
+    "transmitter_count": 10,
+    "receiver_count": 10,
+    "transmitter_ids": [
+      "TX-PENDING-00", "TX-PENDING-01", "TX-PENDING-02", "TX-PENDING-03", "TX-PENDING-04",
+      "TX-PENDING-05", "TX-PENDING-06", "TX-PENDING-07", "TX-PENDING-08", "TX-PENDING-09"
+    ],
+    "receiver_ids": [
+      "RX-PENDING-00", "RX-PENDING-01", "RX-PENDING-02", "RX-PENDING-03", "RX-PENDING-04",
+      "RX-PENDING-05", "RX-PENDING-06", "RX-PENDING-07", "RX-PENDING-08", "RX-PENDING-09"
+    ],
+    "evidence": []
+  },
+  "carrier_integration": {
+    "status": "pending",
+    "mcu_model": "STM32G031K8U6 (engineering candidate; prototype pending)",
+    "pcb_revision": "pending",
+    "spi_mode": 0,
+    "spi_clock_hz": 1000000,
+    "max_frame_bytes": 152,
+    "gpio_map": {"status": "pending", "evidence": []},
+    "spi_irq_waveform": {"status": "pending", "evidence": []},
+    "clock_sync": {"status": "pending", "evidence": []},
+    "ten_channel_edge_burst": {"status": "pending", "evidence": []},
+    "smartpaddle_ws": {"status": "pending", "evidence": []},
+    "evidence": []
+  },
+  "mechanical": {
+    "status": "pending",
+    "channel_heights_mm": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    "sensor_measurements": {
+      "status": "pending",
+      "thread_spec": "pending",
+      "thread_effective_length_mm": null,
+      "head_length_x_mm": null,
+      "head_width_y_mm": null,
+      "head_height_z_mm": null,
+      "mount_stem_length_mm": null,
+      "lock_nut_af_mm": null,
+      "optical_axis_to_thread_offset_x_mm": null,
+      "cable_min_bend_radius_mm": null,
+      "cable_exit_direction": "pending",
+      "evidence": []
+    },
+    "axis_adjustment": {
+      "yaw": {"status": "pending", "range_deg": 4, "final_angle_deg": null, "evidence": []},
+      "pitch": {"status": "pending", "range_deg": 4, "final_angle_deg": null, "evidence": []},
+      "roll": {"status": "pending", "range_deg": 4, "final_angle_deg": null, "evidence": []}
+    },
+    "evidence": []
+  },
+  "waveform": {
+    "status": "pending",
+    "target_widths_us": [1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000],
+    "batches": [
+      {"width_us": 1000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 2000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 3000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 4000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 5000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 6000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 8000, "status": "pending", "summary_path": "", "evidence": []},
+      {"width_us": 10000, "status": "pending", "summary_path": "", "evidence": []}
+    ],
+    "evidence": []
+  },
+  "channel_map": {
+    "status": "pending",
+    "path": "channel-map.example.json",
+    "evidence": []
+  },
+  "real_ball_test": {
+    "status": "pending",
+    "cases": [
+      {"name": "center", "status": "pending", "evidence": []},
+      {"name": "edge", "status": "pending", "evidence": []},
+      {"name": "diagonal", "status": "pending", "evidence": []},
+      {"name": "height_sweep", "status": "pending", "evidence": []}
+    ],
+    "evidence": []
+  }
+}

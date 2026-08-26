@@ -28,6 +28,22 @@
 //   PART="optical_rail"       旧版 10 路离散红外模块导轨（兼容诊断件）
 //   PART="optical_strip"      旧版 10 路离散红外模块装配预览（兼容诊断件）
 //   PART="optical_module_carrier" 旧版单个光学模块载台（兼容诊断件）
+//   PART="m6_sensor_rail"     旧版 M6×0.75 直角十路单竖条/7 字座（兼容诊断件）
+//   PART="m6_sensor_test_coupon" 旧版单 M6 7 字座试装样件（兼容诊断件）
+//   PART="m6_sensor_array"    当前十路 M6 发射/接收器与长条主体装配占位
+//   PART="m6_detector_fit_probe" 仅验证长条主体与真实 L 型激光头的 2 mm 卡入关系
+//   PART="m6_detector_body"   当前 6061-T6 长条主体（45°斜向六角沉孔/短过孔）
+//   PART="m6_detector_shell_front" PETG y+ 前盖候选
+//   PART="m6_detector_shell_rear" PETG y- 后盖候选
+//   PART="m6_detector_bottom_cover" PETG 底盖候选
+//   PART="m6_detector_exploded" 右/左侧检测器非剖切爆炸图
+//   PART="m6_detector_support" 当前金属 90° 支撑件
+//   PART="m6_detector_mount" 当前主体/斜向器件/竖直采购球头/支撑装配（壳体暂隐藏）
+//   PART="m6_mount_adapter"   当前铝合金基座到网夹/立柱的竖直安装板
+//   PART="m6_detector_backplate" 兼容旧调用名；输出当前后盖
+//   PART="m6_ballhead"        13 mm 采购球头云台竖直姿态占位（非打印件）
+//   PART="m6_ballhead_mount" 兼容旧调用名；输出当前主体支撑装配
+//   PART="m6_gimbal"          兼容旧调用名；实际输出当前竖直球头装配
 //   PART="stg120_outer_carrier" STG-120ML 外侧光纤头包络/安装托架
 //   PART="stg120_center_bridge" STG-120ML 中央背靠背分段支撑桥
 //   PART="stg120_preview"      STG-120ML 双分段光束装配预览（非打印件）
@@ -42,11 +58,27 @@
 //   PART="parameter_probe"    输出验证脚本读取的参数清单
 //   SIDE=0                    使用默认右侧；SIDE=1/-1 显式选择左右镜像
 //
-// 说明：光学器件、PVDF 薄膜、网布、金属螺杆和夹持软垫均为装配占位或
-// 标准件边界。M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示，不能直接
-// 作为 PETG 打印件进入当前 29 件打印清单；STG-120ML 光纤头和放大器为外购件。
-// 该文件验证的是当前机械意图与参数关系，不等同于最终
-// PETG 打印强度、球台兼容性或光学精度验收。
+// 说明：当前光学主线是用户提供资料中的 M6 直角对射器件：每侧十个
+// M6×0.75 发射/接收器件装入一根长条形 6061-T6 铝合金主体。光学轴沿 x；
+// L 型器件的蓝色尾线支路局部朝 z-，整件绕光束 x 轴旋转 -45°，从主体
+// x+（右）/x-（左）的后方装入。主体按首样复核采用 x=10 mm 厚、y=56 mm
+// 宽、z=216 mm 高的竖直承载条，不再用只能当薄背条的 6×18 mm 截面；十个通道中心
+// 以 20 mm 节距从过网高度 +10 mm 排到 +190 mm；
+// 右侧器件的外侧装入方向为 x+，左侧由 SIDE 镜像后外侧装入方向为 x-。光学
+// 头部穿过主体的头部让位孔，线缆留在主体外侧，不在铝材里挖线束槽；x 向
+// 浅六角座只卡住真实金属头的六角外形，M6 外丝直接穿过主体，在外表面只
+// 安装一枚原配 5 mm 螺帽，14 mm 外丝仍保留足够的外露长度。
+// 主体定型前不启用 PETG 前盖、后盖和底盖，后盖
+// 的 y- boss 以 x 轴内攻孔连接竖直姿态的采购 13 mm 球头，再经金属 90°
+// 支撑件和竖直网夹适配板连接到网架。铝合金件、M6 器件、球头、PVDF 薄膜、网布、
+// 金属螺杆和夹持软垫均为外购/机加工/装配边界，不能混入 PETG 打印清单。
+// M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
+// 保留为历史诊断件，不再作为当前装配主线。
+// 前后盖沿 y 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
+// 盖件到主体的固定件，真正承力路径是“传感器六角/螺杆 -> 铝合金主体 ->
+// 后盖 boss/金属 90° 支撑 -> 竖直球头/网夹适配板 -> 网架”。线缆孔为开放孔，
+// 没有密封设计，不能宣称防水。该文件验证机械意图与参数关系，不等同于最终
+// PETG 打印强度、球台兼容性、实物螺纹/光学精度或 NPN 电气验收。
 
 $fn = 48;
 
@@ -58,12 +90,24 @@ table_width = 1525;
 table_depth_preview = 500;
 table_thickness = 25;
 table_edge_x = table_width / 2;
-// 立柱外置 37 mm，使光学导轨留在立柱内侧与台边之间的开放空间；
-// 模块镜头轴线因此可以覆盖台面边缘，而不会嵌入实心立柱。
-post_offset = 37;
-post_center_x = table_edge_x + post_offset;
 post_body_width = 28;
 post_body_depth = 38;
+// ITTF 现行规则要求网柱外侧边界在球台侧线外 152.5 mm；这里把
+// 152.5 mm 作为网架外边界，而不是把网柱中心误当成外伸量。28 mm
+// 立柱的中心偏移因此为 152.5 - 14 = 138.5 mm。这样网顶承载条和
+// 网布的名义总宽为 1830 mm，左右各比 1525 mm 球台多 152.5 mm。
+net_post_outboard_extension = 152.5;
+// 立柱外置 138.5 mm，使光学导轨仍可从立柱内侧悬到台边；模块镜头
+// 轴线覆盖台面边缘，而不会嵌入实心立柱。
+post_offset = 138.5;
+post_center_x = table_edge_x + post_offset;
+// C 形夹下方采用前后两片三角侧肋。起点位于可动压块外侧，底边与下臂
+// 重叠，外侧竖边与 C 形外墙重叠，斜边朝台底收口；它不是放在上夹板外侧
+// 的装饰三角形。真实 PETG 材料、层向和夹紧力仍需首样验证。
+clamp_gusset_t_y = 10;
+// Gusset start is measured outboard of the movable pressure-pad edge so the
+// side cheek reinforces the lower arm without entering the pad's travel space.
+clamp_gusset_start_inset = 6;
 clamp_lower_arm_clearance = 10;
 post_bottom = -table_thickness - clamp_lower_arm_clearance;
 post_top_margin = 18;
@@ -95,6 +139,303 @@ optical_carrier_slot_length = 4;
 optical_module_index = 0;
 scale_tick_width = 8;
 scale_tick_height = 1.5;
+
+// 当前 M6 光电器件阵列。用户提供的资料明确给出“直角 M6”、安装螺纹
+// M6×0.75、头部高度约 8 mm、水平外丝段 14 mm、总水平包络约 20 mm、
+// 检测距离 20 m、NPN 选项。注意：水平 x 轴是光学轴和 M6 外丝轴；蓝色
+// 护套/尾线从 L 头的另一条支路沿局部 z- 出线，绝不能把它画成 x 轴圆柱。
+// 未旋转时这条尾线支路朝 z-，再绕光轴 x 旋转 -45°，落向 y-/z-，给相邻
+// 20 mm 通道让线。当前主体采用一根能包络头部、线缆护套和装配余量的连续
+// 竖直铝条，在十个高度加工水平光学让位孔、浅 x 向六角座和斜向尾线让位；前后 PETG 壳体按
+// y+ / y- 分段同步为装配候选。
+m6_sensor_count = 10;
+m6_sensor_center_pitch = 20;
+m6_sensor_first_height = beam_first_height;
+m6_sensor_thread_d = 6;
+m6_sensor_thread_pitch = 0.75;
+m6_sensor_tap_visual_d = 5.25;
+m6_sensor_head_length_x = 6;
+m6_sensor_head_width_y = 10;
+m6_sensor_head_height_z = 8;
+m6_sensor_head_hex_af = 8;
+m6_sensor_face_d = 3;
+m6_sensor_body_d = 6;
+// The M6 threaded optical barrel is hollow.  This is a visual/first-article
+// aperture placeholder; confirm the real clear bore from the purchased SKU.
+m6_sensor_optical_bore_d = 3;
+// Kept under the old name for manifest compatibility. It is a legacy envelope
+// value, not the x-axis direction of the blue cable.
+m6_sensor_body_length = 22;
+m6_sensor_mount_x_offset = 3.25;
+// Compatibility name retained because old manifests call this the mounting
+// stem. In the purchased L-shaped M6 part it is the horizontal threaded section.
+m6_sensor_mount_stem_length = 14;
+m6_sensor_cable_guard_length = 10;
+m6_sensor_cable_preview_length = 18;
+m6_sensor_cable_d = 3;
+m6_sensor_mount_plane_offset_z = 8;
+m6_sensor_thread_engagement = 5;
+m6_sensor_lock_nut_af = 10;
+m6_sensor_lock_nut_h = 5;
+m6_sensor_nut_pocket_clearance = 0.35;
+m6_sensor_roll_deg = -45;
+m6_sensor_guard_outer_d = 15;
+m6_sensor_guard_h = 5;
+// 单件试装样件只验证真实传感器、螺母防转和线缆让位，不进入 26 件正式
+// PETG 拼盘；因此用比 M6 外螺纹略大的通孔，避免把未确认的攻牙规格冻结在
+// 打印件里。正式铝条仍按卖家实物决定 M6×0.75 攻牙或通孔+螺母。
+m6_sensor_test_coupon_backbone_h = 24;
+m6_sensor_test_coupon_clearance_d = m6_sensor_thread_d + 0.5;
+m6_sensor_test_coupon_guard_overlap = 0.2;
+// Keep the coupon intentionally short and local: it is a fit check for one
+// real sensor and one short 7-shaped seat, not a print of the full aluminum bar.
+m6_sensor_test_coupon_tab_min_local_x = -12.5;
+m6_sensor_test_coupon_mount_hole_local_x = -8.5;
+m6_rail_t = 8;
+m6_sensor_rail_post_clearance = 1;
+m6_sensor_body_clearance_d = m6_sensor_body_d + 0.8;
+m6_rail_width_y = 42;
+m6_rail_tab_t = 6;
+m6_rail_tab_width_y = 12;
+m6_sensor_lane_offset_y = 9;
+// Adjacent guards are axis-aligned 15 mm squares on the alternating y lanes.
+// Keep both the actual y/z square gaps and a diagonal center-distance guard
+// explicit so a future pitch or lane change cannot silently make the ten
+// lock-nut pockets collide.
+m6_adjacent_channel_center_distance_yz =
+    sqrt(pow(2 * m6_sensor_lane_offset_y, 2) +
+         pow(m6_sensor_center_pitch, 2));
+m6_adjacent_guard_gap_y =
+    2 * m6_sensor_lane_offset_y - m6_sensor_guard_outer_d;
+m6_adjacent_guard_gap_z =
+    m6_sensor_center_pitch - m6_sensor_guard_h;
+m6_rail_end_margin = 12;
+// 竖直传感器条与后背板的实体连接：背骨保留 4 个 M4×0.7 候选盲牙，
+// 后背板用中心 M6 安装孔和两枚防转孔承接采购的 13 mm 球头。孔位避开
+// 十路传感器/线缆让位孔，并保留铝材底壁；M4/M6 连接件因此成为阵列到
+// 球头云台的明确承力件。
+m6_rail_mount_clearance_d = 4.5;
+m6_rail_mount_tap_d = 3.3;
+m6_rail_mount_tap_depth = 6;
+m6_rail_mount_hole_y = 16;
+m6_rail_mount_z_offset = 40;
+m6_rail_mount_bolt_length = 12;
+m6_detector_backplate_t = 8;
+m6_detector_backplate_width_y = 52;
+m6_detector_backplate_height_z =
+    (m6_sensor_count - 1) * m6_sensor_center_pitch +
+    2 * m6_rail_end_margin + 16;
+m6_detector_backplate_lock_hole_y = 18;
+m6_detector_backplate_mount_clearance_d = 6.5;
+m6_detector_backplate_anti_rotation_d = 4.5;
+m6_ballhead_ball_d = 13;
+m6_ballhead_housing_d = 28;
+m6_ballhead_housing_length_x = 26;
+m6_ballhead_base_d = 32;
+m6_ballhead_base_t = 8;
+m6_ballhead_sensor_stud_d = 6;
+m6_ballhead_sensor_stud_length = 16;
+m6_ballhead_net_stud_d = 6;
+m6_ballhead_net_stud_length = 28;
+m6_ballhead_tilt_range_deg = 90;
+m6_ballhead_rotation_range_deg = 360;
+m6_ballhead_mount_clearance_d = 6.5;
+m6_rail_length_z =
+    (m6_sensor_count - 1) * m6_sensor_center_pitch + 2 * m6_rail_end_margin;
+m6_array_bottom_z =
+    net_height + m6_sensor_first_height - m6_rail_end_margin;
+m6_array_top_z = m6_array_bottom_z + m6_rail_length_z;
+m6_array_center_z = (m6_array_bottom_z + m6_array_top_z) / 2;
+m6_post_mount_hole_z = m6_array_center_z;
+
+// 四层铝合金微调机构：固定适配板、水平 z 轴偏航双层转台、固定外叉架
+// +绕 y 轴转动的内框，以及绕光轴 x 轴转动的滚转盘。锁紧槽负责粗调，
+// M4 顶丝负责切向微调，最后由枢轴/锁紧螺钉承受工作载荷；默认角度为 0，
+// 仅显示名义对准状态。
+m6_mount_plate_t = 6;
+m6_mount_plate_width_y = 56;
+m6_mount_plate_height_z = m6_rail_length_z + 24;
+m6_mount_slot_length = 12;
+// The fixed adapter is not allowed to float against the upright.  These two
+// z-slots pass through the current 28 x 38 mm net-clamp upright and accept
+// M6 through-bolts; the real commercial clamp still has to be measured before
+// this pattern is treated as a production interface.
+m6_post_mount_clearance_d = 6.5;
+m6_post_mount_hole_y = 10;
+m6_post_mount_bolt_length = 45;
+// 偏航必须绕竖直 z 轴，故在阵列下方增加水平转台；固定适配板承接
+// 下层转台，转台上层带着竖直承载板和后续俯仰/滚转机构一起转动。
+m6_yaw_stage_t = 6;
+m6_yaw_stage_radius = 82;
+m6_yaw_slot_radius = 64;
+m6_yaw_stage_z = m6_array_bottom_z - 4;
+m6_yaw_plate_t = 6;
+m6_yaw_slot_length = 12;
+m6_yaw_range_deg = 4;
+// 外叉架必须包住 Ø110 滚转盘；原来的 56 mm 叉宽会与滚转盘相交，
+// 不是可装配的叉架。内框留出 4 mm 径向间隙，并在后侧用中心脊承接
+// x 轴滚转枢轴。
+m6_pitch_yoke_t = 8;
+m6_pitch_yoke_width_y = 158;
+m6_pitch_yoke_length_x = 18;
+m6_pitch_yoke_foot_t = 8;
+m6_pitch_frame_t = 6;
+m6_pitch_frame_outer_width_y = 140;
+m6_pitch_frame_window_width_y = 118;
+// The pitch frame follows the 20 mm M6 array: 216 mm body height plus 2 mm
+// clearance each side in the window and an 8 mm outer rim.
+m6_pitch_frame_outer_height_z = 236;
+m6_pitch_frame_window_height_z = 220;
+m6_pitch_frame_spine_width_y = 12;
+m6_pitch_frame_hub_d = 16;
+m6_pitch_pivot_offset_z = 26;
+m6_pitch_lock_offset_z = 44;
+m6_pitch_lock_tap_d = 5;
+m6_pitch_lock_tap_depth = 8;
+m6_pitch_slot_length = 12;
+m6_pitch_range_deg = 4;
+m6_roll_plate_t = 6;
+// The four rail-to-roll M4 holes sit at y=±16, z=±40 relative to the
+// roll center.  Ø110 leaves a positive edge margin around their Ø4.5
+// clearance holes and also keeps the ±44 mm pitch lock-slot stations on
+// the same machined plate; Ø46 would put the M4 holes outside the disk.
+m6_roll_plate_d = 110;
+m6_roll_slot_length = 10;
+m6_roll_range_deg = 4;
+// 偏航/俯仰使用 M8 枢轴；滚转中心穿过梳齿背骨，改用较小的 Ø6.5
+// 通孔，避开相邻 M6 器件的 Ø10 线缆/本体让位孔。滚转锁紧槽在后侧
+// 中心脊中攻 M5 盲牙，不能把传感器背骨当作无支撑的装饰板。
+m6_pivot_d = 8.5;
+m6_roll_pivot_d = 6.5;
+m6_roll_lock_tap_d = 5;
+m6_roll_lock_tap_depth = 8;
+m6_roll_pivot_bolt_length = 32;
+m6_stage_bolt_d = 6.5;
+// 固定适配板与偏航下转台的明确承力连接：适配板开 M6 通孔，
+// 下转台从 +x/网夹侧加工 M6×1.0 盲牙；不能只依靠两个零件相交。
+m6_yaw_base_mount_clearance_d = 6.5;
+m6_yaw_base_mount_tap_d = 5;
+m6_yaw_base_mount_tap_depth = 10;
+m6_yaw_base_mount_hole_y = 24;
+m6_yaw_base_mount_bolt_length = 16;
+// 偏航上转台与竖直承载板采用两枚 M5×0.8 竖向螺钉固定；偏航弧槽
+// 只夹上下转台，不把承载板的连接力留给接触面。
+m5_yaw_carrier_mount_clearance_d = 5.5;
+m5_yaw_carrier_mount_tap_d = 4.2;
+m5_yaw_carrier_mount_tap_depth = 5;
+m5_yaw_carrier_mount_hole_y = 20;
+m5_yaw_carrier_mount_bolt_length = 12;
+m6_fine_adjuster_d = 4;
+m6_fine_adjuster_length = 22;
+// The yaw screw is supported by a fixed reaction ear attached to the lower
+// yaw plate.  It is raised above the lower plate so its tip actually contacts
+// the moving upper plate edge rather than disappearing into the lower plate.
+m6_yaw_adjuster_block_width_x = 12;
+m6_yaw_adjuster_block_depth_y = 8;
+m6_yaw_adjuster_block_height_z = 18;
+m6_yaw_adjuster_foot_inset_y = 6;
+m6_yaw_adjuster_tap_d = 3.3;
+m6_yaw_adjuster_tap_depth = 8;
+m6_yaw_adjuster_tip_overtravel_y = 0.5;
+// The pitch screw reacts against a fixed crossbar on the outer yoke; the
+// roll screw reacts against a small fixed arm on the inner frame and kisses
+// the roll-disc rim instead of crossing the disc face.
+m6_pitch_adjuster_offset_z = 20;
+m6_pitch_adjuster_bridge_t = 6;
+m6_roll_adjuster_offset_z = 20;
+m6_roll_adjuster_arm_depth_y = 8;
+m6_roll_adjuster_arm_t = 6;
+m6_roll_adjuster_clearance_y = 2;
+m6_roll_adjuster_length = 16;
+m6_yaw_angle = 0;
+m6_pitch_angle = 0;
+m6_roll_angle = 0;
+
+// 当前长条主体/前后盖方案（v0.3）。这是独立于旧版梳齿/三轴参数的主线；
+// 旧参数保留给历史 PART 和既有验证脚本，不再代表现行装配。
+// 机械契约：主体为 6061-T6 铝合金机加工件；前盖、后盖、底盖为 PETG
+// 尺寸样件/候选打印件；无密封。主体位于前后壳的中间，壳体按 y 前后分段，
+// 从 z+ 套入，底盖从 z-
+// 贴合。M3/M4 沉头螺钉只锁盖件，传感器和支撑载荷不通过 PETG 壳体闭环。
+m6_detector_body_depth_y = 56.0;
+m6_detector_body_center_y = 0.0;
+m6_detector_body_length_x = 10.0;
+m6_detector_body_margin_z = 18;
+m6_detector_body_front_margin_x = 1;
+// First article scope: model only the long rectangular aluminum bar and the
+// purchased sensor envelope.  The sensor is inserted from the outward x face
+// until its AF8 head reaches the stop, then another 2 mm of that head remains
+// captured inside the bar.  One supplied nut is shown on the smooth opposite
+// face; covers, cable channels, brackets, and gimbals remain outside this probe.
+m6_detector_fit_head_length_x = m6_sensor_head_length_x;
+m6_detector_fit_head_width_y = m6_sensor_head_width_y;
+m6_detector_fit_head_height_z = m6_sensor_head_height_z;
+m6_detector_fit_capture_depth_x = 2.0;
+// Nominally use the laser-head envelope itself.  No manufacturing clearance
+// is invented at this stage; add it only after the purchased part is measured.
+m6_detector_fit_head_clearance_y = 0.0;
+m6_detector_fit_head_clearance_z = 0.0;
+m6_detector_fit_thread_length_x = m6_sensor_mount_stem_length;
+m6_detector_fit_thread_clearance_d = m6_sensor_thread_d + 0.6;
+m6_detector_fit_thread_tip_allowance_x = 1.0;
+m6_detector_shell_wall = 2.4;
+m6_detector_shell_clearance = 0.6;
+m6_detector_shell_bottom_lip_z = 3;
+m6_detector_shell_top_lip_z = 3;
+// Kept under the old parameter name for manifest compatibility; the active
+// cover split is now across y (front/rear), not along the optical x axis.
+m6_detector_shell_split_overlap_x = 0.3;
+m6_detector_shell_corner_radius = 2.2;
+m6_detector_front_cap_length_x = 8;
+m6_detector_front_cap_reduction = 1.2;
+m6_detector_body_groove_width_x = 4;
+m6_detector_body_groove_depth_y = 1.2;
+m6_detector_body_groove_margin_z = 5;
+m6_detector_shell_tongue_depth_y = 1.0;
+m6_detector_shell_tongue_clearance = 0.25;
+m6_detector_optical_bore_d = 6.6;
+m6_detector_thread_clearance_d = 6.6;
+m6_detector_hex_pocket_af =
+    m6_sensor_lock_nut_af + 2 * m6_sensor_nut_pocket_clearance;
+m6_detector_hex_pocket_depth_x = 2.5;
+// Compatibility alias for old manifests; the active pocket is normal to x.
+m6_detector_hex_pocket_depth_y = m6_detector_hex_pocket_depth_x;
+m6_detector_hex_pocket_floor = 0.8;
+m6_detector_shell_screw_pilot_d = 3.4;
+m6_detector_shell_screw_head_d = 6.8;
+m6_detector_shell_screw_head_depth = 2.0;
+m6_detector_shell_screw_margin_z = 18;
+m6_detector_bottom_cover_t = 3;
+m6_bottom_cover_screw_depth = 5;
+m6_detector_bottom_cover_screw_d = 3.4;
+m6_detector_bottom_cover_screw_head_d = 6.8;
+m6_detector_bottom_cover_screw_head_depth = 1.6;
+m6_detector_bottom_cover_screw_inset_x = 9;
+m6_detector_cable_exit_d = 12;
+m6_detector_cable_exit_sleeve_clearance = 1;
+m6_detector_cable_exit_y = 0;
+m6_detector_cable_clearance_enabled = false;
+m6_detector_show_shell = false;
+// Inspection-only overlay; it is opt-in and never belongs to printable STL.
+m6_show_optical_direction = false;
+m6_detector_shell_alpha = 0.48;
+m6_detector_support_boss_width_x = 18;
+m6_detector_support_boss_depth_y = 8;
+m6_detector_support_boss_height_z = 24;
+m6_detector_support_boss_x_fraction = 0.72;
+m6_detector_support_tap_d = 5.0;
+m6_detector_support_tap_depth_x = 12;
+m6_detector_support_arm_t_z = 8;
+m6_detector_support_arm_width_y = 18;
+m6_detector_support_leg_t_x = 8;
+m6_detector_support_leg_bottom_drop_z = 56;
+m6_detector_support_gusset_t_y = 6;
+m6_detector_support_gusset_inset_x = 8;
+m6_detector_support_fastener_d = 5.5;
+m6_detector_support_fastener_head_d = 9;
+m6_detector_support_fastener_head_depth = 2.5;
+m6_detector_detector_ballhead_gap_x = 2;
+m6_detector_sensor_head_y_offset = 0;
 
 // 采购 STG-120ML 的真实机械包络（来自商品详情图，首样仍需量实物）。
 // 该器件不是 10 个独立电子模块，而是两条相对的 130×19×6 mm 金属光纤头，
@@ -148,7 +489,15 @@ rail_segment_index = 0;
 
 // 传统桌下夹持结构
 clamp_reach_inboard = 62;
-clamp_outer_extension = 22;
+// ITTF Technical Leaflet T2 给出的网柱水平部分台外上限为 160 mm。
+// 当前自定义传感器夹体把最外点收敛到这个上限；它仍比台边外伸至少
+// 130 mm，但不把过度外伸误写成常规商品网夹尺寸。
+clamp_horizontal_part_outboard_limit = 160;
+clamp_outboard_extension_min = 130;
+// With the current 28 mm post and 138.5 mm center offset, 7.5 mm places the
+// clamp's outermost face exactly at table edge + 160 mm. Keep this explicit so
+// the dependency-free preview can audit the same first-article value.
+clamp_outer_extension = 7.5;
 clamp_pad_depth = 58;
 clamp_pad_t = 8;
 clamp_clearance = 1.5;
@@ -187,7 +536,7 @@ clamp_pressure_pad_depth = 44;
 clamp_pressure_pad_t = 2;
 post_top = max(
     net_height + beam_last_height + optical_module_height / 2 + post_top_margin,
-    stg120_head_top_z + post_top_margin
+    m6_array_top_z + post_top_margin
 );
 post_segment_count = 2;
 post_joint_gap = 2;
@@ -198,7 +547,9 @@ post_total_height = post_top - post_bottom;
 post_segment_length =
     (post_total_height - post_joint_gap) / post_segment_count;
 post_joint_z = post_bottom + post_segment_length + post_joint_gap / 2;
-net_span = 2 * (post_center_x - post_body_width / 2);
+// 网布和网顶承载条延伸到两侧立柱外边界；立柱实体会与其端部重叠，
+// 这对应常规网布从网柱上端一直固定到下端的装配关系。
+net_span = 2 * (post_center_x + post_body_width / 2);
 net_rail_segment_count = 3;
 net_rail_splice_overlap = 20;
 net_rail_segment_length =
@@ -227,10 +578,231 @@ optical_carrier_front_x = optical_rail_x - optical_carrier_front_depth;
 optical_carrier_width = optical_module_width + 2 * optical_carrier_wall;
 optical_carrier_height = optical_module_height + 2 * optical_carrier_z_wall;
 optical_carrier_slot_offset = optical_module_width / 4 + optical_carrier_wall / 2;
+m6_sensor_axis_x = optical_beam_axis_x;
+m6_sensor_mount_hole_x =
+    m6_sensor_axis_x + m6_sensor_mount_x_offset;
+// Vendor drawing: 20 mm from the optical face to the threaded end, of which
+// the last 14 mm is M6×0.75 thread. The cable branch starts on the short head,
+// not on the thread axis.
+m6_sensor_thread_start_x =
+    m6_sensor_axis_x + m6_sensor_head_length_x;
+m6_sensor_thread_end_x =
+    m6_sensor_thread_start_x + m6_sensor_mount_stem_length;
+m6_sensor_overall_end_x = m6_sensor_thread_end_x;
+m6_sensor_head_center_x =
+    m6_sensor_axis_x + m6_sensor_head_length_x / 2;
+// The vendor-style L sensor's active optical aperture is at the distal end of
+// the horizontal threaded barrel.  The gray hex is the cable-side body and
+// mounting shoulder, not a separate black optical window.
+m6_sensor_optical_aperture_x = m6_sensor_thread_end_x;
+m6_sensor_cable_exit_x =
+    m6_sensor_head_center_x;
+// The historical rail coordinate is retained for the rear support/gimbal
+// envelope. The active detector body itself is the thin 6 mm x-direction bar;
+// the purchased sensor's horizontal 20 mm package does not make the blue cable
+// a second x-axis body.
+m6_sensor_rail_x = m6_sensor_axis_x + m6_sensor_head_length_x +
+                   m6_sensor_body_length - 3;
+m6_rail_tab_min_x = m6_sensor_axis_x + 1;
+m6_rail_tab_max_x = m6_sensor_rail_x + m6_rail_t;
+m6_mount_plate_x = post_center_x - post_body_width / 2 - m6_mount_plate_t;
+m6_yaw_plate_x = m6_mount_plate_x - m6_yaw_plate_t;
+m6_pitch_frame_x = m6_sensor_rail_x + m6_rail_t + 2;
+m6_yaw_carrier_x = m6_pitch_frame_x;
+m6_roll_plate_x = m6_sensor_rail_x - m6_roll_plate_t;
+m6_gimbal_pivot_x = m6_yaw_plate_x + m6_yaw_plate_t / 2;
+m6_pitch_pivot_x = m6_pitch_frame_x + m6_pitch_frame_t / 2;
+m6_roll_pivot_x = m6_sensor_rail_x - m6_roll_plate_t / 2;
+m6_pitch_pivot_z = m6_array_center_z + m6_pitch_pivot_offset_z;
+m6_roll_pivot_z = m6_array_center_z;
+m6_roll_adjuster_contact_y =
+    -sqrt((m6_roll_plate_d / 2) * (m6_roll_plate_d / 2) -
+          m6_roll_adjuster_offset_z * m6_roll_adjuster_offset_z);
+m6_detector_backplate_x = m6_sensor_rail_x + m6_rail_t - 0.5;
+m6_ballhead_sensor_stud_center_x =
+    m6_detector_backplate_x + m6_detector_backplate_t +
+    m6_ballhead_sensor_stud_length / 2;
+m6_ballhead_center_x =
+    m6_detector_backplate_x + m6_detector_backplate_t +
+    m6_ballhead_sensor_stud_length + m6_ballhead_housing_length_x / 2;
+m6_ballhead_base_center_x =
+    m6_ballhead_center_x + m6_ballhead_housing_length_x / 2 +
+    m6_ballhead_base_t / 2;
+m6_ballhead_net_stud_center_x =
+    m6_ballhead_base_center_x + m6_ballhead_base_t / 2 +
+    m6_ballhead_net_stud_length / 2;
+m6_ballhead_axis_z = m6_array_center_z;
+m6_pitch_yoke_bottom_z = m6_yaw_stage_z + 2 * m6_yaw_stage_t;
+m6_pitch_yoke_top_z = m6_array_center_z + m6_pitch_frame_outer_height_z / 2;
+m6_yaw_carrier_bottom_z = m6_pitch_yoke_bottom_z;
+m6_yaw_carrier_height = m6_pitch_yoke_top_z - m6_pitch_yoke_bottom_z;
+
+// Current detector-body derived coordinates.  The positive-side detector is
+// the right-hand receiver: its optical face is toward -x and its cable/body
+// extends toward +x.  The vertical aluminum carrier is centered on the
+// sensor head/through-hole axis, not stretched along the beam.  SIDE=-1
+// mirrors the complete assembly, so the left emitter faces +x and enters from
+// x-.
+m6_detector_body_center_x =
+    m6_sensor_axis_x + m6_sensor_mount_x_offset;
+m6_detector_body_min_x =
+    m6_detector_body_center_x - m6_detector_body_length_x / 2;
+m6_detector_body_max_x = m6_detector_body_min_x + m6_detector_body_length_x;
+m6_detector_body_min_y =
+    m6_detector_body_center_y - m6_detector_body_depth_y / 2;
+m6_detector_body_max_y =
+    m6_detector_body_center_y + m6_detector_body_depth_y / 2;
+m6_detector_body_bottom_z =
+    net_height + m6_sensor_first_height - m6_detector_body_margin_z;
+m6_detector_body_top_z =
+    net_height + m6_sensor_first_height +
+    (m6_sensor_count - 1) * m6_sensor_center_pitch +
+    m6_detector_body_margin_z;
+m6_detector_body_height_z =
+    m6_detector_body_top_z - m6_detector_body_bottom_z;
+m6_detector_body_center_z =
+    (m6_detector_body_bottom_z + m6_detector_body_top_z) / 2;
+m6_detector_shell_min_x =
+    m6_sensor_axis_x - m6_detector_shell_wall;
+m6_detector_shell_max_x =
+    m6_sensor_overall_end_x + m6_detector_shell_wall;
+m6_detector_shell_min_y =
+    m6_detector_body_min_y - m6_detector_shell_wall;
+m6_detector_shell_max_y =
+    m6_detector_body_max_y + m6_detector_shell_wall;
+m6_detector_shell_width_y =
+    m6_detector_shell_max_y - m6_detector_shell_min_y;
+m6_detector_shell_bottom_z =
+    m6_detector_body_bottom_z - m6_detector_shell_bottom_lip_z;
+m6_detector_shell_top_z =
+    m6_detector_body_top_z + m6_detector_shell_top_lip_z;
+m6_detector_shell_height_z =
+    m6_detector_shell_top_z - m6_detector_shell_bottom_z;
+m6_detector_shell_split_x =
+    m6_sensor_axis_x + m6_sensor_head_length_x / 2;
+m6_detector_shell_front_max_x =
+    m6_detector_shell_split_x + m6_detector_shell_split_overlap_x;
+m6_detector_shell_rear_min_x =
+    m6_detector_shell_split_x - m6_detector_shell_split_overlap_x;
+// Active cover split: y+ is the front half and y- is the rear half.  Keep the
+// legacy x split values above only for old parameter consumers and reports.
+m6_detector_shell_split_y = m6_detector_body_center_y;
+m6_detector_shell_front_min_y =
+    m6_detector_shell_split_y - m6_detector_shell_split_overlap_x;
+m6_detector_shell_rear_max_y =
+    m6_detector_shell_split_y + m6_detector_shell_split_overlap_x;
+m6_detector_shell_inner_min_x =
+    m6_sensor_axis_x - m6_detector_shell_clearance;
+m6_detector_shell_inner_max_x =
+    m6_sensor_overall_end_x + m6_detector_shell_clearance;
+m6_detector_shell_inner_min_y =
+    m6_detector_body_min_y - m6_detector_shell_clearance;
+m6_detector_shell_inner_max_y =
+    m6_detector_body_max_y + m6_detector_shell_clearance;
+m6_detector_shell_inner_bottom_z = m6_detector_shell_bottom_z - 0.1;
+m6_detector_shell_inner_top_z =
+    m6_detector_body_top_z + m6_detector_shell_clearance;
+m6_detector_detector_thread_axis_x = m6_sensor_mount_hole_x;
+m6_detector_sensor_thread_start_y = m6_detector_body_min_y;
+m6_detector_sensor_thread_center_y = m6_detector_body_center_y;
+m6_detector_sensor_head_center_y = m6_detector_sensor_head_y_offset;
+m6_detector_sensor_body_center_y = m6_detector_sensor_head_center_y;
+m6_detector_cable_exit_x = m6_sensor_cable_exit_x;
+m6_detector_sensor_nut_base_center_x =
+    m6_detector_body_max_x + m6_sensor_lock_nut_h / 2;
+m6_detector_sensor_nut_center_x =
+    2 * m6_sensor_head_center_x - m6_detector_sensor_nut_base_center_x;
+m6_detector_sensor_nut_outer_x =
+    m6_detector_sensor_nut_center_x - m6_sensor_lock_nut_h / 2;
+m6_detector_sensor_thread_end_x =
+    2 * m6_sensor_head_center_x - m6_sensor_optical_aperture_x;
+m6_detector_thread_visible_length =
+    m6_detector_body_min_x - m6_detector_sensor_thread_end_x;
+// Minimal fit-probe coordinates.  Positive side is the right receiver: the
+// real gray AF8 sensor head enters from x+, its inner shoulder is captured
+// 2 mm inside the body, and the hollow M6 barrel continues through the body
+// toward x-. One supplied M6 nut sits on the smooth opposite body face;
+// SIDE=-1 mirrors all of these coordinates for the left emitter.
+m6_detector_fit_head_inner_x =
+    m6_detector_body_max_x - m6_detector_fit_capture_depth_x;
+m6_detector_fit_head_center_x =
+    m6_detector_fit_head_inner_x + m6_detector_fit_head_length_x / 2;
+m6_detector_fit_thread_center_x =
+    m6_detector_fit_head_inner_x - m6_detector_fit_thread_length_x / 2;
+m6_detector_fit_thread_tip_x =
+    m6_detector_fit_head_inner_x - m6_detector_fit_thread_length_x;
+m6_detector_fit_thread_visible_length_x =
+    m6_detector_body_min_x - m6_detector_fit_thread_tip_x;
+m6_detector_fit_body_depth_limit_x =
+    m6_detector_fit_thread_length_x +
+    m6_detector_fit_capture_depth_x -
+    m6_sensor_lock_nut_h -
+    m6_detector_fit_thread_tip_allowance_x;
+m6_detector_fit_nut_min_x =
+    m6_detector_body_min_x - m6_sensor_lock_nut_h;
+m6_detector_fit_nut_center_x =
+    m6_detector_fit_nut_min_x + m6_sensor_lock_nut_h / 2;
+m6_detector_body_screw_z = [
+    m6_detector_body_bottom_z + m6_detector_shell_screw_margin_z,
+    m6_detector_body_top_z - m6_detector_shell_screw_margin_z
+];
+m6_detector_shell_screw_y = [
+    m6_detector_body_center_y - m6_detector_body_depth_y / 4,
+    m6_detector_body_center_y + m6_detector_body_depth_y / 4
+];
+m6_detector_bottom_screw_x = [
+    m6_detector_body_min_x + m6_detector_body_length_x / 4,
+    m6_detector_body_max_x - m6_detector_body_length_x / 4
+];
+m6_detector_support_boss_center_x = m6_detector_body_center_x;
+m6_detector_support_boss_min_x =
+    m6_detector_support_boss_center_x - m6_detector_support_boss_width_x / 2;
+m6_detector_support_boss_max_x =
+    m6_detector_support_boss_center_x + m6_detector_support_boss_width_x / 2;
+m6_detector_support_y =
+    m6_detector_shell_min_y - m6_detector_support_boss_depth_y / 2;
+m6_detector_support_boss_min_y =
+    m6_detector_shell_min_y - m6_detector_support_boss_depth_y;
+m6_detector_support_boss_max_y = m6_detector_shell_min_y;
+m6_detector_support_boss_center_z = m6_detector_body_center_z;
+m6_detector_support_arm_z =
+    m6_detector_body_center_z - m6_ballhead_housing_length_x / 2 -
+    m6_ballhead_base_t - m6_detector_support_arm_t_z / 2;
+m6_detector_ballhead_center_x =
+    m6_detector_support_boss_center_x +
+    m6_ballhead_sensor_stud_length + m6_ballhead_housing_d / 2 +
+    m6_detector_detector_ballhead_gap_x;
+m6_detector_ballhead_center_y = m6_detector_support_y;
+m6_detector_ballhead_center_z = m6_detector_body_center_z;
+m6_detector_ballhead_base_center_z =
+    m6_detector_ballhead_center_z - m6_ballhead_housing_length_x / 2 -
+    m6_ballhead_base_t / 2;
+m6_detector_ballhead_net_stud_center_z =
+    m6_detector_ballhead_base_center_z - m6_ballhead_base_t / 2 -
+    m6_ballhead_net_stud_length / 2;
+m6_detector_ballhead_sensor_stud_center_x =
+    m6_detector_support_boss_center_x + m6_ballhead_sensor_stud_length / 2;
+m6_detector_support_arm_min_x =
+    m6_detector_ballhead_center_x - m6_ballhead_base_d / 2;
+m6_detector_support_arm_max_x =
+    m6_mount_plate_x + m6_mount_plate_t + 2;
+m6_detector_support_arm_min_y =
+    m6_detector_support_y - m6_detector_support_arm_width_y / 2;
+m6_detector_support_arm_max_y =
+    m6_detector_support_y + m6_detector_support_arm_width_y / 2;
+m6_detector_support_leg_x =
+    m6_mount_plate_x + m6_mount_plate_t / 2;
+m6_detector_support_leg_bottom_z =
+    m6_detector_support_arm_z - m6_detector_support_leg_bottom_drop_z;
+m6_detector_support_leg_top_z =
+    m6_detector_support_arm_z + m6_detector_support_arm_t_z / 2;
+m6_detector_support_leg_height_z =
+    m6_detector_support_leg_top_z - m6_detector_support_leg_bottom_z;
 sensor_x = sensor_x_fraction * net_span / 2;
 clamp_pad_x = table_edge_x - clamp_reach_inboard;
 clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
-clamp_outer_wall_x = post_center_x + post_body_width / 2;
+clamp_outboard_extension_actual = clamp_pad_outer_x - table_edge_x;
+clamp_outer_wall_x = clamp_pad_outer_x - clamp_outer_wall_width;
 clamp_screw_x = table_edge_x - clamp_screw_inset;
 clamp_top_pad_x = clamp_pad_x + 8;
 clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
@@ -256,11 +828,24 @@ clamp_screw_bottom_z =
     clamp_knob_lock_nut_z - clamp_screw_capture_extension;
 clamp_screw_length = clamp_screw_top_z - clamp_screw_bottom_z;
 clamp_screw_tip_radius = clamp_screw_d / 2;
+clamp_gusset_start_x = clamp_screw_x +
+                       clamp_pressure_pad_width / 2 +
+                       clamp_gusset_start_inset;
+clamp_gusset_end_x = clamp_pad_outer_x - 0.2;
+// The triangle lives below the tabletop.  Its long lower edge overlaps the
+// lower arm and its outer vertical edge overlaps the C-wall; the 0.2 mm
+// offsets make the CSG unions real overlaps instead of coincident faces.
+clamp_gusset_top_z = clamp_pressure_pad_top_z - 0.5;
+clamp_gusset_bottom_z = clamp_lower_arm_bottom_z - 0.2;
 default_side = SIDE == 0 ? 1 : SIDE;
 
 assert(table_width > 0 && table_thickness > 0, "table dimensions must be positive");
 assert(post_offset > 0, "integrated stand must sit outside the table edge");
 assert(post_center_x > table_edge_x, "post center must be outside the table edge");
+assert(net_post_outboard_extension >= 130 &&
+           abs(post_center_x + post_body_width / 2 - table_edge_x -
+               net_post_outboard_extension) < 0.01,
+       "net post outer edge must meet the 130 mm minimum and the named extension");
 assert(optical_beam_edge_overlap >= 0 &&
            optical_beam_axis_x >= table_edge_x &&
            optical_rail_x >= table_edge_x &&
@@ -277,11 +862,20 @@ assert(beam_last_height == 100,
 assert(post_top > net_height + beam_last_height + optical_module_height / 2,
        "upright must clear the highest optical module");
 assert(post_segment_count == 2 && post_joint_gap > 0 &&
-           post_segment_length > 100 && post_segment_length < 180 &&
+           post_segment_length > 100 && post_segment_length < 240 &&
            post_joint_sleeve_h > post_joint_gap && post_joint_clearance > 0,
        "the upright must split into two printable segments with a keyed joint");
 assert(post_segment_index >= 0 && post_segment_index < post_segment_count,
        "post_segment_index must select an existing printable upright segment");
+assert(m6_post_mount_clearance_d >= m6_stage_bolt_d &&
+           m6_post_mount_hole_y + m6_post_mount_clearance_d / 2 <
+               post_body_depth / 2 &&
+           m6_post_mount_hole_y > m6_post_mount_clearance_d / 2 &&
+           m6_post_mount_hole_z > post_joint_z + post_joint_gap / 2 &&
+           m6_post_mount_hole_z < post_top &&
+           m6_post_mount_bolt_length >=
+               m6_mount_plate_t + post_body_width + 8,
+       "M6 adapter-to-upright through-bolts must clear the current net clamp");
 assert(optical_locating_hole_d > 0 && optical_locating_hole_d < optical_rail_width,
        "10 mm optical locating holes must fit through the rail");
 assert(scale_tick_width > 0 && scale_tick_height > 0 && scale_tick_width < optical_rail_width,
@@ -300,6 +894,294 @@ assert(optical_carrier_slot_d > 0 &&
        "optical carrier adjustment slots must be printable");
 assert(optical_module_index >= 0 && optical_module_index < beam_count,
        "optical_module_index must select an existing 10 mm channel");
+assert(m6_sensor_count == beam_count &&
+           m6_sensor_center_pitch == 2 * beam_pitch &&
+           m6_sensor_first_height == beam_first_height &&
+           m6_sensor_first_height +
+               (m6_sensor_count - 1) * m6_sensor_center_pitch >
+               m6_sensor_first_height,
+       "M6 sensor array must keep ten channels at the collision-safe 20 mm pitch");
+assert(m6_sensor_thread_d == 6 && m6_sensor_thread_pitch == 0.75 &&
+           m6_sensor_tap_visual_d > 0 &&
+           m6_sensor_tap_visual_d < m6_sensor_thread_d &&
+           m6_sensor_head_length_x + m6_sensor_mount_stem_length == 20 &&
+           m6_sensor_head_width_y >= m6_sensor_thread_d &&
+           m6_sensor_head_height_z > 0 &&
+           m6_sensor_head_hex_af > 0 &&
+           m6_sensor_head_hex_af <= m6_sensor_head_width_y &&
+           m6_sensor_body_d >= m6_sensor_thread_d &&
+           m6_sensor_mount_stem_length > m6_sensor_thread_engagement &&
+           m6_sensor_body_length > m6_sensor_thread_engagement &&
+           m6_sensor_cable_guard_length > 0 &&
+           m6_sensor_cable_preview_length > 0 &&
+           m6_sensor_cable_d > 0 &&
+           m6_sensor_thread_start_x == m6_sensor_axis_x +
+               m6_sensor_head_length_x &&
+           m6_sensor_thread_end_x == m6_sensor_overall_end_x,
+       "M6×0.75 horizontal optical/thread axis and perpendicular cable branch must be usable");
+assert(m6_rail_t > 0 && m6_rail_width_y > m6_sensor_head_width_y + 2 &&
+           m6_rail_tab_t >= 5 &&
+           m6_rail_tab_width_y > m6_sensor_thread_d + 2 &&
+           2 * m6_sensor_lane_offset_y > m6_sensor_head_width_y &&
+           2 * m6_sensor_lane_offset_y > m6_rail_tab_width_y &&
+           m6_sensor_body_clearance_d > m6_sensor_body_d &&
+           m6_sensor_body_clearance_d / 2 <
+               m6_rail_width_y / 2 - m6_sensor_lane_offset_y &&
+           m6_sensor_rail_post_clearance > 0 &&
+           m6_rail_end_margin >= 8 && m6_rail_length_z > 0 &&
+           m6_array_bottom_z < m6_array_top_z &&
+           m6_sensor_axis_x >= table_edge_x &&
+           m6_sensor_rail_x > m6_sensor_axis_x &&
+           m6_sensor_rail_x + m6_rail_t <=
+               post_center_x - post_body_width / 2 &&
+           m6_rail_tab_min_x >= table_edge_x &&
+           m6_rail_tab_min_x < m6_sensor_mount_hole_x &&
+           m6_sensor_mount_hole_x < m6_rail_tab_max_x,
+       "M6 single vertical sensor bar must cover the table edge and stay within the clamp-side envelope");
+assert(m6_detector_backplate_t >= 6 &&
+           m6_detector_backplate_width_y > m6_rail_width_y &&
+           m6_detector_backplate_height_z > m6_rail_length_z &&
+           m6_detector_backplate_x >= m6_sensor_rail_x &&
+           m6_detector_backplate_x < m6_sensor_rail_x + m6_rail_t &&
+           m6_detector_backplate_mount_clearance_d > m6_ballhead_sensor_stud_d &&
+           m6_detector_backplate_anti_rotation_d > 0 &&
+           m6_detector_backplate_lock_hole_y +
+               m6_detector_backplate_anti_rotation_d / 2 <
+               m6_detector_backplate_width_y / 2,
+       "M6 detector backplate must overlap the vertical bar and leave a ball-head mounting pattern");
+assert(m6_ballhead_ball_d == 13 &&
+           m6_ballhead_housing_d > m6_ballhead_ball_d &&
+           m6_ballhead_housing_length_x > m6_ballhead_sensor_stud_length &&
+           m6_ballhead_base_d > m6_ballhead_ball_d &&
+           m6_ballhead_sensor_stud_d == 6 &&
+           m6_ballhead_net_stud_d == 6 &&
+           m6_ballhead_sensor_stud_length > 0 &&
+           m6_ballhead_net_stud_length > 0 &&
+           m6_ballhead_tilt_range_deg == 90 &&
+           m6_ballhead_rotation_range_deg == 360 &&
+           m6_ballhead_net_stud_center_x - m6_ballhead_net_stud_length / 2 <
+               m6_mount_plate_x + m6_mount_plate_t + 2 &&
+           m6_ballhead_net_stud_center_x + m6_ballhead_net_stud_length / 2 >
+               m6_mount_plate_x,
+       "13 mm commercial ball head must bridge the detector backplate to the net-side adapter");
+assert(m6_sensor_mount_plane_offset_z > m6_sensor_head_height_z / 2 &&
+           m6_sensor_mount_plane_offset_z + m6_rail_tab_t -
+               m6_sensor_head_height_z / 2 < m6_sensor_mount_stem_length,
+       "legacy M6 fit coupon envelope must remain numerically valid");
+assert(m6_sensor_lock_nut_af > m6_sensor_thread_d &&
+           m6_sensor_lock_nut_h > 0 &&
+           m6_sensor_nut_pocket_clearance > 0 &&
+           m6_sensor_guard_outer_d > m6_sensor_lock_nut_af +
+               2 * m6_sensor_nut_pocket_clearance &&
+           m6_sensor_guard_h >= m6_sensor_lock_nut_h,
+       "M6 lock-nut anti-rotation pocket must leave a machinable wall");
+assert(m6_adjacent_channel_center_distance_yz >
+           m6_sensor_guard_outer_d + 2 * m6_sensor_nut_pocket_clearance &&
+           m6_adjacent_guard_gap_y > 2 * m6_sensor_nut_pocket_clearance &&
+           m6_adjacent_guard_gap_z > 2 * m6_sensor_nut_pocket_clearance,
+       "adjacent M6 lock-nut guards must clear in y/z at the 10 mm pitch");
+assert(m6_sensor_test_coupon_backbone_h > m6_sensor_guard_h +
+           m6_rail_tab_t &&
+           m6_sensor_test_coupon_clearance_d > m6_sensor_thread_d &&
+           m6_sensor_test_coupon_clearance_d < m6_sensor_guard_outer_d &&
+           m6_sensor_test_coupon_guard_overlap > 0 &&
+           m6_sensor_test_coupon_guard_overlap < m6_rail_tab_t / 2 &&
+           m6_sensor_test_coupon_tab_min_local_x <
+               m6_sensor_test_coupon_mount_hole_local_x &&
+           m6_sensor_test_coupon_mount_hole_local_x < m6_rail_t,
+       "M6 single-sensor fit coupon must leave a printable body and anti-rotation guard");
+assert(m6_rail_mount_clearance_d > m6_rail_mount_tap_d &&
+           m6_rail_mount_tap_depth > 0 &&
+           m6_rail_mount_tap_depth <= m6_rail_t - 2 &&
+           m6_rail_mount_hole_y + m6_rail_mount_clearance_d / 2 <
+               m6_rail_width_y / 2 &&
+           m6_rail_mount_z_offset + m6_rail_mount_clearance_d / 2 <
+               m6_rail_length_z / 2 &&
+           sqrt(pow(m6_rail_mount_hole_y - m6_sensor_lane_offset_y, 2) +
+                pow((m6_sensor_count - 1) * m6_sensor_center_pitch / 2 -
+                    m6_rail_mount_z_offset, 2)) >
+               (m6_rail_mount_clearance_d + m6_sensor_body_clearance_d) / 2,
+       "M4 rail-to-roll mounting holes must clear the M6 body envelopes");
+assert(sqrt(pow(m6_rail_mount_hole_y, 2) +
+            pow(m6_rail_mount_z_offset, 2)) +
+           m6_rail_mount_clearance_d / 2 < m6_roll_plate_d / 2,
+       "roll plate must contain all four rail-to-roll M4 clearance holes");
+assert(m6_rail_tab_max_x - m6_rail_tab_min_x <= 130,
+       "the standard outboard post limit must not create an excessively long M6 shelf");
+assert(m6_roll_pivot_d > m6_sensor_thread_d &&
+           m6_roll_pivot_d < m6_sensor_body_clearance_d +
+               2 * m6_sensor_lane_offset_y &&
+           sqrt(pow(m6_sensor_lane_offset_y, 2) +
+                pow(m6_sensor_center_pitch / 2, 2)) >
+               (m6_sensor_body_clearance_d + m6_roll_pivot_d) / 2,
+       "central x-axis roll pivot must clear the nearest M6 body relief holes");
+assert(m6_mount_plate_t >= 4 && m6_mount_plate_width_y > m6_rail_width_y &&
+           m6_mount_plate_height_z > m6_rail_length_z &&
+           m6_mount_slot_length > m6_stage_bolt_d &&
+           m6_yaw_slot_length > m6_stage_bolt_d &&
+           m6_pitch_slot_length > m6_stage_bolt_d &&
+           m6_roll_slot_length > m6_stage_bolt_d,
+       "M6 gimbal plates must leave machinable lock slots around the pivots");
+assert(m6_yaw_range_deg > 0 && m6_yaw_range_deg <= 10 &&
+           m6_pitch_range_deg > 0 && m6_pitch_range_deg <= 10 &&
+           m6_roll_range_deg > 0 && m6_roll_range_deg <= 10 &&
+           abs(m6_yaw_angle) <= m6_yaw_range_deg &&
+           abs(m6_pitch_angle) <= m6_pitch_range_deg &&
+           abs(m6_roll_angle) <= m6_roll_range_deg &&
+           m6_pivot_d > m6_sensor_thread_d &&
+           m6_stage_bolt_d > m6_fine_adjuster_d,
+       "M6 gimbal angles, adjustment ranges and fastener hierarchy must be valid");
+assert(m6_pitch_adjuster_offset_z > 0 &&
+           m6_pitch_adjuster_offset_z < m6_pitch_frame_outer_height_z / 2 &&
+           m6_pitch_adjuster_bridge_t >= m6_fine_adjuster_d &&
+           m6_roll_adjuster_offset_z > 0 &&
+           m6_roll_adjuster_offset_z < m6_roll_plate_d / 2 &&
+           m6_roll_adjuster_arm_depth_y > m6_fine_adjuster_d &&
+           m6_roll_adjuster_clearance_y > 0 &&
+           m6_roll_adjuster_length > m6_fine_adjuster_d,
+       "M6 fine-adjuster reaction pads must remain inside the pitch/roll envelopes");
+assert(m6_yaw_adjuster_block_width_x > m6_fine_adjuster_d &&
+           m6_yaw_adjuster_block_depth_y > 0 &&
+           m6_yaw_adjuster_block_height_z > 2 * m6_yaw_stage_t &&
+           m6_yaw_adjuster_foot_inset_y > 0 &&
+           m6_yaw_adjuster_tap_d < m6_fine_adjuster_d &&
+           m6_yaw_adjuster_tap_depth >= m6_yaw_adjuster_block_depth_y &&
+           m6_yaw_adjuster_tip_overtravel_y > 0 &&
+           m6_yaw_adjuster_tip_overtravel_y < m6_yaw_stage_t / 2,
+       "yaw fine adjuster must have a raised fixed reaction ear and upper-plate contact");
+assert(m6_pitch_frame_outer_width_y > m6_pitch_frame_window_width_y &&
+           m6_pitch_frame_outer_height_z > m6_pitch_frame_window_height_z &&
+           m6_pitch_frame_window_width_y > m6_roll_plate_d + 2 * 3 &&
+           m6_pitch_frame_window_height_z > m6_roll_plate_d + 2 * 3 &&
+           m6_pitch_frame_spine_width_y > m6_roll_pivot_d &&
+           m6_pitch_frame_hub_d > m6_roll_pivot_d &&
+           m6_pitch_yoke_width_y > m6_pitch_frame_outer_width_y + 2 &&
+           m6_pitch_pivot_z > m6_array_center_z -
+               m6_pitch_frame_outer_height_z / 2 &&
+           m6_pitch_pivot_z < m6_array_center_z +
+               m6_pitch_frame_outer_height_z / 2,
+       "pitch inner frame must surround the roll plate and have a real y-axis axle");
+
+// Current 45-degree L-sensor detector contract.  These checks deliberately sit
+// beside (rather than replace) the legacy three-axis assertions so old
+// diagnostic PARTs remain compilable while the active assembly follows the
+// thin vertical carrier / outward x-entry design.
+assert(abs(m6_sensor_roll_deg) == 45 &&
+           m6_detector_body_depth_y > 0 &&
+           m6_detector_body_length_x <=
+               m6_detector_fit_body_depth_limit_x &&
+           m6_detector_body_depth_y > m6_sensor_head_width_y + 2 &&
+           m6_detector_body_min_y < m6_detector_sensor_head_center_y &&
+           m6_detector_body_max_y > m6_detector_sensor_head_center_y &&
+           m6_detector_body_center_x == m6_sensor_mount_hole_x &&
+           m6_detector_body_height_z >
+               (m6_sensor_count - 1) * m6_sensor_center_pitch &&
+           m6_detector_body_bottom_z < m6_sensor_z(0) &&
+           m6_detector_body_top_z > m6_sensor_z(m6_sensor_count - 1),
+       "current M6 body must fit ten 10 mm channels and leave one-nut horizontal-thread clearance");
+assert(m6_detector_hex_pocket_af > m6_sensor_lock_nut_af &&
+           m6_detector_hex_pocket_depth_x > 0 &&
+           m6_detector_hex_pocket_depth_x +
+               m6_detector_hex_pocket_floor < m6_detector_body_length_x &&
+           m6_detector_hex_pocket_depth_x < m6_detector_body_length_x &&
+           m6_detector_thread_clearance_d > m6_sensor_thread_d &&
+           m6_detector_optical_bore_d > m6_sensor_thread_d &&
+           m6_detector_optical_bore_d < m6_detector_body_height_z &&
+           m6_detector_thread_visible_length >
+               m6_sensor_lock_nut_h + m6_sensor_nut_pocket_clearance,
+       "shallow M6 hex pocket, through-bore and one external nut must be machinable");
+assert(m6_detector_fit_head_length_x > m6_detector_fit_capture_depth_x &&
+           m6_detector_fit_head_width_y > 0 &&
+           m6_detector_fit_head_height_z > 0 &&
+           m6_detector_fit_head_clearance_y >= 0 &&
+           m6_detector_fit_head_clearance_z >= 0 &&
+           m6_detector_fit_thread_length_x > 0 &&
+           m6_detector_fit_thread_clearance_d > m6_sensor_thread_d &&
+           m6_detector_fit_thread_visible_length_x >=
+               m6_sensor_lock_nut_h +
+               m6_detector_fit_thread_tip_allowance_x - 0.01,
+       "minimal M6 fit probe must capture 2 mm of the real AF8 head and leave one nut thickness plus tip allowance exposed");
+assert(m6_detector_shell_wall >= 2 &&
+           m6_detector_shell_clearance > 0 &&
+           m6_detector_shell_front_max_x > m6_detector_shell_min_x &&
+           m6_detector_shell_rear_min_x < m6_detector_shell_max_x &&
+           m6_detector_shell_front_max_x > m6_detector_shell_rear_min_x &&
+           m6_detector_shell_width_y > m6_detector_body_depth_y &&
+           m6_detector_shell_height_z > m6_detector_body_height_z &&
+           m6_detector_shell_corner_radius > 0 &&
+           m6_detector_shell_corner_radius <
+               min(m6_detector_shell_width_y, m6_detector_shell_height_z) / 2,
+       "front/rear PETG covers must leave a body cavity and printable rounded envelope");
+assert(m6_detector_body_groove_width_x > 0 &&
+           m6_detector_body_groove_depth_y > 0 &&
+           m6_detector_body_groove_depth_y < m6_detector_body_depth_y / 2 &&
+           m6_detector_body_groove_margin_z > 0 &&
+           2 * m6_detector_body_groove_margin_z < m6_detector_body_height_z &&
+           m6_detector_shell_tongue_depth_y >
+               m6_detector_shell_tongue_clearance,
+       "cover tongues must have a real vertical guide groove and print clearance");
+assert(m6_detector_shell_screw_pilot_d > 0 &&
+           m6_detector_shell_screw_head_d > m6_detector_shell_screw_pilot_d &&
+           m6_detector_shell_screw_head_depth > 0 &&
+           m6_detector_bottom_cover_t >
+               m6_detector_bottom_cover_screw_head_depth &&
+           m6_detector_cable_exit_d > m6_sensor_body_d &&
+           m6_detector_cable_exit_d +
+               2 * m6_detector_cable_exit_sleeve_clearance <
+               m6_detector_shell_width_y + 2 * m6_detector_shell_wall,
+       "cover countersinks and open cable sleeve exit must fit the printable covers");
+assert(m6_detector_support_boss_width_x > m6_detector_support_tap_depth_x &&
+           m6_detector_support_boss_depth_y > 0 &&
+           m6_detector_support_boss_height_z > 0 &&
+           m6_detector_support_boss_min_x < m6_detector_body_max_x &&
+           m6_detector_support_boss_max_x > m6_detector_body_min_x &&
+           m6_detector_support_y < m6_detector_shell_min_y &&
+           m6_detector_support_tap_d > 0 &&
+           m6_detector_support_arm_max_x > m6_detector_support_arm_min_x &&
+           m6_detector_support_leg_height_z > m6_detector_support_arm_t_z &&
+           m6_detector_support_leg_x >= m6_mount_plate_x &&
+           m6_detector_support_leg_x <= m6_mount_plate_x + m6_mount_plate_t,
+       "rear boss, vertical ballhead and 90-degree metal bracket must form one load path");
+assert(m6_detector_ballhead_center_z == m6_detector_body_center_z &&
+           m6_detector_ballhead_base_center_z <
+               m6_detector_ballhead_center_z &&
+           m6_detector_ballhead_net_stud_center_z <
+               m6_detector_ballhead_base_center_z &&
+           m6_detector_ballhead_sensor_stud_center_x >
+               m6_detector_support_boss_center_x &&
+           m6_detector_ballhead_center_x >
+               m6_detector_ballhead_sensor_stud_center_x,
+       "commercial 13 mm ballhead must remain vertical with a rear x-axis sensor interface");
+assert(m6_yaw_stage_radius > m6_yaw_slot_radius +
+           m6_stage_bolt_d &&
+           m6_yaw_slot_radius > m6_stage_bolt_d &&
+           m6_yaw_stage_t >= m6_yaw_plate_t &&
+           m6_yaw_stage_z < m6_array_bottom_z &&
+           m6_yaw_stage_z >=
+               m6_array_center_z - m6_mount_plate_height_z / 2 &&
+           m6_yaw_carrier_bottom_z < m6_array_center_z &&
+           m6_yaw_carrier_bottom_z + m6_yaw_carrier_height >
+               m6_array_top_z,
+       "Z-axis yaw turntable must leave a usable pivot, arc slots and carrier");
+assert(m6_yaw_base_mount_clearance_d > m6_yaw_base_mount_tap_d &&
+           m6_yaw_base_mount_tap_depth >= m6_yaw_stage_t &&
+           m6_yaw_base_mount_tap_depth <
+               2 * m6_yaw_stage_radius - m6_mount_plate_t &&
+           m6_yaw_base_mount_hole_y + m6_yaw_base_mount_clearance_d / 2 <
+               m6_yaw_stage_radius &&
+           m6_yaw_base_mount_hole_y > m6_pivot_d / 2 +
+               m6_yaw_base_mount_clearance_d / 2,
+       "fixed adapter must have two clear M6 connections into the yaw base");
+assert(m5_yaw_carrier_mount_clearance_d > m5_yaw_carrier_mount_tap_d &&
+           m5_yaw_carrier_mount_tap_depth > 0 &&
+           m5_yaw_carrier_mount_hole_y +
+               m5_yaw_carrier_mount_clearance_d / 2 <
+               m6_mount_plate_width_y / 2 &&
+           m5_yaw_carrier_mount_hole_y > m6_pivot_d / 2 +
+               m5_yaw_carrier_mount_clearance_d / 2,
+       "yaw carrier must have two explicit M5 vertical connections");
+assert(post_top > m6_array_top_z + m6_rail_end_margin,
+       "upright must clear the M6 aluminum rail and its adjustment hardware");
 assert(stg120_head_length > stg120_active_length &&
            stg120_head_width > 0 && stg120_head_thickness > 0 &&
            stg120_head_end_margin > 0 &&
@@ -322,6 +1204,8 @@ assert(stg120_center_frame_width > stg120_head_thickness +
            stg120_center_frame_z == stg120_outer_frame_z,
        "STG-120ML central bridge must capture two back-to-back heads");
 assert(net_span > table_width, "the net must bridge both integrated uprights");
+assert(abs(net_span - (table_width + 2 * net_post_outboard_extension)) < 0.01,
+       "net rail span must reach the two standard outboard post limits");
 assert(net_rail_segment_count >= 2 && net_rail_segment_count <= 5 &&
            net_rail_segment_length > 100 && net_rail_splice_overlap > 0 &&
            net_rail_splice_overlap < net_rail_segment_length,
@@ -340,8 +1224,21 @@ assert(net_rail_saddle_overlap > 0 &&
        "each upright needs a printable rail saddle and end stop");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
+assert(clamp_gusset_t_y > 0 && clamp_gusset_t_y < clamp_pad_depth / 2 &&
+           clamp_gusset_start_x > clamp_pressure_pad_x +
+               clamp_pressure_pad_width / 2 &&
+           clamp_gusset_start_x < clamp_gusset_end_x &&
+           clamp_gusset_end_x > clamp_gusset_start_x &&
+           clamp_gusset_end_x > clamp_outer_wall_x &&
+           clamp_gusset_top_z < -table_thickness &&
+           clamp_gusset_top_z > clamp_lower_arm_top_z &&
+           clamp_gusset_bottom_z < clamp_lower_arm_bottom_z,
+       "under-clamp triangular ribs must sit below the tabletop and overlap the lower arm and outer wall");
 assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
            clamp_outer_wall_x < clamp_pad_outer_x &&
+           clamp_outboard_extension_actual >= clamp_outboard_extension_min &&
+           clamp_outboard_extension_actual <=
+               clamp_horizontal_part_outboard_limit + 0.01 &&
            clamp_screw_x > clamp_pad_x && clamp_screw_x < table_edge_x,
        "the C clamp must bridge the edge and keep the M8 screw below the tabletop");
 assert(clamp_lower_arm_bottom_z < clamp_lower_arm_top_z &&
@@ -417,6 +1314,16 @@ assert(rail_segment_index >= 0 && rail_segment_index < net_rail_segment_count,
 assert(SIDE == -1 || SIDE == 0 || SIDE == 1, "SIDE must be -1, 0, or 1");
 
 function beam_z(height) = net_height + height;
+function m6_sensor_z(index) =
+    net_height + m6_sensor_first_height + index * m6_sensor_center_pitch;
+function m6_sensor_last_height() =
+    m6_sensor_first_height +
+    (m6_sensor_count - 1) * m6_sensor_center_pitch;
+function m6_sensor_lane_y(index) =
+    index % 2 == 0 ? -m6_sensor_lane_offset_y : m6_sensor_lane_offset_y;
+function m6_sensor_tab_z(index) =
+    m6_sensor_z(index) - m6_sensor_mount_plane_offset_z -
+    m6_rail_tab_t / 2;
 // 参考光束线按实际镜头光轴，而不是按模块外壳内缘绘制；这样装配预览
 // 能直接暴露光束是否覆盖球台边缘。
 function beam_inner_span() = 2 * optical_beam_axis_x;
@@ -432,6 +1339,29 @@ module sided(side = 1) {
     } else {
         mirror([1, 0, 0]) children();
     }
+}
+
+module clamp_outboard_gusset_positive() {
+    // The gussets are triangular plates below the tabletop, duplicated at
+    // the front/back y edges of the clamp.  The long lower edge overlaps the
+    // lower arm, the outer vertical edge overlaps the C-wall, and the sloped
+    // edge closes toward the underside of the table.  This is the conventional
+    // under-clamp load path; it no longer pretends that an upper-jaw triangle
+    // is a structural brace.
+    color("slategray")
+        for (y_side = [-1, 1]) {
+            translate([0,
+                       y_side * (clamp_pad_depth / 2 - clamp_gusset_t_y / 2),
+                       0])
+                rotate([90, 0, 0])
+                    linear_extrude(height = clamp_gusset_t_y, center = true) {
+                        polygon(points = [
+                            [clamp_gusset_start_x, clamp_gusset_bottom_z],
+                            [clamp_gusset_end_x, clamp_gusset_bottom_z],
+                            [clamp_gusset_end_x, clamp_gusset_top_z]
+                        ]);
+                    }
+        }
 }
 
 module table_clamp_body_positive() {
@@ -455,6 +1385,7 @@ module table_clamp_body_positive() {
                           clamp_pad_depth, clamp_lower_arm_t]);
                 translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z])
                     cylinder(d = clamp_threaded_boss_d, h = clamp_threaded_boss_h);
+                clamp_outboard_gusset_positive();
             }
             // M8 螺杆只穿过下臂/螺母座，不能穿过球台。
             translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
@@ -558,22 +1489,39 @@ module table_clamp_positive() {
 }
 
 module table_clamp_section_clip() {
-    // 只保留 y=0 附近的薄剖面，便于直接看清桌板、压块、圆头螺杆和两枚
-    // M8 螺母的相对高度；它是可视校验件，不是额外的打印零件。
-    translate([clamp_pad_x - 8, -4, clamp_knob_bottom_z - 5])
-        cube([clamp_pad_outer_x - clamp_pad_x + 16,
-              8,
-              -clamp_knob_bottom_z + 10]);
+    // 这是组合诊断剖面：一条窄中线穿过 M8 压紧螺杆/旋钮，另一条窄后侧
+    // 切片穿过下方三角肋。两条切片一起显示完整的免打孔受力路径，不把
+    // 夹具下方真正的加固肋误删成只剩一张中间薄片。
+    section_y = clamp_pad_depth / 2 - clamp_gusset_t_y / 2;
+    union() {
+        translate([clamp_pad_x - 8, -1,
+                   clamp_knob_bottom_z - 5])
+            cube([clamp_pad_outer_x - clamp_pad_x + 16,
+                  2,
+                  -clamp_knob_bottom_z + 10]);
+        translate([clamp_pad_x - 8,
+                   section_y - (clamp_gusset_t_y + 2) / 2,
+                   clamp_knob_bottom_z - 5])
+            cube([clamp_pad_outer_x - clamp_pad_x + 16,
+                  clamp_gusset_t_y + 2,
+                  -clamp_knob_bottom_z + 10]);
+    }
 }
 
 module table_clamp_section_positive() {
     section_x = clamp_pad_x - 8;
     section_width = clamp_pad_outer_x - clamp_pad_x + 16;
+    section_y = clamp_pad_depth / 2 - clamp_gusset_t_y / 2;
     // 半透明台板截面明确标出 z=-table_thickness 到 z=0 的实体范围；
-    // 旋钮内的两枚对锁螺母与固定下臂螺母均位于桌板底面以下。
+    // 两个切片都保留，旋钮内的两枚对锁螺母与固定下臂螺母均位于桌板底面以下。
     color("gray", 0.45)
-        translate([section_x, -4, -table_thickness])
-            cube([section_width, 8, table_thickness]);
+        intersection() {
+            translate([section_x,
+                       -clamp_pad_depth / 2,
+                       -table_thickness])
+                cube([section_width, clamp_pad_depth, table_thickness]);
+            table_clamp_section_clip();
+        }
     intersection() {
         table_clamp_body_positive();
         table_clamp_section_clip();
@@ -607,18 +1555,38 @@ module table_clamp_section_positive() {
 module post_segment_positive(index = 0) {
     segment_z = post_bottom + index * (post_segment_length + post_joint_gap);
     color("darkorange")
-        translate([post_center_x - post_body_width / 2,
-                   -post_body_depth / 2, segment_z])
-            cube([post_body_width, post_body_depth, post_segment_length]);
-    // 下段单独导出时也必须带上台面上方的箱型加厚，否则单件打印会
-    // 丢失承载网顶和光学导轨的局部结构。
-    if (index == 0) {
-        color("darkorange")
-            translate([post_center_x - post_body_width / 2 - 5,
-                       -post_body_depth / 2 - 4,
-                       -2])
-                cube([post_body_width + 10, post_body_depth + 8, 34]);
-    }
+        difference() {
+            union() {
+                translate([post_center_x - post_body_width / 2,
+                           -post_body_depth / 2, segment_z])
+                    cube([post_body_width, post_body_depth,
+                          post_segment_length]);
+                // 下段单独导出时也必须带上台面上方的箱型加厚，否则单件打印会
+                // 丢失承载网顶和光学导轨的局部结构。
+                if (index == 0) {
+                    translate([post_center_x - post_body_width / 2 - 5,
+                               -post_body_depth / 2 - 4,
+                               -2])
+                        cube([post_body_width + 10, post_body_depth + 8,
+                              34]);
+                }
+            }
+            // The upper upright carries the aluminum adapter.  The elongated
+            // x-through slots leave ±6 mm vertical installation adjustment;
+            // the bolts are the actual load path, not the plate intersection.
+            if (index == post_segment_count - 1) {
+                for (y_position = [-m6_post_mount_hole_y,
+                                   m6_post_mount_hole_y]) {
+                    m6_slot_x_z_span(
+                        post_center_x,
+                        y_position,
+                        m6_post_mount_hole_z,
+                        m6_mount_slot_length,
+                        post_body_width + 8,
+                        m6_post_mount_clearance_d);
+                }
+            }
+        }
 }
 
 module lower_stand_segment_positive() {
@@ -662,6 +1630,1880 @@ module post_positive() {
     }
     post_joint_sleeve_positive();
     post_joint_key_positive();
+}
+
+// -----------------------------------------------------------------------------
+// 当前 M6 十路铝合金基座与三轴微调
+//
+// 机械契约：6061-T6 铝合金板/圆盘由机加工或激光/水刀后加工完成；FDM
+// 只用于尺寸样件和网夹本体。无密封件、无分型面；器件从球台中心侧装入，
+// 基座从网夹/立柱侧用 M6 螺钉锁紧。四个层次的受力路径是：
+// M6×0.75 器件螺纹 -> 铝合金梳齿安装条 -> 滚转板 -> 俯仰叉架 -> 偏航上转台
+// -> (2×M5) 竖直承载板连接 -> 偏航下转台 -> (2×M6) 固定适配板连接
+// -> 网夹立柱。粗调由 z 轴弧槽/切向长孔完成，
+// M4 顶丝只负责微调，
+// 最终由 M6 锁紧螺钉承受工作载荷。
+
+module m6_cylinder_x(d, h, x_center, y_center, z_center) {
+    translate([x_center, y_center, z_center])
+        rotate([0, 90, 0])
+            cylinder(d = d, h = h, center = true);
+}
+
+module m6_cylinder_y(d, h, x_center, y_center, z_center) {
+    translate([x_center, y_center, z_center])
+        rotate([90, 0, 0])
+            cylinder(d = d, h = h, center = true);
+}
+
+module m6_cylinder_z(d, h, x_center, y_center, z_center) {
+    translate([x_center, y_center, z_center])
+        cylinder(d = d, h = h, center = true);
+}
+
+module m6_hex_prism(af, h, x_center, y_center, z_center) {
+    // Across-flats hexagonal pocket for the supplied M6 lock nut.
+    translate([x_center, y_center, z_center])
+        cylinder(r = af / (2 * cos(30)), h = h, $fn = 6, center = true);
+}
+
+module m6_slot_x_y(x_center, y_center, z_center, length, d = m6_stage_bolt_d) {
+    hull() {
+        for (y_position = [y_center - length / 2,
+                           y_center + length / 2]) {
+            m6_cylinder_x(d, 24, x_center, y_position, z_center);
+        }
+    }
+}
+
+module m6_slot_x_z(x_center, y_center, z_center, length, d = m6_stage_bolt_d) {
+    hull() {
+        for (z_position = [z_center - length / 2,
+                           z_center + length / 2]) {
+            m6_cylinder_x(d, 24, x_center, y_center, z_position);
+        }
+    }
+}
+
+module m6_slot_x_z_span(x_center, y_center, z_center, length, x_span,
+                        d = m6_stage_bolt_d) {
+    hull() {
+        for (z_position = [z_center - length / 2,
+                           z_center + length / 2]) {
+            m6_cylinder_x(d, x_span, x_center, y_center, z_position);
+        }
+    }
+}
+
+module m6_hex_prism_x(af, h, x_center, y_center, z_center) {
+    translate([x_center, y_center, z_center])
+        rotate([0, 90, 0])
+            rotate([0, 0, 30])
+                cylinder(r = af / (2 * cos(30)), h = h,
+                         $fn = 6, center = true);
+}
+
+module m6_hex_prism_y(af, h, x_center, y_center, z_center) {
+    // Hexagonal pocket normal to the rear y- face.  The 30° phase keeps two
+    // flats horizontal in the x/z section, matching a typical M6 nut.
+    translate([x_center, y_center, z_center])
+        rotate([90, 0, 0])
+            rotate([0, 0, 30])
+                cylinder(r = af / (2 * cos(30)), h = h,
+                         $fn = 6, center = true);
+}
+
+module m6_rounded_rect_prism_x(length_x, width_y, height_z, radius,
+                               x_center, y_center, z_center) {
+    // A rounded-rectangle cross section swept along x.  The hull of four
+    // x-axis cylinders remains a single watertight solid and avoids a
+    // printer-hostile minkowski stack on the long covers.
+    hull() {
+        for (y_offset = [-width_y / 2 + radius,
+                         width_y / 2 - radius]) {
+            for (z_offset = [-height_z / 2 + radius,
+                             height_z / 2 - radius]) {
+                m6_cylinder_x(
+                    2 * radius,
+                    length_x,
+                    x_center,
+                    y_center + y_offset,
+                    z_center + z_offset);
+            }
+        }
+    }
+}
+
+module m6_countersink_x(x_entry, direction, length_x, y_center, z_center,
+                        pilot_d, head_d, head_depth) {
+    // Explicit countersink: the broad cone mouth is at x_entry and the
+    // smaller pilot continues in the selected direction.  This is distinct
+    // from a counterbore and is used for the cover's flush M3/M4 screws.
+    m6_cylinder_x(
+        pilot_d,
+        length_x,
+        x_entry + direction * length_x / 2,
+        y_center,
+        z_center);
+    translate([x_entry, y_center, z_center])
+        rotate([0, direction * 90, 0])
+            cylinder(d1 = head_d, d2 = pilot_d,
+                     h = head_depth, center = false);
+}
+
+module m6_countersink_z(z_entry, direction, length_z, x_center, y_center,
+                        pilot_d, head_d, head_depth) {
+    // Vertical equivalent for the removable bottom cover.
+    m6_cylinder_z(
+        pilot_d,
+        length_z,
+        x_center,
+        y_center,
+        z_entry + direction * length_z / 2);
+    translate([x_center, y_center, z_entry])
+        rotate([direction < 0 ? 180 : 0, 0, 0])
+            cylinder(d1 = head_d, d2 = pilot_d,
+                     h = head_depth, center = false);
+}
+
+module m6_slot_y_z(x_center, y_center, z_center, length, d = m6_stage_bolt_d) {
+    hull() {
+        for (z_position = [z_center - length / 2,
+                           z_center + length / 2]) {
+            m6_cylinder_y(d, 24, x_center, y_center, z_position);
+        }
+    }
+}
+
+module m6_arc_slot_z(x_center, y_center, z_center, radius,
+                     center_angle, half_angle, d = m6_stage_bolt_d) {
+    // Small-angle arc slot for the real z-axis yaw turntable.  A faceted
+    // swept slot is intentional here: it is easy to machine or waterjet and
+    // leaves the two M6 clamp bolts as the load path after adjustment.
+    hull() {
+        for (angle = [center_angle - half_angle:1:center_angle + half_angle]) {
+            m6_cylinder_z(
+                d,
+                m6_yaw_stage_t + 4,
+                x_center + radius * cos(angle),
+                y_center + radius * sin(angle),
+                z_center);
+        }
+    }
+}
+
+module m6_sensor_rail_positive() {
+    // 这是铝合金机加工件的 1:1 外形和攻牙位置，不是 PETG 打印件。
+    // 竖直背骨承接十个水平托舌；每个托舌有一个 M6×0.75 竖直攻牙孔。
+    // 偶数/奇数通道的托舌沿 y 交错，避免 14 mm 安装杆在 10 mm 节距上相撞。
+    color("silver")
+        difference() {
+            union() {
+                translate([m6_sensor_rail_x,
+                           -m6_rail_width_y / 2,
+                           m6_array_bottom_z])
+                    cube([m6_rail_t, m6_rail_width_y, m6_rail_length_z]);
+                for (index = [0:m6_sensor_count - 1]) {
+                    translate([m6_rail_tab_min_x,
+                               m6_sensor_lane_y(index) - m6_rail_tab_width_y / 2,
+                               m6_sensor_tab_z(index) - m6_rail_tab_t / 2])
+                        cube([m6_rail_tab_max_x - m6_rail_tab_min_x,
+                              m6_rail_tab_width_y,
+                              m6_rail_tab_t]);
+                    // The vendor drawing shows a pair of M6 nuts under the
+                    // right-angle head.  A captured hex pocket lets the nut
+                    // clamp the head without allowing the L-body to rotate
+                    // while the channel height is being tuned.
+                    translate([m6_sensor_mount_hole_x - m6_sensor_guard_outer_d / 2,
+                               m6_sensor_lane_y(index) - m6_sensor_guard_outer_d / 2,
+                               m6_sensor_tab_z(index) + m6_rail_tab_t / 2])
+                        cube([m6_sensor_guard_outer_d,
+                              m6_sensor_guard_outer_d,
+                              m6_sensor_guard_h]);
+                }
+            }
+            // The right-angle body/cable sleeve crosses the backbone after
+            // the head.  Leave a 1 mm radial envelope so the bought part can
+            // pass through the aluminum rail without being clamped by it.
+            for (index = [0:m6_sensor_count - 1]) {
+                m6_cylinder_x(
+                    m6_sensor_body_clearance_d,
+                    m6_rail_t + 2,
+                    m6_sensor_rail_x + m6_rail_t / 2,
+                    m6_sensor_lane_y(index),
+                    m6_sensor_z(index));
+            }
+            for (index = [0:m6_sensor_count - 1]) {
+                // OpenSCAD 显示锁紧螺母六角窝和 M6×0.75 通孔；实际加工图
+                // 可选“攻牙孔”或“通孔 + 防转螺母”，以卖家螺纹/螺母为准。
+                m6_hex_prism(
+                    m6_sensor_lock_nut_af +
+                        2 * m6_sensor_nut_pocket_clearance,
+                    m6_sensor_lock_nut_h +
+                        m6_sensor_nut_pocket_clearance,
+                    m6_sensor_mount_hole_x,
+                    m6_sensor_lane_y(index),
+                    m6_sensor_tab_z(index) + m6_rail_tab_t / 2 +
+                        m6_sensor_guard_h -
+                        (m6_sensor_lock_nut_h +
+                         m6_sensor_nut_pocket_clearance) / 2);
+                m6_cylinder_z(
+                    m6_sensor_tap_visual_d,
+                    m6_rail_tab_t + m6_sensor_guard_h + 4,
+                    m6_sensor_mount_hole_x,
+                    m6_sensor_lane_y(index),
+                    m6_sensor_tab_z(index) + m6_sensor_guard_h / 2);
+            }
+            // The current production bar has no custom yaw/pitch/roll bearing
+            // pattern.  Its rear plate and the purchased ball head provide the
+            // adjustment interface; do not reintroduce the legacy roll-disc
+            // holes into this single vertical sensor bar.
+        }
+}
+
+module m6_sensor_test_coupon_positive() {
+    // The coupon is intentionally a local, low-cost fit check.  It contains
+    // one real tab plus a short section of the 8 mm backbone, so the buyer can
+    // verify the M6 right-angle head, lock nut, anti-rotation pocket and the
+    // Ø10 cable/body relief before cutting two full aluminum comb rails.
+    //
+    // The coupon hole is clearance, not a claim about the final M6×0.75 tap.
+    // The real sensor is installed from the top; its hex nut sits in the open
+    // pocket while the threaded stem passes through the tab.
+    tab_min_x = m6_sensor_test_coupon_tab_min_local_x;
+    tab_max_x = m6_rail_t;
+    mount_hole_x = m6_sensor_test_coupon_mount_hole_local_x;
+    lane_y = -m6_sensor_lane_offset_y;
+    tab_center_z = m6_rail_tab_t / 2;
+    tab_top_z = tab_center_z + m6_rail_tab_t / 2;
+    guard_bottom_z = tab_top_z - m6_sensor_test_coupon_guard_overlap;
+    guard_top_z = guard_bottom_z + m6_sensor_guard_h +
+                  m6_sensor_test_coupon_guard_overlap;
+    pocket_depth = m6_sensor_lock_nut_h + m6_sensor_nut_pocket_clearance;
+    sensor_z = tab_center_z + m6_sensor_mount_plane_offset_z +
+               m6_rail_tab_t / 2;
+    color("lightgray")
+        difference() {
+            union() {
+                translate([0,
+                           -m6_rail_width_y / 2,
+                           0])
+                    cube([m6_rail_t,
+                          m6_rail_width_y,
+                          m6_sensor_test_coupon_backbone_h]);
+                translate([tab_min_x,
+                           lane_y - m6_rail_tab_width_y / 2,
+                           tab_center_z - m6_rail_tab_t / 2])
+                    cube([tab_max_x - tab_min_x,
+                          m6_rail_tab_width_y,
+                          m6_rail_tab_t]);
+                // Overlap the guard into the tab by 0.2 mm so the coupon is
+                // one printable solid rather than two merely touching boxes.
+                translate([mount_hole_x - m6_sensor_guard_outer_d / 2,
+                           lane_y - m6_sensor_guard_outer_d / 2,
+                           guard_bottom_z])
+                    cube([m6_sensor_guard_outer_d,
+                          m6_sensor_guard_outer_d,
+                          m6_sensor_guard_h +
+                              m6_sensor_test_coupon_guard_overlap]);
+            }
+            // The real right-angle body/cable sleeve must be able to cross
+            // the short backbone without being pinched by the sample.
+            m6_cylinder_x(
+                m6_sensor_body_clearance_d,
+                m6_rail_t + 2,
+                m6_rail_t / 2,
+                lane_y,
+                sensor_z);
+            // Nut pocket opens at the guard top.  The smaller vertical hole
+            // continues through both guard and tab for the M6 stem.
+            m6_hex_prism(
+                m6_sensor_lock_nut_af +
+                    2 * m6_sensor_nut_pocket_clearance,
+                pocket_depth,
+                mount_hole_x,
+                lane_y,
+                guard_top_z - pocket_depth / 2);
+            m6_cylinder_z(
+                m6_sensor_test_coupon_clearance_d,
+                guard_top_z + 4,
+                mount_hole_x,
+                lane_y,
+                guard_top_z / 2);
+        }
+}
+
+module m6_sensor_body_positive(index) {
+    z0 = m6_sensor_z(index);
+    y0 = m6_sensor_lane_y(index);
+    thread_center_x =
+        m6_sensor_thread_start_x + m6_sensor_mount_stem_length / 2;
+    // Legacy standalone sensor proxy. The purchased right-angle device still
+    // has a horizontal optical/M6 axis; the blue guard and cable are the
+    // perpendicular local-z branch.
+    color("dimgray")
+        translate([m6_sensor_axis_x,
+                   y0 - m6_sensor_head_width_y / 2,
+                   z0 - m6_sensor_head_height_z / 2])
+            cube([m6_sensor_head_length_x,
+                  m6_sensor_head_width_y,
+                  m6_sensor_head_height_z]);
+    color("silver")
+        m6_cylinder_x(
+            m6_sensor_thread_d,
+            m6_sensor_mount_stem_length,
+            thread_center_x,
+            y0,
+            z0);
+    color("royalblue")
+        m6_cylinder_z(
+            m6_sensor_body_d,
+            m6_sensor_cable_guard_length,
+            m6_sensor_cable_exit_x,
+            y0,
+            z0 - m6_sensor_head_height_z / 2 -
+                m6_sensor_cable_guard_length / 2);
+    color("black")
+        m6_cylinder_z(
+            m6_sensor_cable_d,
+            m6_sensor_cable_preview_length,
+            m6_sensor_cable_exit_x,
+            y0,
+            z0 - m6_sensor_head_height_z / 2 -
+                m6_sensor_cable_guard_length -
+                m6_sensor_cable_preview_length / 2);
+    color("black")
+        m6_cylinder_x(
+            m6_sensor_face_d,
+            1,
+            m6_sensor_axis_x - 0.5,
+            y0,
+            z0);
+}
+
+module m6_sensor_array_positive() {
+    // Public/current PART name now follows the rear-inserted long body.  The
+    // old comb remains available as PART=m6_sensor_rail for diagnostics.
+    m6_detector_body_positive();
+    m6_detector_sensor_array_positive();
+}
+
+module m6_mount_adapter_positive() {
+    // 两条竖向长孔（左右各一）与当前网夹/立柱的同轴长孔组成穿栓接口；
+    // 孔位保留 ±6 mm 高度余量。真实商品网夹若不是当前 28×38 mm 立柱，
+    // 仍需按实物改过渡板或孔距，不能把本接口当成商品夹具的量测结果。
+    color("lightgray")
+        difference() {
+            translate([m6_mount_plate_x,
+                       -m6_mount_plate_width_y / 2,
+                       m6_array_center_z - m6_mount_plate_height_z / 2])
+                cube([m6_mount_plate_t,
+                      m6_mount_plate_width_y,
+                      m6_mount_plate_height_z]);
+            for (y_position = [-m6_post_mount_hole_y,
+                               m6_post_mount_hole_y]) {
+                m6_slot_x_z_span(
+                    post_center_x,
+                    y_position,
+                    m6_post_mount_hole_z,
+                    m6_mount_slot_length,
+                    post_body_width + m6_mount_plate_t + 8,
+                    m6_post_mount_clearance_d);
+            }
+            // Current active pattern: two visible holes at the 90° bracket
+            // shelf level.  The legacy yaw/ballhead hole pattern is no longer
+            // cut here; it made the vertical adapter look like the discarded
+            // horizontal three-axis mechanism.
+            for (z_position = [m6_post_mount_hole_z - 6,
+                               m6_post_mount_hole_z + 6]) {
+                m6_cylinder_x(
+                    m6_detector_support_fastener_d,
+                    m6_mount_plate_t + 4,
+                    m6_mount_plate_x + m6_mount_plate_t / 2,
+                    m6_detector_support_y,
+                    z_position);
+            }
+        }
+}
+
+module m6_post_mount_hardware_positive() {
+    // Two gold through-bolt stacks make the adapter-to-upright load path
+    // visible in the assembly preview.  The final washer/nut stack and length
+    // remain a first-article measurement item.
+    for (y_position = [-m6_post_mount_hole_y,
+                       m6_post_mount_hole_y]) {
+        color("gold")
+            m6_cylinder_x(
+                m6_post_mount_clearance_d - 1,
+                m6_post_mount_bolt_length,
+                post_center_x,
+                y_position,
+                m6_post_mount_hole_z);
+        color("gold")
+            m6_hex_prism_x(
+                m6_sensor_lock_nut_af,
+                m6_sensor_lock_nut_h,
+                m6_mount_plate_x - m6_sensor_lock_nut_h / 2,
+                y_position,
+                m6_post_mount_hole_z);
+        color("gold")
+            m6_hex_prism_x(
+                m6_sensor_lock_nut_af,
+                m6_sensor_lock_nut_h,
+                post_center_x + post_body_width / 2 +
+                    m6_sensor_lock_nut_h / 2,
+                y_position,
+                m6_post_mount_hole_z);
+    }
+}
+
+module m6_detector_backplate_positive() {
+    // This is the metal rear plate of the detector assembly.  It overlaps
+    // the single vertical sensor bar by 0.5 mm and presents one central M6
+    // hole plus two anti-rotation holes to the purchased ball head.  The
+    // plate is therefore the only custom interface between the sensor metal
+    // work and the commercial 13 mm ball.
+    color("silver")
+        difference() {
+            translate([m6_detector_backplate_x,
+                       -m6_detector_backplate_width_y / 2,
+                       m6_array_center_z - m6_detector_backplate_height_z / 2])
+                cube([m6_detector_backplate_t,
+                      m6_detector_backplate_width_y,
+                      m6_detector_backplate_height_z]);
+            m6_cylinder_x(
+                m6_detector_backplate_mount_clearance_d,
+                m6_detector_backplate_t + 4,
+                m6_detector_backplate_x + m6_detector_backplate_t / 2,
+                0,
+                m6_ballhead_axis_z);
+            for (y_position = [-m6_detector_backplate_lock_hole_y,
+                               m6_detector_backplate_lock_hole_y]) {
+                m6_cylinder_x(
+                    m6_detector_backplate_anti_rotation_d,
+                    m6_detector_backplate_t + 4,
+                    m6_detector_backplate_x + m6_detector_backplate_t / 2,
+                    y_position,
+                    m6_ballhead_axis_z);
+            }
+        }
+}
+
+module m6_ballhead_positive() {
+    // Purchased 13 mm mini ball head proxy.  The actual metal head supplies
+    // 360° rotation and 90° opening; these simple envelopes only show the
+    // clear load path and the two M6 external-thread interfaces.
+    color("silver") {
+        translate([m6_ballhead_center_x, 0, m6_ballhead_axis_z])
+            sphere(d = m6_ballhead_ball_d, $fn = 32);
+        m6_cylinder_x(
+            m6_ballhead_housing_d,
+            m6_ballhead_housing_length_x,
+            m6_ballhead_center_x,
+            0,
+            m6_ballhead_axis_z);
+        m6_cylinder_x(
+            m6_ballhead_base_d,
+            m6_ballhead_base_t,
+            m6_ballhead_base_center_x,
+            0,
+            m6_ballhead_axis_z);
+        m6_cylinder_x(
+            m6_ballhead_sensor_stud_d,
+            m6_ballhead_sensor_stud_length + 2,
+            m6_ballhead_sensor_stud_center_x,
+            0,
+            m6_ballhead_axis_z);
+        m6_cylinder_x(
+            m6_ballhead_net_stud_d,
+            m6_ballhead_net_stud_length,
+            m6_ballhead_net_stud_center_x,
+            0,
+            m6_ballhead_axis_z);
+        // The two small pins are only an assembly proxy for the anti-rotation
+        // pattern in the detector backplate; verify the vendor head geometry.
+        for (y_position = [-m6_detector_backplate_lock_hole_y,
+                           m6_detector_backplate_lock_hole_y]) {
+            m6_cylinder_x(
+                m6_detector_backplate_anti_rotation_d - 0.5,
+                m6_ballhead_sensor_stud_length,
+                m6_ballhead_sensor_stud_center_x,
+                y_position,
+                m6_ballhead_axis_z);
+        }
+    }
+    color("dimgray")
+        m6_cylinder_y(
+            18,
+            8,
+            m6_ballhead_center_x,
+            -m6_ballhead_housing_d / 2 - 2,
+            m6_ballhead_axis_z);
+}
+
+module m6_ballhead_net_hardware_positive() {
+    // The net-side adapter carries the selected M6-external thread with a
+    // washer/nut stack.  If the purchased variant uses 1/4, 3/8, M8 or M10,
+    // only this adapter hole/fastener pair changes; the sensor backplate and
+    // the single vertical bar remain unchanged.
+    color("gold") {
+        m6_hex_prism_x(
+            m6_sensor_lock_nut_af,
+            m6_sensor_lock_nut_h,
+            m6_mount_plate_x - m6_sensor_lock_nut_h / 2,
+            0,
+            m6_ballhead_axis_z);
+        m6_hex_prism_x(
+            m6_sensor_lock_nut_af,
+            m6_sensor_lock_nut_h,
+            post_center_x + post_body_width / 2 +
+                m6_sensor_lock_nut_h / 2,
+            0,
+            m6_ballhead_axis_z);
+    }
+}
+
+module m6_ballhead_mount_positive() {
+    m6_mount_adapter_positive();
+    m6_post_mount_hardware_positive();
+    m6_detector_backplate_positive();
+    m6_ballhead_positive();
+    m6_ballhead_net_hardware_positive();
+    m6_sensor_array_positive();
+}
+
+// -----------------------------------------------------------------------------
+// 当前主体主线：L 型 M6 传感器 + x 轴 45° 让线旋转
+//
+// The optical channel and M6 threaded barrel remain on the x axis. In the
+// local sensor frame the blue cable guard exits z-, then the complete
+// purchased-device proxy is rolled -45° about x; that cable branch therefore
+// points toward y-/z-. The active aperture is the hollow threaded-barrel tip;
+// there is no separate black optical face on the gray hex.
+// The aluminum body is a solid, wide x-direction carrier centered at y=0. It
+// has ten optical/head openings and shallow rear hex seats. The M6 thread is
+// a simple clearance pass-through; one purchased nut sits on the outside
+// face. The cable stays outside the aluminum and is not pocketed.
+// The PETG covers are intentionally not part of this body-first geometry
+// decision and will be rebuilt after the orientation is visually accepted.
+
+module m6_sensor_roll_frame(index) {
+    z0 = m6_sensor_z(index);
+    translate([m6_sensor_axis_x, 0, z0])
+        rotate([m6_sensor_roll_deg, 0, 0])
+            translate([-m6_sensor_axis_x, 0, -z0])
+                children();
+}
+
+module m6_detector_body_positive() {
+    color("silver")
+        difference() {
+            translate([m6_detector_body_min_x,
+                       m6_detector_body_min_y,
+                       m6_detector_body_bottom_z])
+                cube([m6_detector_body_length_x,
+                      m6_detector_body_depth_y,
+                      m6_detector_body_height_z]);
+
+            for (index = [0:m6_sensor_count - 1]) {
+                // The optical/head axis crosses the carrier. The round bore is
+                // only for the M6/thread axis; the larger rotated head relief
+                // keeps the real AF8 metal head from being swallowed by solid
+                // aluminum. The face remains on the table-facing side.
+                m6_cylinder_x(
+                    m6_detector_optical_bore_d,
+                    m6_detector_body_length_x + 2,
+                    m6_detector_body_center_x,
+                    m6_detector_sensor_head_center_y,
+                    m6_sensor_z(index));
+                m6_sensor_roll_frame(index)
+                    translate([
+                        m6_detector_body_min_x - 1,
+                        m6_detector_sensor_head_center_y -
+                            (m6_sensor_head_width_y + 1.6) / 2,
+                        m6_sensor_z(index) -
+                            (m6_sensor_head_height_z + 1.6) / 2])
+                        cube([m6_detector_body_length_x + 2,
+                              m6_sensor_head_width_y + 1.6,
+                              m6_sensor_head_height_z + 1.6]);
+
+                // The right-hand receiver is inserted from x+ and the
+                // mirrored left-hand emitter from x-.  This shallow x-normal
+                // hex seat is on the outward face of the carrier. It only
+                // prevents the real metal hex from turning; it does not bury
+                // the hex/thread shoulder in a deep cavity.
+                m6_sensor_roll_frame(index)
+                    m6_hex_prism_x(
+                        m6_detector_hex_pocket_af,
+                        m6_detector_hex_pocket_depth_x,
+                        m6_detector_body_max_x -
+                            m6_detector_hex_pocket_depth_x / 2,
+                        m6_detector_sensor_head_center_y,
+                        m6_sensor_z(index));
+
+            }
+
+            // Do not cut a diagonal cable trench into the aluminum. The
+            // rotated blue guard and stripped cable leave on the outside face
+            // and remain visible in the assembly preview.
+
+            // Two pairs of M3/M4 cover pilot holes enter from the optical and
+            // cable sides.  The countersink lives in the removable covers.
+            for (y_position = m6_detector_shell_screw_y) {
+                for (z_position = m6_detector_body_screw_z) {
+                    m6_cylinder_x(
+                        m6_detector_shell_screw_pilot_d,
+                        m6_detector_body_length_x + 2,
+                        m6_detector_body_center_x,
+                        y_position,
+                        z_position);
+                }
+            }
+
+            // Bottom-cover pilot holes are blind in the metal body; the PETG
+            // cover supplies the visible countersink.
+            for (x_position = m6_detector_bottom_screw_x) {
+                m6_cylinder_z(
+                    m6_detector_bottom_cover_screw_d,
+                    m6_bottom_cover_screw_depth,
+                    x_position,
+                    m6_detector_body_center_y,
+                    m6_detector_body_bottom_z +
+                        m6_bottom_cover_screw_depth / 2);
+            }
+
+            // A vertical pair of edge grooves gives each x-half of the cover
+            // a captured tongue.  They are guides, not the primary load path.
+            for (y_side = [-1, 1]) {
+                translate([
+                    m6_detector_body_center_x -
+                        m6_detector_body_groove_width_x / 2,
+                    y_side > 0
+                        ? m6_detector_body_max_y -
+                            m6_detector_body_groove_depth_y
+                        : m6_detector_body_min_y,
+                    m6_detector_body_bottom_z +
+                        m6_detector_body_groove_margin_z])
+                    cube([m6_detector_body_groove_width_x,
+                          m6_detector_body_groove_depth_y,
+                          m6_detector_body_height_z -
+                              2 * m6_detector_body_groove_margin_z]);
+            }
+        }
+}
+
+// Minimal first-article fit probe.  This deliberately contains only the
+// long rectangular aluminum bar and the real purchased L-shaped sensor model:
+// gray hex head, hollow M6 optical barrel, blue right-angle guard, and short
+// cable proxy.  The head enters from the outward face, overlaps the body by
+// 2 mm, and stops there; one supplied lock nut is placed on the smooth inner
+// body face. Covers, screws, brackets, and gimbals remain outside this probe.
+module m6_detector_fit_body_positive() {
+    color("silver")
+        difference() {
+            translate([m6_detector_body_min_x,
+                       m6_detector_body_min_y,
+                       m6_detector_body_bottom_z])
+                cube([m6_detector_body_length_x,
+                      m6_detector_body_depth_y,
+                      m6_detector_body_height_z]);
+
+            for (index = [0:m6_sensor_count - 1]) {
+                z0 = m6_sensor_z(index);
+                // The round pass-through follows the actual M6 threaded
+                // barrel.  The shallow x-normal hex pocket is the negative
+                // of the real gray AF8 head and captures its inner 2 mm;
+                // the cross-section is rotated with the real -45° sensor
+                // roll, not replaced by a rectangular placeholder.
+                m6_cylinder_x(
+                    m6_detector_fit_thread_clearance_d,
+                    m6_detector_body_length_x + 2,
+                    m6_detector_body_center_x,
+                    m6_detector_sensor_head_center_y,
+                    z0);
+                m6_sensor_roll_frame(index)
+                    m6_hex_prism_x(
+                        m6_sensor_head_hex_af,
+                        m6_detector_fit_capture_depth_x + 0.1,
+                        m6_detector_body_max_x -
+                            m6_detector_fit_capture_depth_x / 2,
+                        m6_detector_sensor_head_center_y,
+                        z0);
+            }
+        }
+}
+
+module m6_detector_fit_sensor_positive(index) {
+    // The installed positive-side sensor already has the correct right
+    // receiver orientation.  Its original head center is 766 mm; translate
+    // the whole real 3-D sensor so the inner shoulder lands at body_max-2 mm.
+    // The supplied nut is added below at the smooth body face. It is not
+    // embedded in the aluminum and is positioned from the enlarged body's
+    // actual inner x face, rather than copied from the full-assembly legacy
+    // coordinate.
+    translate([
+        m6_detector_fit_head_center_x - m6_sensor_head_center_x,
+        0,
+        0])
+        m6_detector_sensor_positive(index, false);
+    z0 = m6_sensor_z(index);
+    m6_sensor_roll_frame(index)
+        color("gold")
+            m6_hex_prism_x(
+                m6_sensor_lock_nut_af,
+                m6_sensor_lock_nut_h,
+                m6_detector_fit_nut_center_x,
+                m6_detector_sensor_head_center_y,
+                z0);
+}
+
+module m6_detector_fit_probe_positive() {
+    m6_detector_fit_body_positive();
+    for (index = [0:m6_sensor_count - 1]) {
+        m6_detector_fit_sensor_positive(index);
+    }
+}
+
+module m6_detector_sensor_local_positive(index, show_nut = true) {
+    z0 = m6_sensor_z(index);
+    thread_center_x =
+        m6_sensor_thread_start_x + m6_sensor_mount_stem_length / 2;
+    // Local frame before the -45° roll: the hollow M6 optical barrel runs
+    // horizontally along x; only the blue strain relief and black cable point
+    // down along local z-. The blue right-angle branch terminates at the
+    // purchased gray hex body. It is not an x-axis cable body.
+    color("dimgray")
+        m6_hex_prism_x(
+            m6_sensor_head_hex_af,
+            m6_sensor_head_length_x,
+            m6_sensor_head_center_x,
+            m6_detector_sensor_head_center_y,
+            z0);
+    // The silver M6 section is a hollow optical barrel, not a solid mounting
+    // screw. Keep the shell visible and remove its center all the way to the
+    // tip; the dark end disk only marks the actual emit/receive aperture.
+    color("silver")
+        difference() {
+            m6_cylinder_x(
+                m6_sensor_thread_d,
+                m6_sensor_mount_stem_length,
+                thread_center_x,
+                m6_detector_sensor_head_center_y,
+                z0);
+            m6_cylinder_x(
+                m6_sensor_optical_bore_d,
+                m6_sensor_mount_stem_length + 0.4,
+                thread_center_x,
+                m6_detector_sensor_head_center_y,
+                z0);
+        }
+    color("royalblue")
+        m6_cylinder_z(
+            m6_sensor_body_d,
+            m6_sensor_cable_guard_length,
+            m6_sensor_cable_exit_x,
+            m6_detector_sensor_body_center_y,
+            z0 - m6_sensor_head_height_z / 2 -
+                m6_sensor_cable_guard_length / 2);
+    color("black")
+        m6_cylinder_z(
+            m6_sensor_cable_d,
+            m6_sensor_cable_preview_length,
+            m6_sensor_cable_exit_x,
+            m6_detector_sensor_body_center_y,
+            z0 - m6_sensor_head_height_z / 2 -
+                m6_sensor_cable_guard_length -
+                m6_sensor_cable_preview_length / 2);
+    color("black")
+        m6_cylinder_x(
+            m6_sensor_optical_bore_d,
+            0.4,
+            m6_sensor_optical_aperture_x + 0.2,
+            m6_detector_sensor_head_center_y,
+            z0);
+    // The M6 thread simply passes through the aluminum carrier. Only one
+    // purchased nut is shown, seated directly on the outward body face; there
+    // is no second nut and no printed fixing screw embedded in the body.
+    if (show_nut) {
+        color("gold")
+            m6_hex_prism_x(
+                m6_sensor_lock_nut_af,
+                m6_sensor_lock_nut_h,
+                m6_detector_sensor_nut_base_center_x,
+                m6_detector_sensor_head_center_y,
+                z0);
+    }
+}
+
+module m6_detector_sensor_positive(index, show_nut = true) {
+    m6_sensor_roll_frame(index)
+        // Positive geometry is installed on the right receiver. The gray
+        // hex/cable side stays at x+ against the shallow pocket; the hollow
+        // threaded optical barrel points inward toward x- through the body.
+        translate([2 * m6_sensor_head_center_x, 0, 0])
+            mirror([1, 0, 0])
+                m6_detector_sensor_local_positive(index, show_nut);
+}
+
+module m6_detector_sensor_array_positive() {
+    for (index = [0:m6_sensor_count - 1]) {
+        m6_detector_sensor_positive(index);
+    }
+}
+
+// Inspection-only single purchased sensor.  The local origin is the optical
+// axis at the first channel, so the standalone output is easy to read without
+// the table, aluminum body, shell, gimbal, or clamp. SIDE=1 is the right
+// receiver (hollow threaded tip toward -x); SIDE=-1 is its mirrored left
+// emitter (hollow threaded tip toward +x).
+module m6_sensor_single_preview(side = 1) {
+    z0 = m6_sensor_z(0);
+    if (side >= 0) {
+        translate([-m6_sensor_head_center_x,
+                   -m6_detector_sensor_head_center_y,
+                   -z0])
+            m6_detector_sensor_positive(0);
+    } else {
+        translate([m6_sensor_head_center_x,
+                   -m6_detector_sensor_head_center_y,
+                   -z0])
+            mirror([1, 0, 0])
+                m6_detector_sensor_positive(0);
+    }
+}
+
+module m6_sensor_single_direction_preview(side = 1) {
+    if (side >= 0) {
+        // Right receiver: incoming +x beam terminates at the hollow tip.
+        m6_optical_arrow_x(-30,
+                           -(m6_sensor_optical_aperture_x -
+                             m6_sensor_head_center_x) - 1.5,
+                           0,
+                           0);
+    } else {
+        // Left emitter: outgoing +x beam leaves the mirrored hollow tip.
+        m6_optical_arrow_x(
+            (m6_sensor_optical_aperture_x - m6_sensor_head_center_x) + 1.5,
+            30,
+            0,
+            0);
+    }
+}
+
+module m6_detector_front_outer_positive() {
+    union() {
+        m6_rounded_rect_prism_x(
+            m6_detector_shell_front_max_x - m6_detector_shell_min_x,
+            m6_detector_shell_width_y,
+            m6_detector_shell_height_z,
+            m6_detector_shell_corner_radius,
+            (m6_detector_shell_front_max_x + m6_detector_shell_min_x) / 2,
+            0,
+            (m6_detector_shell_bottom_z + m6_detector_shell_top_z) / 2);
+        // A shallow circular hull at the beam-facing end makes the front cap
+        // read as a positive spherical arc without making a huge sphere.
+        hull() {
+            m6_cylinder_x(
+                m6_detector_shell_width_y,
+                0.8,
+                m6_detector_shell_min_x + 0.4,
+                0,
+                m6_detector_body_center_z);
+            m6_cylinder_x(
+                m6_detector_shell_width_y -
+                    m6_detector_front_cap_reduction,
+                0.8,
+                m6_detector_shell_min_x +
+                    m6_detector_front_cap_length_x,
+                0,
+                m6_detector_body_center_z);
+        }
+    }
+}
+
+module m6_detector_shell_tongue_positive(y_side) {
+    // Each half owns only the groove on its own y edge.  The tongue is kept
+    // inside the 4 mm x-wide body groove; it cannot become a second hidden
+    // load path or collide with the optical head.
+    translate([
+        m6_detector_body_center_x -
+            m6_detector_body_groove_width_x / 2 +
+            m6_detector_shell_tongue_clearance,
+        y_side > 0
+            ? m6_detector_body_max_y -
+                m6_detector_body_groove_depth_y +
+                m6_detector_shell_tongue_clearance
+            : m6_detector_body_min_y -
+                m6_detector_shell_tongue_clearance,
+        m6_detector_body_bottom_z +
+            m6_detector_body_groove_margin_z])
+        cube([max(0.5,
+                  m6_detector_body_groove_width_x -
+                      2 * m6_detector_shell_tongue_clearance),
+              m6_detector_shell_tongue_depth_y,
+              m6_detector_body_height_z -
+                  2 * m6_detector_body_groove_margin_z]);
+}
+
+module m6_detector_shell_half_outer_positive(y_min, y_max) {
+    intersection() {
+        m6_detector_front_outer_positive();
+        translate([m6_detector_shell_min_x - 1,
+                   y_min,
+                   m6_detector_shell_bottom_z - 1])
+            cube([m6_detector_shell_max_x - m6_detector_shell_min_x + 2,
+                  y_max - y_min,
+                  m6_detector_shell_height_z + 2]);
+    }
+}
+
+module m6_detector_shell_half_rounded_outer_positive(y_min, y_max) {
+    // Rear cover uses only the rounded-rectangle envelope; the positive
+    // spherical arc belongs to the front y+ half.
+    intersection() {
+        m6_rounded_rect_prism_x(
+            m6_detector_shell_max_x - m6_detector_shell_min_x,
+            m6_detector_shell_width_y,
+            m6_detector_shell_height_z,
+            m6_detector_shell_corner_radius,
+            (m6_detector_shell_max_x + m6_detector_shell_min_x) / 2,
+            0,
+            (m6_detector_shell_bottom_z + m6_detector_shell_top_z) / 2);
+        translate([m6_detector_shell_min_x - 1,
+                   y_min,
+                   m6_detector_shell_bottom_z - 1])
+            cube([m6_detector_shell_max_x - m6_detector_shell_min_x + 2,
+                  y_max - y_min,
+                  m6_detector_shell_height_z + 2]);
+    }
+}
+
+module m6_detector_shell_half_inner_positive(y_min, y_max) {
+    translate([m6_detector_shell_inner_min_x,
+               y_min,
+               m6_detector_shell_inner_bottom_z])
+        cube([m6_detector_shell_inner_max_x -
+                  m6_detector_shell_inner_min_x,
+              y_max - y_min,
+              m6_detector_shell_inner_top_z -
+                  m6_detector_shell_inner_bottom_z]);
+}
+
+module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
+    // Front is y+: the beam-facing x-end keeps the shallow positive arc, while
+    // this half owns the front-side groove and two x-directed countersunk
+    // screws into the aluminum carrier.
+    union() {
+        color("slategray", alpha)
+            difference() {
+                m6_detector_shell_half_outer_positive(
+                    m6_detector_shell_front_min_y,
+                    m6_detector_shell_max_y);
+                m6_detector_shell_half_inner_positive(
+                    m6_detector_shell_front_min_y - 1,
+                    m6_detector_shell_max_y + 1);
+                for (z_position = m6_detector_body_screw_z) {
+                    m6_countersink_x(
+                        m6_detector_shell_min_x,
+                        1,
+                        m6_detector_shell_max_x -
+                            m6_detector_shell_min_x + 2,
+                        m6_detector_shell_screw_y[1],
+                        z_position,
+                        m6_detector_shell_screw_pilot_d,
+                        m6_detector_shell_screw_head_d,
+                        m6_detector_shell_screw_head_depth);
+                }
+            }
+        m6_detector_shell_tongue_positive(1);
+    }
+}
+
+module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
+    // Rear is y-: the rounded-rectangle half carries the bridge boss.  The
+    // boss overlaps the cover by 0.8 mm so the x-axis tap has a real metal/
+    // cover load path instead of two merely touching surfaces.
+    union() {
+        color("slategray", alpha)
+            difference() {
+                union() {
+                    m6_detector_shell_half_rounded_outer_positive(
+                        m6_detector_shell_min_y,
+                        m6_detector_shell_rear_max_y);
+                    translate([m6_detector_support_boss_min_x,
+                               m6_detector_support_boss_min_y,
+                               m6_detector_support_boss_center_z -
+                                   m6_detector_support_boss_height_z / 2])
+                        cube([m6_detector_support_boss_width_x,
+                              m6_detector_support_boss_depth_y + 0.8,
+                              m6_detector_support_boss_height_z]);
+                }
+                m6_detector_shell_half_inner_positive(
+                    m6_detector_shell_min_y - 1,
+                    m6_detector_shell_rear_max_y + 1);
+                for (z_position = m6_detector_body_screw_z) {
+                    m6_countersink_x(
+                        m6_detector_shell_max_x,
+                        -1,
+                        m6_detector_shell_max_x -
+                            m6_detector_shell_min_x + 2,
+                        m6_detector_shell_screw_y[0],
+                        z_position,
+                        m6_detector_shell_screw_pilot_d,
+                        m6_detector_shell_screw_head_d,
+                        m6_detector_shell_screw_head_depth);
+                }
+                m6_cylinder_x(
+                    m6_detector_support_tap_d,
+                    m6_detector_support_boss_width_x + 4,
+                    m6_detector_support_boss_center_x,
+                    m6_detector_support_y,
+                    m6_detector_support_boss_center_z);
+            }
+        m6_detector_shell_tongue_positive(-1);
+    }
+}
+
+module m6_detector_bottom_cover_positive() {
+    color("darkslategray")
+        difference() {
+            translate([m6_detector_shell_min_x,
+                       m6_detector_shell_min_y,
+                       m6_detector_shell_bottom_z -
+                           m6_detector_bottom_cover_t])
+                cube([m6_detector_shell_max_x - m6_detector_shell_min_x,
+                      m6_detector_shell_width_y,
+                      m6_detector_bottom_cover_t]);
+            m6_cylinder_z(
+                m6_detector_cable_exit_d,
+                m6_detector_bottom_cover_t + 2,
+                m6_detector_cable_exit_x,
+                m6_detector_cable_exit_y,
+                m6_detector_shell_bottom_z -
+                    m6_detector_bottom_cover_t / 2);
+            for (x_position = m6_detector_bottom_screw_x) {
+                m6_countersink_z(
+                    m6_detector_shell_bottom_z -
+                        m6_detector_bottom_cover_t,
+                    1,
+                    m6_detector_bottom_cover_t + 2,
+                    x_position,
+                    0,
+                    m6_detector_bottom_cover_screw_d,
+                    m6_detector_bottom_cover_screw_head_d,
+                    m6_detector_bottom_cover_screw_head_depth);
+            }
+        }
+}
+
+module m6_detector_support_positive() {
+    // A purchased ball head is not the vertical support by itself.  This
+    // metal L bracket runs from the head's lower stud to a vertical leg that
+    // overlaps the net-clamp adapter plate; triangular side cheeks close the
+    // 90° corner and carry the bending moment.
+    color("dimgray")
+        union() {
+            translate([m6_detector_support_arm_min_x,
+                       m6_detector_support_arm_min_y,
+                       m6_detector_support_arm_z -
+                           m6_detector_support_arm_t_z / 2])
+                cube([m6_detector_support_arm_max_x -
+                          m6_detector_support_arm_min_x,
+                      m6_detector_support_arm_width_y,
+                      m6_detector_support_arm_t_z]);
+            translate([m6_detector_support_leg_x -
+                           m6_detector_support_leg_t_x / 2,
+                       m6_detector_support_arm_min_y,
+                       m6_detector_support_leg_bottom_z])
+                cube([m6_detector_support_leg_t_x,
+                      m6_detector_support_arm_width_y,
+                      m6_detector_support_leg_height_z]);
+            for (y_side = [-1, 1]) {
+                translate([0,
+                           m6_detector_support_y +
+                               y_side *
+                                   (m6_detector_support_arm_width_y / 2 -
+                                    m6_detector_support_gusset_t_y / 2),
+                           0])
+                    rotate([90, 0, 0])
+                        linear_extrude(
+                            height = m6_detector_support_gusset_t_y,
+                            center = true)
+                            polygon(points = [
+                                [m6_detector_support_leg_x -
+                                     m6_detector_support_leg_t_x / 2,
+                                 m6_detector_support_arm_z -
+                                     m6_detector_support_arm_t_z / 2],
+                                [m6_detector_support_leg_x +
+                                     m6_detector_support_gusset_inset_x,
+                                 m6_detector_support_arm_z -
+                                     m6_detector_support_arm_t_z / 2],
+                                [m6_detector_support_leg_x -
+                                     m6_detector_support_leg_t_x / 2,
+                                 m6_detector_support_leg_bottom_z]
+                            ]);
+            }
+        }
+}
+
+module m6_detector_ballhead_positive() {
+    // Purchased 13 mm ball head in the user's required vertical posture:
+    // housing/base/stud stack is z-oriented, while the sensor-side thread
+    // enters the rear-cover boss along x.  The exact vendor transition is an
+    // envelope; thread variant is selected in the BOM, not printed here.
+    color("silver") {
+        translate([m6_detector_ballhead_center_x,
+                   m6_detector_ballhead_center_y,
+                   m6_detector_ballhead_center_z])
+            sphere(d = m6_ballhead_ball_d, $fn = 32);
+        m6_cylinder_z(
+            m6_ballhead_housing_d,
+            m6_ballhead_housing_length_x,
+            m6_detector_ballhead_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_center_z);
+        m6_cylinder_z(
+            m6_ballhead_base_d,
+            m6_ballhead_base_t,
+            m6_detector_ballhead_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_base_center_z);
+        m6_cylinder_x(
+            m6_ballhead_sensor_stud_d,
+            m6_ballhead_sensor_stud_length + 2,
+            m6_detector_ballhead_sensor_stud_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_center_z);
+        m6_cylinder_z(
+            m6_ballhead_net_stud_d,
+            m6_ballhead_net_stud_length,
+            m6_detector_ballhead_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_net_stud_center_z);
+    }
+    color("dimgray")
+        m6_cylinder_y(
+            18,
+            8,
+            m6_detector_ballhead_center_x,
+            m6_detector_ballhead_center_y -
+                m6_ballhead_housing_d / 2 - 2,
+            m6_detector_ballhead_center_z);
+}
+
+module m6_detector_support_hardware_positive() {
+    color("gold") {
+        // Sensor-side M6/selected-thread stud into the rear-cover x tap.
+        m6_cylinder_x(
+            m6_ballhead_sensor_stud_d - 0.6,
+            m6_ballhead_sensor_stud_length + 2,
+            m6_detector_ballhead_sensor_stud_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_center_z);
+        // Vertical selected-thread stud into the 90° support shelf.
+        m6_cylinder_z(
+            m6_ballhead_net_stud_d - 0.6,
+            m6_ballhead_net_stud_length,
+            m6_detector_ballhead_center_x,
+            m6_detector_ballhead_center_y,
+            m6_detector_ballhead_net_stud_center_z);
+        // Two visible M6 through bolts tie the vertical bracket to the
+        // commercial/metal adapter plate; the exact clamp-side slot remains
+        // a first-article measurement item.
+        for (z_position = [m6_post_mount_hole_z - 6,
+                           m6_post_mount_hole_z + 6]) {
+            m6_cylinder_x(
+                m6_detector_support_fastener_d - 0.6,
+                m6_mount_plate_t + 14,
+                m6_detector_support_leg_x,
+                m6_detector_support_y,
+                z_position);
+        }
+    }
+}
+
+module m6_detector_mount_positive() {
+    m6_mount_adapter_positive();
+    m6_post_mount_hardware_positive();
+    m6_detector_support_positive();
+    m6_detector_body_positive();
+    m6_detector_sensor_array_positive();
+    // The user explicitly wants the aluminum body/rotated L-device geometry
+    // accepted before the protective shell is rebuilt.  Keep the cover
+    // modules independently exportable, but do not let them obscure this
+    // body-first orientation preview.
+    if (m6_detector_show_shell) {
+        m6_detector_shell_front_positive();
+        m6_detector_shell_rear_positive();
+        m6_detector_bottom_cover_positive();
+    }
+    m6_detector_ballhead_positive();
+    m6_detector_support_hardware_positive();
+}
+
+module m6_detector_exploded_positive() {
+    // Non-sectioned inspection view.  Each physical part stays whole and is
+    // pulled away along its real assembly direction: sensors out through x+,
+    // y+ front cover forward, y- rear cover backward, and the bottom cover
+    // downward.  The metal support/ballhead/load path remains in place so
+    // the exploded relationship to the net clamp is still readable.
+    m6_mount_adapter_positive();
+    m6_post_mount_hardware_positive();
+    m6_detector_support_positive();
+    m6_detector_ballhead_positive();
+    m6_detector_support_hardware_positive();
+
+    // Aluminum carrier stays at its installed datum.
+    m6_detector_body_positive();
+
+    // The ten purchased L sensors are withdrawn from the right-side receiver
+    // entry.  On SIDE=-1 the outer mirror makes this the left-side withdrawal.
+    translate([28, 0, 0])
+        m6_detector_sensor_array_positive();
+
+    // Covers are whole, opaque parts in this view; their separation is the
+    // section substitute and no face is cut away.
+    translate([0, 24, 0])
+        m6_detector_shell_front_positive(1);
+    translate([0, -24, 0])
+        m6_detector_shell_rear_positive(1);
+    translate([0, 0, -18])
+        m6_detector_bottom_cover_positive();
+}
+
+module m6_yaw_base_positive() {
+    // 固定的下层水平转台，直接与网夹侧的固定适配板相交并承接 M8
+    // 竖直枢轴。它不随偏航角转动。
+    color("gainsboro")
+        difference() {
+            translate([m6_gimbal_pivot_x - m6_yaw_stage_radius,
+                       -m6_yaw_stage_radius,
+                       m6_yaw_stage_z])
+                cube([2 * m6_yaw_stage_radius,
+                      2 * m6_yaw_stage_radius,
+                      m6_yaw_stage_t]);
+            m6_cylinder_z(
+                m6_pivot_d,
+                m6_yaw_stage_t + 4,
+                m6_gimbal_pivot_x,
+                0,
+                m6_yaw_stage_z + m6_yaw_stage_t / 2);
+            // Blind M6×1.0 taps start at the fixed-adapter interface on the
+            // +x side.  They turn the adapter/base intersection into a real
+            // bolted load path.
+            for (y_position = [-m6_yaw_base_mount_hole_y,
+                               m6_yaw_base_mount_hole_y]) {
+                m6_cylinder_x(
+                    m6_yaw_base_mount_tap_d,
+                    m6_yaw_base_mount_tap_depth,
+                    m6_mount_plate_x - m6_yaw_base_mount_tap_depth / 2,
+                    y_position,
+                    m6_yaw_stage_z + m6_yaw_stage_t / 2);
+            }
+        }
+}
+
+module m6_yaw_reaction_block_positive() {
+    // Fixed reaction ear for the yaw tangent screw.  The vertical portion is
+    // outside the lower plate's y-min edge; the foot overlaps the lower plate
+    // for a real load path.  The M4 pilot/tap is at the upper-plate mid-plane,
+    // and the screw tip deliberately advances 0.5 mm past the edge to make
+    // contact instead of merely ending flush with the reaction ear.
+    block_x = m6_gimbal_pivot_x + m6_yaw_stage_radius -
+              m6_yaw_adjuster_block_width_x / 2;
+    block_y = -m6_yaw_stage_radius - m6_yaw_adjuster_block_depth_y;
+    contact_z = m6_yaw_stage_z + m6_yaw_stage_t + m6_yaw_stage_t / 2;
+    color("darkgray")
+        difference() {
+            union() {
+                translate([block_x,
+                           block_y,
+                           m6_yaw_stage_z])
+                    cube([m6_yaw_adjuster_block_width_x,
+                          m6_yaw_adjuster_block_depth_y,
+                          m6_yaw_adjuster_block_height_z]);
+                translate([block_x,
+                           block_y,
+                           m6_yaw_stage_z])
+                    cube([m6_yaw_adjuster_block_width_x,
+                          m6_yaw_adjuster_block_depth_y +
+                              m6_yaw_adjuster_foot_inset_y,
+                          m6_yaw_stage_t]);
+            }
+            m6_cylinder_y(
+                m6_yaw_adjuster_tap_d,
+                m6_yaw_adjuster_block_depth_y + 4,
+                m6_gimbal_pivot_x + m6_yaw_stage_radius,
+                block_y + m6_yaw_adjuster_block_depth_y / 2,
+                contact_z);
+        }
+}
+
+module m6_yaw_base_with_reaction_positive() {
+    union() {
+        m6_yaw_base_positive();
+        m6_yaw_reaction_block_positive();
+    }
+}
+
+module m6_yaw_top_plate_positive() {
+    // 随阵列转动的上层水平转台。两条 z 向弧槽提供 ±4° 粗调，中心
+    // 枢轴只定位不承受全部抗扭；锁紧螺钉在弧槽两端夹住上下层。
+    color("silver")
+        difference() {
+            translate([m6_gimbal_pivot_x - m6_yaw_stage_radius,
+                       -m6_yaw_stage_radius,
+                       m6_yaw_stage_z + m6_yaw_stage_t])
+                cube([2 * m6_yaw_stage_radius,
+                      2 * m6_yaw_stage_radius,
+                      m6_yaw_stage_t]);
+            m6_cylinder_z(
+                m6_pivot_d,
+                m6_yaw_stage_t + 4,
+                m6_gimbal_pivot_x,
+                0,
+                m6_yaw_stage_z + 1.5 * m6_yaw_stage_t);
+            for (center_angle = [-90, 90]) {
+                m6_arc_slot_z(
+                    m6_gimbal_pivot_x,
+                    0,
+                    m6_yaw_stage_z + 1.5 * m6_yaw_stage_t,
+                    m6_yaw_slot_radius,
+                    center_angle,
+                    m6_yaw_range_deg);
+            }
+            // Vertical tapped holes for the carrier.  They sit away from
+            // the central pivot and the radius-64 mm yaw arc slots.
+            for (y_position = [-m5_yaw_carrier_mount_hole_y,
+                               m5_yaw_carrier_mount_hole_y]) {
+                m6_cylinder_z(
+                    m5_yaw_carrier_mount_tap_d,
+                    m5_yaw_carrier_mount_tap_depth,
+                    m6_gimbal_pivot_x,
+                    y_position,
+                    m6_yaw_stage_z + 2 * m6_yaw_stage_t -
+                        m5_yaw_carrier_mount_tap_depth / 2);
+            }
+        }
+}
+
+module m6_yaw_carrier_positive() {
+    // Compatibility entry point for old preview callers.  The actual fixed
+    // yaw carrier is now the explicit outer pitch yoke below; this foot
+    // replaces the old vertical slab that intersected the roll plate.
+    color("darkgray")
+        difference() {
+            translate([min(m6_yaw_plate_x, m6_pitch_frame_x - 2),
+                       -m5_yaw_carrier_mount_hole_y - 8,
+                       m6_yaw_carrier_bottom_z])
+                cube([max(m6_yaw_plate_x + m6_yaw_plate_t,
+                          m6_pitch_frame_x - 2 + m6_pitch_yoke_length_x) -
+                          min(m6_yaw_plate_x, m6_pitch_frame_x - 2),
+                      2 * (m5_yaw_carrier_mount_hole_y + 8),
+                      m6_pitch_yoke_foot_t]);
+            for (y_position = [-m5_yaw_carrier_mount_hole_y,
+                               m5_yaw_carrier_mount_hole_y]) {
+                m6_cylinder_z(
+                    m5_yaw_carrier_mount_clearance_d,
+                    m6_pitch_yoke_foot_t + 4,
+                    m6_gimbal_pivot_x,
+                    y_position,
+                    m6_yaw_carrier_bottom_z + m6_pitch_yoke_foot_t / 2);
+            }
+        }
+}
+
+module m6_pitch_yoke_positive() {
+    // Fixed outer fork: its cheeks carry the inner frame's y-axis pivot and
+    // pitch lock slots.  The Ø110 roll plate is deliberately inside the
+    // inner frame, not wedged between these two cheeks.
+    yoke_cheek_center = m6_pitch_yoke_width_y / 2 -
+                        m6_pitch_yoke_t / 2;
+    color("darkgray")
+        difference() {
+            union() {
+                for (cheek = [-1, 1]) {
+                    translate([m6_pitch_frame_x - 2,
+                               cheek * yoke_cheek_center -
+                                   m6_pitch_yoke_t / 2,
+                               m6_pitch_yoke_bottom_z])
+                        cube([m6_pitch_yoke_length_x,
+                              m6_pitch_yoke_t,
+                              m6_pitch_yoke_top_z -
+                                  m6_pitch_yoke_bottom_z]);
+                }
+                // The lower bridge is the legacy M5-to-yaw-top load path.
+                // Keep it positive when the compact sensor bar moves the
+                // pitch frame inboard of the yaw plate.
+                translate([min(m6_yaw_plate_x, m6_pitch_frame_x - 2),
+                           -m6_pitch_yoke_width_y / 2,
+                           m6_pitch_yoke_bottom_z])
+                    cube([max(m6_yaw_plate_x + m6_yaw_plate_t,
+                              m6_pitch_frame_x - 2 + m6_pitch_yoke_length_x) -
+                              min(m6_yaw_plate_x, m6_pitch_frame_x - 2),
+                          m6_pitch_yoke_width_y,
+                          m6_pitch_yoke_foot_t]);
+            }
+            for (cheek = [-1, 1]) {
+                cheek_y = cheek * yoke_cheek_center;
+                m6_cylinder_y(
+                    m6_pivot_d,
+                    m6_pitch_yoke_t + 4,
+                    m6_pitch_pivot_x,
+                    cheek_y,
+                    m6_pitch_pivot_z);
+                for (z_position = [m6_pitch_pivot_z - m6_pitch_lock_offset_z,
+                                   m6_pitch_pivot_z + m6_pitch_lock_offset_z]) {
+                    m6_slot_y_z(
+                        m6_pitch_pivot_x,
+                        cheek_y,
+                        z_position,
+                        m6_pitch_slot_length);
+                }
+            }
+            for (y_position = [-m5_yaw_carrier_mount_hole_y,
+                               m5_yaw_carrier_mount_hole_y]) {
+                m6_cylinder_z(
+                    m5_yaw_carrier_mount_clearance_d,
+                    m6_pitch_yoke_foot_t + 4,
+                    m6_gimbal_pivot_x,
+                    y_position,
+                    m6_pitch_yoke_bottom_z + m6_pitch_yoke_foot_t / 2);
+            }
+        }
+}
+
+module m6_pitch_frame_positive() {
+    // Rotating inner pitch frame.  A rectangular ring surrounds the roll
+    // disk, while the rear central spine carries the x-axis roll pivot and
+    // the two M5 roll-lock taps.  Its side bosses are the only y-axis
+    // connection to the fixed outer yoke.
+    frame_x = m6_pitch_frame_x;
+    frame_center_x = frame_x + m6_pitch_frame_t / 2;
+    frame_outer_z = m6_array_center_z - m6_pitch_frame_outer_height_z / 2;
+    frame_window_z = m6_array_center_z - m6_pitch_frame_window_height_z / 2;
+    boss_y = m6_pitch_frame_outer_width_y / 2 + 5;
+    color("slategray")
+        difference() {
+            union() {
+                difference() {
+                    translate([frame_x,
+                               -m6_pitch_frame_outer_width_y / 2,
+                               frame_outer_z])
+                        cube([m6_pitch_frame_t,
+                              m6_pitch_frame_outer_width_y,
+                              m6_pitch_frame_outer_height_z]);
+                    translate([frame_x - 1,
+                               -m6_pitch_frame_window_width_y / 2,
+                               frame_window_z])
+                        cube([m6_pitch_frame_t + 2,
+                              m6_pitch_frame_window_width_y,
+                              m6_pitch_frame_window_height_z]);
+                }
+                // This spine is behind the sensor rail (x-positive), so it
+                // does not enter the optical beam or cable exits.
+                translate([frame_x,
+                           -m6_pitch_frame_spine_width_y / 2,
+                           frame_outer_z])
+                    cube([m6_pitch_frame_t,
+                          m6_pitch_frame_spine_width_y,
+                          m6_pitch_frame_outer_height_z]);
+                for (cheek = [-1, 1]) {
+                    m6_cylinder_y(
+                        m6_pitch_frame_hub_d,
+                        20,
+                        frame_center_x,
+                        cheek * boss_y,
+                        m6_pitch_pivot_z);
+                }
+                m6_cylinder_x(
+                    m6_pitch_frame_hub_d,
+                    14,
+                    frame_center_x,
+                    0,
+                    m6_roll_pivot_z);
+            }
+            for (cheek = [-1, 1]) {
+                m6_cylinder_y(
+                    m6_pivot_d,
+                    24,
+                    frame_center_x,
+                    cheek * boss_y,
+                    m6_pitch_pivot_z);
+                for (z_position = [m6_pitch_pivot_z - m6_pitch_lock_offset_z,
+                                   m6_pitch_pivot_z + m6_pitch_lock_offset_z]) {
+                    m6_cylinder_y(
+                        m6_pitch_lock_tap_d,
+                        20,
+                        frame_center_x,
+                        cheek * (m6_pitch_frame_outer_width_y / 2 - 5),
+                        z_position);
+                }
+            }
+            m6_cylinder_x(
+                m6_roll_pivot_d,
+                20,
+                frame_center_x,
+                0,
+                m6_roll_pivot_z);
+            for (z_position = [m6_roll_pivot_z - 16,
+                               m6_roll_pivot_z + 16]) {
+                m6_cylinder_x(
+                    m6_roll_lock_tap_d,
+                    m6_roll_lock_tap_depth + 4,
+                    frame_center_x,
+                    0,
+                    z_position);
+            }
+        }
+}
+
+module m6_roll_pivot_hardware_positive() {
+    // A long shoulder/washer stack bridges the roll plate, rail and the
+    // 2 mm gap to the inner-frame spine.
+    color("gold")
+        m6_cylinder_x(
+            m6_roll_pivot_d - 0.5,
+            m6_roll_pivot_bolt_length,
+            (m6_roll_pivot_x + m6_pitch_frame_x) / 2,
+            0,
+            m6_roll_pivot_z);
+}
+
+module m6_pitch_pivot_hardware_positive() {
+    color("gold")
+        for (cheek = [-1, 1]) {
+            m6_cylinder_y(
+                m6_pivot_d - 0.5,
+                m6_pitch_yoke_t + 18,
+                m6_pitch_pivot_x,
+                cheek * (m6_pitch_yoke_width_y / 2 -
+                          m6_pitch_yoke_t / 2),
+                m6_pitch_pivot_z);
+        }
+}
+
+module m6_roll_lock_hardware_positive() {
+    color("gold")
+        for (z_position = [m6_roll_pivot_z - 16,
+                           m6_roll_pivot_z + 16]) {
+            m6_cylinder_x(
+                m6_stage_bolt_d - 0.5,
+                m6_roll_pivot_bolt_length,
+                (m6_roll_pivot_x + m6_pitch_frame_x) / 2,
+                0,
+                z_position);
+        }
+}
+
+module m6_roll_plate_positive() {
+    // 滚转：绕 x 轴的圆盘枢轴 + 上下两条切向锁紧槽。滚转盘与梳齿
+    // 背骨用四枚 M4 连接；中心小枢轴穿过背骨并进入内框后侧中心脊。
+    color("silver")
+        difference() {
+            translate([m6_roll_pivot_x, 0, m6_roll_pivot_z])
+                rotate([0, 90, 0])
+                    cylinder(d = m6_roll_plate_d,
+                             h = m6_roll_plate_t,
+                             center = true);
+            m6_cylinder_x(
+                m6_roll_pivot_d,
+                m6_roll_plate_t + 4,
+                m6_roll_pivot_x,
+                0,
+                m6_roll_pivot_z);
+            for (z_position = [m6_roll_pivot_z - 16,
+                               m6_roll_pivot_z + 16]) {
+                m6_slot_x_y(
+                    m6_roll_pivot_x,
+                    0,
+                    z_position,
+                    m6_roll_slot_length);
+            }
+            // M4 clearance holes align with the four blind M4 taps in the
+            // back of the comb rail.  They are the positive rail-to-gimbal
+            // load path; the M6/roll slots below remain the adjustment clamp.
+            for (hole_y = [-m6_rail_mount_hole_y, m6_rail_mount_hole_y]) {
+                for (hole_z = [m6_roll_pivot_z - m6_rail_mount_z_offset,
+                               m6_roll_pivot_z + m6_rail_mount_z_offset]) {
+                    m6_cylinder_x(
+                        m6_rail_mount_clearance_d,
+                        m6_roll_plate_t + 4,
+                        m6_roll_pivot_x,
+                        hole_y,
+                        hole_z);
+                }
+            }
+        }
+}
+
+// The following entry points are deliberately local-coordinate machining
+// previews. They reuse the same positive geometry as the assembly, but move
+// each aluminum part to a small, machinist-friendly coordinate system:
+// x-min/center-y/z-min for plates and frames, and the backbone x-min/center-y/
+// bottom for the comb rail. They are not part of the PETG print manifest.
+module m6_machining_detector_body_positive() {
+    // Local quotation preview for the continuous 6061-T6 body. The ten
+    // optical bores, rear M6 clearance bores and shallow anti-rotation
+    // pockets remain in the preview; purchased sensors/nuts are excluded.
+    translate([-m6_detector_body_min_x,
+               -m6_detector_body_min_y,
+               -m6_detector_body_bottom_z])
+        m6_detector_body_positive();
+}
+
+module m6_machining_support_positive() {
+    // Local quotation preview for the separate 90-degree metal support. Its
+    // origin is the minimum x/y/z of the L bracket.
+    translate([-m6_detector_support_arm_min_x,
+               -m6_detector_support_arm_min_y,
+               -m6_detector_support_leg_bottom_z])
+        m6_detector_support_positive();
+}
+
+module m6_machining_rail_positive() {
+    translate([-m6_sensor_rail_x, 0, -m6_array_bottom_z])
+        m6_sensor_rail_positive();
+}
+
+module m6_machining_adapter_positive() {
+    translate([-m6_mount_plate_x,
+               0,
+               -(m6_array_center_z - m6_mount_plate_height_z / 2)])
+        m6_mount_adapter_positive();
+}
+
+module m6_machining_backplate_positive() {
+    // Local quotation preview for the separate metal rear plate.  The
+    // purchased ball head is intentionally absent: it is an off-the-shelf
+    // component, not a printed or machined part in this project.
+    translate([-m6_detector_backplate_x,
+               0,
+               -(m6_array_center_z - m6_detector_backplate_height_z / 2)])
+        m6_detector_backplate_positive();
+}
+
+module m6_machining_yaw_base_positive() {
+    translate([-(m6_gimbal_pivot_x - m6_yaw_stage_radius),
+               0,
+               -m6_yaw_stage_z])
+        m6_yaw_base_with_reaction_positive();
+}
+
+module m6_machining_yaw_top_positive() {
+    translate([-(m6_gimbal_pivot_x - m6_yaw_stage_radius),
+               0,
+               -(m6_yaw_stage_z + m6_yaw_stage_t)])
+        m6_yaw_top_plate_positive();
+}
+
+module m6_machining_pitch_yoke_positive() {
+    translate([-m6_yaw_plate_x,
+               0,
+               -m6_pitch_yoke_bottom_z])
+        m6_pitch_yoke_positive();
+}
+
+module m6_machining_pitch_frame_positive() {
+    frame_outer_z = m6_array_center_z - m6_pitch_frame_outer_height_z / 2;
+    translate([-m6_pitch_frame_x, 0, -frame_outer_z])
+        m6_pitch_frame_positive();
+}
+
+module m6_machining_roll_disc_positive() {
+    translate([-(m6_roll_pivot_x - m6_roll_plate_t / 2),
+               0,
+               -(m6_roll_pivot_z - m6_roll_plate_d / 2)])
+        m6_roll_plate_positive();
+}
+
+module m6_yaw_fine_adjuster_positive() {
+    // Yaw tangent screw: along y at the +x outer tangent.  It is held by the
+    // raised fixed reaction ear and its tip reaches 0.5 mm into the moving
+    // upper-plate edge at the upper-plate mid-plane; the pivot/arc clamps
+    // carry the working load after alignment.
+    tip_y = -m6_yaw_stage_radius + m6_yaw_adjuster_tip_overtravel_y;
+    contact_z = m6_yaw_stage_z + m6_yaw_stage_t + m6_yaw_stage_t / 2;
+    color("gold")
+        m6_cylinder_y(
+            m6_fine_adjuster_d,
+            m6_fine_adjuster_length,
+            m6_gimbal_pivot_x + m6_yaw_stage_radius,
+            tip_y - m6_fine_adjuster_length / 2,
+            contact_z);
+}
+
+module m6_pitch_fine_adjuster_positive() {
+    // A crossbar between the fixed yoke cheeks creates a real reaction point.
+    // The x-directed M4 screw presses the inner-frame spine at a z offset
+    // from the y pivot, producing pitch torque without being a load path.
+    bridge_x = m6_pitch_frame_x + m6_pitch_yoke_length_x - 8;
+    pitch_contact_z = m6_pitch_pivot_z + m6_pitch_adjuster_offset_z;
+    color("darkgray")
+        translate([bridge_x,
+                   -m6_pitch_yoke_width_y / 2,
+                   pitch_contact_z - m6_pitch_adjuster_bridge_t / 2])
+            cube([8,
+                  m6_pitch_yoke_width_y,
+                  m6_pitch_adjuster_bridge_t]);
+    color("gold")
+        m6_cylinder_x(
+            m6_fine_adjuster_d,
+            m6_fine_adjuster_length,
+            m6_pitch_frame_x + m6_pitch_frame_t +
+                m6_fine_adjuster_length / 2,
+            0,
+            pitch_contact_z);
+}
+
+module m6_roll_fine_adjuster_positive() {
+    // The inner-frame arm stays with the pitch frame.  Its y-directed M4
+    // screw stops at the calculated rim tangent of the Ø110 roll disk, so it
+    // can trim roll without crossing the optical disc face.
+    arm_x = m6_roll_pivot_x - m6_roll_plate_t / 2;
+    arm_width_x = m6_pitch_frame_x - arm_x;
+    roll_contact_z = m6_roll_pivot_z + m6_roll_adjuster_offset_z;
+    arm_max_y = m6_roll_adjuster_contact_y - m6_roll_adjuster_clearance_y;
+    color("darkgray")
+        translate([arm_x,
+                   arm_max_y - m6_roll_adjuster_arm_depth_y,
+                   roll_contact_z - m6_roll_adjuster_arm_t / 2])
+            cube([arm_width_x,
+                  m6_roll_adjuster_arm_depth_y,
+                  m6_roll_adjuster_arm_t]);
+    color("gold")
+        m6_cylinder_y(
+            m6_fine_adjuster_d,
+            m6_roll_adjuster_length,
+            m6_roll_pivot_x,
+            m6_roll_adjuster_contact_y - m6_roll_adjuster_length / 2,
+            roll_contact_z);
+}
+
+module m6_sensor_gimbal_adjusted_positive() {
+    // The pitch frame and its roll support rotate about the y-axis first;
+    // only the sensor/roll payload then rotates about x.  This nested
+    // transform mirrors the actual two independent hinge axes.
+    translate([m6_pitch_pivot_x, 0, m6_pitch_pivot_z])
+        rotate([0, m6_pitch_angle, 0])
+            translate([-m6_pitch_pivot_x, 0, -m6_pitch_pivot_z]) {
+                m6_pitch_frame_positive();
+                m6_roll_pivot_hardware_positive();
+                m6_roll_lock_hardware_positive();
+                m6_roll_fine_adjuster_positive();
+                translate([m6_roll_pivot_x, 0, m6_roll_pivot_z])
+                    rotate([m6_roll_angle, 0, 0])
+                        translate([-m6_roll_pivot_x,
+                                   0,
+                                   -m6_roll_pivot_z]) {
+                            m6_roll_plate_positive();
+                            m6_sensor_array_positive();
+                        }
+            }
+}
+
+module m6_gimbal_positive() {
+    // Compatibility entry point.  The current production assembly is the
+    // long rear-inserted detector body with two protective covers, a vertical
+    // purchased ball head and a metal 90° support.  The historical custom
+    // three-axis gimbal remains available only through its legacy modules.
+    m6_detector_mount_positive();
+}
+
+module m6_gimbal(side = 1) {
+    sided(side) m6_gimbal_positive();
+}
+
+module m6_beam_preview() {
+    // 名义零角度时，十条相对发射/接收器光轴都穿过球台边缘；
+    // 当前主线为单竖直排，故所有光轴使用主体 y=0 中心线。
+    color("red", 0.25)
+        for (index = [0:m6_sensor_count - 1]) {
+            y0 = m6_detector_sensor_head_center_y;
+            translate([-m6_sensor_axis_x,
+                       y0 - 0.35,
+                       m6_sensor_z(index) - 0.35])
+                cube([2 * m6_sensor_axis_x, 0.7, 0.7]);
+        }
+}
+
+module m6_optical_arrow_x(x_start, x_end, y_center, z_center) {
+    // The large cone base is at x_start and the tip is at x_end.  Every
+    // rendered arrow therefore points in the physical +x beam direction.
+    head_length = 8;
+    shaft_d = 1.2;
+    head_d = 5;
+    shaft_end = x_end - head_length;
+    color("red", 0.95) {
+        m6_cylinder_x(
+            shaft_d,
+            max(0.2, shaft_end - x_start),
+            (x_start + shaft_end) / 2,
+            y_center,
+            z_center);
+        translate([x_end - head_length / 2, y_center, z_center])
+            rotate([0, 90, 0])
+                cylinder(
+                    d1 = head_d,
+                    d2 = 0.2,
+                    h = head_length,
+                    center = true,
+                    $fn = 24);
+    }
+}
+
+module m6_optical_direction_preview(side = 1) {
+    // Global optical direction is always left -> right (+x).  On the right
+    // receiver the arrow ends at the x- optical face; on the mirrored left
+    // emitter it starts at the x+ optical face and leaves toward +x.
+    for (index = [0:m6_sensor_count - 1]) {
+        if (side >= 0) {
+            m6_optical_arrow_x(
+                m6_sensor_axis_x - 30,
+                m6_sensor_axis_x - 1.5,
+                m6_detector_sensor_head_center_y,
+                m6_sensor_z(index));
+        } else {
+            m6_optical_arrow_x(
+                -m6_sensor_axis_x + 1.5,
+                -m6_sensor_axis_x + 30,
+                m6_detector_sensor_head_center_y,
+                m6_sensor_z(index));
+        }
+    }
+}
+
+module m6_optical_full_direction_preview() {
+    // One arrow per channel makes the left-to-right beam direction explicit
+    // when both detector assemblies are shown together.
+    for (index = [0:m6_sensor_count - 1]) {
+        m6_optical_arrow_x(
+            -m6_sensor_axis_x + 1.5,
+            m6_sensor_axis_x - 1.5,
+            m6_detector_sensor_head_center_y,
+            m6_sensor_z(index));
+    }
+}
+
+module m6_optical_exploded_direction_preview(side = 1) {
+    // The sensors in the exploded view are pulled 28 mm away from the body.
+    // Extend the same +x beam arrow to the extracted optical face so the
+    // assembly direction and the optical direction remain visible together.
+    for (index = [0:m6_sensor_count - 1]) {
+        if (side >= 0) {
+            m6_optical_arrow_x(
+                m6_sensor_axis_x - 35,
+                m6_sensor_axis_x + 27.5,
+                m6_detector_sensor_head_center_y,
+                m6_sensor_z(index));
+        } else {
+            m6_optical_arrow_x(
+                -m6_sensor_axis_x - 27.5,
+                -m6_sensor_axis_x + 35,
+                m6_detector_sensor_head_center_y,
+                m6_sensor_z(index));
+        }
+    }
 }
 
 module slot_through_x_y(y_center, z_center) {
@@ -984,7 +3826,7 @@ module net_rail_saddle(side = 1) {
 }
 
 module net_rail() {
-    // 三段带 20 mm 搭接，打印长度约 536 mm；实际装配时用下方拼接片/螺钉
+    // 三段带 20 mm 搭接，打印长度约 623.33 mm；实际装配时用下方拼接片/螺钉
     // 或铝型材替代件把搭接处锁紧。整体 PART 仍用于连续网顶关系预览。
     for (index = [0:net_rail_segment_count - 1]) {
         net_rail_segment_positive(index);
@@ -1108,12 +3950,13 @@ module stand(side = 1) {
         post_positive();
         table_clamp_positive();
         net_rail_saddle_positive();
-        stg120_outer_carrier_positive();
+        m6_gimbal_positive();
     }
 }
 
 module parameter_probe() {
     echo(str("NETSTAND_PARAM table_width=", table_width));
+    echo(str("NETSTAND_PARAM net_post_outboard_extension=", net_post_outboard_extension));
     echo(str("NETSTAND_PARAM table_thickness=", table_thickness));
     echo(str("NETSTAND_PARAM net_height=", net_height));
     echo(str("NETSTAND_PARAM net_rail_height=", net_rail_height));
@@ -1147,7 +3990,18 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM sensor_clamp_tab_width=", sensor_clamp_tab_width));
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
     echo(str("NETSTAND_PARAM clamp_pad_depth=", clamp_pad_depth));
+    echo(str("NETSTAND_PARAM clamp_horizontal_part_outboard_limit=",
+             clamp_horizontal_part_outboard_limit));
+    echo(str("NETSTAND_PARAM clamp_outboard_extension_min=", clamp_outboard_extension_min));
+    echo(str("NETSTAND_PARAM clamp_outboard_extension_actual=", clamp_outboard_extension_actual));
+    echo(str("NETSTAND_PARAM clamp_gusset_t_y=", clamp_gusset_t_y));
+    echo(str("NETSTAND_PARAM clamp_gusset_start_inset=", clamp_gusset_start_inset));
+    echo(str("NETSTAND_PARAM clamp_gusset_start_x=", clamp_gusset_start_x));
+    echo(str("NETSTAND_PARAM clamp_gusset_end_x=", clamp_gusset_end_x));
+    echo(str("NETSTAND_PARAM clamp_gusset_top_z=", clamp_gusset_top_z));
+    echo(str("NETSTAND_PARAM clamp_gusset_bottom_z=", clamp_gusset_bottom_z));
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
+    echo(str("NETSTAND_PARAM clamp_outer_wall_x=", clamp_outer_wall_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
     echo(str("NETSTAND_PARAM clamp_screw_pitch=", clamp_screw_pitch));
@@ -1183,6 +4037,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_lower_arm_top_z=", clamp_lower_arm_top_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_top_z=", clamp_pressure_pad_top_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_bottom_z=", clamp_pressure_pad_bottom_z));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_x=", clamp_pressure_pad_x));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_width=", clamp_pressure_pad_width));
     echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
     echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
     echo(str("NETSTAND_PARAM optical_module_depth=", optical_module_depth));
@@ -1202,6 +4058,266 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM optical_carrier_slot_d=", optical_carrier_slot_d));
     echo(str("NETSTAND_PARAM optical_carrier_slot_length=", optical_carrier_slot_length));
     echo(str("NETSTAND_PARAM optical_module_index=", optical_module_index));
+    echo(str("NETSTAND_PARAM m6_sensor_count=", m6_sensor_count));
+    echo(str("NETSTAND_PARAM m6_sensor_center_pitch=", m6_sensor_center_pitch));
+    echo(str("NETSTAND_PARAM m6_sensor_first_height=", m6_sensor_first_height));
+    echo(str("NETSTAND_PARAM m6_sensor_last_height=", m6_sensor_last_height()));
+    echo(str("NETSTAND_PARAM m6_sensor_thread_d=", m6_sensor_thread_d));
+    echo(str("NETSTAND_PARAM m6_sensor_thread_pitch=", m6_sensor_thread_pitch));
+    echo(str("NETSTAND_PARAM m6_sensor_tap_visual_d=", m6_sensor_tap_visual_d));
+    echo(str("NETSTAND_PARAM m6_sensor_head_length_x=", m6_sensor_head_length_x));
+    echo(str("NETSTAND_PARAM m6_sensor_head_width_y=", m6_sensor_head_width_y));
+    echo(str("NETSTAND_PARAM m6_sensor_head_height_z=", m6_sensor_head_height_z));
+    echo(str("NETSTAND_PARAM m6_sensor_head_hex_af=", m6_sensor_head_hex_af));
+    echo(str("NETSTAND_PARAM m6_sensor_optical_bore_d=", m6_sensor_optical_bore_d));
+    echo(str("NETSTAND_PARAM m6_sensor_body_d=", m6_sensor_body_d));
+    echo(str("NETSTAND_PARAM m6_sensor_body_length=", m6_sensor_body_length));
+    echo(str("NETSTAND_PARAM m6_sensor_mount_x_offset=", m6_sensor_mount_x_offset));
+    echo(str("NETSTAND_PARAM m6_sensor_mount_stem_length=", m6_sensor_mount_stem_length));
+    echo(str("NETSTAND_PARAM m6_sensor_cable_guard_length=", m6_sensor_cable_guard_length));
+    echo(str("NETSTAND_PARAM m6_sensor_cable_preview_length=", m6_sensor_cable_preview_length));
+    echo(str("NETSTAND_PARAM m6_sensor_cable_d=", m6_sensor_cable_d));
+    echo(str("NETSTAND_PARAM m6_sensor_thread_start_x=", m6_sensor_thread_start_x));
+    echo(str("NETSTAND_PARAM m6_sensor_thread_end_x=", m6_sensor_thread_end_x));
+    echo(str("NETSTAND_PARAM m6_sensor_optical_aperture_x=", m6_sensor_optical_aperture_x));
+    echo(str("NETSTAND_PARAM m6_sensor_overall_end_x=", m6_sensor_overall_end_x));
+    echo(str("NETSTAND_PARAM m6_sensor_cable_exit_x=", m6_sensor_cable_exit_x));
+    echo(str("NETSTAND_PARAM m6_sensor_lock_nut_h=", m6_sensor_lock_nut_h));
+    echo(str("NETSTAND_PARAM m6_sensor_mount_plane_offset_z=", m6_sensor_mount_plane_offset_z));
+    echo(str("NETSTAND_PARAM m6_sensor_lock_nut_af=", m6_sensor_lock_nut_af));
+    echo(str("NETSTAND_PARAM m6_sensor_guard_outer_d=", m6_sensor_guard_outer_d));
+    echo(str("NETSTAND_PARAM m6_sensor_guard_h=", m6_sensor_guard_h));
+    echo(str("NETSTAND_PARAM m6_sensor_test_coupon_backbone_h=", m6_sensor_test_coupon_backbone_h));
+    echo(str("NETSTAND_PARAM m6_sensor_test_coupon_clearance_d=", m6_sensor_test_coupon_clearance_d));
+    echo(str("NETSTAND_PARAM m6_sensor_test_coupon_guard_overlap=", m6_sensor_test_coupon_guard_overlap));
+    echo(str("NETSTAND_PARAM m6_sensor_nut_pocket_clearance=", m6_sensor_nut_pocket_clearance));
+    echo(str("NETSTAND_PARAM m6_sensor_lane_offset_y=", m6_sensor_lane_offset_y));
+    echo(str("NETSTAND_PARAM m6_adjacent_channel_center_distance_yz=", m6_adjacent_channel_center_distance_yz));
+    echo(str("NETSTAND_PARAM m6_adjacent_guard_gap_y=", m6_adjacent_guard_gap_y));
+    echo(str("NETSTAND_PARAM m6_adjacent_guard_gap_z=", m6_adjacent_guard_gap_z));
+    echo(str("NETSTAND_PARAM m6_rail_t=", m6_rail_t));
+    echo(str("NETSTAND_PARAM m6_sensor_body_clearance_d=", m6_sensor_body_clearance_d));
+    echo(str("NETSTAND_PARAM m6_rail_width_y=", m6_rail_width_y));
+    echo(str("NETSTAND_PARAM m6_rail_tab_t=", m6_rail_tab_t));
+    echo(str("NETSTAND_PARAM m6_rail_tab_width_y=", m6_rail_tab_width_y));
+    echo(str("NETSTAND_PARAM m6_rail_mount_clearance_d=", m6_rail_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m6_rail_mount_tap_d=", m6_rail_mount_tap_d));
+    echo(str("NETSTAND_PARAM m6_rail_mount_tap_depth=", m6_rail_mount_tap_depth));
+    echo(str("NETSTAND_PARAM m6_rail_mount_hole_y=", m6_rail_mount_hole_y));
+    echo(str("NETSTAND_PARAM m6_rail_mount_z_offset=", m6_rail_mount_z_offset));
+    echo(str("NETSTAND_PARAM m6_rail_mount_bolt_length=", m6_rail_mount_bolt_length));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_t=", m6_detector_backplate_t));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_width_y=", m6_detector_backplate_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_height_z=", m6_detector_backplate_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_lock_hole_y=", m6_detector_backplate_lock_hole_y));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_mount_clearance_d=", m6_detector_backplate_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_anti_rotation_d=", m6_detector_backplate_anti_rotation_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_ball_d=", m6_ballhead_ball_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_housing_d=", m6_ballhead_housing_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_housing_length_x=", m6_ballhead_housing_length_x));
+    echo(str("NETSTAND_PARAM m6_ballhead_base_d=", m6_ballhead_base_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_base_t=", m6_ballhead_base_t));
+    echo(str("NETSTAND_PARAM m6_ballhead_sensor_stud_d=", m6_ballhead_sensor_stud_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_sensor_stud_length=", m6_ballhead_sensor_stud_length));
+    echo(str("NETSTAND_PARAM m6_ballhead_net_stud_d=", m6_ballhead_net_stud_d));
+    echo(str("NETSTAND_PARAM m6_ballhead_net_stud_length=", m6_ballhead_net_stud_length));
+    echo(str("NETSTAND_PARAM m6_ballhead_tilt_range_deg=", m6_ballhead_tilt_range_deg));
+    echo(str("NETSTAND_PARAM m6_ballhead_rotation_range_deg=", m6_ballhead_rotation_range_deg));
+    echo(str("NETSTAND_PARAM m6_ballhead_mount_clearance_d=", m6_ballhead_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m6_sensor_roll_deg=", m6_sensor_roll_deg));
+    echo(str("NETSTAND_PARAM m6_detector_body_depth_y=", m6_detector_body_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_body_center_y=", m6_detector_body_center_y));
+    echo(str("NETSTAND_PARAM m6_detector_body_length_x=", m6_detector_body_length_x));
+    echo(str("NETSTAND_PARAM m6_detector_body_margin_z=", m6_detector_body_margin_z));
+    echo(str("NETSTAND_PARAM m6_detector_body_front_margin_x=", m6_detector_body_front_margin_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_length_x=", m6_detector_fit_head_length_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_width_y=", m6_detector_fit_head_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_height_z=", m6_detector_fit_head_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_fit_capture_depth_x=", m6_detector_fit_capture_depth_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_clearance_y=", m6_detector_fit_head_clearance_y));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_clearance_z=", m6_detector_fit_head_clearance_z));
+    echo(str("NETSTAND_PARAM m6_detector_fit_thread_length_x=", m6_detector_fit_thread_length_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_thread_clearance_d=", m6_detector_fit_thread_clearance_d));
+    echo(str("NETSTAND_PARAM m6_detector_fit_thread_tip_allowance_x=", m6_detector_fit_thread_tip_allowance_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_head_inner_x=", m6_detector_fit_head_inner_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_thread_tip_x=", m6_detector_fit_thread_tip_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_thread_visible_length_x=", m6_detector_fit_thread_visible_length_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_body_depth_limit_x=", m6_detector_fit_body_depth_limit_x));
+    echo(str("NETSTAND_PARAM m6_detector_fit_nut_center_x=", m6_detector_fit_nut_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_sensor_nut_center_x=", m6_detector_sensor_nut_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_thread_visible_length=", m6_detector_thread_visible_length));
+    echo(str("NETSTAND_PARAM m6_detector_shell_wall=", m6_detector_shell_wall));
+    echo(str("NETSTAND_PARAM m6_detector_shell_clearance=", m6_detector_shell_clearance));
+    echo(str("NETSTAND_PARAM m6_detector_shell_bottom_lip_z=", m6_detector_shell_bottom_lip_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_top_lip_z=", m6_detector_shell_top_lip_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_split_overlap_x=", m6_detector_shell_split_overlap_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_corner_radius=", m6_detector_shell_corner_radius));
+    echo(str("NETSTAND_PARAM m6_detector_front_cap_length_x=", m6_detector_front_cap_length_x));
+    echo(str("NETSTAND_PARAM m6_detector_front_cap_reduction=", m6_detector_front_cap_reduction));
+    echo(str("NETSTAND_PARAM m6_detector_body_groove_width_x=", m6_detector_body_groove_width_x));
+    echo(str("NETSTAND_PARAM m6_detector_body_groove_depth_y=", m6_detector_body_groove_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_body_groove_margin_z=", m6_detector_body_groove_margin_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_tongue_depth_y=", m6_detector_shell_tongue_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_tongue_clearance=", m6_detector_shell_tongue_clearance));
+    echo(str("NETSTAND_PARAM m6_detector_optical_bore_d=", m6_detector_optical_bore_d));
+    echo(str("NETSTAND_PARAM m6_detector_thread_clearance_d=", m6_detector_thread_clearance_d));
+    echo(str("NETSTAND_PARAM m6_detector_hex_pocket_af=", m6_detector_hex_pocket_af));
+    echo(str("NETSTAND_PARAM m6_detector_hex_pocket_depth_x=", m6_detector_hex_pocket_depth_x));
+    echo(str("NETSTAND_PARAM m6_detector_hex_pocket_depth_y=", m6_detector_hex_pocket_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_hex_pocket_floor=", m6_detector_hex_pocket_floor));
+    echo(str("NETSTAND_PARAM m6_detector_shell_screw_pilot_d=", m6_detector_shell_screw_pilot_d));
+    echo(str("NETSTAND_PARAM m6_detector_shell_screw_head_d=", m6_detector_shell_screw_head_d));
+    echo(str("NETSTAND_PARAM m6_detector_shell_screw_head_depth=", m6_detector_shell_screw_head_depth));
+    echo(str("NETSTAND_PARAM m6_detector_shell_screw_margin_z=", m6_detector_shell_screw_margin_z));
+    echo(str("NETSTAND_PARAM m6_detector_bottom_cover_t=", m6_detector_bottom_cover_t));
+    echo(str("NETSTAND_PARAM m6_bottom_cover_screw_depth=", m6_bottom_cover_screw_depth));
+    echo(str("NETSTAND_PARAM m6_detector_bottom_cover_screw_d=", m6_detector_bottom_cover_screw_d));
+    echo(str("NETSTAND_PARAM m6_detector_bottom_cover_screw_head_d=", m6_detector_bottom_cover_screw_head_d));
+    echo(str("NETSTAND_PARAM m6_detector_bottom_cover_screw_head_depth=", m6_detector_bottom_cover_screw_head_depth));
+    echo(str("NETSTAND_PARAM m6_detector_bottom_cover_screw_inset_x=", m6_detector_bottom_cover_screw_inset_x));
+    echo(str("NETSTAND_PARAM m6_detector_cable_exit_d=", m6_detector_cable_exit_d));
+    echo(str("NETSTAND_PARAM m6_detector_cable_exit_sleeve_clearance=", m6_detector_cable_exit_sleeve_clearance));
+    echo(str("NETSTAND_PARAM m6_detector_cable_exit_x=", m6_detector_cable_exit_x));
+    echo(str("NETSTAND_PARAM m6_detector_detector_thread_axis_x=",
+             m6_detector_detector_thread_axis_x));
+    echo(str("NETSTAND_PARAM m6_detector_sensor_thread_center_y=", m6_detector_sensor_thread_center_y));
+    echo(str("NETSTAND_PARAM m6_detector_sensor_head_center_y=", m6_detector_sensor_head_center_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_boss_width_x=", m6_detector_support_boss_width_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_boss_depth_y=", m6_detector_support_boss_depth_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_boss_height_z=", m6_detector_support_boss_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_boss_x_fraction=", m6_detector_support_boss_x_fraction));
+    echo(str("NETSTAND_PARAM m6_detector_support_tap_d=", m6_detector_support_tap_d));
+    echo(str("NETSTAND_PARAM m6_detector_support_tap_depth_x=", m6_detector_support_tap_depth_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_arm_t_z=", m6_detector_support_arm_t_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_arm_width_y=", m6_detector_support_arm_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_leg_t_x=", m6_detector_support_leg_t_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_leg_bottom_drop_z=", m6_detector_support_leg_bottom_drop_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_gusset_t_y=", m6_detector_support_gusset_t_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_gusset_inset_x=", m6_detector_support_gusset_inset_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_fastener_d=", m6_detector_support_fastener_d));
+    echo(str("NETSTAND_PARAM m6_detector_detector_ballhead_gap_x=", m6_detector_detector_ballhead_gap_x));
+    echo(str("NETSTAND_PARAM m6_detector_sensor_head_y_offset=", m6_detector_sensor_head_y_offset));
+    echo(str("NETSTAND_PARAM m6_detector_body_min_x=", m6_detector_body_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_body_max_x=", m6_detector_body_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_body_min_y=", m6_detector_body_min_y));
+    echo(str("NETSTAND_PARAM m6_detector_body_max_y=", m6_detector_body_max_y));
+    echo(str("NETSTAND_PARAM m6_detector_body_bottom_z=", m6_detector_body_bottom_z));
+    echo(str("NETSTAND_PARAM m6_detector_body_top_z=", m6_detector_body_top_z));
+    echo(str("NETSTAND_PARAM m6_detector_body_height_z=", m6_detector_body_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_body_center_z=", m6_detector_body_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_min_x=", m6_detector_shell_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_max_x=", m6_detector_shell_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_min_y=", m6_detector_shell_min_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_max_y=", m6_detector_shell_max_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_width_y=", m6_detector_shell_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_bottom_z=", m6_detector_shell_bottom_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_top_z=", m6_detector_shell_top_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_height_z=", m6_detector_shell_height_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_split_x=", m6_detector_shell_split_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_front_max_x=", m6_detector_shell_front_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_rear_min_x=", m6_detector_shell_rear_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_split_y=", m6_detector_shell_split_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_front_min_y=", m6_detector_shell_front_min_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_rear_max_y=", m6_detector_shell_rear_max_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_inner_min_x=", m6_detector_shell_inner_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_inner_max_x=", m6_detector_shell_inner_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_boss_center_x=", m6_detector_support_boss_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_y=", m6_detector_support_y));
+    echo(str("NETSTAND_PARAM m6_detector_support_arm_z=", m6_detector_support_arm_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_arm_min_x=", m6_detector_support_arm_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_arm_max_x=", m6_detector_support_arm_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_leg_x=", m6_detector_support_leg_x));
+    echo(str("NETSTAND_PARAM m6_detector_support_leg_bottom_z=", m6_detector_support_leg_bottom_z));
+    echo(str("NETSTAND_PARAM m6_detector_support_leg_top_z=", m6_detector_support_leg_top_z));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_center_x=", m6_detector_ballhead_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_center_y=", m6_detector_ballhead_center_y));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_center_z=", m6_detector_ballhead_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_base_center_z=", m6_detector_ballhead_base_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_net_stud_center_z=", m6_detector_ballhead_net_stud_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_ballhead_sensor_stud_center_x=", m6_detector_ballhead_sensor_stud_center_x));
+    echo(str("NETSTAND_PARAM m6_rail_length_z=", m6_rail_length_z));
+    echo(str("NETSTAND_PARAM m6_array_bottom_z=", m6_array_bottom_z));
+    echo(str("NETSTAND_PARAM m6_array_top_z=", m6_array_top_z));
+    echo(str("NETSTAND_PARAM m6_array_center_z=", m6_array_center_z));
+    echo(str("NETSTAND_PARAM m6_sensor_axis_x=", m6_sensor_axis_x));
+    echo(str("NETSTAND_PARAM m6_sensor_rail_x=", m6_sensor_rail_x));
+    echo(str("NETSTAND_PARAM m6_detector_backplate_x=", m6_detector_backplate_x));
+    echo(str("NETSTAND_PARAM m6_ballhead_center_x=", m6_ballhead_center_x));
+    echo(str("NETSTAND_PARAM m6_ballhead_axis_z=", m6_ballhead_axis_z));
+    echo(str("NETSTAND_PARAM m6_ballhead_net_stud_center_x=", m6_ballhead_net_stud_center_x));
+    echo(str("NETSTAND_PARAM m6_mount_plate_x=", m6_mount_plate_x));
+    echo(str("NETSTAND_PARAM m6_mount_plate_t=", m6_mount_plate_t));
+    echo(str("NETSTAND_PARAM m6_mount_slot_length=", m6_mount_slot_length));
+    echo(str("NETSTAND_PARAM m6_post_mount_clearance_d=", m6_post_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m6_post_mount_hole_y=", m6_post_mount_hole_y));
+    echo(str("NETSTAND_PARAM m6_post_mount_bolt_length=", m6_post_mount_bolt_length));
+    echo(str("NETSTAND_PARAM m6_post_mount_hole_z=", m6_post_mount_hole_z));
+    echo(str("NETSTAND_PARAM m6_mount_plate_width_y=", m6_mount_plate_width_y));
+    echo(str("NETSTAND_PARAM m6_mount_plate_height_z=", m6_mount_plate_height_z));
+    echo(str("NETSTAND_PARAM m6_yaw_stage_t=", m6_yaw_stage_t));
+    echo(str("NETSTAND_PARAM m6_yaw_stage_radius=", m6_yaw_stage_radius));
+    echo(str("NETSTAND_PARAM m6_yaw_slot_radius=", m6_yaw_slot_radius));
+    echo(str("NETSTAND_PARAM m6_yaw_stage_z=", m6_yaw_stage_z));
+    echo(str("NETSTAND_PARAM m6_yaw_carrier_bottom_z=", m6_yaw_carrier_bottom_z));
+    echo(str("NETSTAND_PARAM m6_yaw_carrier_height=", m6_yaw_carrier_height));
+    echo(str("NETSTAND_PARAM m6_yaw_plate_t=", m6_yaw_plate_t));
+    echo(str("NETSTAND_PARAM m6_pitch_yoke_t=", m6_pitch_yoke_t));
+    echo(str("NETSTAND_PARAM m6_pitch_yoke_width_y=", m6_pitch_yoke_width_y));
+    echo(str("NETSTAND_PARAM m6_pitch_yoke_length_x=", m6_pitch_yoke_length_x));
+    echo(str("NETSTAND_PARAM m6_pitch_yoke_foot_t=", m6_pitch_yoke_foot_t));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_t=", m6_pitch_frame_t));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_outer_width_y=", m6_pitch_frame_outer_width_y));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_window_width_y=", m6_pitch_frame_window_width_y));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_outer_height_z=", m6_pitch_frame_outer_height_z));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_window_height_z=", m6_pitch_frame_window_height_z));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_spine_width_y=", m6_pitch_frame_spine_width_y));
+    echo(str("NETSTAND_PARAM m6_pitch_frame_hub_d=", m6_pitch_frame_hub_d));
+    echo(str("NETSTAND_PARAM m6_pitch_pivot_offset_z=", m6_pitch_pivot_offset_z));
+    echo(str("NETSTAND_PARAM m6_pitch_pivot_x=", m6_pitch_pivot_x));
+    echo(str("NETSTAND_PARAM m6_pitch_pivot_z=", m6_pitch_pivot_z));
+    echo(str("NETSTAND_PARAM m6_roll_pivot_z=", m6_roll_pivot_z));
+    echo(str("NETSTAND_PARAM m6_pitch_slot_length=", m6_pitch_slot_length));
+    echo(str("NETSTAND_PARAM m6_roll_plate_t=", m6_roll_plate_t));
+    echo(str("NETSTAND_PARAM m6_roll_plate_d=", m6_roll_plate_d));
+    echo(str("NETSTAND_PARAM m6_roll_slot_length=", m6_roll_slot_length));
+    echo(str("NETSTAND_PARAM m6_pivot_d=", m6_pivot_d));
+    echo(str("NETSTAND_PARAM m6_roll_pivot_d=", m6_roll_pivot_d));
+    echo(str("NETSTAND_PARAM m6_pitch_lock_tap_d=", m6_pitch_lock_tap_d));
+    echo(str("NETSTAND_PARAM m6_pitch_lock_tap_depth=", m6_pitch_lock_tap_depth));
+    echo(str("NETSTAND_PARAM m6_roll_lock_tap_d=", m6_roll_lock_tap_d));
+    echo(str("NETSTAND_PARAM m6_roll_lock_tap_depth=", m6_roll_lock_tap_depth));
+    echo(str("NETSTAND_PARAM m6_roll_pivot_bolt_length=", m6_roll_pivot_bolt_length));
+    echo(str("NETSTAND_PARAM m6_stage_bolt_d=", m6_stage_bolt_d));
+    echo(str("NETSTAND_PARAM m6_fine_adjuster_d=", m6_fine_adjuster_d));
+    echo(str("NETSTAND_PARAM m6_fine_adjuster_length=", m6_fine_adjuster_length));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_block_width_x=", m6_yaw_adjuster_block_width_x));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_block_depth_y=", m6_yaw_adjuster_block_depth_y));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_block_height_z=", m6_yaw_adjuster_block_height_z));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_foot_inset_y=", m6_yaw_adjuster_foot_inset_y));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_tap_d=", m6_yaw_adjuster_tap_d));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_tap_depth=", m6_yaw_adjuster_tap_depth));
+    echo(str("NETSTAND_PARAM m6_yaw_adjuster_tip_overtravel_y=", m6_yaw_adjuster_tip_overtravel_y));
+    echo(str("NETSTAND_PARAM m6_pitch_adjuster_offset_z=", m6_pitch_adjuster_offset_z));
+    echo(str("NETSTAND_PARAM m6_pitch_adjuster_bridge_t=", m6_pitch_adjuster_bridge_t));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_offset_z=", m6_roll_adjuster_offset_z));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_contact_y=", m6_roll_adjuster_contact_y));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_arm_depth_y=", m6_roll_adjuster_arm_depth_y));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_arm_t=", m6_roll_adjuster_arm_t));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_clearance_y=", m6_roll_adjuster_clearance_y));
+    echo(str("NETSTAND_PARAM m6_roll_adjuster_length=", m6_roll_adjuster_length));
+    echo(str("NETSTAND_PARAM m6_yaw_range_deg=", m6_yaw_range_deg));
+    echo(str("NETSTAND_PARAM m6_pitch_range_deg=", m6_pitch_range_deg));
+    echo(str("NETSTAND_PARAM m6_roll_range_deg=", m6_roll_range_deg));
+    echo(str("NETSTAND_PARAM m6_yaw_base_mount_clearance_d=", m6_yaw_base_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m6_yaw_base_mount_tap_d=", m6_yaw_base_mount_tap_d));
+    echo(str("NETSTAND_PARAM m6_yaw_base_mount_tap_depth=", m6_yaw_base_mount_tap_depth));
+    echo(str("NETSTAND_PARAM m6_yaw_base_mount_hole_y=", m6_yaw_base_mount_hole_y));
+    echo(str("NETSTAND_PARAM m6_yaw_base_mount_bolt_length=", m6_yaw_base_mount_bolt_length));
+    echo(str("NETSTAND_PARAM m5_yaw_carrier_mount_clearance_d=", m5_yaw_carrier_mount_clearance_d));
+    echo(str("NETSTAND_PARAM m5_yaw_carrier_mount_tap_d=", m5_yaw_carrier_mount_tap_d));
+    echo(str("NETSTAND_PARAM m5_yaw_carrier_mount_tap_depth=", m5_yaw_carrier_mount_tap_depth));
+    echo(str("NETSTAND_PARAM m5_yaw_carrier_mount_hole_y=", m5_yaw_carrier_mount_hole_y));
+    echo(str("NETSTAND_PARAM m5_yaw_carrier_mount_bolt_length=", m5_yaw_carrier_mount_bolt_length));
     echo(str("NETSTAND_PARAM stg120_head_length=", stg120_head_length));
     echo(str("NETSTAND_PARAM stg120_active_length=", stg120_active_length));
     echo(str("NETSTAND_PARAM stg120_head_width=", stg120_head_width));
@@ -1226,12 +4342,14 @@ if (PART == "assembly") {
     net_rail();
     stand(1);
     stand(-1);
-    stg120_center_bridge();
-    stg120_preview();
+    m6_beam_preview();
+    if (m6_show_optical_direction) {
+        m6_optical_full_direction_preview();
+    }
     // PVDF 座位于全宽网顶承载条的中段，只有在完整装配中才有真实承载关系。
     sensor_mount(1);
     sensor_mount(-1);
-    stg120_reference_line();
+    reference_line();
 } else if (PART == "left_stand") {
     stand(-1);
 } else if (PART == "right_stand") {
@@ -1282,6 +4400,74 @@ if (PART == "assembly") {
     sided(default_side)
         optical_module_carrier_positive(
             beam_first_height + optical_module_index * beam_pitch);
+} else if (PART == "m6_sensor_rail") {
+    sided(default_side) m6_sensor_rail_positive();
+} else if (PART == "m6_sensor_test_coupon") {
+    m6_sensor_test_coupon_positive();
+} else if (PART == "m6_sensor_array") {
+    sided(default_side) m6_sensor_array_positive();
+} else if (PART == "m6_sensor_single") {
+    m6_sensor_single_preview(default_side);
+    if (m6_show_optical_direction) {
+        m6_sensor_single_direction_preview(default_side);
+    }
+} else if (PART == "m6_detector_fit_probe") {
+    sided(default_side) m6_detector_fit_probe_positive();
+    if (m6_show_optical_direction) {
+        m6_optical_direction_preview(default_side);
+    }
+} else if (PART == "m6_detector_fit_body") {
+    sided(default_side) m6_detector_fit_body_positive();
+} else if (PART == "m6_detector_body") {
+    sided(default_side) m6_detector_body_positive();
+} else if (PART == "m6_detector_shell_front") {
+    sided(default_side) m6_detector_shell_front_positive();
+} else if (PART == "m6_detector_shell_rear") {
+    sided(default_side) m6_detector_shell_rear_positive();
+} else if (PART == "m6_detector_bottom_cover") {
+    sided(default_side) m6_detector_bottom_cover_positive();
+} else if (PART == "m6_detector_support") {
+    sided(default_side) m6_detector_support_positive();
+} else if (PART == "m6_detector_mount") {
+    sided(default_side) m6_detector_mount_positive();
+    if (m6_show_optical_direction) {
+        m6_optical_direction_preview(default_side);
+    }
+} else if (PART == "m6_detector_exploded") {
+    sided(default_side) m6_detector_exploded_positive();
+    if (m6_show_optical_direction) {
+        m6_optical_exploded_direction_preview(default_side);
+    }
+} else if (PART == "m6_mount_adapter") {
+    sided(default_side) m6_mount_adapter_positive();
+} else if (PART == "m6_detector_backplate") {
+    sided(default_side) m6_detector_shell_rear_positive();
+} else if (PART == "m6_ballhead") {
+    sided(default_side) m6_detector_ballhead_positive();
+} else if (PART == "m6_ballhead_mount") {
+    sided(default_side) m6_detector_mount_positive();
+} else if (PART == "m6_gimbal") {
+    m6_gimbal(default_side);
+} else if (PART == "m6_machining_detector_body") {
+    sided(default_side) m6_machining_detector_body_positive();
+} else if (PART == "m6_machining_support") {
+    sided(default_side) m6_machining_support_positive();
+} else if (PART == "m6_machining_rail") {
+    sided(default_side) m6_machining_rail_positive();
+} else if (PART == "m6_machining_adapter") {
+    sided(default_side) m6_machining_adapter_positive();
+} else if (PART == "m6_machining_backplate") {
+    sided(default_side) m6_machining_backplate_positive();
+} else if (PART == "m6_machining_yaw_base") {
+    sided(default_side) m6_machining_yaw_base_positive();
+} else if (PART == "m6_machining_yaw_top") {
+    sided(default_side) m6_machining_yaw_top_positive();
+} else if (PART == "m6_machining_pitch_yoke") {
+    sided(default_side) m6_machining_pitch_yoke_positive();
+} else if (PART == "m6_machining_pitch_frame") {
+    sided(default_side) m6_machining_pitch_frame_positive();
+} else if (PART == "m6_machining_roll_disc") {
+    sided(default_side) m6_machining_roll_disc_positive();
 } else if (PART == "stg120_outer_carrier") {
     stg120_outer_carrier(default_side);
 } else if (PART == "stg120_center_bridge") {

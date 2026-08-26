@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "beam_capture.h"
+#include "beam_channel_map.h"
 #include "feedback.h"
 #include "net_event.h"
 #include "net_event_aggregator.h"
@@ -123,6 +124,17 @@ void test_beam_capture() {
     require(observation->min_index == 0 && observation->max_index == 3,
             "beam min/max indices are wrong");
     require(!observation->timed_out, "short beam event must not time out");
+
+    // The firmware must accept a short edge pulse once the hardware has
+    // produced it. The 5 ms quiet window closes the event after recovery; it
+    // must not be misused as a 5 ms minimum obstruction/debounce gate.
+    smartgear::BeamCapture sub_response_pulse(5'000, 1'000);
+    sub_response_pulse.on_edge(2, true, 1'000);
+    sub_response_pulse.on_edge(2, false, 2'000);
+    const auto short_observation = sub_response_pulse.poll(7'000);
+    require(short_observation.has_value() && short_observation->valid &&
+                short_observation->beam_mask == (1U << 2),
+            "a produced 1 ms beam pulse must not be rejected by the quiet window");
 
     smartgear::BeamCapture timeout(5, 100);
     timeout.on_edge(1, true, 1'000);
@@ -952,6 +964,25 @@ void test_sensor_health_quality_flags() {
 }
 
 void test_channel_self_test_and_baseline() {
+    require(smartgear::config::beam_blocked_level_for(
+                smartgear::config::BeamInputPolarity::kBlockedLow) == 0 &&
+                smartgear::config::beam_blocked_level_for(
+                    smartgear::config::BeamInputPolarity::kBlockedHigh) == 1,
+            "beam polarity candidates must map blocked state to the declared GPIO level");
+    require(smartgear::config::beam_blocked_at_level(
+                smartgear::config::BeamInputPolarity::kBlockedLow, 0) &&
+                !smartgear::config::beam_blocked_at_level(
+                    smartgear::config::BeamInputPolarity::kBlockedLow, 1) &&
+                smartgear::config::beam_blocked_at_level(
+                    smartgear::config::BeamInputPolarity::kBlockedHigh, 1) &&
+                !smartgear::config::beam_blocked_at_level(
+                    smartgear::config::BeamInputPolarity::kBlockedHigh, 0),
+            "beam polarity mapping must distinguish active-low and active-high inputs");
+    require(smartgear::config::kBeamBlockedLevel ==
+                smartgear::config::beam_blocked_level_for(
+                    smartgear::config::kBeamInputPolarity),
+            "selected beam polarity must drive the compiled blocked level");
+
     std::array<smartgear::BeamChannelCheck, smartgear::config::kBeamCount> checks{};
     for (auto& check : checks) {
         check = {true, true, true, true};
@@ -1510,6 +1541,8 @@ void test_ring_buffer() {
 void test_pin_mapping_contract() {
     using namespace smartgear::config;
     require(kAllBeamMask == 0x03ffU, "ten optical channels must fit the beam mask");
+    require(is_permutation_0_to_n_minus_1(kBeamLogicalIndexByInput),
+            "input-to-height mapping must be a permutation");
     require(all_gpio_numbers_valid(kBeamGpioPins) &&
                 all_gpio_numbers_valid(kPiezoComparatorGpioPins) &&
                 all_gpio_numbers_valid(kPiezoAdcGpioPins) &&
@@ -1525,6 +1558,32 @@ void test_pin_mapping_contract() {
                 disjoint(kPiezoComparatorGpioPins, kFeedbackGpioPins) &&
                 disjoint(kPiezoAdcGpioPins, kFeedbackGpioPins),
             "placeholder sensor and feedback pins must not overlap");
+}
+
+void test_beam_channel_remapping() {
+    std::array<std::uint8_t, smartgear::config::kBeamCount> reverse{};
+    for (std::uint8_t input = 0; input < smartgear::config::kBeamCount;
+         ++input) {
+        reverse[input] = static_cast<std::uint8_t>(
+            smartgear::config::kBeamCount - 1 - input);
+    }
+
+    const auto raw = beam(80'000, 81'000, (1U << 0) | (1U << 3), 0, 3);
+    const auto mapped = smartgear::remap_beam_observation(raw, reverse);
+    require(mapped.valid && mapped.beam_mask == ((1U << 9) | (1U << 6)) &&
+                mapped.min_index == 6 && mapped.max_index == 9,
+            "reversed physical input order must map to logical heights");
+
+    const auto malformed = beam(82'000, 83'000, 1U << 10, 0, 0);
+    const auto rejected = smartgear::remap_beam_observation(malformed, reverse);
+    require(!rejected.valid && rejected.beam_mask == 0,
+            "out-of-range raw beam bits must fail closed before aggregation");
+
+    const auto identity = smartgear::remap_configured_beam_observation(raw);
+    require(identity.beam_mask == raw.beam_mask &&
+                identity.min_index == raw.min_index &&
+                identity.max_index == raw.max_index,
+            "provisional identity channel map must preserve current behavior");
 }
 
 void print_schema_events() {
@@ -1571,6 +1630,7 @@ int main() {
         test_runtime_chain_with_delivery();
         test_ring_buffer();
         test_pin_mapping_contract();
+        test_beam_channel_remapping();
         print_schema_events();
         std::cout << "HOST_TESTS_OK\n";
         return EXIT_SUCCESS;
