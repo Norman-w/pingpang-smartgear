@@ -84,7 +84,7 @@ def main() -> None:
         or shell["rear_min_x_global_mm"] != 850.8
         or shell["parting_clearance_x_mm"] != 0.4
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口直接拧入浅黄色直立下段顶面的一体 M8 承座，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口的 M8 外牙直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -116,7 +116,7 @@ def main() -> None:
         != "vertical; its downward interface screws directly into the integrated light-yellow straight lower post at the post centre"
         or support["boss_hole_axis"]
         != "x- from the rear cover boss toward the optical side"
-        or support["boss_hole_d_mm"] != 8.6
+        or support["boss_hole_d_mm"] != 7
         or support["boss_hole_depth_x_mm"] != 14
         or support["boss_hole_entry_x_global_mm"] != 881
         or support["ballhead_stud_engagement_x_mm"] != 12
@@ -124,8 +124,8 @@ def main() -> None:
         or support["ballhead_center_y_global_mm"] != 0
         or support["ballhead_center_z_global_mm"] != 272.5
         or support["mount_raise_z_mm"] != 20
-        or "球头 M8 竖直接口朝 z-" not in support["net_interface"]
-        or "直接拧入浅黄色直立下段顶面的一体 M8 承座" not in support["net_interface"]
+        or "球头下端 M8 外牙竖直接口朝 z-" not in support["net_interface"]
+        or "直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母" not in support["net_interface"]
         or "球头与立柱中心同轴" not in support["net_interface"]
         or "无横向黄色承托臂" not in support["load_path"]
         or "无深灰色独立连接器" not in support["load_path"]
@@ -136,7 +136,7 @@ def main() -> None:
     if (
         direct_mount["material"] != "integrated light-yellow PETG lower stand"
         or direct_mount["interface_orientation"]
-        != "vertical M8 tap axis coaxial with the straight lower post; no horizontal top arm"
+        != "vertical M8 captured-nut axis coaxial with the straight lower post; no horizontal top arm"
         or direct_mount["assembly_x_offset_mm"] != 84.6
         or direct_mount["assembled_ballhead_center_x_global_mm"] != 901
         or direct_mount["assembled_optical_axis_x_global_mm"] != 847.6
@@ -156,6 +156,10 @@ def main() -> None:
         or direct_mount["socket_height_z_mm"] != 28.7
         or direct_mount["socket_outer_d_mm"] != 18
         or direct_mount["socket_tap_d_mm"] != 6.8
+        or direct_mount["socket_clearance_d_mm"] != 8.6
+        or direct_mount["captured_nut_pocket_af_mm"] != 13.7
+        or direct_mount["captured_nut_pocket_depth_z_mm"] != 7.2
+        or direct_mount["captured_nut_pocket_center_z_global_mm"] != 226.9
         or direct_mount["ballhead_interface_bottom_z_global_mm"] != 223.5
         or direct_mount["lower_post_top_z_global_mm"] != 223.5
         or direct_mount["assembly_z_raise_mm"] != 20
@@ -189,8 +193,12 @@ def main() -> None:
     ballhead = spec["ballhead_contract"]
     if (
         ballhead["selected_variant"] != "13mm球【M8外牙】（当前模型默认）"
-        or ballhead["sensor_stud_d_mm"] != 8
+        or ballhead["sensor_stud_d_mm"] != 6.35
         or ballhead["net_stud_d_mm"] != 8
+        or ballhead["sensor_stud_role"]
+        != "商品固定上端 1/4-20 外牙；沿 x 接入后盖隐藏的 1/4-20 捕获螺母"
+        or ballhead["net_stud_role"]
+        != "当前选定下端 M8 外牙；z- 直接进入浅黄色下段的 M8 捕获螺母"
     ):
         raise AssertionError("ballhead default variant changed")
     if ballhead["alternative_variants"] != [

@@ -174,11 +174,28 @@ M6_RAIL_TAB_MAX_X = M6_SENSOR_RAIL_X + M6_RAIL_T
 M6_BALLHEAD_BALL_D = 13.0
 M6_BALLHEAD_HOUSING_D = 28.0
 M6_BALLHEAD_HOUSING_LENGTH_X = 26.0
+M6_BALLHEAD_BODY_DEPTH_Y = 24.0
+M6_BALLHEAD_BODY_CORNER_RADIUS = 4.0
+M6_BALLHEAD_BALL_SOCKET_D = 17.0
+M6_BALLHEAD_SIDE_PLATE_D = 24.0
+M6_BALLHEAD_SIDE_PLATE_T_X = 4.0
+M6_BALLHEAD_LOCK_KNOB_D = 18.0
+M6_BALLHEAD_LOCK_KNOB_T_Y = 8.0
+M6_BALLHEAD_LOCK_KNOB_RIDGE_COUNT = 24.0
 M6_BALLHEAD_BASE_D = 32.0
 M6_BALLHEAD_BASE_T = 8.0
-M6_BALLHEAD_SENSOR_STUD_D = 8.0
+M6_BALLHEAD_SENSOR_STUD_D = 6.35
+M6_BALLHEAD_SENSOR_THREAD_CORE_D = 5.35
+M6_BALLHEAD_SENSOR_THREAD_PITCH = 1.27
 M6_BALLHEAD_NET_STUD_D = 8.0
 M6_BALLHEAD_NET_STUD_LENGTH = 28.0
+M6_BALLHEAD_NET_THREAD_CORE_D = 6.6
+M6_BALLHEAD_NET_THREAD_PITCH = 1.25
+M6_BALLHEAD_TOP_NUT_AF = 11.1
+M6_BALLHEAD_TOP_NUT_H = 5.5
+M6_BALLHEAD_BOTTOM_NUT_AF = 13.0
+M6_BALLHEAD_BOTTOM_NUT_H = 6.5
+M6_BALLHEAD_NUT_CLEARANCE = 0.35
 M6_BALLHEAD_TILT_RANGE_DEG = 90.0
 M6_BALLHEAD_ROTATION_RANGE_DEG = 360.0
 M6_YAW_STAGE_T = 6.0
@@ -201,7 +218,7 @@ M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_X = 3.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y = 18.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_HEIGHT_Z = 36.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_RADIUS = 2.0
-M6_DETECTOR_SHELL_SUPPORT_HOLE_D = 8.6
+M6_DETECTOR_SHELL_SUPPORT_HOLE_D = 7.0
 M6_DETECTOR_SHELL_SUPPORT_HOLE_DEPTH_X = 14.0
 M6_DETECTOR_SHELL_SUPPORT_STUD_ENGAGEMENT_X = 12.0
 M6_DETECTOR_DETECTOR_BALLHEAD_GAP_X = 2.0
@@ -258,15 +275,16 @@ M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z = (
 DETECTOR_ASSEMBLY_OFFSET_X = POST_CENTER - M6_DETECTOR_BALLHEAD_CENTER_X
 # The light-yellow lower stand carries the bought ballhead directly.  These
 # values mirror ``m6_detector_direct_mount_positive`` in the SCAD: one
-# integral M8 tap-drill socket at the post centre. There is no horizontal seat,
-# side-return web, separate dark-gray 90-degree connector, or upper dark-yellow
-# post in the active preview.
+# integral M8 clearance socket with a captured standard nut at the post centre.
+# There is no horizontal seat, side-return web, separate dark-gray 90-degree
+# connector, or upper dark-yellow post in the active preview.
 M6_DETECTOR_DIRECT_MOUNT_ARM_WIDTH_Y = 0.0
 M6_DETECTOR_DIRECT_MOUNT_ARM_T_Z = 0.0
 M6_DETECTOR_DIRECT_MOUNT_WEB_WIDTH_Y = 0.0
 M6_DETECTOR_DIRECT_MOUNT_WEB_T_X = 0.0
 M6_DETECTOR_DIRECT_MOUNT_POST_OVERLAP_X = 2.0
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D = 18.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_CLEARANCE_D = 8.6
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D = 6.8
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z = 0.2
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z = 0.5
@@ -543,7 +561,7 @@ def draw_front(ax) -> None:
                 edgecolor="#38434c",
                 linewidth=1.2,
                 alpha=0.75,
-                label="后盖背面中央加厚 M8 boss（采购球头）" if side < 0 else "_nolegend_",
+                label="后盖背面中央加厚 1/4-20 boss（采购球头）" if side < 0 else "_nolegend_",
             )
         )
         ax.add_patch(
@@ -748,7 +766,7 @@ def draw_side(ax) -> None:
             edgecolor="#38434c",
             linewidth=1.2,
             alpha=0.72,
-            label="后盖 x+ 背面中央加厚 M8 boss",
+            label="后盖 x+ 背面中央加厚 1/4-20 捕获螺母 boss",
         )
     )
     for index in range(BEAM_COUNT):
@@ -778,46 +796,97 @@ def draw_side(ax) -> None:
     )
     ballhead_x = M6_DETECTOR_BALLHEAD_CENTER_X - TABLE_EDGE
     ballhead_z = body_bottom + body_height / 2
+    ballhead_body_left = ballhead_x - M6_BALLHEAD_HOUSING_D / 2
+    ballhead_body_bottom = ballhead_z - M6_BALLHEAD_HOUSING_LENGTH_X / 2
+    ballhead_base_bottom = (
+        ballhead_body_bottom - M6_BALLHEAD_BASE_T
+    )
+    ballhead_interface_bottom = (
+        ballhead_base_bottom - M6_BALLHEAD_NET_STUD_LENGTH
+    )
     ax.add_patch(
         Rectangle(
-            (ballhead_x - 14, ballhead_z - 13),
-            28,
-            26,
-            facecolor="#c7cdd2",
-            edgecolor="#505963",
+            (ballhead_body_left, ballhead_body_bottom),
+            M6_BALLHEAD_HOUSING_D,
+            M6_BALLHEAD_HOUSING_LENGTH_X,
+            facecolor="#1d2227",
+            edgecolor="#080a0c",
             alpha=0.95,
-            label="13 mm purchased ball head, vertical",
+            label="采购 13 mm 球头黑色夹持壳（不打印）",
         )
     )
     ax.add_patch(
         Circle(
             (ballhead_x, ballhead_z),
-            6.5,
-            facecolor="#e2e5e8",
-            edgecolor="#505963",
+            M6_BALLHEAD_BALL_D / 2,
+            facecolor="#b9c0c6",
+            edgecolor="#4e5961",
             alpha=0.9,
+            label="13 mm 不锈钢球（采购件）",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (ballhead_body_left - M6_BALLHEAD_SIDE_PLATE_T_X / 2,
+             ballhead_z - M6_BALLHEAD_SIDE_PLATE_D / 2),
+            M6_BALLHEAD_SIDE_PLATE_T_X,
+            M6_BALLHEAD_SIDE_PLATE_D,
+            facecolor="#161a1e",
+            edgecolor="#050607",
+            alpha=0.98,
+            label="可拆圆盘 / 1/4-20 上端接口",
+        )
+    )
+    ax.add_patch(
+        Circle(
+            (ballhead_x, ballhead_z),
+            M6_BALLHEAD_LOCK_KNOB_D / 2,
+            facecolor="#0e1114",
+            edgecolor="#050607",
+            linewidth=1.0,
+            alpha=0.32,
+            label="侧向锁紧旋钮（采购件）",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (ballhead_x - M6_BALLHEAD_BASE_D / 2,
+             ballhead_base_bottom),
+            M6_BALLHEAD_BASE_D,
+            M6_BALLHEAD_BASE_T,
+            facecolor="#171b1f",
+            edgecolor="#050607",
+            alpha=0.98,
+            label="球头底座 Ø32 mm（采购件）",
         )
     )
     ax.plot(
         [ballhead_x, ballhead_x],
-        [
-            ballhead_z
-            - M6_BALLHEAD_HOUSING_LENGTH_X / 2
-            - M6_BALLHEAD_BASE_T
-            - 28.0,
-            ballhead_z - M6_BALLHEAD_HOUSING_LENGTH_X / 2 - M6_BALLHEAD_BASE_T,
-        ],
-        color="#b6bdc3",
-        linewidth=4.0,
-        label="采购球头 z− 接口 → 浅黄色下段一体 M8 承座",
+        [ballhead_interface_bottom, ballhead_base_bottom],
+        color="#c7cdd2",
+        linewidth=3.0,
+        label="M8 外牙 z− → 立柱捕获 M8 螺母",
     )
     ax.plot(
-        [boss_max_x - TABLE_EDGE, ballhead_x - M6_BALLHEAD_HOUSING_D / 2],
+        [boss_max_x - TABLE_EDGE,
+         ballhead_body_left - M6_BALLHEAD_SIDE_PLATE_T_X / 2],
         [body_bottom + body_height / 2, ballhead_z],
-        color="#b6bdc3",
-        linewidth=4.0,
-        label="采购球头 M8 外牙 → 后盖 x+ 背面中央 boss",
+        color="#c7cdd2",
+        linewidth=3.0,
+        label="1/4-20 外牙 x− → 后盖捕获 1/4 螺母",
     )
+    for tick_x in range(
+        int(ballhead_body_left - M6_BALLHEAD_SIDE_PLATE_T_X / 2),
+        int(boss_max_x - TABLE_EDGE),
+        2,
+    ):
+        ax.plot(
+            [tick_x, tick_x + 0.7],
+            [ballhead_z - 1.2, ballhead_z + 1.2],
+            color="#f0f2f3",
+            linewidth=0.7,
+            alpha=0.7,
+        )
     # Direct light-yellow lower-stand support. The annular socket is centred
     # on the straight post; the previous horizontal yellow seat/arm is gone.
     ax.add_patch(
@@ -830,7 +899,7 @@ def draw_side(ax) -> None:
             edgecolor="#8d6513",
             linewidth=1.0,
             alpha=0.75,
-            label="一体 M8 承座（球头与立柱同轴；无横向黄色承托臂）",
+            label="一体 M8 捕获螺母承座（球头与立柱同轴）",
         )
     )
     ax.add_patch(
@@ -931,7 +1000,7 @@ def draw_side(ax) -> None:
             facecolor="#d4a24c",
             edgecolor="#8d6513",
             alpha=0.88,
-            label="浅黄色下段立柱（含一体 M8 承座）",
+            label="浅黄色下段立柱（含 M8 捕获螺母承座）",
         )
     )
     ax.add_patch(
@@ -1244,7 +1313,7 @@ def draw_top(ax) -> None:
             edgecolor="#38434c",
             linewidth=1.5,
             alpha=0.86,
-            label="后盖背面中央加厚 M8 boss（采购球头）",
+            label="后盖背面中央加厚 1/4-20 boss（采购球头）",
         )
     )
     cable_hole_y = 0.0

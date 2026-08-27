@@ -3,9 +3,9 @@
 
 The OpenSCAD ``parameter_probe`` is the numerical source of truth. The active
 detector body is a printable PETG rectangle that can later be reproduced in
-CNC; the rear cover carries the M8 clearance interface for the purchased
-vertical 13 mm ballhead. The ballhead's downward interface screws directly
-into an integrated M8 support on the light-yellow lower stand; there is no
+CNC; the rear cover carries the 1/4-20 clearance interface for the purchased
+vertical 13 mm ballhead. The ballhead's downward M8 interface screws directly
+into an integrated captured-nut support on the light-yellow lower stand; there is no
 separate gray 90-degree connector in the active assembly.
 """
 
@@ -156,10 +156,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "part": "m6_detector_shell_rear",
-                "name_zh": "后盖（PETG，后方加厚 M8 接口 boss）",
+                "name_zh": "后盖（PETG，后方加厚 1/4-20 接口 boss）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø8.6 M8 通孔，供金属球头连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
+                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø7.0 1/4-20 通孔并内藏标准捕获螺母，供商品球头固定上端连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -284,7 +284,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "后盖从 z+ 套入主体，后盖舌片进入同一 y± 边槽的 x+ 半并以 x+ 沉头螺钉固定",
                 "底盖从 z- 贴合并以两枚沉头螺钉固定，统一线缆套管从 Ø12 mm 孔穿出",
             ],
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口直接拧入浅黄色直立下段顶面的一体 M8 承座，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口的 M8 外牙直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核",
             "support_boss": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
@@ -336,11 +336,11 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 parameters["m6_detector_assembly_ballhead_center_z"]
             ),
             "mount_raise_z_mm": _r(parameters["m6_detector_mount_raise_z"]),
-            "net_interface": "球头 M8 竖直接口朝 z-；直接拧入浅黄色直立下段顶面的一体 M8 承座，球头与立柱中心同轴",
-            "load_path": "主体/后盖 boss -> M8 外牙采购球头 -> 球头 z- 接口 -> 浅黄色直立下段顶面一体承座 -> 桌下夹体/网架立柱（无横向黄色承托臂、无深灰色独立连接器）",
+            "net_interface": "球头下端 M8 外牙竖直接口朝 z-；直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴",
+            "load_path": "主体/后盖 boss -> 1/4-20 外牙采购球头上端 -> 球头 -> M8 外牙下端 z- -> 浅黄色直立下段顶面一体 M8 捕获螺母 -> 桌下夹体/网架立柱（无横向黄色承托臂、无深灰色独立连接器）",
             "direct_mount": {
                 "material": "integrated light-yellow PETG lower stand",
-                "interface_orientation": "vertical M8 tap axis coaxial with the straight lower post; no horizontal top arm",
+                "interface_orientation": "vertical M8 captured-nut axis coaxial with the straight lower post; no horizontal top arm",
                 "assembly_x_offset_mm": _r(parameters["m6_detector_mount_x_offset"]),
                 "assembly_z_raise_mm": _r(parameters["m6_detector_mount_raise_z"]),
                 "assembled_ballhead_center_x_global_mm": _r(
@@ -366,7 +366,11 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "socket_top_z_global_mm": _r(parameters["m6_detector_direct_mount_socket_top_z"]),
                 "socket_height_z_mm": _r(parameters["m6_detector_direct_mount_socket_height_z"]),
                 "socket_outer_d_mm": _r(parameters["m6_detector_direct_mount_socket_outer_d"]),
+                "socket_clearance_d_mm": _r(parameters["m6_detector_direct_mount_socket_clearance_d"]),
                 "socket_tap_d_mm": _r(parameters["m6_detector_direct_mount_socket_tap_d"]),
+                "captured_nut_pocket_af_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_af"]),
+                "captured_nut_pocket_depth_z_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_depth"]),
+                "captured_nut_pocket_center_z_global_mm": _r(parameters["m6_detector_direct_mount_nut_pocket_center_z"]),
                 "ballhead_interface_bottom_z_global_mm": _r(
                     parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
                 ),
@@ -427,9 +431,15 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "sensor_stud_length_mm": _r(
                 parameters["m6_ballhead_sensor_stud_length"]
             ),
+            "sensor_stud_role": "商品固定上端 1/4-20 外牙；沿 x 接入后盖隐藏的 1/4-20 捕获螺母",
+            "sensor_stud_thread_core_d_mm": _r(parameters["m6_ballhead_sensor_thread_core_d"]),
+            "sensor_stud_thread_pitch_mm": _r(parameters["m6_ballhead_sensor_thread_pitch"]),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "posture": "球头主体竖直；侧向 M8 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔，下方竖直接口朝 z-，直接落在浅黄色直立下段顶面的一体承座并与立柱中心同轴；取消横向黄色承托臂，无侧向上返竖向耳；最终承力以球头、承座和首样实测为准",
+            "net_stud_role": "当前选定下端 M8 外牙；z- 直接进入浅黄色下段的 M8 捕获螺母",
+            "net_stud_thread_core_d_mm": _r(parameters["m6_ballhead_net_thread_core_d"]),
+            "net_stud_thread_pitch_mm": _r(parameters["m6_ballhead_net_thread_pitch"]),
+            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧，下方 M8 竖直接口朝 z-，直接落在浅黄色直立下段顶面的一体 M8 捕获螺母并与立柱中心同轴；取消横向黄色承托臂，无侧向上返竖向耳；最终承力以球头、承座和首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -473,7 +483,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后盖加厚 boss 到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead; current visual proxy is M8 external through the rear-cover boss, with first-article washer/insert decision pending",
+                "spec": "selected 13 mm ballhead; fixed upper 1/4-20 external stud enters the rear-cover captured nut, selected lower M8 external stud enters the lower-post captured nut; first-article washer/insert fit remains to be verified",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
         ],
@@ -486,7 +496,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "确认灰色桌下夹体保留桌面夹持开口和压块/螺杆区域，外侧下部为 y 全深 40 mm 到 8 mm 的实心渐变斜底；M8 夹紧丝杆相对原包络加长 12 mm，仍由台底压块承接",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
-            "真实网夹安装面、球网外伸和孔距实测后，核对球头 z- 接口最低端、浅黄色下段一体承座的 M8 攻丝孔和网架立柱/夹体承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
+            "真实网夹安装面、球网外伸和孔距实测后，核对球头 z- 接口最低端、浅黄色下段一体承座的 M8 捕获螺母窝和网架立柱/夹体承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
             "前盖必须先从 z+ 拆/装，后盖随后从 z+ 拆/装，底盖最后从 z- 拆/装；爆炸图保持三个盖件完整，不使用剖切",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
             "机加工件不进入 PETG 打印清单；底盖线缆孔是开放孔，不作防水承诺",

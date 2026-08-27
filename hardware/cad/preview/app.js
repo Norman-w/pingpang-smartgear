@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均加厚到 12 mm，靠球台侧下部支撑厚 40 mm，向外侧以 12 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
   { number: 2, label: "浅黄色下段、3 mm 过道、U 槽与打印卡网柱", description: "浅黄色下段与桌下夹体一体承载网顶承托；当前装配不再显示深黄色上段立柱、接缝套筒/内芯或其它独立上段连接件，左右外边界各离台边 152.5 mm；球头/检测器总成整体上抬 20 mm 以越过网顶，直立下段不再接横向黄色承托臂；网布先沿 x 穿过立柱主体 y 向 3 mm 过道，再进入下段外侧开口的 U 形槽，最后从外侧沿 x 推入独立 PETG Ø12 卡网圆柱，Ø14 仅为干涉校核基准。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，接保持竖直的采购 13 mm 球头；球头 z- 接口直接落在浅黄色下段最高水平面的一体 M8 承座，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂；蓝色总成不再经过深灰色独立连接器。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；竖直采购 13 mm 球头按实物包络显示：可摆到水平的上端固定 1/4-20 外牙从 x- 进入后盖中央 1/4 捕获螺母 boss，选定的下端 M8 外牙向 z- 进入浅黄色下段内藏 M8 捕获螺母；球头本体不打印，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂；蓝色总成不再经过深灰色独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后随总成上抬 20 mm 为 +30…+210 mm，按 20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；同时检查 U 槽开口方向、Ø12 打印卡网圆柱插入和网布夹持；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -431,7 +431,7 @@ function makeProxyAssemblyItems(entries) {
   }));
 
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
-  // the rear PETG cover has the visible thickened M8 boss, while the vertical
+  // the rear PETG cover has the visible thickened 1/4-20 boss, while the vertical
   // purchased ballhead's downward interface is carried by the integrated
   // light-yellow lower stand. No gray bridge is an active assembly part.
   const m6Geometry = {
@@ -514,13 +514,21 @@ function makeProxyAssemblyItems(entries) {
     shellSupportBossTopZ: 270.5,
     shellSupportBossHeightZ: 36,
     shellSupportBossRadius: 2,
-    shellSupportHoleD: 8.6,
+    shellSupportHoleD: 7,
     shellSupportHoleDepthX: 14,
     shellSupportHoleEntryX: 796.4,
     shellSupportStudEngagementX: 12,
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
+    ballheadBodyDepthY: 24,
+    ballheadBodyCornerRadius: 4,
+    ballheadBallSocketD: 17,
+    ballheadSidePlateD: 24,
+    ballheadSidePlateTX: 4,
+    ballheadLockKnobD: 18,
+    ballheadLockKnobTY: 8,
+    ballheadLockKnobRidgeCount: 24,
     ballheadCenterX: 816.4,
     ballheadCenterY: 0,
     ballheadCenterZ: 252.5,
@@ -530,9 +538,18 @@ function makeProxyAssemblyItems(entries) {
     ballheadNetStudCenterZ: 217.5,
     ballheadNetStudLength: 28,
     ballheadSensorStudCenterX: 792.4,
-    ballheadSensorStudD: 8,
+    ballheadSensorStudD: 6.35,
+    ballheadSensorThreadCoreD: 5.35,
+    ballheadSensorThreadPitch: 1.27,
     ballheadNetStudD: 8,
     ballheadSensorStudLength: 16,
+    ballheadNetThreadCoreD: 6.6,
+    ballheadNetThreadPitch: 1.25,
+    ballheadTopNutAF: 11.1,
+    ballheadTopNutH: 5.5,
+    ballheadBottomNutAF: 13,
+    ballheadBottomNutH: 6.5,
+    ballheadNutClearance: 0.35,
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
     netClampChannelDepthX: 28,
@@ -614,6 +631,7 @@ function makeProxyAssemblyItems(entries) {
     directMountPostOverlapX: 2,
     directMountSocketOuterD: 18,
     directMountSocketTapD: 6.8,
+    directMountSocketClearanceD: 8.6,
     directMountSocketBottomZ:
       m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 0.2,
     directMountSocketTopZ:
@@ -911,8 +929,8 @@ function makeProxyAssemblyItems(entries) {
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
-      name_zh: `M6 后盖：直角接驳边/后端圆角与加厚 M8 支撑 boss（${sideName}）`,
-      name_en: "M6 rear cover with straight joint edge, rounded rear corners, and M8 boss",
+      name_zh: `M6 后盖：直角接驳边/后端圆角与加厚 1/4-20 支撑 boss（${sideName}）`,
+      name_en: "M6 rear cover with straight joint edge, rounded rear corners, and 1/4-20 boss",
       kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
@@ -938,7 +956,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø8.6 M8 通孔。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
+      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø7.0 1/4-20 外牙通孔，内藏一颗标准 1/4-20 螺母。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -970,18 +988,27 @@ function makeProxyAssemblyItems(entries) {
       kind: "外购云台占位",
       material: "外购金属件（非打印）",
       group: "optical",
-      shape: "cylinder",
-      shapeOptions: { radius: m6Geometry.ballheadHousingD / 2, axis: "z" },
-      base_min: [ballheadMinX, m6Geometry.ballheadCenterY - m6Geometry.ballheadHousingD / 2, m6Geometry.ballheadCenterZ - m6Geometry.ballheadHousingLength / 2],
-      size: [m6Geometry.ballheadHousingD, m6Geometry.ballheadHousingD, m6Geometry.ballheadHousingLength],
+      shape: "ballhead-body",
+      shapeOptions: {
+        radius: m6Geometry.ballheadBodyCornerRadius,
+        ball_d: m6Geometry.ballheadBallD,
+        ball_socket_d: m6Geometry.ballheadBallSocketD,
+        side_plate_d: m6Geometry.ballheadSidePlateD,
+        side_plate_t_x: m6Geometry.ballheadSidePlateTX,
+        lock_knob_d: m6Geometry.ballheadLockKnobD,
+        lock_knob_t_y: m6Geometry.ballheadLockKnobTY,
+        lock_knob_ridge_count: m6Geometry.ballheadLockKnobRidgeCount,
+      },
+      base_min: [ballheadMinX, m6Geometry.ballheadCenterY - m6Geometry.ballheadBodyDepthY / 2, m6Geometry.ballheadCenterZ - m6Geometry.ballheadHousingLength / 2],
+      size: [m6Geometry.ballheadHousingD, m6Geometry.ballheadBodyDepthY, m6Geometry.ballheadHousingLength],
       side,
       explosion: [side * 154, -28, 20],
-      notes: "云台本体不打印；当前按 13 mm 球、360° 旋转、90° 开口和竖直壳体姿态占位，实际螺纹选项/旋钮净空待到货复核。",
+      notes: "云台本体不打印；按商品实景的 13 mm 球、360°旋转、90°开口和竖直壳体姿态占位。上端 1/4-20 外牙朝 x- 连接后盖，下端选 M8 外牙朝 z- 连接立柱；旋钮/球体为可见金属包络。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-base:${sideLabel}`,
-      name_zh: `采购球头底座与竖直外牙（${sideName}）`,
-      name_en: "purchased ball-head base and vertical stud",
+      name_zh: `采购球头底座与竖直 M8 外牙（${sideName}）`,
+      name_en: "purchased ball-head base with selected M8 external stud",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
@@ -991,17 +1018,23 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
       side,
       explosion: [side * 154, -28, -4],
-      notes: "底座是采购云台的一部分；竖直姿态下其 z- 接口直接落在浅黄色直立下段顶面的一体 M8 承座中，并与立柱中心同轴；不再使用横向黄色承托臂。可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改采购接口件。",
+      notes: "底座是采购云台的一部分，商品上端固定螺纹为 1/4-20 外牙（约 6.35 mm）；本项目下端选择 M8 外牙，z- 直接落入浅黄色直立下段顶面的标准 M8 捕获螺母，并与立柱中心同轴。不再使用横向黄色承托臂。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
-      name_zh: `后盖 boss x 轴 M8 连接螺柱（${sideName}）`,
-      name_en: "M8 horizontal ball-head stud into rear-cover boss",
+      name_zh: `后盖 boss x 轴 1/4-20 连接螺柱（${sideName}）`,
+      name_en: "1/4-20 horizontal ball-head stud into rear-cover boss",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
-      shape: "cylinder",
-      shapeOptions: { radius: m6Geometry.ballheadSensorStudD / 2, axis: "x" },
+      shape: "threaded-stud",
+      shapeOptions: {
+        radius: m6Geometry.ballheadSensorStudD / 2,
+        axis: "x",
+        outer_d: m6Geometry.ballheadSensorStudD,
+        core_d: m6Geometry.ballheadSensorThreadCoreD,
+        pitch: m6Geometry.ballheadSensorThreadPitch,
+      },
       base_min: [ballheadStudMinX,
         m6Geometry.ballheadCenterY - m6Geometry.ballheadSensorStudD / 2,
         m6Geometry.ballheadCenterZ - m6Geometry.ballheadSensorStudD / 2],
@@ -1010,7 +1043,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadSensorStudD],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "M8 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入各自 x 后端背面中央 boss 的通孔；主体保持长方条，不制作 T 尾座。",
+      notes: "商品上端 1/4-20 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入各自 x 后端背面中央 boss 的 Ø7.0 通孔，并由隐藏的标准 1/4-20 螺母锁紧；主体保持长方条，不制作 T 尾座。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
@@ -1019,8 +1052,14 @@ function makeProxyAssemblyItems(entries) {
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
-      shape: "cylinder",
-      shapeOptions: { radius: m6Geometry.ballheadNetStudD / 2, axis: "z" },
+      shape: "threaded-stud",
+      shapeOptions: {
+        radius: m6Geometry.ballheadNetStudD / 2,
+        axis: "z",
+        outer_d: m6Geometry.ballheadNetStudD,
+        core_d: m6Geometry.ballheadNetThreadCoreD,
+        pitch: m6Geometry.ballheadNetThreadPitch,
+      },
       base_min: [mirrorX(m6Geometry.ballheadCenterX - m6Geometry.ballheadNetStudD / 2,
         m6Geometry.ballheadNetStudD),
         m6Geometry.ballheadCenterY - m6Geometry.ballheadNetStudD / 2,
@@ -1030,7 +1069,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "采购球头自身的 M8 竖直接口朝 z-，直接拧入浅黄色直立下段顶面的一体 M8 承座；接口与立柱中心同轴，取消横向黄色承托臂，直立下段不再用侧面向上返的竖向耳，也不再插入深灰色独立连接器。",
+      notes: "采购球头下端选择 M8 外牙，朝 z- 直接拧入浅黄色直立下段顶面的标准 M8 捕获螺母；接口与立柱中心同轴，取消横向黄色承托臂，直立下段不再用侧面向上返的竖向耳，也不再插入深灰色独立连接器。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -1795,7 +1834,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、总成上抬 20 mm、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss、竖直采购 13 mm 球头和浅黄色直立下段顶面的一体 M8 承座按装配清单显示；后盖与前盖接驳边保持直角，仅后盖自身 x+ 后部两个角圆滑；下段立柱主体沿 x 留出 y 向 3 mm 网布过道，外侧再开 U 形卡网槽，槽内显示独立 PETG Ø12 打印圆柱（Ø14 干涉校核基准）；灰色桌下夹体在桌面夹持开口之外为 y 全深实心渐变支撑，靠台侧 40 mm、外侧 8 mm，M8 丝杆相应加长；检测器/球头总成移到立柱中心，取消横向黄色承托臂，当前不再显示深黄色上段和深灰色独立连接器。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、总成上抬 20 mm、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 1/4-20 boss、竖直采购 13 mm 球头按实物包络显示；球头 z- 接口直接落在浅黄色下段最高水平面的 M8 捕获螺母；后盖与前盖接驳边保持直角，仅后盖自身 x+ 后部两个角圆滑；下段立柱主体沿 x 留出 y 向 3 mm 网布过道，外侧再开 U 形卡网槽，槽内显示独立 PETG Ø12 打印圆柱（Ø14 干涉校核基准）；灰色桌下夹体在桌面夹持开口之外为 y 全深实心渐变支撑，靠台侧 40 mm、外侧 8 mm，M8 丝杆相应加长；检测器/球头总成移到立柱中心，取消横向黄色承托臂，当前不再显示深黄色上段和深灰色独立连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
@@ -2623,6 +2662,96 @@ function createAssemblyProxy(THREE, item) {
           { color: "#26313b", opacity: 0.86, depthWrite: false, metalness: 0.2 },
         );
       }
+    }
+  } else if (item.shape === "ballhead-body") {
+    // The purchased 13 mm ballhead is a real hardware envelope, not a blue
+    // cylinder: show its rounded black clamp body, exposed metal ball, side
+    // plate, and the transverse lock wheel.  The thread interfaces remain
+    // separate assembly items so their axes and selected sizes are explicit.
+    const outer = footprintGeometry(THREE, "rounded-footprint", width, depth, height, {
+      x0: 0,
+      x1: width,
+      y0: 0,
+      y1: depth,
+      radius: number(options.radius, 4),
+    });
+    addProxyPart(THREE, group, item, outer, place([0, 0, 0]), {
+      color: "#161b20",
+      roughness: 0.28,
+      metalness: 0.78,
+    });
+    const ballD = number(options.ball_d, 13);
+    const ball = new THREE.SphereGeometry(ballD / 2, 32, 20);
+    addProxyPart(THREE, group, item, ball, place([width / 2, depth / 2, height / 2]), {
+      color: "#aeb5bb",
+      roughness: 0.2,
+      metalness: 0.9,
+    });
+    const plateD = number(options.side_plate_d, 24);
+    const plateT = number(options.side_plate_t_x, 4);
+    const plate = new THREE.CylinderGeometry(plateD / 2, plateD / 2, plateT, 32);
+    plate.rotateZ(Math.PI / 2);
+    addProxyPart(THREE, group, item, plate,
+      place([0, depth / 2, height / 2]), {
+        color: "#11161a",
+        roughness: 0.26,
+        metalness: 0.82,
+      });
+    const collar = new THREE.CylinderGeometry(5, 5, 2.2, 24);
+    collar.rotateZ(Math.PI / 2);
+    addProxyPart(THREE, group, item, collar,
+      place([-plateT / 2 - 0.5, depth / 2, height / 2]), {
+        color: "#b8bec2",
+        roughness: 0.2,
+        metalness: 0.9,
+      });
+    const knobD = number(options.lock_knob_d, 18);
+    const knobT = number(options.lock_knob_t_y, 8);
+    const knob = new THREE.CylinderGeometry(
+      knobD / 2,
+      knobD / 2,
+      knobT,
+      Math.max(12, Math.round(number(options.lock_knob_ridge_count, 24))),
+    );
+    addProxyPart(THREE, group, item, knob,
+      place([width / 2, -knobT / 2 + 1, height / 2]), {
+        color: "#11161a",
+        roughness: 0.3,
+        metalness: 0.76,
+      });
+  } else if (item.shape === "threaded-stud") {
+    // Keep the purchased 1/4-20 and M8 interfaces visibly threaded while the
+    // dimensions remain the simple measured outer envelopes used by the
+    // matching OpenSCAD model.
+    const axis = options.axis || "z";
+    const outerD = number(options.outer_d, number(options.radius, 4) * 2);
+    const coreD = number(options.core_d, outerD - 1);
+    const pitch = Math.max(0.5, number(options.pitch, 1.25));
+    const cylinderLength = axis === "x" ? width : axis === "y" ? depth : height;
+    const core = new THREE.CylinderGeometry(coreD / 2, coreD / 2, cylinderLength, 24);
+    if (axis === "x") core.rotateZ(Math.PI / 2);
+    if (axis === "z") core.rotateX(Math.PI / 2);
+    addProxyPart(THREE, group, item, core, place([width / 2, depth / 2, height / 2]), {
+      color: "#aeb5bb",
+      roughness: 0.2,
+      metalness: 0.9,
+    });
+    const crest = Math.max(0.12, (outerD - coreD) / 4);
+    const major = coreD / 2 + crest;
+    for (let offset = pitch / 2; offset < cylinderLength; offset += pitch) {
+      const ring = new THREE.TorusGeometry(major, crest, 8, 18);
+      if (axis === "x") ring.rotateY(Math.PI / 2);
+      if (axis === "y") ring.rotateX(Math.PI / 2);
+      const position = axis === "x"
+        ? [offset, depth / 2, height / 2]
+        : axis === "y"
+          ? [width / 2, offset, height / 2]
+          : [width / 2, depth / 2, offset];
+      addProxyPart(THREE, group, item, ring, place(position), {
+        color: "#c5c9cc",
+        roughness: 0.18,
+        metalness: 0.92,
+      });
     }
   } else if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);

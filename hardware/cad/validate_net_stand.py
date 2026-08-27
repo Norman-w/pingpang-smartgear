@@ -519,12 +519,33 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_ballhead_ball_d",
         "m6_ballhead_housing_d",
         "m6_ballhead_housing_length_x",
+        "m6_ballhead_body_depth_y",
+        "m6_ballhead_body_corner_radius",
+        "m6_ballhead_ball_socket_d",
+        "m6_ballhead_side_plate_d",
+        "m6_ballhead_side_plate_t_x",
+        "m6_ballhead_lock_knob_d",
+        "m6_ballhead_lock_knob_t_y",
+        "m6_ballhead_lock_knob_ridge_count",
         "m6_ballhead_base_d",
         "m6_ballhead_base_t",
         "m6_ballhead_sensor_stud_d",
         "m6_ballhead_sensor_stud_length",
+        "m6_ballhead_sensor_thread_core_d",
+        "m6_ballhead_sensor_thread_pitch",
         "m6_ballhead_net_stud_d",
         "m6_ballhead_net_stud_length",
+        "m6_ballhead_net_thread_core_d",
+        "m6_ballhead_net_thread_pitch",
+        "m6_ballhead_top_nut_af",
+        "m6_ballhead_top_nut_h",
+        "m6_ballhead_bottom_nut_af",
+        "m6_ballhead_bottom_nut_h",
+        "m6_ballhead_nut_clearance",
+        "m6_ballhead_top_nut_pocket_af",
+        "m6_ballhead_top_nut_pocket_depth",
+        "m6_ballhead_bottom_nut_pocket_af",
+        "m6_ballhead_bottom_nut_pocket_depth",
         "m6_ballhead_tilt_range_deg",
         "m6_ballhead_rotation_range_deg",
         "m6_ballhead_mount_clearance_d",
@@ -649,6 +670,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_hole_d",
         "m6_detector_shell_support_hole_depth_x",
         "m6_detector_shell_support_stud_engagement_x",
+        "m6_detector_shell_support_nut_pocket_center_x",
         "m6_detector_detector_ballhead_gap_x",
         "m6_detector_sensor_head_y_offset",
         "m6_detector_net_connector_arm_width_y",
@@ -728,6 +750,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_net_connector_leg_top_z",
         "m6_detector_net_connector_leg_height_z",
         "m6_detector_net_connector_mount_height_z",
+        "m6_detector_direct_mount_socket_clearance_d",
+        "m6_detector_direct_mount_nut_pocket_center_z",
         "net_clamp_channel_depth_x",
         "net_clamp_cylinder_insertion_depth_x",
         "net_clamp_channel_back_wall_t_x",
@@ -1048,10 +1072,42 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["m6_ballhead_housing_d"] > parameters["m6_ballhead_ball_d"]
         and parameters["m6_ballhead_housing_length_x"]
         > parameters["m6_ballhead_sensor_stud_length"]
+        and parameters["m6_ballhead_body_depth_y"] > 0
+        and 0 < parameters["m6_ballhead_body_corner_radius"] < min(
+            parameters["m6_ballhead_housing_d"],
+            parameters["m6_ballhead_body_depth_y"],
+        ) / 2
+        and parameters["m6_ballhead_ball_socket_d"]
+        > parameters["m6_ballhead_ball_d"]
+        and parameters["m6_ballhead_side_plate_d"]
+        > parameters["m6_ballhead_ball_d"]
+        and parameters["m6_ballhead_side_plate_t_x"] > 0
+        and parameters["m6_ballhead_lock_knob_d"] > 0
+        and parameters["m6_ballhead_lock_knob_t_y"] > 0
+        and parameters["m6_ballhead_lock_knob_ridge_count"] >= 12
         and parameters["m6_ballhead_base_d"] > parameters["m6_ballhead_ball_d"]
         and parameters["m6_ballhead_base_t"] > 0
+        and parameters["m6_ballhead_sensor_stud_d"]
+        > parameters["m6_ballhead_sensor_thread_core_d"] > 0
+        and parameters["m6_ballhead_sensor_thread_pitch"] > 0
         and parameters["m6_ballhead_net_stud_d"] > 0
+        and parameters["m6_ballhead_net_stud_d"]
+        > parameters["m6_ballhead_net_thread_core_d"] > 0
+        and parameters["m6_ballhead_net_thread_pitch"] > 0
         and parameters["m6_ballhead_net_stud_length"] > 0
+        and parameters["m6_ballhead_top_nut_pocket_af"]
+        > parameters["m6_ballhead_top_nut_af"]
+        and parameters["m6_ballhead_top_nut_pocket_depth"]
+        >= parameters["m6_ballhead_top_nut_h"]
+        and parameters["m6_ballhead_top_nut_pocket_af"] / math.cos(math.radians(30))
+        < parameters["m6_detector_shell_support_boss_depth_y"]
+        and parameters["m6_ballhead_bottom_nut_pocket_af"]
+        > parameters["m6_ballhead_bottom_nut_af"]
+        and parameters["m6_ballhead_bottom_nut_pocket_depth"]
+        >= parameters["m6_ballhead_bottom_nut_h"]
+        and parameters["m6_ballhead_bottom_nut_pocket_af"]
+        / math.cos(math.radians(30))
+        < parameters["m6_detector_direct_mount_socket_outer_d"]
         and parameters["m6_ballhead_tilt_range_deg"] == 90
         and parameters["m6_ballhead_rotation_range_deg"] == 360
         and math.isclose(
@@ -1279,6 +1335,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_detector_body_tail_clearance_positive" in rear_shell_module
         or "m6_rounded_rect_prism_x(" not in rear_boss_module
         or "m6_cylinder_x(" not in rear_hole_module
+        or "m6_hex_prism_x(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
         or "m6_detector_shell_tongue_positive(-1, y_side);" not in front_shell_module
@@ -1299,6 +1356,8 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         or "difference()" not in direct_mount_module
         or "m6_cylinder_z(" not in direct_mount_module
+        or "m6_detector_direct_mount_socket_clearance_d" not in direct_mount_module
+        or "m6_hex_prism(" not in direct_mount_module
         or "m6_detector_direct_mount_positive();" not in post_module
         or "m6_detector_direct_mount_positive();" not in lower_stand_module
         or "net_passage_negative_positive();" not in post_segment_module
@@ -1694,6 +1753,15 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         <= parameters["m6_detector_shell_support_boss_length_x"]
         and parameters["m6_detector_shell_support_hole_entry_x"]
         == parameters["m6_detector_shell_support_boss_max_x"]
+        and parameters["m6_detector_shell_support_nut_pocket_center_x"]
+        - parameters["m6_ballhead_top_nut_pocket_depth"] / 2
+        >= parameters["m6_detector_shell_support_boss_min_x"]
+        and parameters["m6_detector_shell_support_nut_pocket_center_x"]
+        + parameters["m6_ballhead_top_nut_pocket_depth"] / 2
+        <= parameters["m6_detector_shell_support_boss_max_x"]
+        and parameters["m6_ballhead_top_nut_pocket_af"]
+        / math.cos(math.radians(30))
+        < parameters["m6_detector_shell_support_boss_depth_y"]
         and (
             parameters["m6_detector_ballhead_sensor_stud_center_x"]
             - parameters["m6_ballhead_sensor_stud_length"] / 2
@@ -1786,9 +1854,18 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         < parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
         < parameters["m6_detector_direct_mount_socket_top_z"]
         and parameters["m6_detector_direct_mount_socket_outer_d"]
-        > parameters["m6_detector_direct_mount_socket_tap_d"]
-        and parameters["m6_detector_direct_mount_socket_tap_d"]
-        > parameters["m6_ballhead_net_stud_d"] * 0.8
+        > parameters["m6_detector_direct_mount_socket_clearance_d"] + 4
+        and parameters["m6_detector_direct_mount_socket_clearance_d"]
+        > parameters["m6_ballhead_net_stud_d"]
+        and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
+        - parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
+        >= parameters["m6_detector_direct_mount_socket_bottom_z"]
+        and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
+        + parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
+        <= parameters["m6_detector_direct_mount_socket_top_z"]
+        and parameters["m6_ballhead_bottom_nut_pocket_af"]
+        / math.cos(math.radians(30))
+        < parameters["m6_detector_direct_mount_socket_outer_d"]
         and math.isclose(
             parameters["m6_detector_direct_mount_socket_center_x"],
             parameters["post_center_x"],
