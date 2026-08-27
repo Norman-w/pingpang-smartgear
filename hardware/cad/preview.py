@@ -38,7 +38,9 @@ NET_POST_OUTBOARD_EXTENSION = 152.5
 POST_OFFSET = 138.5
 CLAMP_OUTER_EXTENSION = 7.5
 CLAMP_REACH_INBOARD = 62.0
-CLAMP_PAD_T = 8.0
+# The upper and lower structural clamp jaws are both 12 mm thick.  The
+# separate black protective pads remain 2 mm and replaceable.
+CLAMP_PAD_T = 12.0
 CLAMP_CLEARANCE = 1.5
 POST_CENTER = TABLE_EDGE + POST_OFFSET
 CLAMP_SCREW_INSET = 30.0
@@ -74,6 +76,8 @@ CLAMP_OUTER_WALL_X = CLAMP_PAD_OUTER_X - CLAMP_OUTER_WALL_WIDTH
 CLAMP_REINFORCEMENT_INBOARD_OFFSET_X = 3.0
 CLAMP_REINFORCEMENT_NEAR_TABLE_THICKNESS_Z = 40.0
 CLAMP_REINFORCEMENT_DEPTH_Y = 58.0
+CLAMP_SOLID_BRIDGE_CLEARANCE_X = 0.2
+CLAMP_SOLID_BRIDGE_START_X = CLAMP_SOLID_BRIDGE_CLEARANCE_X
 CLAMP_REINFORCEMENT_START_X = -CLAMP_REINFORCEMENT_INBOARD_OFFSET_X
 CLAMP_REINFORCEMENT_END_X = CLAMP_PAD_OUTER_X - 0.2
 CLAMP_LOWER_ARM_X = CLAMP_SCREW_X - 22.0 / 2
@@ -95,6 +99,7 @@ CLAMP_REINFORCEMENT_OUTER_THICKNESS_Z = CLAMP_PAD_T
 CLAMP_REINFORCEMENT_OUTER_BOTTOM_Z = (
     CLAMP_REINFORCEMENT_TOP_Z - CLAMP_REINFORCEMENT_OUTER_THICKNESS_Z
 )
+CLAMP_SOLID_BRIDGE_TOP_Z = CLAMP_TOP_PAD_T + CLAMP_PAD_T
 OPTICAL_BEAM_EDGE_OVERLAP = 0.5
 OPTICAL_BEAM_AXIS_X = TABLE_EDGE + OPTICAL_BEAM_EDGE_OVERLAP
 POST_BOTTOM = CLAMP_LOWER_ARM_TOP
@@ -821,12 +826,39 @@ def draw_side(ax) -> None:
         )
     )
     ax.add_patch(
+        Polygon(
+            [
+                (
+                    CLAMP_SOLID_BRIDGE_START_X,
+                    CLAMP_REINFORCEMENT_NEAR_TABLE_BOTTOM_Z,
+                ),
+                (
+                    CLAMP_REINFORCEMENT_END_X,
+                    CLAMP_REINFORCEMENT_OUTER_BOTTOM_Z,
+                ),
+                (
+                    CLAMP_REINFORCEMENT_END_X,
+                    CLAMP_SOLID_BRIDGE_TOP_Z,
+                ),
+                (
+                    CLAMP_SOLID_BRIDGE_START_X,
+                    CLAMP_SOLID_BRIDGE_TOP_Z,
+                ),
+            ],
+            closed=True,
+            facecolor="#5d6872",
+            edgecolor="#2e353c",
+            alpha=0.72,
+            label="桌边外侧非接触区：y 全深实心桥体",
+        )
+    )
+    ax.add_patch(
         Rectangle(
             (CLAMP_PAD_X, CLAMP_TOP_PAD_T),
             CLAMP_PAD_OUTER_X - CLAMP_PAD_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="fixed upper jaw (no drilling)",
+            label="加厚上夹臂 12 mm（不打孔）",
         )
     )
     ax.add_patch(
@@ -853,7 +885,7 @@ def draw_side(ax) -> None:
             facecolor="#4f5963",
             edgecolor="#2e353c",
             alpha=0.92,
-            label="全宽实心下部支撑：靠台侧厚 40 mm，外侧 8 mm 斜底",
+            label="全宽实心下部支撑：靠台侧厚 40 mm，外侧 12 mm 斜底",
         )
     )
     ax.add_patch(
@@ -871,7 +903,7 @@ def draw_side(ax) -> None:
             CLAMP_PAD_OUTER_X - CLAMP_LOWER_ARM_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="fixed lower arm / nut seat",
+            label="加厚下夹臂 12 mm / 螺母座",
         )
     )
     ax.add_patch(
@@ -1058,7 +1090,7 @@ def draw_side(ax) -> None:
     inset.set_ylabel("z", fontsize=7)
     inset.tick_params(labelsize=6)
     inset.grid(True, alpha=0.2)
-    ax.set_title("No-drill C-clamp + solid tapered 40 mm lower support + raised M6 body: side intent")
+    ax.set_title("No-drill C-clamp + solid outboard bridge + 40→12 mm lower support: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
     ax.set_ylabel("z / mm")
     ax.grid(True, alpha=0.22)

@@ -112,12 +112,14 @@ net_post_outboard_extension = 152.5;
 // 轴线覆盖台面边缘，而不会嵌入实心立柱。
 post_offset = 138.5;
 post_center_x = table_edge_x + post_offset;
-// C 形夹保留桌面的夹持开口、上/下接触界面和压块/螺杆区域；其余外侧下方
-// 承力段改为沿 y 全深的实心渐变支撑。靠球台（x-）侧厚 40 mm，外侧保持
-// 原下臂 8 mm 厚，并用斜底面过渡。真实 PETG 材料、层向和夹紧力仍需首样验证。
+// C 形夹保留桌面的夹持开口、上/下接触界面和压块/螺杆区域；桌边外侧
+// （x+、不接触桌面）的区域改为沿 y 全深的实心桥体。下部承力段靠球台
+// （x-）侧厚 40 mm，并沿斜底过渡到加厚后的下夹臂；真实 PETG 材料、层向
+// 和夹紧力仍需首样验证。
 clamp_reinforcement_inboard_offset_x = 3;
 clamp_reinforcement_near_table_thickness_z = 40;
 clamp_reinforcement_depth_y = 58;
+clamp_solid_bridge_clearance_x = 0.2;
 clamp_lower_arm_clearance = 10;
 post_bottom = -table_thickness - clamp_lower_arm_clearance;
 post_top_margin = 18;
@@ -601,7 +603,9 @@ clamp_outboard_extension_min = 130;
 // the dependency-free preview can audit the same first-article value.
 clamp_outer_extension = 7.5;
 clamp_pad_depth = 58;
-clamp_pad_t = 8;
+// 上、下两条结构夹臂统一加厚到 12 mm；黑色 TPU/硅胶接触垫仍保持独立，
+// 不把软垫厚度混入夹体承力厚度。
+clamp_pad_t = 12;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
 // 首样采用真实 M8×1.25 金属螺杆；螺纹牙型不在 PETG 几何中建模，
@@ -1059,6 +1063,10 @@ clamp_reinforcement_near_table_bottom_z =
 clamp_reinforcement_outer_thickness_z = clamp_lower_arm_t;
 clamp_reinforcement_outer_bottom_z =
     clamp_reinforcement_top_z - clamp_reinforcement_outer_thickness_z;
+// 桌边外侧不再保留 C 形开口；从桌边外侧留出一个明确的小间隙后，
+// 用沿 y 全深的实心桥体连接上下夹臂。桥体底部继续沿用 40→12 mm 斜底。
+clamp_solid_bridge_start_x = table_edge_x + clamp_solid_bridge_clearance_x;
+clamp_solid_bridge_top_z = clamp_top_pad_t + clamp_pad_t;
 // The screw pushes the underside of the independent pad. It must not model
 // itself as passing through the pad or through the tabletop.
 clamp_screw_top_z = clamp_pressure_pad_bottom_z;
@@ -1609,6 +1617,13 @@ assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
 assert(clamp_reinforcement_inboard_offset_x > 0 &&
            clamp_reinforcement_near_table_thickness_z == 40 &&
            clamp_reinforcement_depth_y == clamp_pad_depth &&
+           clamp_solid_bridge_clearance_x > 0 &&
+           clamp_solid_bridge_start_x ==
+               table_edge_x + clamp_solid_bridge_clearance_x &&
+           clamp_solid_bridge_start_x > table_edge_x &&
+           clamp_solid_bridge_start_x < clamp_reinforcement_end_x &&
+           clamp_solid_bridge_top_z == clamp_top_pad_t + clamp_pad_t &&
+           clamp_solid_bridge_top_z > clamp_reinforcement_top_z &&
            clamp_reinforcement_start_x < table_edge_x &&
            clamp_reinforcement_start_x > clamp_pressure_pad_x +
                clamp_pressure_pad_width / 2 &&
@@ -1626,7 +1641,7 @@ assert(clamp_reinforcement_inboard_offset_x > 0 &&
                clamp_reinforcement_outer_bottom_z &&
            clamp_reinforcement_outer_bottom_z <
                clamp_reinforcement_top_z,
-       "solid tapered under-clamp reinforcement must be full-depth, clear of the pad, and 40-to-8 mm");
+       "solid tapered under-clamp reinforcement/bridge must be full-depth, clear of the pad, and 40-to-12 mm");
 assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
            clamp_outer_wall_x < clamp_pad_outer_x &&
            clamp_outboard_extension_actual >= clamp_outboard_extension_min &&
@@ -1652,6 +1667,8 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
 assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
            clamp_screw_length > table_thickness,
        "first clamp uses an M8 x 1.25 vertical tightening screw");
+assert(clamp_pad_t == 12 && clamp_lower_arm_t == clamp_pad_t,
+       "upper and lower structural clamp jaws must both be 12 mm thick");
 assert(clamp_screw_top_z <= clamp_pressure_pad_bottom_z &&
            clamp_screw_top_z < -table_thickness &&
            clamp_screw_tip_radius > 0,
@@ -1735,9 +1752,9 @@ module sided(side = 1) {
 }
 
 module clamp_solid_tapered_reinforcement_positive() {
-    // Full-depth solid lower support outside the tabletop clamp opening.
-    // The inboard/table-near x- end is 40 mm thick; the outboard x+ end
-    // remains the existing 8 mm lower-arm thickness, with a sloped underside.
+    // Full-depth solid lower support below the tabletop clamp opening. The
+    // inboard/table-near x- end is 40 mm thick; the outboard x+ end follows
+    // the thickened 12 mm lower structural jaw with a sloped underside.
     color("slategray")
         rotate([90, 0, 0])
             linear_extrude(height = clamp_reinforcement_depth_y,
@@ -1751,6 +1768,27 @@ module clamp_solid_tapered_reinforcement_positive() {
                      clamp_reinforcement_top_z],
                     [clamp_reinforcement_start_x,
                      clamp_reinforcement_top_z]
+                ]);
+}
+
+module clamp_solid_outboard_bridge_positive() {
+    // The x+ zone is outside the tabletop and must be solid rather than a
+    // second open C-shaped gap.  Starting just beyond the table edge avoids
+    // intersecting the tabletop while the lower edge remains the 40-to-12 mm
+    // tapered support profile.
+    color("slategray")
+        rotate([90, 0, 0])
+            linear_extrude(height = clamp_reinforcement_depth_y,
+                           center = true)
+                polygon(points = [
+                    [clamp_solid_bridge_start_x,
+                     clamp_reinforcement_near_table_bottom_z],
+                    [clamp_reinforcement_end_x,
+                     clamp_reinforcement_outer_bottom_z],
+                    [clamp_reinforcement_end_x,
+                     clamp_solid_bridge_top_z],
+                    [clamp_solid_bridge_start_x,
+                     clamp_solid_bridge_top_z]
                 ]);
 }
 
@@ -1776,6 +1814,7 @@ module table_clamp_body_positive() {
                 translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z])
                     cylinder(d = clamp_threaded_boss_d, h = clamp_threaded_boss_h);
                 clamp_solid_tapered_reinforcement_positive();
+                clamp_solid_outboard_bridge_positive();
             }
             // M8 螺杆只穿过下臂/螺母座，不能穿过球台。
             translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
@@ -4480,6 +4519,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM sensor_clamp_tab_width=", sensor_clamp_tab_width));
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
     echo(str("NETSTAND_PARAM clamp_pad_depth=", clamp_pad_depth));
+    echo(str("NETSTAND_PARAM clamp_pad_t=", clamp_pad_t));
     echo(str("NETSTAND_PARAM clamp_horizontal_part_outboard_limit=",
              clamp_horizontal_part_outboard_limit));
     echo(str("NETSTAND_PARAM clamp_outboard_extension_min=", clamp_outboard_extension_min));
@@ -4490,6 +4530,12 @@ module parameter_probe() {
              clamp_reinforcement_near_table_thickness_z));
     echo(str("NETSTAND_PARAM clamp_reinforcement_depth_y=",
              clamp_reinforcement_depth_y));
+    echo(str("NETSTAND_PARAM clamp_solid_bridge_clearance_x=",
+             clamp_solid_bridge_clearance_x));
+    echo(str("NETSTAND_PARAM clamp_solid_bridge_start_x=",
+             clamp_solid_bridge_start_x));
+    echo(str("NETSTAND_PARAM clamp_solid_bridge_top_z=",
+             clamp_solid_bridge_top_z));
     echo(str("NETSTAND_PARAM clamp_reinforcement_start_x=",
              clamp_reinforcement_start_x));
     echo(str("NETSTAND_PARAM clamp_reinforcement_end_x=",

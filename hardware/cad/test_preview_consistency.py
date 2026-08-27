@@ -40,6 +40,7 @@ PARAMETER_MAP = {
     "CLAMP_REINFORCEMENT_INBOARD_OFFSET_X": "clamp_reinforcement_inboard_offset_x",
     "CLAMP_REINFORCEMENT_NEAR_TABLE_THICKNESS_Z": "clamp_reinforcement_near_table_thickness_z",
     "CLAMP_REINFORCEMENT_DEPTH_Y": "clamp_reinforcement_depth_y",
+    "CLAMP_SOLID_BRIDGE_CLEARANCE_X": "clamp_solid_bridge_clearance_x",
     "CLAMP_PRESSURE_PAD_WIDTH": "clamp_pressure_pad_width",
     "CLAMP_PRESSURE_PAD_T": "clamp_pressure_pad_t",
     "M6_SENSOR_HEAD_LENGTH_X": "m6_sensor_head_length_x",

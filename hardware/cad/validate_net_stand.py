@@ -761,10 +761,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "reference_pin_length",
         "reference_carriage_depth",
         "clamp_pad_depth",
+        "clamp_pad_t",
         "clamp_outboard_extension_min",
         "clamp_reinforcement_inboard_offset_x",
         "clamp_reinforcement_near_table_thickness_z",
         "clamp_reinforcement_depth_y",
+        "clamp_solid_bridge_clearance_x",
+        "clamp_solid_bridge_start_x",
+        "clamp_solid_bridge_top_z",
         "clamp_reinforcement_start_x",
         "clamp_reinforcement_end_x",
         "clamp_reinforcement_top_z",
@@ -830,6 +834,16 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         parameters["clamp_reinforcement_inboard_offset_x"] > 0
         and parameters["clamp_reinforcement_near_table_thickness_z"] == 40
         and parameters["clamp_reinforcement_depth_y"] == parameters["clamp_pad_depth"]
+        and parameters["clamp_solid_bridge_clearance_x"] > 0
+        and parameters["clamp_solid_bridge_start_x"]
+        == table_edge + parameters["clamp_solid_bridge_clearance_x"]
+        and parameters["clamp_solid_bridge_start_x"] > table_edge
+        and parameters["clamp_solid_bridge_start_x"]
+        < parameters["clamp_reinforcement_end_x"]
+        and parameters["clamp_solid_bridge_top_z"]
+        == parameters["clamp_top_pad_t"] + parameters["clamp_pad_t"]
+        and parameters["clamp_solid_bridge_top_z"]
+        > parameters["clamp_reinforcement_top_z"]
         and parameters["clamp_reinforcement_start_x"] < table_edge
         and parameters["clamp_reinforcement_start_x"]
         > parameters["clamp_pressure_pad_x"]
@@ -876,6 +890,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         parameters["clamp_pressure_pad_top_z"]
         and parameters["clamp_lower_arm_top_z"] <
         parameters["clamp_pressure_pad_bottom_z"]
+        and parameters["clamp_pad_t"] == 12
+        and parameters["clamp_lower_arm_t"] == parameters["clamp_pad_t"]
     ):
         raise RuntimeError(f"M8x1.25 clamp pressure path is inconsistent: {parameters}")
     if not (
@@ -1262,6 +1278,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "net_passage_negative_positive();" not in post_segment_module
         or "net_clamp_channel_negative_positive();" not in post_segment_module
         or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_body_module
+        or "clamp_solid_outboard_bridge_positive();" not in table_clamp_body_module
         or "m6_detector_mount_raise_z" not in assembly_module
         or "m6_detector_mount_raise_z" not in exploded_assembly_module
         or "net_clamp_rod_positive();" not in stand_module
