@@ -78,10 +78,11 @@ def main() -> None:
         != "z+ 俯视：x- 光学端为正圆弧，x+ 线缆端为圆角矩形；中间仅为前后盖分型边界，不建连线"
         or shell["front_cap_length_x_mm"] != 18
         or shell["rear_corner_radius_mm"] != 4
-        or shell["front_max_x_global_mm"] != 766.3
-        or shell["rear_min_x_global_mm"] != 765.7
+        or shell["front_max_x_global_mm"] != 765.8
+        or shell["rear_min_x_global_mm"] != 766.2
+        or shell["parting_clearance_x_mm"] != 0.4
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口由采购金属 90°连接器从最低端承接并沿 x 连接网夹立柱，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -110,7 +111,7 @@ def main() -> None:
     if (
         support["type"] != "purchased 13 mm ballhead/gimbal"
         or support["posture"]
-        != "vertical; the purchased part itself supplies adjustment and net-clamp support"
+        != "vertical; its downward interface is carried by a separate purchased metal 90-degree connector"
         or support["boss_hole_axis"]
         != "x- from the rear cover boss toward the optical side"
         or support["boss_hole_d_mm"] != 8.6
@@ -120,10 +121,37 @@ def main() -> None:
         or support["ballhead_center_x_global_mm"] != 816.4
         or support["ballhead_center_y_global_mm"] != 0
         or support["ballhead_center_z_global_mm"] != 252.5
-        or "不制作自有 90° 支撑 STL" not in support["net_interface"]
-        or "球头自带竖直网夹接口" not in support["load_path"]
+        or "球头 M8 竖直接口朝 z-" not in support["net_interface"]
+        or "采购金属 90°连接器" not in support["load_path"]
     ):
         raise AssertionError("rear-cover boss/purchased ballhead interface contract changed")
+
+    connector = support["net_connector"]
+    if (
+        connector["material"] != "purchased metal (not printed)"
+        or connector["arm_min_x_global_mm"] != 809.4
+        or connector["arm_max_x_global_mm"] != 889
+        or connector["arm_width_y_mm"] != 24
+        or connector["arm_thickness_z_mm"] != 10
+        or connector["leg_min_x_global_mm"] != 881
+        or connector["leg_max_x_global_mm"] != 889
+        or connector["leg_width_y_mm"] != 32
+        or connector["leg_thickness_x_mm"] != 8
+        or connector["arm_bottom_z_global_mm"] != 203.5
+        or connector["arm_top_z_global_mm"] != 213.5
+        or connector["leg_bottom_z_global_mm"] != 203.5
+        or connector["leg_top_z_global_mm"] != 262.5
+        or connector["socket_bottom_z_global_mm"] != 203.3
+        or connector["socket_top_z_global_mm"] != 231.7
+        or connector["socket_outer_d_mm"] != 14
+        or connector["socket_clearance_d_mm"] != 8.6
+        or connector["ballhead_interface_bottom_z_global_mm"] != 203.5
+        or connector["mount_height_from_interface_bottom_mm"] != 49
+        or connector["post_bolt_pattern_y_mm"] != [-10, 10]
+        or connector["post_bolt_d_mm"] != 6.5
+        or connector["print_status"] != "preview-only purchased metal part; exclude from PETG STL"
+    ):
+        raise AssertionError("downward ballhead metal connector contract changed")
 
     ballhead = spec["ballhead_contract"]
     if (
@@ -142,7 +170,7 @@ def main() -> None:
     ]:
         raise AssertionError("ballhead variant list changed")
 
-    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body/purchased vertical ballhead, 10 rolled L-sensor channels at 20 mm pitch)")
+    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body, downward ballhead connector, 10 rolled L-sensor channels at 20 mm pitch)")
 
 
 if __name__ == "__main__":

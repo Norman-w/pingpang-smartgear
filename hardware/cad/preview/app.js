@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，直接接保持竖直的采购 13 mm 球头，球头自带竖直接口连接商品网夹。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，接保持竖直的采购 13 mm 球头；球头 z- 接口从最低端承接采购金属 90°连接器，连接器再沿 x 连接网夹立柱的两枚 M6 槽孔。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -426,8 +426,9 @@ function makeProxyAssemblyItems(entries) {
   }));
 
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
-  // the rear PETG cover has the visible thickened M8 boss and the metal
-  // support/ballhead closes the load path to the net clamp.
+  // the rear PETG cover has the visible thickened M8 boss, while the vertical
+  // purchased ballhead's downward interface is carried by a separate metal
+  // 90-degree connector into the net-clamp upright.
   const m6Geometry = {
     axisX: 763,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
@@ -473,8 +474,9 @@ function makeProxyAssemblyItems(entries) {
     shellCornerRadius: 4,
     frontCapLengthX: 18,
     splitX: 766,
-    frontMaxX: 766.3,
-    rearMinX: 765.7,
+    splitClearanceX: 0.2,
+    frontMaxX: 765.8,
+    rearMinX: 766.2,
     grooveWidthX: 4,
     grooveDepthY: 1.2,
     grooveMarginZ: 5,
@@ -527,6 +529,50 @@ function makeProxyAssemblyItems(entries) {
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
   };
+  Object.assign(m6Geometry, {
+    postCenterX: 901,
+    postBodyWidth: 28,
+    postBodyDepth: 38,
+    postInnerFaceX: 887,
+    postMountHoleZ: 252.5,
+    postMountHoleY: 10,
+    postSlotLength: 12,
+    ballheadNetInterfaceBottomZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
+    netConnectorInterfaceHeightZ: m6Geometry.ballheadNetStudLength,
+    netConnectorArmWidthY: 24,
+    netConnectorArmThicknessZ: 10,
+    netConnectorLegWidthY: 32,
+    netConnectorLegThicknessX: 8,
+    netConnectorPostOverlapX: 2,
+    netConnectorSocketOuterD: 14,
+    netConnectorSocketClearanceD: 8.6,
+    netConnectorSocketOverlapZ: 0.2,
+    netConnectorPostBoltD: 6.5,
+    netConnectorPostBoltY: 10,
+    netConnectorSocketBottomZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 0.2,
+    netConnectorSocketTopZ:
+      m6Geometry.ballheadNetStudCenterZ + m6Geometry.ballheadNetStudLength / 2 + 0.2,
+    netConnectorSocketHeightZ: m6Geometry.ballheadNetStudLength + 0.4,
+    netConnectorSocketCenterZ: m6Geometry.ballheadNetStudCenterZ,
+    netConnectorArmMinX: m6Geometry.ballheadCenterX - 14 / 2,
+    netConnectorArmMaxX: 887 + 2,
+    netConnectorArmBottomZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
+    netConnectorArmTopZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2
+        + 10,
+    netConnectorLegMinX: 887 - 8 + 2,
+    netConnectorLegMaxX: 887 + 2,
+    netConnectorLegBottomZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
+    netConnectorLegTopZ: 252.5 + 12 / 2 + 4,
+    netConnectorLegHeightZ: 252.5 + 12 / 2 + 4
+      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2),
+    netConnectorMountHeightZ: 252.5
+      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2),
+  });
   for (const sideLabel of ["left", "right"]) {
     const side = sideLabel === "left" ? -1 : 1;
     const sideName = side < 0 ? "左" : "右";
@@ -551,6 +597,13 @@ function makeProxyAssemblyItems(entries) {
     const ballheadStudMinX = side > 0
       ? m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2
       : -m6Geometry.ballheadSensorStudCenterX - m6Geometry.ballheadSensorStudLength / 2;
+    const connectorSizeX =
+      m6Geometry.netConnectorArmMaxX - m6Geometry.netConnectorArmMinX;
+    const connectorBaseMinX = side > 0
+      ? m6Geometry.netConnectorArmMinX
+      : -m6Geometry.netConnectorArmMaxX;
+    const connectorBaseMinY = -m6Geometry.netConnectorLegWidthY / 2;
+    const connectorBaseMinZ = m6Geometry.netConnectorLegBottomZ;
     if (m6Geometry.fitProbeOnly) {
       const fitHeadInnerX = m6Geometry.bodyMaxX - m6Geometry.fitCaptureDepthX;
       const fitHeadCenterX = fitHeadInnerX + m6Geometry.fitHeadLengthX / 2;
@@ -839,6 +892,7 @@ function makeProxyAssemblyItems(entries) {
         front_length_x: m6Geometry.frontMaxX - m6Geometry.shellMinX,
         rear_x_offset: m6Geometry.rearMinX - m6Geometry.shellMinX,
         rear_length_x: m6Geometry.shellMaxX - m6Geometry.rearMinX,
+        parting_gap_x: m6Geometry.rearMinX - m6Geometry.frontMaxX,
         width_y: m6Geometry.shellWidthY,
         radius: m6Geometry.shellCornerRadius,
         mirror_x: side < 0,
@@ -877,7 +931,7 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
       side,
       explosion: [side * 154, -28, -4],
-      notes: "底座是采购云台的一部分；竖直姿态下直接接商品网夹。可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改采购接口件。",
+      notes: "底座是采购云台的一部分；竖直姿态下其 z- 接口由下一件采购金属 90°连接器承接。可选 1/4 内牙、1/4 外牙、3/8 外牙、M6/M8/M10 外牙只改采购接口件。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
@@ -900,8 +954,8 @@ function makeProxyAssemblyItems(entries) {
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
-      name_zh: `采购球头到商品网夹的竖直接口（${sideName}）`,
-      name_en: "purchased ball-head vertical net-clamp interface",
+      name_zh: `采购球头向下的竖直接口（${sideName}）`,
+      name_en: "purchased ball-head downward net-connector interface",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
@@ -916,7 +970,42 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "采购球头自身的竖直螺柱/底座直接接商品网夹；实际端部螺纹由采购 SKU 决定，不制作自有 90° 支撑。",
+      notes: "采购球头自身的 M8 竖直接口朝 z-；最低端由下一件采购金属 90°连接器承接，不把球头接口直接误画成网夹立柱。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `hardware:m6-net-connector:${sideLabel}`,
+      name_zh: `球头下接网夹的金属 90°连接器（${sideName}）`,
+      name_en: "purchased metal 90-degree ballhead-to-net-clamp connector",
+      kind: "外购承力连接件",
+      material: "金属外购件（非打印）",
+      group: "optical",
+      stage: 4,
+      color: "#58626a",
+      shape: "m6-net-connector",
+      shapeOptions: {
+        mirror_x: side < 0,
+        arm_width_y: m6Geometry.netConnectorArmWidthY,
+        arm_height_z: m6Geometry.netConnectorArmThicknessZ,
+        leg_x_offset: m6Geometry.netConnectorLegMinX - m6Geometry.netConnectorArmMinX,
+        leg_width_x: m6Geometry.netConnectorLegThicknessX,
+        leg_width_y: m6Geometry.netConnectorLegWidthY,
+        leg_height_z: m6Geometry.netConnectorLegHeightZ,
+        socket_center_x_offset: m6Geometry.ballheadCenterX - m6Geometry.netConnectorArmMinX,
+        socket_outer_d: m6Geometry.netConnectorSocketOuterD,
+        socket_clearance_d: m6Geometry.netConnectorSocketClearanceD,
+        socket_bottom_z: m6Geometry.netConnectorSocketBottomZ - m6Geometry.netConnectorLegBottomZ,
+        socket_height_z: m6Geometry.netConnectorSocketHeightZ,
+        post_bolt_y: m6Geometry.netConnectorPostBoltY,
+        post_bolt_z: m6Geometry.postMountHoleZ - m6Geometry.netConnectorLegBottomZ,
+        post_bolt_d: m6Geometry.netConnectorPostBoltD,
+      },
+      base_min: [connectorBaseMinX, connectorBaseMinY, connectorBaseMinZ],
+      size: [connectorSizeX,
+        m6Geometry.netConnectorLegWidthY,
+        m6Geometry.netConnectorLegHeightZ],
+      side,
+      explosion: [side * 154, -28, -8],
+      notes: "非打印金属 90°连接器：球头 z- 接口从最低端插入套筒，连接器从该最低端起沿 x 伸向网夹立柱内侧，竖直端的 y± 两孔与立柱上段 x 向槽孔同轴；从接口最低端向上到孔中心的连接高度为 49 mm。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -1681,7 +1770,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss 和竖直采购 13 mm 球头按装配清单显示。球头自带竖直接口直接连接商品网夹。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss、竖直采购 13 mm 球头和球头下金属 90°连接器按装配清单显示；连接器再接入网夹立柱。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
@@ -2407,6 +2496,99 @@ function createAssemblyProxy(THREE, item) {
         y1: number(options.width_y, depth),
       });
       addProxyPart(THREE, group, item, rear, place([0, 0, 0]));
+      const partingGap = number(options.parting_gap_x, 0);
+      if (partingGap > 0) {
+        const bridge = new THREE.BoxGeometry(partingGap, depth, height);
+        addProxyPart(
+          THREE,
+          group,
+          item,
+          bridge,
+          place([rearX - partingGap / 2, depth / 2, height / 2]),
+        );
+      }
+    }
+  } else if (item.shape === "m6-net-connector") {
+    // The purchased bridge is an L-shaped metal part.  Its local x origin is
+    // the ballhead-side arm end; mirror the local centers for the left unit so
+    // the same proxy remains a true x mirror of the right unit.
+    const mirrorX = Boolean(options.mirror_x);
+    const transformX = (value) => mirrorX ? width - value : value;
+    const armWidthY = Math.min(depth, number(options.arm_width_y, depth));
+    const armHeightZ = number(options.arm_height_z, 10);
+    const armY0 = (depth - armWidthY) / 2;
+    const arm = new THREE.BoxGeometry(width, armWidthY, armHeightZ);
+    addProxyPart(
+      THREE,
+      group,
+      item,
+      arm,
+      place([width / 2, armY0 + armWidthY / 2, armHeightZ / 2]),
+      { color: item.color || "#58626a", metalness: 0.72, roughness: 0.28 },
+    );
+
+    const legX0 = number(options.leg_x_offset, 0);
+    const legWidthX = number(options.leg_width_x, 8);
+    const legWidthY = Math.min(depth, number(options.leg_width_y, depth));
+    const legHeightZ = number(options.leg_height_z, height);
+    const leg = new THREE.BoxGeometry(legWidthX, legWidthY, legHeightZ);
+    addProxyPart(
+      THREE,
+      group,
+      item,
+      leg,
+      place([
+        transformX(legX0 + legWidthX / 2),
+        depth / 2,
+        legHeightZ / 2,
+      ]),
+      { color: item.color || "#58626a", metalness: 0.72, roughness: 0.28 },
+    );
+
+    // A real annular extrusion keeps the downward M8 stud visible through the
+    // socket; a solid cylinder would incorrectly hide the ballhead interface.
+    const socketOuterD = number(options.socket_outer_d, 14);
+    const socketClearanceD = number(options.socket_clearance_d, 8.6);
+    const socketHeightZ = number(options.socket_height_z, 28.4);
+    const socketBottomZ = number(options.socket_bottom_z, 0);
+    const socketCenterX = number(options.socket_center_x_offset, width / 2);
+    const socketShape = new THREE.Shape();
+    socketShape.absarc(0, 0, socketOuterD / 2, 0, Math.PI * 2, false);
+    const socketHole = new THREE.Path();
+    socketHole.absarc(0, 0, socketClearanceD / 2, 0, Math.PI * 2, true);
+    socketShape.holes.push(socketHole);
+    const socket = new THREE.ExtrudeGeometry(socketShape, {
+      depth: socketHeightZ,
+      bevelEnabled: false,
+      curveSegments: 24,
+      steps: 1,
+    });
+    addProxyPart(
+      THREE,
+      group,
+      item,
+      socket,
+      place([transformX(socketCenterX), depth / 2, socketBottomZ]),
+      { color: item.color || "#58626a", metalness: 0.72, roughness: 0.28 },
+    );
+
+    // Show the two open bores without adding a separate bolt stack.  The real
+    // post already carries matching x-through slots, so these dark cylinders
+    // make the coaxial connection legible in the browser preview.
+    const boltD = number(options.post_bolt_d, 6.5);
+    const boltY = number(options.post_bolt_y, 10);
+    const boltZ = number(options.post_bolt_z, height / 2);
+    for (const y of [-boltY, boltY]) {
+      const hole = new THREE.CylinderGeometry(boltD / 2, boltD / 2, legWidthX + 2, 24);
+      hole.rotateZ(Math.PI / 2);
+      addProxyPart(
+        THREE,
+        group,
+        item,
+        hole,
+        place([transformX(legX0 + legWidthX / 2), depth / 2 + y, boltZ]),
+        { color: "#26313b", opacity: 0.9, depthWrite: false, metalness: 0.2 },
+      );
     }
   } else if (item.shape === "rounded-footprint" || item.shape === "rounded-footprint-tail-relief") {
     const footprintKind = item.shape === "rounded-footprint-tail-relief"

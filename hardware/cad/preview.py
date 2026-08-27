@@ -127,6 +127,7 @@ M6_BALLHEAD_BASE_D = 32.0
 M6_BALLHEAD_BASE_T = 8.0
 M6_BALLHEAD_SENSOR_STUD_D = 8.0
 M6_BALLHEAD_NET_STUD_D = 8.0
+M6_BALLHEAD_NET_STUD_LENGTH = 28.0
 M6_BALLHEAD_TILT_RANGE_DEG = 90.0
 M6_BALLHEAD_ROTATION_RANGE_DEG = 360.0
 M6_YAW_STAGE_T = 6.0
@@ -142,8 +143,8 @@ M6_DETECTOR_SHELL_MAX_Y = 30.4
 M6_DETECTOR_SHELL_BOTTOM_Z = 141.5
 M6_DETECTOR_SHELL_HEIGHT_Z = 222.0
 M6_DETECTOR_SHELL_SPLIT_X = 766.0
-M6_DETECTOR_SHELL_FRONT_MAX_X = 766.3
-M6_DETECTOR_SHELL_REAR_MIN_X = 765.7
+M6_DETECTOR_SHELL_FRONT_MAX_X = 765.8
+M6_DETECTOR_SHELL_REAR_MIN_X = 766.2
 M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X = 14.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_OVERLAP_X = 3.0
 M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y = 18.0
@@ -187,6 +188,27 @@ M6_DETECTOR_BALLHEAD_CENTER_X = (
     + M6_BALLHEAD_HOUSING_D / 2
 )
 M6_DETECTOR_BALLHEAD_CENTER_Y = M6_DETECTOR_BODY_CENTER_Y
+M6_DETECTOR_BALLHEAD_CENTER_Z = M6_DETECTOR_SHELL_SUPPORT_BOSS_CENTER_Z
+M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z = (
+    M6_DETECTOR_BALLHEAD_CENTER_Z
+    - M6_BALLHEAD_HOUSING_LENGTH_X / 2
+    - M6_BALLHEAD_BASE_T
+    - M6_BALLHEAD_NET_STUD_LENGTH
+)
+M6_NET_CONNECTOR_ARM_MIN_X = M6_DETECTOR_BALLHEAD_CENTER_X - 14.0 / 2
+M6_NET_CONNECTOR_ARM_MAX_X = POST_CENTER - POST_WIDTH / 2 + 2.0
+M6_NET_CONNECTOR_ARM_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
+M6_NET_CONNECTOR_ARM_TOP_Z = M6_NET_CONNECTOR_ARM_BOTTOM_Z + 10.0
+M6_NET_CONNECTOR_LEG_MIN_X = POST_CENTER - POST_WIDTH / 2 - 6.0
+M6_NET_CONNECTOR_LEG_MAX_X = M6_NET_CONNECTOR_ARM_MAX_X
+M6_NET_CONNECTOR_LEG_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
+M6_NET_CONNECTOR_LEG_TOP_Z = M6_DETECTOR_BALLHEAD_CENTER_Z + 6.0 + 4.0
+M6_NET_CONNECTOR_SOCKET_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z - 0.2
+M6_NET_CONNECTOR_SOCKET_TOP_Z = (
+    M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
+    + M6_BALLHEAD_NET_STUD_LENGTH
+    + 0.2
+)
 M6_PITCH_YOKE_T = 8.0
 M6_PITCH_YOKE_WIDTH_Y = 158.0
 M6_PITCH_FRAME_T = 6.0
@@ -209,7 +231,8 @@ M6_DETECTOR_SHELL_WALL = 2.4
 M6_DETECTOR_SHELL_CLEARANCE = 0.6
 M6_DETECTOR_SHELL_BOTTOM_LIP_Z = 3.0
 M6_DETECTOR_SHELL_TOP_LIP_Z = 3.0
-M6_DETECTOR_SHELL_SPLIT_OVERLAP_X = 0.3
+M6_DETECTOR_SHELL_SPLIT_OVERLAP_X = 0.0
+M6_DETECTOR_SHELL_SPLIT_CLEARANCE_X = 0.2
 M6_DETECTOR_SHELL_CORNER_RADIUS = 4.0
 M6_DETECTOR_FRONT_CAP_LENGTH_X = 18.0
 M6_DETECTOR_FRONT_CAP_REDUCTION = 1.2
@@ -624,7 +647,7 @@ def draw_side(ax) -> None:
         ],
         color="#b6bdc3",
         linewidth=4.0,
-        label="采购球头自带竖直螺柱（直接接网夹）",
+        label="采购球头 z− 接口（由金属 90°连接器承接）",
     )
     ax.plot(
         [boss_max_x - TABLE_EDGE, ballhead_x - M6_BALLHEAD_HOUSING_D / 2],
@@ -632,6 +655,49 @@ def draw_side(ax) -> None:
         color="#b6bdc3",
         linewidth=4.0,
         label="采购球头 M8 外牙 → 后盖 x+ 背面中央 boss",
+    )
+    # The ballhead's z- interface is not the net-clamp post itself.  A
+    # purchased metal 90-degree connector starts at the interface's lowest
+    # end, runs along x, then rises to the post's upper x-through slot.  Draw
+    # this before the orange post so the 2 mm overlap is visibly carried by
+    # the post rather than appearing as a floating gray plate.
+    connector_arm_min_x = M6_NET_CONNECTOR_ARM_MIN_X - TABLE_EDGE
+    connector_arm_max_x = M6_NET_CONNECTOR_ARM_MAX_X - TABLE_EDGE
+    connector_leg_min_x = M6_NET_CONNECTOR_LEG_MIN_X - TABLE_EDGE
+    connector_leg_max_x = M6_NET_CONNECTOR_LEG_MAX_X - TABLE_EDGE
+    ax.add_patch(
+        Rectangle(
+            (connector_arm_min_x, M6_NET_CONNECTOR_ARM_BOTTOM_Z),
+            connector_arm_max_x - connector_arm_min_x,
+            M6_NET_CONNECTOR_ARM_TOP_Z - M6_NET_CONNECTOR_ARM_BOTTOM_Z,
+            facecolor="#58626a",
+            edgecolor="#26313b",
+            alpha=0.92,
+            label="采购金属 90°连接器：从球头 z−最低端起",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (connector_leg_min_x, M6_NET_CONNECTOR_LEG_BOTTOM_Z),
+            connector_leg_max_x - connector_leg_min_x,
+            M6_NET_CONNECTOR_LEG_TOP_Z - M6_NET_CONNECTOR_LEG_BOTTOM_Z,
+            facecolor="#58626a",
+            edgecolor="#26313b",
+            alpha=0.92,
+            label="连接器竖直腿 → 网夹立柱两枚 M6 贯穿孔",
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (ballhead_x - 7.0, M6_NET_CONNECTOR_SOCKET_BOTTOM_Z),
+            14.0,
+            M6_NET_CONNECTOR_SOCKET_TOP_Z - M6_NET_CONNECTOR_SOCKET_BOTTOM_Z,
+            facecolor="#58626a",
+            edgecolor="#26313b",
+            linewidth=1.0,
+            alpha=0.34,
+            label="球头 z− 接口套筒（Ø14 / Ø8.6）",
+        )
     )
     ax.add_patch(
         Rectangle(

@@ -202,7 +202,9 @@ def main() -> None:
         "M6 直角十路光电阵列",
         "显示网布、M6 光电器件、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
-        "M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss 和竖直采购 13 mm 球头",
+        "M6 45° L 型主体、x 向分体壳与竖直球头",
+        "球头 z- 接口从最低端承接采购金属 90°连接器",
+        "连接器再接入网夹立柱",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:

@@ -50,6 +50,7 @@ PARTS = (
     "m6_detector_shell_front",
     "m6_detector_shell_rear",
     "m6_detector_bottom_cover",
+    "m6_detector_net_connector",
     "m6_detector_mount",
     "m6_ballhead",
     "m6_gimbal",
@@ -84,6 +85,7 @@ PREVIEW_ONLY_PARTS = {
     "m6_detector_fit_probe",
     "m6_detector_fit_body",
     "m6_detector_mount",
+    "m6_detector_net_connector",
     "m6_ballhead",
     "m6_gimbal",
     "stg120_preview",
@@ -601,6 +603,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_bottom_lip_z",
         "m6_detector_shell_top_lip_z",
         "m6_detector_shell_split_overlap_x",
+        "m6_detector_shell_split_clearance_x",
         "m6_detector_shell_corner_radius",
         "m6_detector_front_cap_length_x",
         "m6_detector_front_cap_reduction",
@@ -640,6 +643,16 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_stud_engagement_x",
         "m6_detector_detector_ballhead_gap_x",
         "m6_detector_sensor_head_y_offset",
+        "m6_detector_net_connector_arm_width_y",
+        "m6_detector_net_connector_arm_t_z",
+        "m6_detector_net_connector_leg_width_y",
+        "m6_detector_net_connector_leg_t_x",
+        "m6_detector_net_connector_post_overlap_x",
+        "m6_detector_net_connector_socket_outer_d",
+        "m6_detector_net_connector_socket_clearance_d",
+        "m6_detector_net_connector_socket_overlap_z",
+        "m6_detector_net_connector_post_bolt_d",
+        "m6_detector_net_connector_post_bolt_y",
         "m6_detector_body_min_x",
         "m6_detector_body_max_x",
         "m6_detector_body_bottom_z",
@@ -680,6 +693,23 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_ballhead_center_y",
         "m6_detector_ballhead_center_z",
         "m6_detector_ballhead_sensor_stud_center_x",
+        "m6_detector_ballhead_net_interface_bottom_z",
+        "m6_detector_net_connector_interface_height_z",
+        "m6_detector_net_connector_socket_bottom_z",
+        "m6_detector_net_connector_socket_top_z",
+        "m6_detector_net_connector_socket_height_z",
+        "m6_detector_net_connector_socket_center_z",
+        "m6_detector_net_connector_arm_min_x",
+        "m6_detector_net_connector_post_inner_face_x",
+        "m6_detector_net_connector_arm_max_x",
+        "m6_detector_net_connector_arm_bottom_z",
+        "m6_detector_net_connector_arm_top_z",
+        "m6_detector_net_connector_leg_min_x",
+        "m6_detector_net_connector_leg_max_x",
+        "m6_detector_net_connector_leg_bottom_z",
+        "m6_detector_net_connector_leg_top_z",
+        "m6_detector_net_connector_leg_height_z",
+        "m6_detector_net_connector_mount_height_z",
         "stg120_head_length",
         "stg120_active_length",
         "stg120_head_width",
@@ -1111,6 +1141,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     front_shell_module = module_text("m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha)")
     rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
+    connector_module = module_text("m6_detector_net_connector_positive()")
     mount_module = module_text("m6_detector_mount_positive()")
     exploded_module = module_text("m6_detector_exploded_positive()")
     if (
@@ -1134,6 +1165,29 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_cylinder_x(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
+        or "m6_detector_shell_tongue_positive(-1, y_side);" not in front_shell_module
+        or "m6_detector_shell_tongue_positive(1, y_side);" not in rear_shell_module
+        or not re.search(
+            r"m6_countersink_x\(\s*"
+            r"m6_detector_shell_min_x,\s*1,",
+            front_shell_module,
+        )
+        or not re.search(
+            r"m6_countersink_x\(\s*"
+            r"m6_detector_shell_max_x,\s*-1,",
+            rear_shell_module,
+        )
+        or not re.search(
+            r"m6_cylinder_z\(\s*m6_detector_cable_exit_d,",
+            bottom_cover_module,
+        )
+        or "difference()" not in connector_module
+        or "m6_cylinder_z(" not in connector_module
+        or "m6_cylinder_x(" not in connector_module
+        or "m6_detector_net_connector_post_bolt_y" not in connector_module
+        or "m6_detector_net_connector_positive();" not in mount_module
+        or "m6_detector_net_connector_positive();" not in exploded_module
+        or "intersection(" in exploded_module
         or "m6_mount_adapter_positive();" in mount_module
         or "m6_post_mount_hardware_positive();" in mount_module
         or "m6_mount_adapter_positive();" in exploded_module
@@ -1142,6 +1196,16 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         raise RuntimeError(
             "active M6 body/fit path diverged: rectangular body, installed sensor "
             "voids, rear-cover boss/hole and z+ split-cover footprints must be used"
+        )
+
+    cover_install_order = [
+        mount_module.find("m6_detector_shell_front_positive();"),
+        mount_module.find("m6_detector_shell_rear_positive();"),
+        mount_module.find("m6_detector_bottom_cover_positive();"),
+    ]
+    if any(position < 0 for position in cover_install_order) or cover_install_order != sorted(cover_install_order):
+        raise RuntimeError(
+            "front/rear/bottom cover assembly order must be front from z+, rear from z+, bottom from z-"
         )
 
     count = int(parameters["m6_sensor_count"])
@@ -1384,15 +1448,27 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             rel_tol=0,
             abs_tol=1e-4,
         )
+        and parameters["m6_detector_front_cap_length_x"] > 0
+        and math.isclose(
+            parameters["m6_detector_shell_front_max_x"],
+            parameters["m6_detector_shell_split_x"]
+            - parameters["m6_detector_shell_split_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_shell_rear_min_x"],
+            parameters["m6_detector_shell_split_x"]
+            + parameters["m6_detector_shell_split_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_shell_front_max_x"]
+        < parameters["m6_detector_shell_rear_min_x"]
+        and parameters["m6_detector_shell_split_overlap_x"] == 0
+        and parameters["m6_detector_shell_split_clearance_x"] > 0
         and parameters["m6_detector_front_cap_length_x"]
-        > parameters["m6_detector_shell_split_overlap_x"]
-        and parameters["m6_detector_shell_front_max_x"]
-        > parameters["m6_detector_shell_split_x"]
-        and parameters["m6_detector_shell_rear_min_x"]
-        < parameters["m6_detector_shell_split_x"]
-        and parameters["m6_detector_shell_front_max_x"]
-        > parameters["m6_detector_shell_rear_min_x"]
-        and parameters["m6_detector_shell_split_overlap_x"] > 0
+        > parameters["m6_detector_shell_split_clearance_x"]
         and math.isclose(
             parameters["m6_detector_shell_front_min_y"],
             parameters["m6_detector_shell_min_y"],
@@ -1548,6 +1624,83 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     ):
         raise RuntimeError(f"vertical commercial ballhead interface is inconsistent: {parameters}")
 
+    if not (
+        math.isclose(
+            parameters["m6_detector_ballhead_net_interface_bottom_z"],
+            parameters["m6_detector_ballhead_net_stud_center_z"]
+            - parameters["m6_ballhead_net_stud_length"] / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_net_connector_interface_height_z"],
+            parameters["m6_ballhead_net_stud_length"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_net_connector_mount_height_z"],
+            parameters["m6_post_mount_hole_z"]
+            - parameters["m6_detector_ballhead_net_interface_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_net_connector_mount_height_z"] > 0
+        and parameters["m6_detector_net_connector_arm_min_x"]
+        < parameters["m6_detector_ballhead_center_x"]
+        < parameters["m6_detector_net_connector_arm_max_x"]
+        and math.isclose(
+            parameters["m6_detector_net_connector_post_inner_face_x"],
+            parameters["post_center_x"] - parameters["post_body_width"] / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_net_connector_arm_max_x"],
+            parameters["m6_detector_net_connector_post_inner_face_x"]
+            + parameters["m6_detector_net_connector_post_overlap_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_net_connector_leg_min_x"]
+        < parameters["m6_detector_net_connector_post_inner_face_x"]
+        < parameters["m6_detector_net_connector_leg_max_x"]
+        and parameters["m6_detector_net_connector_leg_width_y"]
+        < parameters["post_body_depth"]
+        and parameters["m6_detector_net_connector_leg_bottom_z"]
+        <= parameters["m6_detector_net_connector_arm_bottom_z"]
+        and parameters["m6_detector_net_connector_leg_top_z"]
+        > parameters["m6_post_mount_hole_z"]
+        and math.isclose(
+            parameters["m6_detector_net_connector_leg_height_z"],
+            parameters["m6_detector_net_connector_leg_top_z"]
+            - parameters["m6_detector_net_connector_leg_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_net_connector_post_bolt_y"]
+        == parameters["m6_post_mount_hole_y"]
+        and parameters["m6_detector_net_connector_post_bolt_d"]
+        <= parameters["m6_post_mount_clearance_d"]
+        and parameters["m6_detector_net_connector_socket_bottom_z"]
+        < parameters["m6_detector_ballhead_net_interface_bottom_z"]
+        < parameters["m6_detector_net_connector_socket_top_z"]
+        and math.isclose(
+            parameters["m6_detector_net_connector_socket_height_z"],
+            parameters["m6_detector_net_connector_socket_top_z"]
+            - parameters["m6_detector_net_connector_socket_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_net_connector_socket_clearance_d"]
+        > parameters["m6_ballhead_net_stud_d"]
+        and parameters["m6_detector_net_connector_arm_bottom_z"]
+        < parameters["m6_detector_net_connector_arm_top_z"]
+    ):
+        raise RuntimeError(
+            f"downward ballhead net connector / net-clamp post interface is inconsistent: {parameters}"
+        )
+
 
 def main() -> None:
     openscad = find_openscad()
@@ -1638,6 +1791,7 @@ def main() -> None:
             "m6_detector_shell_front",
             "m6_detector_shell_rear",
             "m6_detector_bottom_cover",
+            "m6_detector_net_connector",
             "m6_detector_mount",
             "stg120_outer_carrier",
             "sensor_mount",
@@ -1715,8 +1869,47 @@ def main() -> None:
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
         lower_stand_bounds = stl_bounds(output_dir / "lower_stand_segment.stl")
+        connector_bounds = stl_bounds(output_dir / "m6_detector_net_connector.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
+        if not (
+            abs(connector_bounds[0] - parameters["m6_detector_net_connector_arm_min_x"]) < 0.01
+            and abs(connector_bounds[1] - parameters["m6_detector_net_connector_arm_max_x"]) < 0.01
+            and abs(
+                connector_bounds[2]
+                + parameters["m6_detector_net_connector_leg_width_y"] / 2
+            )
+            < 0.01
+            and abs(
+                connector_bounds[3]
+                - parameters["m6_detector_net_connector_leg_width_y"] / 2
+            )
+            < 0.01
+            and abs(
+                connector_bounds[4]
+                - parameters["m6_detector_net_connector_socket_bottom_z"]
+            )
+            < 0.01
+            and abs(
+                connector_bounds[5]
+                - parameters["m6_detector_net_connector_leg_top_z"]
+            )
+            < 0.01
+        ):
+            raise RuntimeError(
+                "purchased metal connector envelope does not span the ballhead-to-post path: "
+                f"{connector_bounds}"
+            )
+        if not (
+            connector_bounds[1] > parameters["m6_detector_net_connector_post_inner_face_x"]
+            and connector_bounds[0] < parameters["m6_detector_ballhead_center_x"]
+            and connector_bounds[4]
+            <= parameters["m6_detector_ballhead_net_interface_bottom_z"]
+            and connector_bounds[5] >= parameters["m6_post_mount_hole_z"]
+        ):
+            raise RuntimeError(
+                f"connector does not overlap the net-clamp upright/ballhead envelope: {connector_bounds}"
+            )
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
             raise RuntimeError(f"net rail is not centered across the table: {rail_bounds}")
         if abs(net_bounds[5] - (parameters["net_height"] - parameters["net_rail_height"])) > 0.01:
