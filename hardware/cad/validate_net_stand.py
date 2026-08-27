@@ -425,6 +425,11 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_knob_nut_stack_depth",
         "clamp_knob_nut_pocket_depth",
         "clamp_body_nut_z",
+        "clamp_knob_d",
+        "clamp_knob_grip_root_d",
+        "clamp_knob_grip_tooth_count",
+        "clamp_knob_grip_tooth_d",
+        "clamp_knob_grip_tooth_pitch_r",
         "clamp_knob_h",
         "clamp_knob_top_z",
         "clamp_knob_bottom_z",
@@ -915,6 +920,26 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_nut_bottom_z"]
     ):
         raise RuntimeError(f"M8 nut capture dimensions are inconsistent: {parameters}")
+    if not (
+        parameters["clamp_knob_grip_root_d"] > parameters["clamp_screw_d"] + 0.8
+        and parameters["clamp_knob_grip_root_d"] < parameters["clamp_knob_d"]
+        and parameters["clamp_knob_grip_tooth_count"] >= 12
+        and parameters["clamp_knob_grip_tooth_d"] > 0
+        and parameters["clamp_knob_grip_tooth_pitch_r"]
+        > parameters["clamp_knob_grip_root_d"] / 2
+        and parameters["clamp_knob_grip_tooth_pitch_r"]
+        - parameters["clamp_knob_grip_tooth_d"] / 2
+        < parameters["clamp_knob_grip_root_d"] / 2
+        and abs(
+            parameters["clamp_knob_grip_tooth_pitch_r"]
+            + parameters["clamp_knob_grip_tooth_d"] / 2
+            - parameters["clamp_knob_d"] / 2
+        )
+        < 0.01
+    ):
+        raise RuntimeError(
+            f"rounded anti-slip hand knob geometry is inconsistent: {parameters}"
+        )
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
     if not (
@@ -1221,6 +1246,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
     direct_mount_module = module_text("m6_detector_direct_mount_positive()")
     table_clamp_body_module = module_text("table_clamp_body_positive()")
+    knob_module = module_text("clamp_knob_positive()")
     post_module = module_text("post_positive()")
     post_segment_module = module_text("post_segment_positive(index = 0)")
     lower_stand_module = module_text("lower_stand_segment_positive()")
@@ -1279,6 +1305,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "net_clamp_channel_negative_positive();" not in post_segment_module
         or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_body_module
         or "clamp_solid_outboard_bridge_positive();" not in table_clamp_body_module
+        or "clamp_knob_grip_positive();" not in knob_module
         or "m6_detector_mount_raise_z" not in assembly_module
         or "m6_detector_mount_raise_z" not in exploded_assembly_module
         or "net_clamp_rod_positive();" not in stand_module

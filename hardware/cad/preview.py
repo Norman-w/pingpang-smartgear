@@ -46,7 +46,15 @@ POST_CENTER = TABLE_EDGE + POST_OFFSET
 CLAMP_SCREW_INSET = 30.0
 CLAMP_SCREW_D = 8.0
 CLAMP_SCREW_CAPTURE_EXTENSION = 2.0
+# The knob keeps the same Ø36 mm envelope while using a rounded 18-lobe
+# hand-grip ring: Ø30 mm root valleys and Ø5 mm circular lobes.
 CLAMP_KNOB_D = 36.0
+CLAMP_KNOB_GRIP_ROOT_D = 30.0
+CLAMP_KNOB_GRIP_TOOTH_COUNT = 18.0
+CLAMP_KNOB_GRIP_TOOTH_D = 5.0
+CLAMP_KNOB_GRIP_TOOTH_PITCH_R = (
+    CLAMP_KNOB_D / 2 - CLAMP_KNOB_GRIP_TOOTH_D / 2
+)
 CLAMP_KNOB_H = 20.0
 CLAMP_SCREW_TO_KNOB_TOP_BASE = 32.0
 CLAMP_SCREW_EXTRA_LENGTH_Z = 12.0
@@ -971,7 +979,7 @@ def draw_side(ax) -> None:
             CLAMP_KNOB_D,
             CLAMP_KNOB_H,
             facecolor="#30343b",
-            label="hand knob",
+            label="圆角锯齿手拧旋钮（18 齿，外径 36 mm）",
         )
     )
     ax.add_patch(

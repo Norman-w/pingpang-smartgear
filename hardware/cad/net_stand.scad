@@ -613,7 +613,14 @@ clamp_screw_d = 8;
 clamp_screw_pitch = 1.25;
 clamp_screw_bore_d = clamp_screw_d + 0.8;
 clamp_screw_inset = 30;
+// 外包络仍保持 Ø36 mm；用圆形齿凸做 18 齿圆角锯齿握持圈，谷底为 Ø30 mm。
+// 这样手指有明确的抗滑着力点，但不改变旋钮与螺杆的安装包络。
 clamp_knob_d = 36;
+clamp_knob_grip_root_d = 30;
+clamp_knob_grip_tooth_count = 18;
+clamp_knob_grip_tooth_d = 5;
+clamp_knob_grip_tooth_pitch_r =
+    clamp_knob_d / 2 - clamp_knob_grip_tooth_d / 2;
 // 两枚预先对锁的标准 M8 螺母把旋钮和螺杆刚性耦合；单枚旋钮螺母与
 // 固定下臂螺母同时啮合会形成不明确的双螺纹约束，首样不采用那种路径。
 clamp_knob_h = 20;
@@ -1699,6 +1706,16 @@ assert(clamp_screw_to_knob_top > clamp_knob_nut_pocket_depth &&
 assert(clamp_knob_d > clamp_screw_bore_d &&
            clamp_knob_h > clamp_knob_nut_pocket_depth,
        "printed clamp knob must leave an M8 bore and captured jam-nut wall");
+assert(clamp_knob_grip_root_d > clamp_screw_bore_d &&
+           clamp_knob_grip_root_d < clamp_knob_d &&
+           clamp_knob_grip_tooth_count >= 12 &&
+           clamp_knob_grip_tooth_d > 0 &&
+           clamp_knob_grip_tooth_pitch_r > clamp_knob_grip_root_d / 2 &&
+           clamp_knob_grip_tooth_pitch_r - clamp_knob_grip_tooth_d / 2 <
+               clamp_knob_grip_root_d / 2 &&
+           clamp_knob_grip_tooth_pitch_r + clamp_knob_grip_tooth_d / 2 ==
+               clamp_knob_d / 2,
+       "hand knob must have an overlapping, rounded anti-slip tooth ring");
 assert(sensor_count == 2 && sensor_x > sensor_length / 2,
        "two PVDF mounts must fit on the net top without crossing the center");
 assert(sensor_front_offset > 0, "PVDF mount front offset must leave a printable connection bridge");
@@ -1876,11 +1893,25 @@ module clamp_screw_positive() {
     }
 }
 
+module clamp_knob_grip_positive() {
+    // A round root plus overlapping round lobes gives a printable, rounded
+    // saw-tooth grip.  The valleys stay inside the original Ø36 mm envelope,
+    // while every lobe has a continuous radial connection to the root.
+    translate([clamp_screw_x, 0, clamp_knob_bottom_z]) {
+        cylinder(d = clamp_knob_grip_root_d, h = clamp_knob_h, $fn = 96);
+        for (index = [0 : clamp_knob_grip_tooth_count - 1])
+            rotate([0, 0, 360 * index / clamp_knob_grip_tooth_count])
+                translate([clamp_knob_grip_tooth_pitch_r, 0, 0])
+                    cylinder(d = clamp_knob_grip_tooth_d,
+                             h = clamp_knob_h,
+                             $fn = 24);
+    }
+}
+
 module clamp_knob_positive() {
     color("dimgray")
         difference() {
-            translate([clamp_screw_x, 0, clamp_knob_bottom_z])
-                cylinder(d = clamp_knob_d, h = clamp_knob_h);
+            clamp_knob_grip_positive();
             // The center bore lets the rod pass through the printed handwheel.
             translate([clamp_screw_x, 0, clamp_knob_bottom_z - 1])
                 cylinder(d = clamp_screw_bore_d, h = clamp_knob_h + 2);
@@ -4577,6 +4608,13 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_knob_nut_stack_depth=", clamp_knob_nut_stack_depth));
     echo(str("NETSTAND_PARAM clamp_knob_nut_pocket_depth=", clamp_knob_nut_pocket_depth));
     echo(str("NETSTAND_PARAM clamp_body_nut_z=", clamp_body_nut_z));
+    echo(str("NETSTAND_PARAM clamp_knob_d=", clamp_knob_d));
+    echo(str("NETSTAND_PARAM clamp_knob_grip_root_d=", clamp_knob_grip_root_d));
+    echo(str("NETSTAND_PARAM clamp_knob_grip_tooth_count=",
+             clamp_knob_grip_tooth_count));
+    echo(str("NETSTAND_PARAM clamp_knob_grip_tooth_d=", clamp_knob_grip_tooth_d));
+    echo(str("NETSTAND_PARAM clamp_knob_grip_tooth_pitch_r=",
+             clamp_knob_grip_tooth_pitch_r));
     echo(str("NETSTAND_PARAM clamp_knob_h=", clamp_knob_h));
     echo(str("NETSTAND_PARAM clamp_knob_top_z=", clamp_knob_top_z));
     echo(str("NETSTAND_PARAM clamp_knob_bottom_z=", clamp_knob_bottom_z));
