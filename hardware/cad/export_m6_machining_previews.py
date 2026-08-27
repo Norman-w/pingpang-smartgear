@@ -4,7 +4,8 @@
 This STL is an inspection/quotation aid, not the formal PETG print manifest.
 The body is the same plain rectangular first article used for PETG; a future
 6061-T6 CNC version can reuse its envelope. The vertical 13 mm ballhead and
-its net-clamp interface are purchased and therefore have no self-made STL.
+its direct net-frame-upright connector are purchased and therefore have no
+self-made STL.
 """
 
 from __future__ import annotations
@@ -41,7 +42,7 @@ PREVIEW_PARTS = (
         "m6-detector-body",
         "M6 十路 45° L 型矩形主体（PETG 首样；后续可换 CNC）",
         "主体 x-min、y-min、z-min；当前是 10×56×216 mm 矩形长条，未来 CNC 沿用同一包络",
-        "当前首样用 PETG 打印；后续可换 6061-T6 CNC。主体只有十个 20 mm 节距光学孔、浅 AF8 防转窝、盖件孔和 y± 边槽，不带 T 尾座、M8 接口或主体内线缆槽；后盖另有 PETG 加厚 boss，13 mm 采购球头保持竖直姿态，z− 接口由采购金属 90°连接器从最低端承接并连接网夹立柱。",
+        "当前首样用 PETG 打印；后续可换 6061-T6 CNC。主体只有十个 20 mm 节距光学孔、浅 AF8 防转窝、盖件孔和 y± 边槽，不带 T 尾座、M8 接口或主体内线缆槽；后盖另有 PETG 加厚 boss，13 mm 采购球头保持竖直姿态，z− 接口由采购金属 90°连接器从最低端承接并直接连接网架立柱。",
     ),
 )
 

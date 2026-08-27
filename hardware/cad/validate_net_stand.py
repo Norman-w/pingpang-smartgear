@@ -1908,7 +1908,7 @@ def main() -> None:
             and connector_bounds[5] >= parameters["m6_post_mount_hole_z"]
         ):
             raise RuntimeError(
-                f"connector does not overlap the net-clamp upright/ballhead envelope: {connector_bounds}"
+                f"connector does not directly overlap the net-frame upright/ballhead envelope: {connector_bounds}"
             )
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
             raise RuntimeError(f"net rail is not centered across the table: {rail_bounds}")

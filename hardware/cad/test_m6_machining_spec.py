@@ -82,7 +82,7 @@ def main() -> None:
         or shell["rear_min_x_global_mm"] != 766.2
         or shell["parting_clearance_x_mm"] != 0.4
         or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口由采购金属 90°连接器从最低端承接并沿 x 连接网夹立柱，最终尺寸待真实器件首样复核"
+        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口由采购金属 90°连接器从最低端承接，连接器沿 x 直接连接网架立柱，不经过中间转接板，最终尺寸待真实器件首样复核"
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]

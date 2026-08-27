@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、M8 螺杆和旋钮固定在球台边缘；台边外伸段由前后两片三角侧肋加强。" },
   { number: 2, label: "立柱接缝与网顶承托", description: "上下立柱通过外套筒和防转内芯连接，网顶承载条落在两侧承托座上，左右外边界各离台边 152.5 mm。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，接保持竖直的采购 13 mm 球头；球头 z- 接口从最低端承接采购金属 90°连接器，连接器再沿 x 连接网夹立柱的两枚 M6 槽孔。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖为圆角矩形，两盖共享 y± 边槽并配底盖；后盖 x 背面中央在 y=0、z 中心加厚 M8 boss，接保持竖直的采购 13 mm 球头；球头 z- 接口从最低端承接采购金属 90°连接器，连接器再沿 x 直接连接网架立柱的两枚 M6 槽孔。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列用 +10…+190 mm、20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -428,7 +428,7 @@ function makeProxyAssemblyItems(entries) {
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
   // the rear PETG cover has the visible thickened M8 boss, while the vertical
   // purchased ballhead's downward interface is carried by a separate metal
-  // 90-degree connector into the net-clamp upright.
+  // 90-degree connector directly into the net-frame upright.
   const m6Geometry = {
     axisX: 763,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
@@ -974,8 +974,8 @@ function makeProxyAssemblyItems(entries) {
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-net-connector:${sideLabel}`,
-      name_zh: `球头下接网夹的金属 90°连接器（${sideName}）`,
-      name_en: "purchased metal 90-degree ballhead-to-net-clamp connector",
+      name_zh: `球头下直连网架立柱的金属 90°连接器（${sideName}）`,
+      name_en: "purchased metal 90-degree ballhead-to-net-frame-upright connector",
       kind: "外购承力连接件",
       material: "金属外购件（非打印）",
       group: "optical",
@@ -1005,7 +1005,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.netConnectorLegHeightZ],
       side,
       explosion: [side * 154, -28, -8],
-      notes: "非打印金属 90°连接器：球头 z- 接口从最低端插入套筒，连接器从该最低端起沿 x 伸向网夹立柱内侧，竖直端的 y± 两孔与立柱上段 x 向槽孔同轴；从接口最低端向上到孔中心的连接高度为 49 mm。",
+      notes: "非打印金属 90°连接器：球头 z- 接口从最低端插入套筒，连接器从该最低端起沿 x 伸向网架立柱内侧，竖直端直接贴接立柱上段；y± 两孔与立柱 x 向槽孔同轴，不经过额外转接板。从接口最低端向上到孔中心的连接高度为 49 mm。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = 162.5 + index * m6Geometry.sensorPitch;
@@ -1770,7 +1770,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss、竖直采购 13 mm 球头和球头下金属 90°连接器按装配清单显示；连接器再接入网夹立柱。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 M8 boss、竖直采购 13 mm 球头和球头下金属 90°连接器按装配清单显示；连接器直接接到网架立柱。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));

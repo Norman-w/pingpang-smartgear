@@ -37,8 +37,8 @@
 //   PART="m6_detector_shell_rear" PETG x+ 线缆端后盖候选
 //   PART="m6_detector_bottom_cover" PETG 底盖候选
 //   PART="m6_detector_exploded" 右/左侧检测器非剖切爆炸图
-//   PART="m6_detector_net_connector" 采购金属球头下接网夹 90°连接器占位
-//   PART="m6_detector_mount" 当前主体/器件/完整前后底盖/竖直采购球头/网夹连接器装配
+//   PART="m6_detector_net_connector" 采购金属球头下直连网架立柱 90°连接器占位
+//   PART="m6_detector_mount" 当前主体/器件/完整前后底盖/竖直采购球头/网架立柱直连装配
 //   PART="m6_detector_backplate" 兼容旧调用名；输出当前后盖
 //   PART="m6_ballhead"        13 mm 采购球头云台竖直姿态占位（非打印件）
 //   PART="m6_ballhead_mount" 兼容旧调用名；输出当前主体与采购球头装配
@@ -74,13 +74,13 @@
 // 发射端通过 SIDE 镜像后，boss 落在 x- 背面，孔轴反向指向 x+；首样可以用
 // 通螺栓/螺母，未来
 // CNC 时可改 M8 内丝或金属嵌件。采购球头保持竖直姿态，球头 z- 接口由采购金属
-// 90°连接器承接并接入网夹立柱；薄壳只作定位/保护，首样的球头/连接器承力界面须用实物固定件验证。M6 器件、球头、PVDF 薄膜、网布、金属螺杆和夹持软垫
+// 90°连接器承接并直接连接到网架立柱；中间不设置转接板，薄壳只作定位/保护，首样的球头/连接器承力界面须用实物固定件验证。M6 器件、球头、PVDF 薄膜、网布、金属螺杆和夹持软垫
 // 均为外购/装配边界；主体、壳体和底盖可作为 PETG 首样打印件。
 // M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
 // 保留为历史诊断件，不再作为当前装配主线。
 // 前后盖沿 x 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
 // 盖件到主体的固定件，当前承力路径是“传感器六角/螺杆 -> PETG/CNC 主体 ->
-// 后盖 x 背面中央加厚 boss -> 采购 13 mm 球头 -> 球头 z- 接口 -> 采购金属 90°连接器 -> 网架”。线缆孔为开放孔，
+// 后盖 x 背面中央加厚 boss -> 采购 13 mm 球头 -> 球头 z- 接口 -> 采购金属 90°连接器 -> 网架立柱”。线缆孔为开放孔，
 // 没有密封设计，不能宣称防水。该文件验证机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性、实物螺纹/光学精度或 NPN 电气验收。
 
@@ -261,7 +261,7 @@ m6_mount_plate_width_y = 56;
 m6_mount_plate_height_z = m6_rail_length_z + 24;
 m6_mount_slot_length = 12;
 // The fixed adapter is not allowed to float against the upright.  These two
-// z-slots pass through the current 28 x 38 mm net-clamp upright and accept
+// z-slots pass through the current 28 x 38 mm net-frame upright and accept
 // M6 through-bolts; the real commercial clamp still has to be measured before
 // this pattern is treated as a production interface.
 m6_post_mount_clearance_d = 6.5;
@@ -454,10 +454,11 @@ m6_detector_detector_ballhead_gap_x = 2;
 m6_detector_sensor_head_y_offset = 0;
 
 // 采购金属 90°连接器：球头的竖直接口朝 z-，连接器在最低端承接，
-// 水平臂沿 x 伸到网夹立柱内侧；竖直端通过两枚 M6 贯穿螺栓与立柱上段
-// 现有的 y± 槽孔连接。它是外购承力件，不进入 PETG 打印清单，也不让
+// 水平臂沿 x 伸到网架立柱内侧；竖直端直接贴接立柱上段，并通过两枚 M6
+// 贯穿螺栓与立柱现有的 y± 槽孔连接。中间没有独立转接板。它是外购承力件，
+// 不进入 PETG 打印清单，也不让
 // 后盖薄壁承担弯矩。mount_height_z 明确表示从球头下接口最低端向上到
-// 网夹连接孔中心的高度。
+// 网架立柱连接孔中心的高度。
 m6_detector_net_connector_material = "purchased metal 90-degree connector";
 m6_detector_net_connector_arm_width_y = 24;
 m6_detector_net_connector_arm_t_z = 10;
@@ -1346,7 +1347,7 @@ assert(m6_detector_net_connector_arm_min_x <
            m6_detector_net_connector_mount_height_z ==
                m6_post_mount_hole_z -
                    m6_detector_ballhead_net_interface_bottom_z,
-       "downward ballhead interface must connect through a metal 90-degree bridge to the net-clamp upright");
+       "downward ballhead interface must connect through a metal 90-degree bridge directly to the net-frame upright");
 assert(m6_yaw_stage_radius > m6_yaw_slot_radius +
            m6_stage_bolt_d &&
            m6_yaw_slot_radius > m6_stage_bolt_d &&
@@ -2897,11 +2898,12 @@ module m6_detector_net_connector_positive() {
     // Purchased metal 90-degree bridge at the vertical ballhead interface.
     // The socket surrounds the downward M8 stud from its lowest end, the
     // horizontal arm starts at that same lowest interface datum and reaches
-    // the net-clamp upright's inner x face, and the vertical leg rises to the
-    // existing pair of x-through slots. This is a
+    // the net-frame upright's inner x face, and the vertical leg directly
+    // attaches to the existing pair of x-through slots. There is no adapter
+    // plate between the purchased connector and the upright. This is a
     // visual envelope for the bought connector: it is intentionally not a
     // PETG printable part and carries the support load through its metal body
-    // and the two M6 through-bolts into the net-clamp upright.
+    // and the two M6 through-bolts directly into the net-frame upright.
     color("dimgray")
         difference() {
             union() {
@@ -3522,7 +3524,7 @@ module m6_gimbal_positive() {
     // long rear-inserted detector body with two protective covers, a vertical
     // purchased ball head and a purchased metal 90-degree bridge. The ballhead
     // is the adjustment part; its downward interface is carried by the bridge
-    // into the net-clamp upright. No gray PETG adapter or duplicate fastener
+    // directly into the net-frame upright. No gray PETG adapter or duplicate fastener
     // stack is included in the current detector assembly.
     m6_detector_mount_positive();
 }

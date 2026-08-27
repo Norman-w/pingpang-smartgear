@@ -204,7 +204,7 @@ def main() -> None:
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
         "球头 z- 接口从最低端承接采购金属 90°连接器",
-        "连接器再接入网夹立柱",
+        "连接器直接接到网架立柱",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:

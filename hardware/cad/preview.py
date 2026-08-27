@@ -684,7 +684,7 @@ def draw_side(ax) -> None:
             facecolor="#58626a",
             edgecolor="#26313b",
             alpha=0.92,
-            label="连接器竖直腿 → 网夹立柱两枚 M6 贯穿孔",
+            label="连接器竖直腿 → 网架立柱两枚 M6 贯穿孔（直连）",
         )
     )
     ax.add_patch(

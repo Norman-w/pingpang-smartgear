@@ -5,7 +5,7 @@ The OpenSCAD ``parameter_probe`` is the numerical source of truth. The active
 detector body is a printable PETG rectangle that can later be reproduced in
 CNC; the rear cover carries the M8 clearance interface for the purchased
 vertical 13 mm ballhead. A separate purchased metal 90-degree connector
-transfers the ballhead's downward interface to the net-clamp upright; it is
+transfers the ballhead's downward interface directly to the net-frame upright; it is
 previewed but excluded from the PETG print schedule.
 """
 
@@ -252,7 +252,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "后盖从 z+ 套入主体，后盖舌片进入同一 y± 边槽的 x+ 半并以 x+ 沉头螺钉固定",
                 "底盖从 z- 贴合并以两枚沉头螺钉固定，统一线缆套管从 Ø12 mm 孔穿出",
             ],
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口由采购金属 90°连接器从最低端承接并沿 x 连接网夹立柱，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端并做圆角矩形；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 M8 支撑 boss，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口由采购金属 90°连接器从最低端承接，连接器沿 x 直接连接网架立柱，不经过中间转接板，最终尺寸待真实器件首样复核",
             "support_boss": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
@@ -287,11 +287,11 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "ballhead_center_x_global_mm": _r(parameters["m6_detector_ballhead_center_x"]),
             "ballhead_center_y_global_mm": _r(parameters["m6_detector_ballhead_center_y"]),
             "ballhead_center_z_global_mm": _r(parameters["m6_detector_ballhead_center_z"]),
-            "net_interface": "球头 M8 竖直接口朝 z-；采购金属 90°连接器从最低端承接并沿 x 接入网夹立柱",
-            "load_path": "主体/后盖 boss -> M8 外牙采购球头 -> 球头 z- 接口 -> 采购金属 90°连接器 -> 两枚 M6 贯穿螺栓 -> 网夹立柱上段",
+            "net_interface": "球头 M8 竖直接口朝 z-；采购金属 90°连接器从最低端承接，并沿 x 直接连接网架立柱",
+            "load_path": "主体/后盖 boss -> M8 外牙采购球头 -> 球头 z- 接口 -> 采购金属 90°连接器 -> 两枚 M6 贯穿螺栓 -> 网架立柱上段（无中间转接板）",
             "net_connector": {
                 "material": "purchased metal (not printed)",
-                "interface_orientation": "socket surrounds the downward ballhead interface; horizontal arm runs along x to the post inner face",
+                "interface_orientation": "socket surrounds the downward ballhead interface; horizontal arm runs along x directly to the net-frame upright inner face",
                 "arm_min_x_global_mm": _r(parameters["m6_detector_net_connector_arm_min_x"]),
                 "arm_max_x_global_mm": _r(parameters["m6_detector_net_connector_arm_max_x"]),
                 "arm_width_y_mm": _r(parameters["m6_detector_net_connector_arm_width_y"]),
@@ -330,7 +330,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "posture": "球头主体竖直；侧向 M8 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔，下方竖直接口朝 z-，由采购金属连接器接到网夹立柱；最终承力以采购金属件和首样实测为准",
+            "posture": "球头主体竖直；侧向 M8 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔，下方竖直接口朝 z-，由采购金属连接器直接接到网架立柱；最终承力以采购金属件和首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -379,10 +379,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "id": "net_connector_to_net_clamp",
-                "name_zh": "采购金属 90°连接器到网夹立柱 M6 贯穿螺栓",
+                "name_zh": "采购金属 90°连接器直连网架立柱 M6 贯穿螺栓",
                 "per_side": 1,
                 "total": 2,
-                "spec": "two M6 through-bolts through the purchased metal connector leg and the upper net-clamp upright x-through slots",
+                "spec": "two M6 through-bolts directly through the purchased metal connector leg and the upper net-frame upright x-through slots; no intermediate adapter plate",
                 "status": "freeze bolt length and washer choice after real connector/post measurement",
             },
         ],
@@ -392,7 +392,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧 boss 均位于各自后端面的 y=0、z 中心",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
-            "真实网夹安装面、球网外伸和孔距实测后，核对球头 z- 接口最低端、金属 90°连接器高度、网夹立柱 x 向槽孔同轴度和 M6 贯穿螺栓，不把 PETG 薄壳作为承力件",
+            "真实网夹安装面、球网外伸和孔距实测后，核对球头 z- 接口最低端、金属 90°连接器高度、网架立柱 x 向槽孔同轴度和 M6 贯穿螺栓，不把 PETG 薄壳作为承力件",
             "前盖必须先从 z+ 拆/装，后盖随后从 z+ 拆/装，底盖最后从 z- 拆/装；爆炸图保持三个盖件完整，不使用剖切",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
             "机加工件不进入 PETG 打印清单；底盖线缆孔是开放孔，不作防水承诺",
