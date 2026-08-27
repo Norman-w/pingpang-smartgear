@@ -38,13 +38,16 @@ NET_POST_OUTBOARD_EXTENSION = 152.5
 POST_OFFSET = 138.5
 CLAMP_OUTER_EXTENSION = 7.5
 CLAMP_REACH_INBOARD = 62.0
+# Both structural clamp tongues extend the same additional 20 mm into the
+# tabletop; the lower pressure hardware is centered in that effective tongue.
+CLAMP_TONGUE_EXTRA_LENGTH_X = 20.0
 # The upper and lower structural clamp jaws are both 12 mm thick.  The upper
 # tabletop rubber is external/glued; the lower contact part is a rigid round
 # printed pad with a shallow socket for the M8 rounded screw tip.
 CLAMP_PAD_T = 12.0
 CLAMP_CLEARANCE = 1.5
 POST_CENTER = TABLE_EDGE + POST_OFFSET
-CLAMP_SCREW_INSET = 30.0
+CLAMP_SCREW_INSET = 41.0
 CLAMP_SCREW_D = 8.0
 CLAMP_SCREW_CAPTURE_EXTENSION = 2.0
 # The knob keeps the same Ø36 mm envelope while using a rounded 18-lobe
@@ -72,14 +75,15 @@ CLAMP_TOP_PAD_T = 2.0
 CLAMP_LOWER_ARM_CLEARANCE = 10.0
 CLAMP_LOWER_ARM_TOP = -TABLE_THICKNESS - CLAMP_LOWER_ARM_CLEARANCE
 CLAMP_LOWER_ARM_BOTTOM = CLAMP_LOWER_ARM_TOP - CLAMP_PAD_T
-CLAMP_PRESSURE_PAD_WIDTH = 42.0
-CLAMP_PRESSURE_PAD_DEPTH = 42.0
+CLAMP_PRESSURE_PAD_WIDTH = 50.0
+CLAMP_PRESSURE_PAD_DEPTH = 50.0
 CLAMP_PRESSURE_PAD_T = 4.0
 CLAMP_PRESSURE_PAD_SOCKET_DEPTH = 2.0
 CLAMP_PRESSURE_PAD_TOP = -TABLE_THICKNESS - CLAMP_CLEARANCE
 CLAMP_PRESSURE_PAD_BOTTOM = CLAMP_PRESSURE_PAD_TOP - CLAMP_PRESSURE_PAD_T
 CLAMP_SCREW_X = -CLAMP_SCREW_INSET
-CLAMP_PAD_X = -CLAMP_REACH_INBOARD
+CLAMP_TONGUE_REACH_INBOARD = CLAMP_REACH_INBOARD + CLAMP_TONGUE_EXTRA_LENGTH_X
+CLAMP_PAD_X = -CLAMP_TONGUE_REACH_INBOARD
 CLAMP_PAD_OUTER_X = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
 CLAMP_OUTER_WALL_WIDTH = 22.0
 CLAMP_OUTER_WALL_X = CLAMP_PAD_OUTER_X - CLAMP_OUTER_WALL_WIDTH
@@ -90,7 +94,7 @@ CLAMP_SOLID_BRIDGE_CLEARANCE_X = 0.2
 CLAMP_SOLID_BRIDGE_START_X = CLAMP_SOLID_BRIDGE_CLEARANCE_X
 CLAMP_REINFORCEMENT_START_X = -CLAMP_REINFORCEMENT_INBOARD_OFFSET_X
 CLAMP_REINFORCEMENT_END_X = CLAMP_PAD_OUTER_X - 0.2
-CLAMP_LOWER_ARM_X = CLAMP_SCREW_X - 22.0 / 2
+CLAMP_LOWER_ARM_X = CLAMP_PAD_X
 CLAMP_SCREW_TOP = CLAMP_PRESSURE_PAD_BOTTOM + CLAMP_PRESSURE_PAD_SOCKET_DEPTH
 CLAMP_KNOB_TOP = CLAMP_SCREW_TOP - CLAMP_SCREW_TO_KNOB_TOP
 CLAMP_KNOB_BOTTOM = CLAMP_KNOB_TOP - CLAMP_KNOB_H
@@ -767,8 +771,8 @@ def draw_side(ax) -> None:
     post_x0 = POST_OFFSET - POST_WIDTH / 2
     ax.add_patch(
         Rectangle(
-            (-62, -TABLE_THICKNESS),
-            62,
+            (-CLAMP_TONGUE_REACH_INBOARD, -TABLE_THICKNESS),
+            CLAMP_TONGUE_REACH_INBOARD,
             TABLE_THICKNESS,
             facecolor="#a8adb3",
             edgecolor="#4d535a",
@@ -988,7 +992,7 @@ def draw_side(ax) -> None:
             CLAMP_PAD_OUTER_X - CLAMP_PAD_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="加厚上夹臂 12 mm（不打孔）",
+            label="加长上舌头 82 mm / 12 mm 厚（不打孔）",
         )
     )
     ax.add_patch(
@@ -1033,7 +1037,7 @@ def draw_side(ax) -> None:
             CLAMP_PAD_OUTER_X - CLAMP_LOWER_ARM_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="加厚下夹臂 12 mm / 螺母座",
+            label="加长下舌头 82 mm / 12 mm 厚 / 压紧居中",
         )
     )
     ax.add_patch(
@@ -1085,7 +1089,7 @@ def draw_side(ax) -> None:
             CLAMP_PRESSURE_PAD_WIDTH,
             CLAMP_PRESSURE_PAD_T,
             facecolor="#111111",
-            label="movable underside pressure pad",
+            label="台底 Ø50 压紧盘（下舌头中点）",
         )
     )
     ax.plot(

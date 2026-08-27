@@ -396,11 +396,16 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "sensor_film_length",
         "sensor_film_depth",
         "sensor_clamp_tab_width",
+        "clamp_reach_inboard",
+        "clamp_tongue_extra_length_x",
+        "clamp_tongue_reach_inboard",
         "clamp_pad_x",
         "clamp_pad_outer_x",
         "clamp_outer_wall_x",
         "clamp_horizontal_part_outboard_limit",
         "clamp_outboard_extension_actual",
+        "clamp_screw_inset",
+        "clamp_lower_arm_x",
         "clamp_screw_x",
         "clamp_screw_d",
         "clamp_screw_pitch",
@@ -867,7 +872,24 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     ):
         raise RuntimeError(f"unexpected printable post segmentation: {parameters}")
     if not (
-        parameters["clamp_pad_x"] < table_edge < parameters["clamp_pad_outer_x"]
+        parameters["clamp_tongue_extra_length_x"] > 0
+        and parameters["clamp_tongue_reach_inboard"]
+        == parameters["clamp_reach_inboard"]
+        + parameters["clamp_tongue_extra_length_x"]
+        and parameters["clamp_tongue_reach_inboard"]
+        > parameters["clamp_reach_inboard"]
+        and parameters["clamp_lower_arm_x"] == parameters["clamp_pad_x"]
+        and abs(
+            parameters["clamp_screw_x"]
+            - (parameters["clamp_pad_x"] + table_edge) / 2
+        )
+        < 0.01
+        and abs(
+            parameters["clamp_screw_inset"]
+            - parameters["clamp_tongue_reach_inboard"] / 2
+        )
+        < 0.01
+        and parameters["clamp_pad_x"] < table_edge < parameters["clamp_pad_outer_x"]
         and parameters["clamp_pad_x"] < parameters["clamp_screw_x"] < table_edge
         and abs(
             parameters["clamp_outboard_extension_actual"]
@@ -924,6 +946,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     if not (
         parameters["clamp_screw_to_knob_top_base"] == 32
         and parameters["clamp_screw_extra_length_z"] == 12
+        and parameters["clamp_tongue_extra_length_x"] == 20
+        and parameters["clamp_tongue_reach_inboard"] == 82
+        and parameters["clamp_screw_inset"] == 41
+        and parameters["clamp_lower_arm_x"] == parameters["clamp_pad_x"]
+        and abs(
+            parameters["clamp_screw_x"]
+            - (parameters["clamp_pad_x"] + parameters["table_width"] / 2) / 2
+        ) < 0.01
         and parameters["clamp_screw_to_knob_top"]
         == parameters["clamp_screw_to_knob_top_base"]
         + parameters["clamp_screw_extra_length_z"]
@@ -957,6 +987,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         == parameters["clamp_pressure_pad_width"]
         and parameters["clamp_pressure_pad_d"]
         == parameters["clamp_pressure_pad_depth"]
+        and parameters["clamp_pressure_pad_d"] == 50
         and parameters["clamp_pressure_pad_t"]
         > parameters["clamp_pressure_pad_screw_socket_depth"]
         and parameters["clamp_pressure_pad_screw_socket_d"]

@@ -25,6 +25,7 @@ PARAMETER_MAP = {
     "POST_WIDTH": "post_body_width",
     "CLAMP_OUTER_EXTENSION": "clamp_outer_extension",
     "CLAMP_REACH_INBOARD": "clamp_reach_inboard",
+    "CLAMP_TONGUE_EXTRA_LENGTH_X": "clamp_tongue_extra_length_x",
     "CLAMP_PAD_T": "clamp_pad_t",
     "CLAMP_CLEARANCE": "clamp_clearance",
     "CLAMP_SCREW_INSET": "clamp_screw_inset",

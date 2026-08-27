@@ -650,6 +650,9 @@ rail_segment_index = 0;
 
 // 传统桌下夹持结构
 clamp_reach_inboard = 62;
+// 两条夹持舌头向球台内侧同步延长；压紧螺杆位于新增后的下舌头
+// 有效台下区段的中点，而不是贴近舌头根部。
+clamp_tongue_extra_length_x = 20;
 // ITTF Technical Leaflet T2 给出的网柱水平部分台外上限为 160 mm。
 // 当前自定义传感器夹体把最外点收敛到这个上限；它仍比台边外伸至少
 // 130 mm，但不把过度外伸误写成常规商品网夹尺寸。
@@ -669,7 +672,8 @@ clamp_screw_d = 8;
 // 但螺距作为标准件接口的一部分固化并由参数探针/验证脚本读取。
 clamp_screw_pitch = 1.25;
 clamp_screw_bore_d = clamp_screw_d + 0.8;
-clamp_screw_inset = 30;
+// 82 mm 台下有效舌长的中点：螺杆中心距台边 41 mm。
+clamp_screw_inset = 41;
 // 外包络仍保持 Ø36 mm；用圆形齿凸做 18 齿圆角锯齿握持圈，谷底为 Ø30 mm。
 // 这样手指有明确的抗滑着力点，但不改变旋钮与螺杆的安装包络。
 clamp_knob_d = 36;
@@ -708,10 +712,10 @@ clamp_top_pad_depth = 48;
 clamp_top_pad_t = 2;
 // 台底压块是独立的刚性小圆盘：上表面为平面，底面中央收纳 M8 圆头。
 // 上方台面接触面不再作为打印件，现场在固定上夹板下表面粘贴胶皮即可。
-clamp_pressure_pad_d = 42;
+clamp_pressure_pad_d = 50;
 // 保留宽/深别名给旧版预览和参数读取器；实际外形以圆盘直径为准。
-clamp_pressure_pad_width = 42;
-clamp_pressure_pad_depth = 42;
+clamp_pressure_pad_width = 50;
+clamp_pressure_pad_depth = 50;
 clamp_pressure_pad_t = 4;
 clamp_pressure_pad_screw_socket_d = clamp_screw_d + 1.2;
 clamp_pressure_pad_screw_socket_depth = 2;
@@ -1145,10 +1149,14 @@ m6_detector_direct_mount_web_min_z =
 m6_detector_direct_mount_web_max_z =
     m6_detector_direct_mount_lower_post_top_z;
 sensor_x = sensor_x_fraction * net_span / 2;
-clamp_pad_x = table_edge_x - clamp_reach_inboard;
+clamp_tongue_reach_inboard =
+    clamp_reach_inboard + clamp_tongue_extra_length_x;
+clamp_pad_x = table_edge_x - clamp_tongue_reach_inboard;
 clamp_pad_outer_x = post_center_x + post_body_width / 2 + clamp_outer_extension;
 clamp_outboard_extension_actual = clamp_pad_outer_x - table_edge_x;
 clamp_outer_wall_x = clamp_pad_outer_x - clamp_outer_wall_width;
+// Upper and lower structural jaws share the same extended inboard datum.
+clamp_lower_arm_x = clamp_pad_x;
 clamp_screw_x = table_edge_x - clamp_screw_inset;
 clamp_top_pad_x = clamp_pad_x + 8;
 clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
@@ -1794,6 +1802,14 @@ assert(net_rail_saddle_overlap > 0 &&
        "each upright needs a printable rail saddle and end stop");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
+assert(clamp_tongue_extra_length_x > 0 &&
+           clamp_tongue_reach_inboard ==
+               clamp_reach_inboard + clamp_tongue_extra_length_x &&
+           clamp_tongue_reach_inboard > clamp_reach_inboard &&
+           clamp_lower_arm_x == clamp_pad_x &&
+           abs(clamp_screw_x - (clamp_pad_x + table_edge_x) / 2) < 0.01 &&
+           abs(clamp_screw_inset - clamp_tongue_reach_inboard / 2) < 0.01,
+       "upper/lower clamp tongues must share the extended datum and center the pressure hardware on the lower tongue");
 assert(clamp_reinforcement_inboard_offset_x > 0 &&
            clamp_reinforcement_near_table_thickness_z == 40 &&
            clamp_reinforcement_depth_y == clamp_pad_depth &&
@@ -2000,7 +2016,6 @@ module clamp_solid_outboard_bridge_positive() {
 module table_clamp_body_positive() {
     // 固定件是一个真正有开口的 C 形夹体：上夹板在台面上方，
     // 下臂在台底下方，中间留出台面厚度和压块行程；不把任何零件嵌入台面。
-    lower_arm_x = clamp_screw_x - clamp_threaded_boss_d / 2;
     color("slategray")
         difference() {
             union() {
@@ -2012,9 +2027,9 @@ module table_clamp_body_positive() {
                     cube([clamp_outer_wall_width, clamp_pad_depth,
                           clamp_pad_t + clamp_top_pad_t + table_thickness +
                           clamp_lower_arm_clearance]);
-                translate([lower_arm_x, -clamp_pad_depth / 2,
+                translate([clamp_lower_arm_x, -clamp_pad_depth / 2,
                            clamp_lower_arm_bottom_z])
-                    cube([clamp_pad_outer_x - lower_arm_x,
+                    cube([clamp_pad_outer_x - clamp_lower_arm_x,
                           clamp_pad_depth, clamp_lower_arm_t]);
                 translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z])
                     cylinder(d = clamp_threaded_boss_d, h = clamp_threaded_boss_h);
@@ -4921,6 +4936,11 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM sensor_film_length=", sensor_film_length));
     echo(str("NETSTAND_PARAM sensor_film_depth=", sensor_film_depth));
     echo(str("NETSTAND_PARAM sensor_clamp_tab_width=", sensor_clamp_tab_width));
+    echo(str("NETSTAND_PARAM clamp_reach_inboard=", clamp_reach_inboard));
+    echo(str("NETSTAND_PARAM clamp_tongue_extra_length_x=",
+             clamp_tongue_extra_length_x));
+    echo(str("NETSTAND_PARAM clamp_tongue_reach_inboard=",
+             clamp_tongue_reach_inboard));
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
     echo(str("NETSTAND_PARAM clamp_pad_depth=", clamp_pad_depth));
     echo(str("NETSTAND_PARAM clamp_pad_t=", clamp_pad_t));
@@ -4928,6 +4948,7 @@ module parameter_probe() {
              clamp_horizontal_part_outboard_limit));
     echo(str("NETSTAND_PARAM clamp_outboard_extension_min=", clamp_outboard_extension_min));
     echo(str("NETSTAND_PARAM clamp_outboard_extension_actual=", clamp_outboard_extension_actual));
+    echo(str("NETSTAND_PARAM clamp_screw_inset=", clamp_screw_inset));
     echo(str("NETSTAND_PARAM clamp_reinforcement_inboard_offset_x=",
              clamp_reinforcement_inboard_offset_x));
     echo(str("NETSTAND_PARAM clamp_reinforcement_near_table_thickness_z=",
@@ -4954,6 +4975,7 @@ module parameter_probe() {
              clamp_reinforcement_outer_bottom_z));
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_outer_wall_x=", clamp_outer_wall_x));
+    echo(str("NETSTAND_PARAM clamp_lower_arm_x=", clamp_lower_arm_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
     echo(str("NETSTAND_PARAM clamp_screw_pitch=", clamp_screw_pitch));
