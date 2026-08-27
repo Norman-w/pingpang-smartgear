@@ -110,6 +110,10 @@ PARAMETER_MAP = {
     "M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y": "m6_detector_shell_support_boss_depth_y",
     "M6_DETECTOR_SHELL_SUPPORT_BOSS_HEIGHT_Z": "m6_detector_shell_support_boss_height_z",
     "M6_DETECTOR_SHELL_SUPPORT_BOSS_RADIUS": "m6_detector_shell_support_boss_radius",
+    "M6_DETECTOR_SHELL_SUPPORT_GUSSET_X_OVERLAP": "m6_detector_shell_support_gusset_x_overlap",
+    "M6_DETECTOR_SHELL_SUPPORT_GUSSET_ROOT_WIDTH_Y": "m6_detector_shell_support_gusset_root_width_y",
+    "M6_DETECTOR_SHELL_SUPPORT_GUSSET_WALL_WIDTH_Y": "m6_detector_shell_support_gusset_wall_width_y",
+    "M6_DETECTOR_SHELL_SUPPORT_GUSSET_HEIGHT_Z": "m6_detector_shell_support_gusset_height_z",
     "M6_DETECTOR_SHELL_SUPPORT_HOLE_D": "m6_detector_shell_support_hole_d",
     "M6_DETECTOR_SHELL_SUPPORT_HOLE_DEPTH_X": "m6_detector_shell_support_hole_depth_x",
     "M6_DETECTOR_SHELL_SUPPORT_STUD_ENGAGEMENT_X": "m6_detector_shell_support_stud_engagement_x",
@@ -140,6 +144,8 @@ PARAMETER_MAP = {
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D": "m6_detector_direct_mount_socket_outer_d",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_CLEARANCE_D": "m6_detector_direct_mount_socket_clearance_d",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D": "m6_detector_direct_mount_socket_tap_d",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z": "m6_detector_direct_mount_socket_base_overlap_z",
+    "M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z": "m6_detector_direct_mount_nut_loading_clearance_z",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z": "m6_detector_direct_mount_socket_bottom_clearance_z",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z": "m6_detector_direct_mount_socket_top_clearance_z",
 }
@@ -159,6 +165,10 @@ BROWSER_PARAMETER_MAP = {
     "shellSupportBossDepthY": "M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y",
     "shellSupportBossHeightZ": "M6_DETECTOR_SHELL_SUPPORT_BOSS_HEIGHT_Z",
     "shellSupportBossRadius": "M6_DETECTOR_SHELL_SUPPORT_BOSS_RADIUS",
+    "shellSupportGussetXOverlap": "M6_DETECTOR_SHELL_SUPPORT_GUSSET_X_OVERLAP",
+    "shellSupportGussetRootWidthY": "M6_DETECTOR_SHELL_SUPPORT_GUSSET_ROOT_WIDTH_Y",
+    "shellSupportGussetWallWidthY": "M6_DETECTOR_SHELL_SUPPORT_GUSSET_WALL_WIDTH_Y",
+    "shellSupportGussetHeightZ": "M6_DETECTOR_SHELL_SUPPORT_GUSSET_HEIGHT_Z",
     "shellSupportHoleD": "M6_DETECTOR_SHELL_SUPPORT_HOLE_D",
     "shellSupportHoleDepthX": "M6_DETECTOR_SHELL_SUPPORT_HOLE_DEPTH_X",
     "shellSupportStudEngagementX": "M6_DETECTOR_SHELL_SUPPORT_STUD_ENGAGEMENT_X",
@@ -196,6 +206,8 @@ BROWSER_PARAMETER_MAP = {
     "directMountSocketOuterD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D",
     "directMountSocketClearanceD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_CLEARANCE_D",
     "directMountSocketTapD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D",
+    "directMountSocketBaseOverlapZ": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z",
+    "directMountNutLoadingClearanceZ": "M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z",
 }
 
 

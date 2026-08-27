@@ -105,6 +105,14 @@ def main() -> None:
         or boss["depth_y_mm"] != 18
         or boss["height_z_mm"] != 36
         or boss["center_y_global_mm"] != 0
+        or boss["gusset_min_global_mm"] != [866.8, -30.4, 266.5]
+        or boss["gusset_max_global_mm"] != [870.2, 30.4, 278.5]
+        or boss["gusset_x_overlap_mm"] != 0.2
+        or boss["gusset_root_width_y_mm"] != 5
+        or boss["gusset_wall_width_y_mm"] != 2.4
+        or boss["gusset_height_z_mm"] != 12
+        or boss["gusset_root_y_start_positive_mm"] != 4
+        or boss["gusset_wall_y_start_positive_mm"] != 28
         or boss["hole_axis"] != "x- from the rear x+ face toward the optical side"
     ):
         raise AssertionError("centered rear-face boss contract changed")
@@ -139,7 +147,7 @@ def main() -> None:
         != "vertical M8 captured-nut axis coaxial with the straight lower post; no horizontal top arm"
         or direct_mount["assembly_x_offset_mm"] != 84.6
         or direct_mount["assembled_ballhead_center_x_global_mm"] != 901
-        or direct_mount["assembled_optical_axis_x_global_mm"] != 847.6
+        or direct_mount["assembled_optical_axis_x_global_mm"] != 839.85
         or direct_mount["socket_center_x_global_mm"] != 901
         or direct_mount["arm_min_x_global_mm"] != 901
         or direct_mount["arm_max_x_global_mm"] != 901
@@ -151,15 +159,19 @@ def main() -> None:
         or direct_mount["web_thickness_x_mm"] != 0
         or direct_mount["web_min_z_global_mm"] != 223.5
         or direct_mount["web_max_z_global_mm"] != 223.5
-        or direct_mount["socket_bottom_z_global_mm"] != 223.3
+        or direct_mount["socket_bottom_z_global_mm"] != 217.5
         or direct_mount["socket_top_z_global_mm"] != 252
-        or direct_mount["socket_height_z_mm"] != 28.7
-        or direct_mount["socket_outer_d_mm"] != 18
+        or direct_mount["socket_height_z_mm"] != 34.5
+        or direct_mount["socket_outer_d_mm"] != 24
         or direct_mount["socket_tap_d_mm"] != 6.8
         or direct_mount["socket_clearance_d_mm"] != 8.6
+        or direct_mount["socket_base_overlap_z_mm"] != 6
+        or direct_mount["nut_loading_clearance_z_mm"] != 1
         or direct_mount["captured_nut_pocket_af_mm"] != 13.7
         or direct_mount["captured_nut_pocket_depth_z_mm"] != 7.2
-        or direct_mount["captured_nut_pocket_center_z_global_mm"] != 226.9
+        or direct_mount["captured_nut_pocket_bottom_z_global_mm"] != 224.5
+        or direct_mount["captured_nut_pocket_center_z_global_mm"] != 228.1
+        or direct_mount["nut_loading_depth_z_mm"] != 27.5
         or direct_mount["ballhead_interface_bottom_z_global_mm"] != 223.5
         or direct_mount["lower_post_top_z_global_mm"] != 223.5
         or direct_mount["assembly_z_raise_mm"] != 20

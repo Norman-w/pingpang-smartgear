@@ -24,7 +24,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v1.3-20-mm-pitch-raised-m6-net-clamp-rod"
+SCHEMA_VERSION = "m6-machining-spec-v1.4-20-mm-pitch-reinforced-boss-top-load-m8"
 
 
 def _r(value: float) -> float | int:
@@ -159,7 +159,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后盖（PETG，后方加厚 1/4-20 接口 boss）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø7.0 1/4-20 通孔并内藏标准捕获螺母，供商品球头固定上端连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
+                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø7.0 1/4-20 通孔并内藏标准捕获螺母，boss 根部在 y± 两侧各增加一条跨到后壳侧壁的实体 PETG 加强肋且避开中央通孔；供商品球头固定上端连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -310,6 +310,42 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "depth_y_mm": _r(parameters["m6_detector_shell_support_boss_depth_y"]),
                 "height_z_mm": _r(parameters["m6_detector_shell_support_boss_height_z"]),
                 "center_y_global_mm": _r(parameters["m6_detector_shell_support_boss_center_y"]),
+                "gusset_min_global_mm": [
+                    _assembled_x(
+                        parameters, parameters["m6_detector_shell_support_gusset_min_x"]
+                    ),
+                    _r(parameters["m6_detector_shell_min_y"]),
+                    _assembled_z(
+                        parameters, parameters["m6_detector_shell_support_gusset_bottom_z"]
+                    ),
+                ],
+                "gusset_max_global_mm": [
+                    _assembled_x(
+                        parameters, parameters["m6_detector_shell_support_gusset_max_x"]
+                    ),
+                    _r(parameters["m6_detector_shell_max_y"]),
+                    _assembled_z(
+                        parameters, parameters["m6_detector_shell_support_gusset_top_z"]
+                    ),
+                ],
+                "gusset_x_overlap_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_x_overlap"]
+                ),
+                "gusset_root_width_y_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_root_width_y"]
+                ),
+                "gusset_wall_width_y_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_wall_width_y"]
+                ),
+                "gusset_height_z_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_height_z"]
+                ),
+                "gusset_root_y_start_positive_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_root_y_start_positive"]
+                ),
+                "gusset_wall_y_start_positive_mm": _r(
+                    parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
+                ),
                 "hole_axis": "x- from the rear x+ face toward the optical side",
                 "hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
                 "hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
@@ -368,9 +404,21 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "socket_outer_d_mm": _r(parameters["m6_detector_direct_mount_socket_outer_d"]),
                 "socket_clearance_d_mm": _r(parameters["m6_detector_direct_mount_socket_clearance_d"]),
                 "socket_tap_d_mm": _r(parameters["m6_detector_direct_mount_socket_tap_d"]),
+                "socket_base_overlap_z_mm": _r(
+                    parameters["m6_detector_direct_mount_socket_base_overlap_z"]
+                ),
+                "nut_loading_clearance_z_mm": _r(
+                    parameters["m6_detector_direct_mount_nut_loading_clearance_z"]
+                ),
                 "captured_nut_pocket_af_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_af"]),
                 "captured_nut_pocket_depth_z_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_depth"]),
+                "captured_nut_pocket_bottom_z_global_mm": _r(
+                    parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
+                ),
                 "captured_nut_pocket_center_z_global_mm": _r(parameters["m6_detector_direct_mount_nut_pocket_center_z"]),
+                "nut_loading_depth_z_mm": _r(
+                    parameters["m6_detector_direct_mount_nut_loading_depth_z"]
+                ),
                 "ballhead_interface_bottom_z_global_mm": _r(
                     parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
                 ),

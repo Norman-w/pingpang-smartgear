@@ -14,8 +14,8 @@
 //   PART="table_clamp"        单侧传统桌下夹持机构装配预览
 //   PART="table_clamp_section" 桌板剖面/免打孔夹紧受力路径预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
-//   PART="clamp_top_pad"     台面上表面可替换保护垫（TPU/硅胶占位）
-//   PART="clamp_pressure_pad" 台底可动压块/软垫占位
+//   PART="clamp_top_pad"     台面上表面胶皮装配占位（现场粘贴，不进正式打印包）
+//   PART="clamp_pressure_pad" 台底可动圆盘压块（底面 M8 圆头收纳窝）
 //   PART="clamp_screw"        M8×1.25 金属螺杆装配占位（非打印件，顶端圆头）
 //   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母装配占位（标准件）
 //   PART="clamp_knob"         手拧旋钮（含两枚 M8 对锁螺母捕获窝）
@@ -239,7 +239,7 @@ m6_sensor_nut_pocket_clearance = 0.35;
 m6_sensor_roll_deg = -45;
 m6_sensor_guard_outer_d = 15;
 m6_sensor_guard_h = 5;
-// 单件试装样件只验证真实传感器、螺母防转和线缆让位，不进入 22 件正式
+// 单件试装样件只验证真实传感器、螺母防转和线缆让位，不进入 20 件正式
 // PETG 拼盘；因此用比 M6 外螺纹略大的通孔，避免把未确认的攻牙规格冻结在
 // 打印件里。正式铝条仍按卖家实物决定 M6×0.75 攻牙或通孔+螺母。
 m6_sensor_test_coupon_backbone_h = 24;
@@ -535,6 +535,14 @@ m6_detector_shell_support_boss_overlap_x = 3;
 m6_detector_shell_support_boss_depth_y = 18;
 m6_detector_shell_support_boss_height_z = 36;
 m6_detector_shell_support_boss_radius = 2;
+// The rear-shell cavity removes the boss's central x-overlap.  These two
+// y-side ribs are therefore added after that cavity subtraction: each rib
+// bridges from the boss root to the rear shell wall without entering the
+// central 1/4-20 bore.  They are PETG load-path material, not decoration.
+m6_detector_shell_support_gusset_x_overlap = 0.2;
+m6_detector_shell_support_gusset_root_width_y = 5;
+m6_detector_shell_support_gusset_wall_width_y = 2.4;
+m6_detector_shell_support_gusset_height_z = 12;
 // 1/4-20 upper stud clearance; the captured 1/4 nut provides the actual
 // thread.  This is intentionally smaller than the old M8 hole.
 m6_detector_shell_support_hole_d = 7.0;
@@ -573,12 +581,20 @@ m6_detector_direct_mount_arm_t_z = 0;
 m6_detector_direct_mount_web_width_y = 0;
 m6_detector_direct_mount_web_t_x = 0;
 m6_detector_direct_mount_post_overlap_x = 2;
-m6_detector_direct_mount_socket_outer_d = 18;
+m6_detector_direct_mount_socket_outer_d = 24;
 // M8 external lower ballhead stud clearance.  Keep the old tap-drill value as
 // a diagnostic compatibility echo only; it is not subtracted by the active
 // direct mount.
 m6_detector_direct_mount_socket_clearance_d = 8.6;
 m6_detector_direct_mount_socket_tap_d = 6.8;
+// The socket is a solid printed boss merged into the straight post.  It
+// overlaps the post by 6 mm so the annulus cannot peel away at the interface.
+m6_detector_direct_mount_socket_base_overlap_z = 6;
+// Leave a 1 mm shoulder above the post top before the AF13.7 nut loading shaft
+// opens.  The metal nut can be dropped in from z+ during one-piece printing.
+m6_detector_direct_mount_nut_loading_clearance_z = 1;
+// Compatibility name retained for old consumers; active geometry uses the
+// explicit base-overlap parameter above.
 m6_detector_direct_mount_socket_bottom_clearance_z = 0.2;
 m6_detector_direct_mount_socket_top_clearance_z = 0.5;
 
@@ -644,8 +660,8 @@ clamp_outboard_extension_min = 130;
 // the dependency-free preview can audit the same first-article value.
 clamp_outer_extension = 7.5;
 clamp_pad_depth = 58;
-// 上、下两条结构夹臂统一加厚到 12 mm；黑色 TPU/硅胶接触垫仍保持独立，
-// 不把软垫厚度混入夹体承力厚度。
+// 上、下两条结构夹臂统一加厚到 12 mm；台面上侧胶皮由现场粘贴，
+// 台底压块是独立的刚性圆盘，不把接触层厚度混入夹体承力厚度。
 clamp_pad_t = 12;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
@@ -690,9 +706,17 @@ clamp_threaded_boss_h = 12;
 clamp_top_pad_width = 96;
 clamp_top_pad_depth = 48;
 clamp_top_pad_t = 2;
+// 台底压块是独立的刚性小圆盘：上表面为平面，底面中央收纳 M8 圆头。
+// 上方台面接触面不再作为打印件，现场在固定上夹板下表面粘贴胶皮即可。
+clamp_pressure_pad_d = 42;
+// 保留宽/深别名给旧版预览和参数读取器；实际外形以圆盘直径为准。
 clamp_pressure_pad_width = 42;
-clamp_pressure_pad_depth = 44;
-clamp_pressure_pad_t = 2;
+clamp_pressure_pad_depth = 42;
+clamp_pressure_pad_t = 4;
+clamp_pressure_pad_screw_socket_d = clamp_screw_d + 1.2;
+clamp_pressure_pad_screw_socket_depth = 2;
+clamp_pressure_pad_screw_socket_mouth_d = 11;
+clamp_pressure_pad_screw_socket_chamfer_h = 0.8;
 post_top = max(
     net_height + beam_last_height + optical_module_height / 2 + post_top_margin,
     m6_array_top_z + post_top_margin
@@ -957,6 +981,24 @@ m6_detector_shell_support_hole_center_x =
 m6_detector_shell_support_nut_pocket_center_x =
     m6_detector_shell_support_boss_min_x +
     m6_ballhead_top_nut_pocket_depth / 2;
+m6_detector_shell_support_gusset_min_x =
+    m6_detector_shell_support_boss_min_x -
+    m6_detector_shell_support_gusset_x_overlap;
+m6_detector_shell_support_gusset_max_x =
+    m6_detector_shell_max_x +
+    m6_detector_shell_support_gusset_x_overlap;
+m6_detector_shell_support_gusset_root_y_start_positive =
+    m6_detector_shell_support_boss_max_y -
+    m6_detector_shell_support_gusset_root_width_y;
+m6_detector_shell_support_gusset_wall_y_start_positive =
+    m6_detector_shell_max_y -
+    m6_detector_shell_support_gusset_wall_width_y;
+m6_detector_shell_support_gusset_bottom_z =
+    m6_detector_shell_support_boss_center_z -
+    m6_detector_shell_support_gusset_height_z / 2;
+m6_detector_shell_support_gusset_top_z =
+    m6_detector_shell_support_boss_center_z +
+    m6_detector_shell_support_gusset_height_z / 2;
 
 m6_detector_ballhead_sensor_stud_center_x =
     m6_detector_shell_support_hole_entry_x +
@@ -978,7 +1020,7 @@ m6_detector_mount_x_offset =
 m6_detector_assembly_ballhead_center_x =
     m6_detector_ballhead_center_x + m6_detector_mount_x_offset;
 m6_detector_assembly_optical_axis_x =
-    m6_sensor_axis_x + m6_detector_mount_x_offset;
+    m6_detector_fit_thread_tip_x + m6_detector_mount_x_offset;
 m6_detector_ballhead_center_y = m6_detector_shell_support_boss_center_y;
 m6_detector_ballhead_center_z = m6_detector_body_center_z;
 m6_detector_ballhead_base_center_z =
@@ -1056,7 +1098,7 @@ m6_detector_net_connector_mount_height_z =
 // are mirrored by sided(-1).
 m6_detector_direct_mount_socket_bottom_z =
     m6_detector_assembly_ballhead_net_interface_bottom_z -
-    m6_detector_direct_mount_socket_bottom_clearance_z;
+    m6_detector_direct_mount_socket_base_overlap_z;
 m6_detector_direct_mount_socket_top_z =
     m6_detector_assembly_ballhead_base_center_z -
     m6_ballhead_base_t / 2 +
@@ -1069,9 +1111,15 @@ m6_detector_direct_mount_socket_center_z =
      m6_detector_direct_mount_socket_top_z) / 2;
 m6_detector_direct_mount_socket_center_x =
     m6_detector_assembly_ballhead_center_x;
+m6_detector_direct_mount_nut_pocket_bottom_z =
+    m6_detector_assembly_ballhead_net_interface_bottom_z +
+    m6_detector_direct_mount_nut_loading_clearance_z;
 m6_detector_direct_mount_nut_pocket_center_z =
-    m6_detector_direct_mount_socket_bottom_z +
+    m6_detector_direct_mount_nut_pocket_bottom_z +
     m6_ballhead_bottom_nut_pocket_depth / 2;
+m6_detector_direct_mount_nut_loading_depth_z =
+    m6_detector_direct_mount_socket_top_z -
+    m6_detector_direct_mount_nut_pocket_bottom_z;
 m6_detector_direct_mount_arm_min_x =
     m6_detector_direct_mount_socket_center_x;
 m6_detector_direct_mount_post_inner_face_x =
@@ -1083,8 +1131,8 @@ m6_detector_direct_mount_arm_bottom_z =
 m6_detector_direct_mount_arm_top_z =
     m6_detector_direct_mount_arm_bottom_z;
 // The active post ends at the ballhead interface plane.  The annular socket
-// overlaps that top face by the small lower clearance and contains no
-// horizontal extension.
+// starts 6 mm below that plane and merges into the straight post; only the
+// upper 1 mm shoulder is reserved for top-loading the captured M8 nut.
 m6_detector_direct_mount_lower_post_top_z =
     m6_detector_direct_mount_arm_bottom_z;
 // Legacy diagnostic echoes: zero-width/zero-height means no active side web.
@@ -1121,9 +1169,12 @@ clamp_reinforcement_outer_bottom_z =
 // 用沿 y 全深的实心桥体连接上下夹臂。桥体底部继续沿用 40→12 mm 斜底。
 clamp_solid_bridge_start_x = table_edge_x + clamp_solid_bridge_clearance_x;
 clamp_solid_bridge_top_z = clamp_top_pad_t + clamp_pad_t;
-// The screw pushes the underside of the independent pad. It must not model
-// itself as passing through the pad or through the tabletop.
-clamp_screw_top_z = clamp_pressure_pad_bottom_z;
+// The screw pushes into the shallow underside socket of the independent pad.
+// Its rounded tip stops at the socket ceiling; it never passes through the pad
+// or the tabletop. The socket surrounds the tip during clamping while leaving
+// the printed pad removable from the metal screw when unloaded.
+clamp_screw_top_z =
+    clamp_pressure_pad_bottom_z + clamp_pressure_pad_screw_socket_depth;
 clamp_knob_top_z = clamp_screw_top_z - clamp_screw_to_knob_top;
 clamp_knob_bottom_z = clamp_knob_top_z - clamp_knob_h;
 clamp_body_nut_z = clamp_lower_arm_bottom_z + clamp_nut_clearance;
@@ -1534,6 +1585,25 @@ assert(m6_detector_body_length_x == 10 &&
                m6_detector_shell_support_boss_max_x &&
            m6_ballhead_top_nut_pocket_af / cos(30) <
                m6_detector_shell_support_boss_depth_y,
+           m6_detector_shell_support_gusset_x_overlap >= 0 &&
+           m6_detector_shell_support_gusset_root_width_y > 0 &&
+           m6_detector_shell_support_gusset_wall_width_y > 0 &&
+           m6_detector_shell_support_gusset_height_z > 0 &&
+           m6_detector_shell_support_gusset_min_x <
+               m6_detector_shell_support_boss_min_x &&
+           m6_detector_shell_support_gusset_max_x >
+               m6_detector_shell_max_x &&
+           m6_detector_shell_support_gusset_root_y_start_positive >
+               m6_detector_shell_support_boss_center_y +
+                   m6_detector_shell_support_hole_d / 2 + 0.05 &&
+           m6_detector_shell_support_gusset_wall_y_start_positive <
+               m6_detector_shell_max_y &&
+           m6_detector_shell_support_gusset_bottom_z <
+               m6_detector_shell_support_gusset_top_z &&
+           m6_detector_shell_support_gusset_bottom_z >=
+               m6_detector_shell_bottom_z &&
+           m6_detector_shell_support_gusset_top_z <=
+               m6_detector_shell_top_z,
        "rectangular PETG body and rear-cover 1/4-20 boss must form the current ballhead interface envelope");
 assert(m6_detector_ballhead_center_y == m6_detector_body_center_y &&
            m6_detector_ballhead_center_z == m6_detector_body_center_z &&
@@ -1573,6 +1643,10 @@ assert(m6_detector_direct_mount_socket_center_x == post_center_x &&
            m6_detector_direct_mount_arm_bottom_z > net_height + 5 &&
            m6_detector_direct_mount_socket_bottom_z <
                m6_detector_assembly_ballhead_net_interface_bottom_z &&
+           m6_detector_direct_mount_socket_bottom_z ==
+               m6_detector_direct_mount_lower_post_top_z -
+                   m6_detector_direct_mount_socket_base_overlap_z &&
+           m6_detector_direct_mount_socket_base_overlap_z >= 4 &&
            m6_detector_direct_mount_socket_top_z >
                m6_detector_assembly_ballhead_base_center_z -
                    m6_ballhead_base_t / 2 &&
@@ -1582,12 +1656,20 @@ assert(m6_detector_direct_mount_socket_center_x == post_center_x &&
                m6_detector_direct_mount_socket_clearance_d + 4 &&
            m6_detector_direct_mount_socket_clearance_d >
                m6_ballhead_net_stud_d &&
+           m6_detector_direct_mount_nut_loading_clearance_z > 0 &&
+           m6_detector_direct_mount_nut_pocket_bottom_z ==
+               m6_detector_direct_mount_lower_post_top_z +
+                   m6_detector_direct_mount_nut_loading_clearance_z &&
+           m6_detector_direct_mount_nut_pocket_bottom_z >
+               m6_detector_direct_mount_lower_post_top_z &&
            m6_detector_direct_mount_nut_pocket_center_z -
                m6_ballhead_bottom_nut_pocket_depth / 2 >=
                m6_detector_direct_mount_socket_bottom_z &&
            m6_detector_direct_mount_nut_pocket_center_z +
                m6_ballhead_bottom_nut_pocket_depth / 2 <=
                m6_detector_direct_mount_socket_top_z &&
+           m6_detector_direct_mount_nut_loading_depth_z >=
+               m6_ballhead_bottom_nut_pocket_depth &&
            m6_ballhead_bottom_nut_pocket_af / cos(30) <
                m6_detector_direct_mount_socket_outer_d &&
            m6_detector_direct_mount_lower_post_top_z ==
@@ -1754,6 +1836,18 @@ assert(clamp_lower_arm_bottom_z < clamp_lower_arm_top_z &&
 assert(clamp_pressure_pad_x > clamp_pad_x &&
            clamp_pressure_pad_x + clamp_pressure_pad_width < table_edge_x,
        "the movable pressure pad must contact the underside inside the table edge");
+assert(clamp_pressure_pad_d == clamp_pressure_pad_width &&
+           clamp_pressure_pad_d == clamp_pressure_pad_depth &&
+           clamp_pressure_pad_d > clamp_screw_d + 2 * clamp_clearance &&
+           clamp_pressure_pad_t > clamp_pressure_pad_screw_socket_depth &&
+           clamp_pressure_pad_screw_socket_d > clamp_screw_d &&
+           clamp_pressure_pad_screw_socket_d < clamp_pressure_pad_d &&
+           clamp_pressure_pad_screw_socket_mouth_d >=
+               clamp_pressure_pad_screw_socket_d &&
+           clamp_pressure_pad_screw_socket_chamfer_h > 0 &&
+           clamp_pressure_pad_screw_socket_chamfer_h <
+               clamp_pressure_pad_screw_socket_depth,
+       "round pressure pad must have a flat top and a printable underside screw socket");
 assert(clamp_top_pad_t > 0 && clamp_top_pad_width > 0 &&
            clamp_top_pad_depth > 0 &&
            clamp_top_pad_x >= clamp_pad_x &&
@@ -1767,10 +1861,13 @@ assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
        "first clamp uses an M8 x 1.25 vertical tightening screw");
 assert(clamp_pad_t == 12 && clamp_lower_arm_t == clamp_pad_t,
        "upper and lower structural clamp jaws must both be 12 mm thick");
-assert(clamp_screw_top_z <= clamp_pressure_pad_bottom_z &&
+assert(clamp_screw_top_z > clamp_pressure_pad_bottom_z &&
+           clamp_screw_top_z <=
+               clamp_pressure_pad_bottom_z +
+               clamp_pressure_pad_screw_socket_depth + 0.01 &&
            clamp_screw_top_z < -table_thickness &&
            clamp_screw_tip_radius > 0,
-       "rounded M8 screw tip must contact the pad underside without penetrating it");
+       "rounded M8 screw tip must seat in the pad underside socket below the tabletop");
 assert(clamp_nut_af > clamp_screw_d && clamp_nut_h > 0 &&
            clamp_nut_clearance > 0 &&
            clamp_nut_pocket_af > clamp_nut_af &&
@@ -1955,17 +2052,30 @@ module clamp_body_nut_positive() {
 }
 
 module clamp_pressure_pad_positive() {
-    // 独立可动压块：旋钮从下方顶它，压块顶面只接触台面底面。
+    // 独立可动圆盘压块：顶面是平盘，只接触台面底面；底面中央的
+    // 浅收纳窝包住 M8 圆头，避免螺杆在夹紧时从压块表面滑脱。
     color("black")
-        translate([clamp_pressure_pad_x, -clamp_pressure_pad_depth / 2,
-                   clamp_pressure_pad_bottom_z])
-            cube([clamp_pressure_pad_width, clamp_pressure_pad_depth,
-                  clamp_pressure_pad_t]);
+        translate([clamp_screw_x, 0, clamp_pressure_pad_bottom_z])
+            difference() {
+                cylinder(d = clamp_pressure_pad_d,
+                         h = clamp_pressure_pad_t,
+                         $fn = 96);
+                translate([0, 0, -0.01])
+                    cylinder(d = clamp_pressure_pad_screw_socket_d,
+                             h = clamp_pressure_pad_screw_socket_depth + 0.01,
+                             $fn = 64);
+                // 下缘倒角/喇叭口，方便圆头自动落入收纳窝。
+                translate([0, 0, -0.01])
+                    cylinder(d1 = clamp_pressure_pad_screw_socket_mouth_d,
+                             d2 = clamp_pressure_pad_screw_socket_d,
+                             h = clamp_pressure_pad_screw_socket_chamfer_h,
+                             $fn = 64);
+            }
 }
 
 module clamp_top_pad_positive() {
-    // 可替换上保护垫位于桌面 z=0 与固定上夹板之间；首样可用 TPU 打印，
-    // 也可直接裁切同厚度硅胶片。它只承担接触保护，不承担 C 形夹结构力路。
+    // 台面上侧胶皮的装配占位：首样直接把胶皮粘在固定上夹板下表面；
+    // 这里保留 2 mm 包络用于检查间隙，不把它列入正式打印件。
     color("black")
         translate([clamp_top_pad_x, -clamp_top_pad_depth / 2, 0])
             cube([clamp_top_pad_width, clamp_top_pad_depth, clamp_top_pad_t]);
@@ -3325,9 +3435,48 @@ module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
                         m6_detector_shell_screw_head_depth);
                 }
             }
+        // The cavity subtraction above would otherwise leave only the thin
+        // rear wall between the boss and the shell.  Add two y-side triangular
+        // ribs afterward so the boss has a continuous PETG load path; their
+        // roots begin outside the central Ø7 support bore.
+        m6_detector_shell_support_gussets_positive();
         for (y_side = [-1, 1])
             m6_detector_shell_tongue_positive(1, y_side);
     }
+}
+
+module m6_detector_shell_support_gussets_positive(alpha = m6_detector_shell_alpha) {
+    color("slategray", alpha)
+        for (y_side = [-1, 1]) {
+            hull() {
+                translate([
+                    m6_detector_shell_support_gusset_min_x,
+                    y_side > 0
+                        ? m6_detector_shell_support_gusset_root_y_start_positive
+                        : m6_detector_shell_support_boss_min_y,
+                    m6_detector_shell_support_gusset_bottom_z
+                ])
+                    cube([
+                        m6_detector_shell_support_gusset_max_x -
+                            m6_detector_shell_support_gusset_min_x,
+                        m6_detector_shell_support_gusset_root_width_y,
+                        m6_detector_shell_support_gusset_height_z
+                    ]);
+                translate([
+                    m6_detector_shell_support_gusset_min_x,
+                    y_side > 0
+                        ? m6_detector_shell_support_gusset_wall_y_start_positive
+                        : m6_detector_shell_min_y,
+                    m6_detector_shell_support_gusset_bottom_z
+                ])
+                    cube([
+                        m6_detector_shell_support_gusset_max_x -
+                            m6_detector_shell_support_gusset_min_x,
+                        m6_detector_shell_support_gusset_wall_width_y,
+                        m6_detector_shell_support_gusset_height_z
+                    ]);
+            }
+        }
 }
 
 module m6_detector_bottom_cover_positive() {
@@ -3553,11 +3702,12 @@ module m6_detector_direct_mount_positive() {
                     m6_detector_body_center_y,
                     m6_detector_direct_mount_socket_center_z);
             }
-            // The lower product option is M8 external.  Use an Ø8.6
-            // clearance bore and capture one standard M8 nut in the bottom
-            // of the socket; the stud enters from z+ and the nut is installed
-            // before the socket is joined to the solid post.  The old 6.8 mm
-            // tap-drill parameter remains diagnostic only.
+    // The lower product option is M8 external.  Use an Ø8.6 clearance bore
+    // through the socket, then open an AF13.7 hex loading shaft from z+ down
+    // to the nut shoulder.  A standard M8 nut can therefore be dropped in
+    // after printing; it is not trapped behind the solid post and no side
+    // plug or hand tapping is required.  The old 6.8 mm tap-drill parameter
+    // remains diagnostic only.
             m6_cylinder_z(
                 m6_detector_direct_mount_socket_clearance_d,
                 m6_detector_direct_mount_socket_height_z + 2,
@@ -3566,10 +3716,11 @@ module m6_detector_direct_mount_positive() {
                 m6_detector_direct_mount_socket_center_z);
             m6_hex_prism(
                 m6_ballhead_bottom_nut_pocket_af,
-                m6_ballhead_bottom_nut_pocket_depth,
+                m6_detector_direct_mount_nut_loading_depth_z + 0.02,
                 m6_detector_direct_mount_socket_center_x,
                 m6_detector_body_center_y,
-                m6_detector_direct_mount_nut_pocket_center_z);
+                m6_detector_direct_mount_nut_pocket_bottom_z +
+                    m6_detector_direct_mount_nut_loading_depth_z / 2);
         }
 }
 
@@ -4851,7 +5002,18 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_pressure_pad_top_z=", clamp_pressure_pad_top_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_bottom_z=", clamp_pressure_pad_bottom_z));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_x=", clamp_pressure_pad_x));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_d=", clamp_pressure_pad_d));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_width=", clamp_pressure_pad_width));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_depth=", clamp_pressure_pad_depth));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_t=", clamp_pressure_pad_t));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_screw_socket_d=",
+             clamp_pressure_pad_screw_socket_d));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_screw_socket_depth=",
+             clamp_pressure_pad_screw_socket_depth));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_screw_socket_mouth_d=",
+             clamp_pressure_pad_screw_socket_mouth_d));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_screw_socket_chamfer_h=",
+             clamp_pressure_pad_screw_socket_chamfer_h));
     echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
     echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
     echo(str("NETSTAND_PARAM optical_module_depth=", optical_module_depth));
@@ -5026,6 +5188,10 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_depth_y=", m6_detector_shell_support_boss_depth_y));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_height_z=", m6_detector_shell_support_boss_height_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_radius=", m6_detector_shell_support_boss_radius));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_x_overlap=", m6_detector_shell_support_gusset_x_overlap));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_root_width_y=", m6_detector_shell_support_gusset_root_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_wall_width_y=", m6_detector_shell_support_gusset_wall_width_y));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_height_z=", m6_detector_shell_support_gusset_height_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_hole_d=", m6_detector_shell_support_hole_d));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_hole_depth_x=", m6_detector_shell_support_hole_depth_x));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_stud_engagement_x=", m6_detector_shell_support_stud_engagement_x));
@@ -5050,6 +5216,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_outer_d=", m6_detector_direct_mount_socket_outer_d));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_clearance_d=", m6_detector_direct_mount_socket_clearance_d));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_tap_d=", m6_detector_direct_mount_socket_tap_d));
+    echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_base_overlap_z=", m6_detector_direct_mount_socket_base_overlap_z));
+    echo(str("NETSTAND_PARAM m6_detector_direct_mount_nut_loading_clearance_z=", m6_detector_direct_mount_nut_loading_clearance_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_bottom_clearance_z=", m6_detector_direct_mount_socket_bottom_clearance_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_top_clearance_z=", m6_detector_direct_mount_socket_top_clearance_z));
     echo(str("NETSTAND_PARAM m6_detector_body_min_x=", m6_detector_body_min_x));
@@ -5085,6 +5253,12 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_bottom_z=", m6_detector_shell_support_boss_bottom_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_top_z=", m6_detector_shell_support_boss_top_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_boss_center_z=", m6_detector_shell_support_boss_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_min_x=", m6_detector_shell_support_gusset_min_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_max_x=", m6_detector_shell_support_gusset_max_x));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_root_y_start_positive=", m6_detector_shell_support_gusset_root_y_start_positive));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_wall_y_start_positive=", m6_detector_shell_support_gusset_wall_y_start_positive));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_bottom_z=", m6_detector_shell_support_gusset_bottom_z));
+    echo(str("NETSTAND_PARAM m6_detector_shell_support_gusset_top_z=", m6_detector_shell_support_gusset_top_z));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_hole_entry_x=", m6_detector_shell_support_hole_entry_x));
     echo(str("NETSTAND_PARAM m6_detector_shell_support_hole_center_x=", m6_detector_shell_support_hole_center_x));
     echo(str("NETSTAND_PARAM m6_detector_ballhead_center_x=", m6_detector_ballhead_center_x));
@@ -5122,7 +5296,9 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_height_z=", m6_detector_direct_mount_socket_height_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_center_z=", m6_detector_direct_mount_socket_center_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_socket_center_x=", m6_detector_direct_mount_socket_center_x));
+    echo(str("NETSTAND_PARAM m6_detector_direct_mount_nut_pocket_bottom_z=", m6_detector_direct_mount_nut_pocket_bottom_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_nut_pocket_center_z=", m6_detector_direct_mount_nut_pocket_center_z));
+    echo(str("NETSTAND_PARAM m6_detector_direct_mount_nut_loading_depth_z=", m6_detector_direct_mount_nut_loading_depth_z));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_arm_min_x=", m6_detector_direct_mount_arm_min_x));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_post_inner_face_x=", m6_detector_direct_mount_post_inner_face_x));
     echo(str("NETSTAND_PARAM m6_detector_direct_mount_arm_max_x=", m6_detector_direct_mount_arm_max_x));

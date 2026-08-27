@@ -87,7 +87,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均加厚到 12 mm，靠球台侧下部支撑厚 40 mm，向外侧以 12 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
   { number: 2, label: "浅黄色下段、3 mm 过道、U 槽与打印卡网柱", description: "浅黄色下段与桌下夹体一体承载网顶承托；当前装配不再显示深黄色上段立柱、接缝套筒/内芯或其它独立上段连接件，左右外边界各离台边 152.5 mm；球头/检测器总成整体上抬 20 mm 以越过网顶，直立下段不再接横向黄色承托臂；网布先沿 x 穿过立柱主体 y 向 3 mm 过道，再进入下段外侧开口的 U 形槽，最后从外侧沿 x 推入独立 PETG Ø12 卡网圆柱，Ø14 仅为干涉校核基准。" },
   { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；竖直采购 13 mm 球头按实物包络显示：可摆到水平的上端固定 1/4-20 外牙从 x- 进入后盖中央 1/4 捕获螺母 boss，选定的下端 M8 外牙向 z- 进入浅黄色下段内藏 M8 捕获螺母；球头本体不打印，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂；蓝色总成不再经过深灰色独立连接器。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示：可摆到水平的上端固定 1/4-20 外牙从 x- 进入后盖中央 1/4 捕获螺母 boss，选定的下端 M8 外牙向 z- 进入浅黄色下段顶装 M8 螺母；球头本体不打印，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂；蓝色总成不再经过深灰色独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后随总成上抬 20 mm 为 +30…+210 mm，按 20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；同时检查 U 槽开口方向、Ø12 打印卡网圆柱插入和网布夹持；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -514,6 +514,16 @@ function makeProxyAssemblyItems(entries) {
     shellSupportBossTopZ: 270.5,
     shellSupportBossHeightZ: 36,
     shellSupportBossRadius: 2,
+    shellSupportGussetMinX: 782.2,
+    shellSupportGussetMaxX: 785.6,
+    shellSupportGussetXOverlap: 0.2,
+    shellSupportGussetRootYStart: 4,
+    shellSupportGussetWallYStart: 28,
+    shellSupportGussetRootWidthY: 5,
+    shellSupportGussetWallWidthY: 2.4,
+    shellSupportGussetBottomZ: 246.5,
+    shellSupportGussetTopZ: 258.5,
+    shellSupportGussetHeightZ: 12,
     shellSupportHoleD: 7,
     shellSupportHoleDepthX: 14,
     shellSupportHoleEntryX: 796.4,
@@ -593,6 +603,8 @@ function makeProxyAssemblyItems(entries) {
     "shellSupportBossMaxX",
     "shellSupportBossCenterX",
     "shellSupportHoleEntryX",
+    "shellSupportGussetMinX",
+    "shellSupportGussetMaxX",
     "ballheadCenterX",
     "ballheadSensorStudCenterX",
   ];
@@ -606,6 +618,8 @@ function makeProxyAssemblyItems(entries) {
     "shellBottomZ",
     "shellSupportBossBottomZ",
     "shellSupportBossTopZ",
+    "shellSupportGussetBottomZ",
+    "shellSupportGussetTopZ",
     "ballheadCenterZ",
     "ballheadBaseCenterZ",
     "ballheadNetStudCenterZ",
@@ -614,7 +628,9 @@ function makeProxyAssemblyItems(entries) {
   }
   m6Geometry.assemblyOffsetX = detectorOffsetX;
   m6Geometry.assembledBallheadCenterX = m6Geometry.ballheadCenterX;
-  m6Geometry.assembledOpticalAxisX = m6Geometry.axisX;
+  // The beam datum is the hollow M6 optical tip, not the sensor head axis.
+  // This keeps the red direction references on the actual apertures.
+  m6Geometry.assembledOpticalAxisX = m6Geometry.fitThreadTipX;
   Object.assign(m6Geometry, {
     postCenterX: 901,
     postBodyWidth: 28,
@@ -629,20 +645,30 @@ function makeProxyAssemblyItems(entries) {
     directMountWebWidthY: 0,
     directMountWebThicknessX: 0,
     directMountPostOverlapX: 2,
-    directMountSocketOuterD: 18,
+    directMountSocketOuterD: 24,
     directMountSocketTapD: 6.8,
     directMountSocketClearanceD: 8.6,
+    directMountSocketBaseOverlapZ: 6,
+    directMountNutLoadingClearanceZ: 1,
     directMountSocketBottomZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 0.2,
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6,
     directMountSocketTopZ:
       m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5,
     directMountSocketHeightZ:
       m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5
-      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 0.2),
+      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6),
     directMountSocketCenterZ:
       (m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5
-        + m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 0.2) / 2,
+        + m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6) / 2,
     directMountSocketCenterX: 901,
+    directMountNutPocketBottomZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1,
+    directMountNutPocketCenterZ:
+      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1
+      + (m6Geometry.ballheadBottomNutH + 2 * m6Geometry.ballheadNutClearance) / 2,
+    directMountNutLoadingDepthZ:
+      (m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5)
+      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1),
     directMountArmMinX: 901,
     directMountArmMaxX: 901,
     directMountArmBottomZ:
@@ -948,6 +974,14 @@ function makeProxyAssemblyItems(entries) {
         boss_radius: m6Geometry.shellSupportBossRadius,
         boss_hole_d: m6Geometry.shellSupportHoleD,
         boss_hole_depth_x: m6Geometry.shellSupportHoleDepthX,
+        gusset_x_offset: m6Geometry.shellSupportGussetMinX - m6Geometry.rearMinX,
+        gusset_length_x: m6Geometry.shellSupportGussetMaxX - m6Geometry.shellSupportGussetMinX,
+        gusset_root_y_offset: m6Geometry.shellSupportGussetRootYStart - m6Geometry.shellMinY,
+        gusset_wall_y_offset: m6Geometry.shellSupportGussetWallYStart - m6Geometry.shellMinY,
+        gusset_root_width_y: m6Geometry.shellSupportGussetRootWidthY,
+        gusset_wall_width_y: m6Geometry.shellSupportGussetWallWidthY,
+        gusset_z_offset: m6Geometry.shellSupportGussetBottomZ - m6Geometry.shellBottomZ,
+        gusset_height_z: m6Geometry.shellSupportGussetHeightZ,
         mirror_x: side < 0,
       },
       base_min: [rearShellMinX, m6Geometry.shellMinY, m6Geometry.shellBottomZ],
@@ -956,7 +990,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø7.0 1/4-20 外牙通孔，内藏一颗标准 1/4-20 螺母。后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
+      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø7.0 1/4-20 外牙通孔，内藏一颗标准 1/4-20 螺母。boss 根部在 y± 两侧各有一条约 3.4×26.4×12 mm 的实体桥接肋，根部从 |y|=4 mm 起并跨到后壳侧壁，避开中央 Ø7 通孔；后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
     if (m6Geometry.showShell) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -1018,7 +1052,7 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
       side,
       explosion: [side * 154, -28, -4],
-      notes: "底座是采购云台的一部分，商品上端固定螺纹为 1/4-20 外牙（约 6.35 mm）；本项目下端选择 M8 外牙，z- 直接落入浅黄色直立下段顶面的标准 M8 捕获螺母，并与立柱中心同轴。不再使用横向黄色承托臂。",
+      notes: "底座是采购云台的一部分，商品上端固定螺纹为 1/4-20 外牙（约 6.35 mm）；本项目下端选择 M8 外牙，z- 直接落入浅黄色直立下段顶面的同轴 Ø24 mm 承座，承座内为 Ø8.6 mm 通孔和 AF13.7 顶装开口，标准 M8 螺母从 z+ 放入并坐在高出立柱顶面 1 mm 的肩面。承座向下与直立立柱重叠 6 mm，不再使用横向黄色承托臂。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
@@ -1069,7 +1103,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "采购球头下端选择 M8 外牙，朝 z- 直接拧入浅黄色直立下段顶面的标准 M8 捕获螺母；接口与立柱中心同轴，取消横向黄色承托臂，直立下段不再用侧面向上返的竖向耳，也不再插入深灰色独立连接器。",
+      notes: "采购球头下端选择 M8 外牙，朝 z- 直接穿过浅黄色直立下段顶面的 Ø8.6 mm 通孔并压住从 z+ 顶装的标准 M8 螺母；接口与立柱中心同轴，承座外径 Ø24 mm、向下进入直立立柱 6 mm，取消横向黄色承托臂，直立下段不再用侧面向上返的竖向耳，也不再插入深灰色独立连接器。",
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -2661,6 +2695,42 @@ function createAssemblyProxy(THREE, item) {
           ]),
           { color: "#26313b", opacity: 0.86, depthWrite: false, metalness: 0.2 },
         );
+      }
+      // The SCAD adds two solid y-side ribs after cutting the rear cavity.
+      // Show the same load-path idea in the browser proxy: one rib clears the
+      // positive-y half of the central bore and its mirror clears the negative
+      // half, while both reach the rear shell wall.
+      const gussetLength = number(options.gusset_length_x, 0);
+      const gussetHeight = number(options.gusset_height_z, 0);
+      const gussetRootY = number(options.gusset_root_y_offset, depth / 2);
+      const gussetRootWidth = number(options.gusset_root_width_y, 0);
+      if (gussetLength > 0 && gussetHeight > 0 && gussetRootWidth > 0) {
+        const gussetXOffset = number(options.gusset_x_offset, bossXOffset);
+        const gussetX = options.mirror_x
+          ? width - gussetXOffset - gussetLength
+          : gussetXOffset;
+        const gussetZ = number(options.gusset_z_offset, 0);
+        const ribSpecs = [
+          [gussetRootY, depth],
+          [0, depth - (gussetRootY + gussetRootWidth)],
+        ];
+        ribSpecs.forEach(([y0, y1]) => {
+          const ribDepth = Math.max(0, y1 - y0);
+          if (ribDepth <= 0) return;
+          const rib = new THREE.BoxGeometry(gussetLength, ribDepth, gussetHeight);
+          addProxyPart(
+            THREE,
+            group,
+            item,
+            rib,
+            place([
+              gussetX + gussetLength / 2,
+              y0 + ribDepth / 2,
+              gussetZ + gussetHeight / 2,
+            ]),
+            { color: "#657786", opacity: 0.92, depthWrite: true, metalness: 0.08 },
+          );
+        });
       }
     }
   } else if (item.shape === "ballhead-body") {

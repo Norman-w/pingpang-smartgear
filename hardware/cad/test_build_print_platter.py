@@ -143,7 +143,7 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 2 or sum(p["part_count"] for p in data["plates"]) != 17:
+    if len(data["plates"]) != 2 or sum(p["part_count"] for p in data["plates"]) != 15:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "TPU/柔性"]:

@@ -198,15 +198,26 @@ ASSEMBLY_COMPONENTS = [
         "notes": "用于网顶拼接片；M6 光学基座是铝合金机加工件，不把 M3 孔位写入当前打印包。",
     },
     {
-        "id": "contact-pads",
-        "name_zh": "桌面 / 台底保护软垫",
-        "name_en": "table contact pads",
+        "id": "table-top-rubber",
+        "name_zh": "台面上侧胶皮（现场粘贴）",
+        "name_en": "glued tabletop rubber pads",
         "kind": "软质接触件",
-        "status": "TPU 打印样件或硅胶片",
+        "status": "外购胶皮 / 现场粘贴 / 非打印",
+        "printable": False,
+        "quantity": "2 片",
+        "scad_part": "clamp_top_pad",
+        "notes": "粘贴在固定上夹板与台面接触的下表面，用于防滑和保护台面；OpenSCAD 保留 clamp_top_pad 作为装配占位，但不进入正式打印清单。",
+    },
+    {
+        "id": "table-bottom-pressure-pads",
+        "name_zh": "台底圆盘压块",
+        "name_en": "round underside pressure pads",
+        "kind": "夹紧结构件",
+        "status": "PETG 打印件（可选粘薄胶皮）",
         "printable": True,
-        "quantity": "4 片",
-        "scad_part": "clamp_top_pad / clamp_pressure_pad",
-        "notes": "首样优先用 TPU 或现成硅胶片；PETG 只用于尺寸样件。",
+        "quantity": "2 件",
+        "scad_part": "clamp_pressure_pad",
+        "notes": "顶面为平盘，接触台面底面；底面中央有浅 M8 圆头收纳窝，螺杆从下方顶入。它不是软垫，首样按刚性 PETG 小底盘打印；若需要可在顶面另贴薄胶皮。",
     },
 ]
 
@@ -348,20 +359,11 @@ def build_export_specs() -> list[ExportSpec]:
     )
     specs.extend(
         _side_specs(
-            "clamp_top_pad",
-            "clamp-top-pad",
-            "TPU/硅胶优先",
-            "接触桌面的一面朝下；也可用同厚度硅胶片替代。",
-            "固定上夹板与桌面之间的可替换保护垫；不承担 C 形夹结构力路。",
-        )
-    )
-    specs.extend(
-        _side_specs(
             "clamp_pressure_pad",
             "clamp-pressure-pad",
-            "TPU/硅胶优先，PETG 仅作几何样件",
-            "接触台底的一面朝上；实际软垫材料需要单独确认。",
-            "独立台底压块/软垫占位；M8 圆头螺杆只顶它的下侧。",
+            "PETG",
+            "平盘顶面朝上；底面 M8 圆头收纳窝朝下；圆盘平面贴打印床。",
+            "独立台底刚性圆盘压块；顶面接触台底，底面浅窝容纳并约束 M8 圆头螺杆；可选在顶面另贴薄胶皮。",
         )
     )
     specs.extend(

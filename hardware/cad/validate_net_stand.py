@@ -278,6 +278,7 @@ def validate_no_drill_thickness(
     output_dir: Path,
     table_thickness: int,
     top_pad_t: float,
+    pressure_pad_socket_depth: float,
     knob_nut_stack_depth: float,
 ) -> None:
     """Compile the under-table pressure path for a first-pass thickness matrix."""
@@ -337,7 +338,7 @@ def validate_no_drill_thickness(
         and top_pad_bounds[5] <= top_pad_t + 0.01
         and pad_bounds[5] < tabletop_bottom
         and screw_bounds[5] < tabletop_bottom
-        and screw_bounds[5] <= pad_bounds[4] + 0.01
+        and screw_bounds[5] <= pad_bounds[4] + pressure_pad_socket_depth + 0.01
         and body_nut_bounds[5] < tabletop_bottom
         and knob_bounds[5] < tabletop_bottom
         and knob_nut_bounds[5] < tabletop_bottom
@@ -443,7 +444,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pressure_pad_top_z",
         "clamp_pressure_pad_bottom_z",
         "clamp_pressure_pad_x",
+        "clamp_pressure_pad_d",
         "clamp_pressure_pad_width",
+        "clamp_pressure_pad_depth",
+        "clamp_pressure_pad_t",
+        "clamp_pressure_pad_screw_socket_d",
+        "clamp_pressure_pad_screw_socket_depth",
+        "clamp_pressure_pad_screw_socket_mouth_d",
+        "clamp_pressure_pad_screw_socket_chamfer_h",
         "optical_locating_hole_d",
         "optical_rail_width",
         "optical_module_depth",
@@ -667,6 +675,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_boss_depth_y",
         "m6_detector_shell_support_boss_height_z",
         "m6_detector_shell_support_boss_radius",
+        "m6_detector_shell_support_gusset_x_overlap",
+        "m6_detector_shell_support_gusset_root_width_y",
+        "m6_detector_shell_support_gusset_wall_width_y",
+        "m6_detector_shell_support_gusset_height_z",
         "m6_detector_shell_support_hole_d",
         "m6_detector_shell_support_hole_depth_x",
         "m6_detector_shell_support_stud_engagement_x",
@@ -717,6 +729,12 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_boss_bottom_z",
         "m6_detector_shell_support_boss_top_z",
         "m6_detector_shell_support_boss_center_z",
+        "m6_detector_shell_support_gusset_min_x",
+        "m6_detector_shell_support_gusset_max_x",
+        "m6_detector_shell_support_gusset_root_y_start_positive",
+        "m6_detector_shell_support_gusset_wall_y_start_positive",
+        "m6_detector_shell_support_gusset_bottom_z",
+        "m6_detector_shell_support_gusset_top_z",
         "m6_detector_shell_support_hole_entry_x",
         "m6_detector_shell_support_hole_center_x",
         "m6_detector_ballhead_center_x",
@@ -751,7 +769,11 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_net_connector_leg_height_z",
         "m6_detector_net_connector_mount_height_z",
         "m6_detector_direct_mount_socket_clearance_d",
+        "m6_detector_direct_mount_socket_base_overlap_z",
+        "m6_detector_direct_mount_nut_loading_clearance_z",
         "m6_detector_direct_mount_nut_pocket_center_z",
+        "m6_detector_direct_mount_nut_pocket_bottom_z",
+        "m6_detector_direct_mount_nut_loading_depth_z",
         "net_clamp_channel_depth_x",
         "net_clamp_cylinder_insertion_depth_x",
         "net_clamp_channel_back_wall_t_x",
@@ -911,7 +933,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and
         parameters["clamp_screw_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
-        and parameters["clamp_screw_top_z"] <= parameters["clamp_pressure_pad_bottom_z"]
+        and parameters["clamp_screw_top_z"] > parameters["clamp_pressure_pad_bottom_z"]
+        and parameters["clamp_screw_top_z"]
+        <= parameters["clamp_pressure_pad_bottom_z"]
+        + parameters["clamp_pressure_pad_screw_socket_depth"] + 0.01
         and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_top_z"]
         and parameters["clamp_screw_bottom_z"] > parameters["clamp_knob_bottom_z"]
         and parameters["clamp_knob_bottom_z"] < parameters["clamp_knob_top_z"]
@@ -921,6 +946,27 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         parameters["clamp_pressure_pad_bottom_z"]
         and parameters["clamp_pad_t"] == 12
         and parameters["clamp_lower_arm_t"] == parameters["clamp_pad_t"]
+        and abs(
+            parameters["clamp_screw_top_z"]
+            - (
+                parameters["clamp_pressure_pad_bottom_z"]
+                + parameters["clamp_pressure_pad_screw_socket_depth"]
+            )
+        ) < 0.01
+        and parameters["clamp_pressure_pad_d"]
+        == parameters["clamp_pressure_pad_width"]
+        and parameters["clamp_pressure_pad_d"]
+        == parameters["clamp_pressure_pad_depth"]
+        and parameters["clamp_pressure_pad_t"]
+        > parameters["clamp_pressure_pad_screw_socket_depth"]
+        and parameters["clamp_pressure_pad_screw_socket_d"]
+        > parameters["clamp_screw_d"]
+        and parameters["clamp_pressure_pad_screw_socket_d"]
+        < parameters["clamp_pressure_pad_d"]
+        and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
+        >= parameters["clamp_pressure_pad_screw_socket_d"]
+        and 0 < parameters["clamp_pressure_pad_screw_socket_chamfer_h"]
+        < parameters["clamp_pressure_pad_screw_socket_depth"]
     ):
         raise RuntimeError(f"M8x1.25 clamp pressure path is inconsistent: {parameters}")
     if not (
@@ -1332,6 +1378,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "offset(r = m6_detector_shell_corner_radius)" in rear_footprint_module
         or "m6_detector_shell_support_boss_positive();" not in rear_outer_module
         or "m6_detector_shell_support_hole_positive();" not in rear_shell_module
+        or "m6_detector_shell_support_gussets_positive();" not in rear_shell_module
         or "m6_detector_body_tail_clearance_positive" in rear_shell_module
         or "m6_rounded_rect_prism_x(" not in rear_boss_module
         or "m6_cylinder_x(" not in rear_hole_module
@@ -1357,6 +1404,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "difference()" not in direct_mount_module
         or "m6_cylinder_z(" not in direct_mount_module
         or "m6_detector_direct_mount_socket_clearance_d" not in direct_mount_module
+        or "m6_detector_direct_mount_nut_loading_depth_z" not in direct_mount_module
         or "m6_hex_prism(" not in direct_mount_module
         or "m6_detector_direct_mount_positive();" not in post_module
         or "m6_detector_direct_mount_positive();" not in lower_stand_module
@@ -1762,6 +1810,48 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_ballhead_top_nut_pocket_af"]
         / math.cos(math.radians(30))
         < parameters["m6_detector_shell_support_boss_depth_y"]
+        and parameters["m6_detector_shell_support_gusset_min_x"]
+        < parameters["m6_detector_shell_support_boss_min_x"]
+        and parameters["m6_detector_shell_support_gusset_max_x"]
+        > parameters["m6_detector_shell_max_x"]
+        and math.isclose(
+            parameters["m6_detector_shell_support_gusset_root_y_start_positive"],
+            parameters["m6_detector_shell_support_boss_max_y"]
+            - parameters["m6_detector_shell_support_gusset_root_width_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_shell_support_gusset_wall_y_start_positive"],
+            parameters["m6_detector_shell_max_y"]
+            - parameters["m6_detector_shell_support_gusset_wall_width_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_shell_support_gusset_root_y_start_positive"]
+        > parameters["m6_detector_shell_support_boss_center_y"]
+        + parameters["m6_detector_shell_support_hole_d"] / 2
+        and parameters["m6_detector_shell_support_boss_min_y"]
+        + parameters["m6_detector_shell_support_gusset_root_width_y"]
+        < parameters["m6_detector_shell_support_boss_center_y"]
+        - parameters["m6_detector_shell_support_hole_d"] / 2
+        and parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
+        + parameters["m6_detector_shell_support_gusset_wall_width_y"]
+        <= parameters["m6_detector_shell_max_y"] + 1e-4
+        and parameters["m6_detector_shell_min_y"]
+        + parameters["m6_detector_shell_support_gusset_wall_width_y"]
+        <= parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
+        and parameters["m6_detector_shell_support_gusset_bottom_z"]
+        >= parameters["m6_detector_shell_bottom_z"]
+        and parameters["m6_detector_shell_support_gusset_top_z"]
+        <= parameters["m6_detector_shell_top_z"]
+        and math.isclose(
+            parameters["m6_detector_shell_support_gusset_height_z"],
+            parameters["m6_detector_shell_support_gusset_top_z"]
+            - parameters["m6_detector_shell_support_gusset_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and (
             parameters["m6_detector_ballhead_sensor_stud_center_x"]
             - parameters["m6_ballhead_sensor_stud_length"] / 2
@@ -1831,7 +1921,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and math.isclose(
             parameters["m6_detector_direct_mount_socket_bottom_z"],
             parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
-            - parameters["m6_detector_direct_mount_socket_bottom_clearance_z"],
+            - parameters["m6_detector_direct_mount_socket_base_overlap_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
@@ -1853,16 +1943,36 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         and parameters["m6_detector_direct_mount_socket_bottom_z"]
         < parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
         < parameters["m6_detector_direct_mount_socket_top_z"]
+        and parameters["m6_detector_direct_mount_socket_base_overlap_z"] >= 4
+        and math.isclose(
+            parameters["m6_detector_direct_mount_socket_bottom_z"],
+            parameters["m6_detector_direct_mount_lower_post_top_z"]
+            - parameters["m6_detector_direct_mount_socket_base_overlap_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["m6_detector_direct_mount_socket_outer_d"]
         > parameters["m6_detector_direct_mount_socket_clearance_d"] + 4
         and parameters["m6_detector_direct_mount_socket_clearance_d"]
         > parameters["m6_ballhead_net_stud_d"]
+        and parameters["m6_detector_direct_mount_nut_loading_clearance_z"] > 0
+        and math.isclose(
+            parameters["m6_detector_direct_mount_nut_pocket_bottom_z"],
+            parameters["m6_detector_direct_mount_lower_post_top_z"]
+            + parameters["m6_detector_direct_mount_nut_loading_clearance_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
+        > parameters["m6_detector_direct_mount_lower_post_top_z"]
         and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
         - parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
-        >= parameters["m6_detector_direct_mount_socket_bottom_z"]
+        >= parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
         and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
         + parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
         <= parameters["m6_detector_direct_mount_socket_top_z"]
+        and parameters["m6_detector_direct_mount_nut_loading_depth_z"]
+        >= parameters["m6_ballhead_bottom_nut_pocket_depth"]
         and parameters["m6_ballhead_bottom_nut_pocket_af"]
         / math.cos(math.radians(30))
         < parameters["m6_detector_direct_mount_socket_outer_d"]
@@ -2339,8 +2449,37 @@ def main() -> None:
         if not (
             pressure_pad_bounds[5] < -parameters["table_thickness"]
             and screw_bounds[5] < -parameters["table_thickness"]
-            and screw_bounds[5] <= pressure_pad_bounds[4] + 0.01
+            and screw_bounds[5]
+            <= pressure_pad_bounds[4]
+            + parameters["clamp_pressure_pad_screw_socket_depth"]
+            + 0.01
             and abs(pressure_pad_bounds[5] - parameters["clamp_pressure_pad_top_z"]) < 0.01
+            and abs(
+                pressure_pad_bounds[0]
+                - (
+                    parameters["clamp_screw_x"]
+                    - parameters["clamp_pressure_pad_d"] / 2
+                )
+            )
+            < 0.01
+            and abs(
+                pressure_pad_bounds[1]
+                - (
+                    parameters["clamp_screw_x"]
+                    + parameters["clamp_pressure_pad_d"] / 2
+                )
+            )
+            < 0.01
+            and abs(
+                pressure_pad_bounds[2]
+                + parameters["clamp_pressure_pad_d"] / 2
+            )
+            < 0.01
+            and abs(
+                pressure_pad_bounds[3]
+                - parameters["clamp_pressure_pad_d"] / 2
+            )
+            < 0.01
             and abs(screw_bounds[5] - parameters["clamp_screw_top_z"]) < 0.01
             and abs(knob_bounds[4] - parameters["clamp_knob_bottom_z"]) < 0.01
             and abs(knob_bounds[5] - parameters["clamp_knob_top_z"]) < 0.01
@@ -2462,6 +2601,7 @@ def main() -> None:
                 output_dir,
                 table_thickness,
                 parameters["clamp_top_pad_t"],
+                parameters["clamp_pressure_pad_screw_socket_depth"],
                 parameters["clamp_knob_nut_stack_depth"],
             )
 
