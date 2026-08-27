@@ -18,10 +18,8 @@ from export_net_stand_printables import (
 
 
 EXPECTED_COUNTS = {
-    "post_segment": 2,
     "lower_stand_segment": 2,
-    "post_joint_sleeve": 2,
-    "post_joint_key": 2,
+    "net_clamp_rod": 2,
     "clamp_top_pad": 2,
     "clamp_pressure_pad": 2,
     "clamp_knob": 2,
@@ -49,16 +47,26 @@ PREVIEW_ONLY_PARTS = {
     "reference_carriage",
 }
 
+REMOVED_ACTIVE_PARTS = {
+    "post_segment",
+    "post_joint_sleeve",
+    "post_joint_key",
+    "m6_detector_net_connector",
+}
+
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 26:
-        raise AssertionError(f"expected 26 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 22:
+        raise AssertionError(f"expected 22 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
     counts = Counter(spec.part for spec in EXPORT_SPECS)
     if counts != Counter(EXPECTED_COUNTS):
         raise AssertionError(f"printable PART matrix changed: {counts}")
+    removed = sorted(REMOVED_ACTIVE_PARTS & set(counts))
+    if removed:
+        raise AssertionError(f"removed upper/connector parts re-entered print matrix: {removed}")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:
@@ -89,6 +97,14 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
     rod = next((item for item in components if item.get("id") == "m8-threaded-rod"), None)
     if not isinstance(rod, dict) or rod.get("name_zh") != "M8×1.25 金属螺杆" or rod.get("printable") is not False:
         raise AssertionError("M8 金属螺杆必须作为中文外购/非打印件出现在物料清单")
+    net_rod = next((item for item in components if item.get("id") == "net-clamp-rods"), None)
+    if (
+        not isinstance(net_rod, dict)
+        or net_rod.get("scad_part") != "net_clamp_rod"
+        or net_rod.get("printable") is not True
+        or "Ø12" not in str(net_rod.get("notes"))
+    ):
+        raise AssertionError("卡网圆柱必须作为 PETG 可打印件出现在物料清单")
 
     entries = data.get("parts")
     if not isinstance(entries, list):
@@ -169,9 +185,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (26 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (22 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (26 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (22 specs, manifest not present)")
 
 
 if __name__ == "__main__":

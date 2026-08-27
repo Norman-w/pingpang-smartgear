@@ -46,7 +46,9 @@ CLAMP_SCREW_D = 8.0
 CLAMP_SCREW_CAPTURE_EXTENSION = 2.0
 CLAMP_KNOB_D = 36.0
 CLAMP_KNOB_H = 20.0
-CLAMP_SCREW_TO_KNOB_TOP = 32.0
+CLAMP_SCREW_TO_KNOB_TOP_BASE = 32.0
+CLAMP_SCREW_EXTRA_LENGTH_Z = 12.0
+CLAMP_SCREW_TO_KNOB_TOP = CLAMP_SCREW_TO_KNOB_TOP_BASE + CLAMP_SCREW_EXTRA_LENGTH_Z
 CLAMP_NUT_AF = 13.0
 CLAMP_NUT_H = 6.5
 CLAMP_NUT_CLEARANCE = 0.35
@@ -69,10 +71,11 @@ CLAMP_PAD_X = -CLAMP_REACH_INBOARD
 CLAMP_PAD_OUTER_X = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
 CLAMP_OUTER_WALL_WIDTH = 22.0
 CLAMP_OUTER_WALL_X = CLAMP_PAD_OUTER_X - CLAMP_OUTER_WALL_WIDTH
-CLAMP_GUSSET_T_Y = 10.0
-CLAMP_GUSSET_START_INSET = 6.0
-CLAMP_GUSSET_START_X = CLAMP_SCREW_X + CLAMP_PRESSURE_PAD_WIDTH / 2 + CLAMP_GUSSET_START_INSET
-CLAMP_GUSSET_END_X = CLAMP_PAD_OUTER_X - 0.2
+CLAMP_REINFORCEMENT_INBOARD_OFFSET_X = 3.0
+CLAMP_REINFORCEMENT_NEAR_TABLE_THICKNESS_Z = 40.0
+CLAMP_REINFORCEMENT_DEPTH_Y = 58.0
+CLAMP_REINFORCEMENT_START_X = -CLAMP_REINFORCEMENT_INBOARD_OFFSET_X
+CLAMP_REINFORCEMENT_END_X = CLAMP_PAD_OUTER_X - 0.2
 CLAMP_LOWER_ARM_X = CLAMP_SCREW_X - 22.0 / 2
 CLAMP_SCREW_TOP = CLAMP_PRESSURE_PAD_BOTTOM
 CLAMP_KNOB_TOP = CLAMP_SCREW_TOP - CLAMP_SCREW_TO_KNOB_TOP
@@ -84,13 +87,48 @@ CLAMP_KNOB_LOCK_NUT_Z = (
 )
 CLAMP_SCREW_BOTTOM = CLAMP_KNOB_LOCK_NUT_Z - CLAMP_SCREW_CAPTURE_EXTENSION
 CLAMP_BODY_NUT_Z = CLAMP_LOWER_ARM_BOTTOM + CLAMP_NUT_CLEARANCE
-CLAMP_GUSSET_TOP_Z = CLAMP_PRESSURE_PAD_TOP - 0.5
-CLAMP_GUSSET_BOTTOM_Z = CLAMP_LOWER_ARM_BOTTOM - 0.2
+CLAMP_REINFORCEMENT_TOP_Z = CLAMP_LOWER_ARM_TOP
+CLAMP_REINFORCEMENT_NEAR_TABLE_BOTTOM_Z = (
+    CLAMP_REINFORCEMENT_TOP_Z - CLAMP_REINFORCEMENT_NEAR_TABLE_THICKNESS_Z
+)
+CLAMP_REINFORCEMENT_OUTER_THICKNESS_Z = CLAMP_PAD_T
+CLAMP_REINFORCEMENT_OUTER_BOTTOM_Z = (
+    CLAMP_REINFORCEMENT_TOP_Z - CLAMP_REINFORCEMENT_OUTER_THICKNESS_Z
+)
 OPTICAL_BEAM_EDGE_OVERLAP = 0.5
 OPTICAL_BEAM_AXIS_X = TABLE_EDGE + OPTICAL_BEAM_EDGE_OVERLAP
 POST_BOTTOM = CLAMP_LOWER_ARM_TOP
 NET_HEIGHT = 152.5
 NET_RAIL_HEIGHT = 10.0
+NET_SHEET_T = 1.2
+NET_PASSAGE_WIDTH_Y = 3.0
+M6_DETECTOR_MOUNT_RAISE_Z = 20.0
+NET_CLAMP_CHANNEL_DEPTH_X = POST_WIDTH
+NET_CLAMP_CYLINDER_INSERTION_DEPTH_X = POST_WIDTH
+NET_CLAMP_CHANNEL_BACK_WALL_T_X = 3.0
+NET_CLAMP_CYLINDER_INTERFERENCE_D = 14.0
+NET_CLAMP_CYLINDER_ACTUAL_D = NET_CLAMP_CYLINDER_INTERFERENCE_D - 2.0
+NET_CLAMP_CHANNEL_SIDE_CLEARANCE = 0.6
+NET_CLAMP_CHANNEL_BACK_CLEARANCE = 0.6
+NET_CLAMP_CHANNEL_WIDTH_Y = (
+    NET_CLAMP_CYLINDER_INTERFERENCE_D
+    + 2 * NET_CLAMP_CHANNEL_SIDE_CLEARANCE
+)
+NET_CLAMP_CHANNEL_BOTTOM_Z = 0.0
+NET_CLAMP_CHANNEL_TOP_Z = NET_HEIGHT
+NET_CLAMP_CHANNEL_VOID_MIN_X = (
+    POST_CENTER
+    + POST_WIDTH / 2
+    - NET_CLAMP_CHANNEL_DEPTH_X
+    + NET_CLAMP_CHANNEL_BACK_WALL_T_X
+)
+NET_CLAMP_CHANNEL_VOID_MAX_X = POST_CENTER + POST_WIDTH / 2 + 0.2
+NET_CLAMP_CYLINDER_CENTER_X = (
+    NET_CLAMP_CHANNEL_VOID_MIN_X
+    + NET_CLAMP_CYLINDER_INTERFERENCE_D / 2
+    + NET_CLAMP_CHANNEL_BACK_CLEARANCE
+)
+NET_CLAMP_CYLINDER_HEIGHT = NET_CLAMP_CHANNEL_TOP_Z - NET_CLAMP_CHANNEL_BOTTOM_Z
 BEAM_FIRST = 10.0
 BEAM_COUNT = 10
 BEAM_PITCH = 10.0
@@ -163,6 +201,10 @@ M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_X = (
     M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_X
     + M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X
 )
+M6_DETECTOR_SHELL_SUPPORT_BOSS_CENTER_X = (
+    M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_X
+    + M6_DETECTOR_SHELL_SUPPORT_BOSS_LENGTH_X / 2
+)
 M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_Y = (
     M6_DETECTOR_BODY_CENTER_Y + M6_DETECTOR_SHELL_SUPPORT_BOSS_DEPTH_Y / 2
 )
@@ -195,20 +237,72 @@ M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z = (
     - M6_BALLHEAD_BASE_T
     - M6_BALLHEAD_NET_STUD_LENGTH
 )
-M6_NET_CONNECTOR_ARM_MIN_X = M6_DETECTOR_BALLHEAD_CENTER_X - 14.0 / 2
-M6_NET_CONNECTOR_ARM_MAX_X = POST_CENTER - POST_WIDTH / 2 + 2.0
-M6_NET_CONNECTOR_ARM_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
-M6_NET_CONNECTOR_ARM_TOP_Z = M6_NET_CONNECTOR_ARM_BOTTOM_Z + 10.0
-M6_NET_CONNECTOR_LEG_MIN_X = POST_CENTER - POST_WIDTH / 2 - 6.0
-M6_NET_CONNECTOR_LEG_MAX_X = M6_NET_CONNECTOR_ARM_MAX_X
-M6_NET_CONNECTOR_LEG_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
-M6_NET_CONNECTOR_LEG_TOP_Z = M6_DETECTOR_BALLHEAD_CENTER_Z + 6.0 + 4.0
-M6_NET_CONNECTOR_SOCKET_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z - 0.2
-M6_NET_CONNECTOR_SOCKET_TOP_Z = (
+# The raw detector dimensions remain in the same coordinate chain as the
+# SCAD. In the installed stand the complete detector and purchased ballhead
+# move together until the ballhead's z- interface is coaxial with the straight
+# net-post centre. This removes the old horizontal yellow support arm while
+# preserving the net-post and net-span datums.
+DETECTOR_ASSEMBLY_OFFSET_X = POST_CENTER - M6_DETECTOR_BALLHEAD_CENTER_X
+# The light-yellow lower stand carries the bought ballhead directly.  These
+# values mirror ``m6_detector_direct_mount_positive`` in the SCAD: one
+# integral M8 tap-drill socket at the post centre. There is no horizontal seat,
+# side-return web, separate dark-gray 90-degree connector, or upper dark-yellow
+# post in the active preview.
+M6_DETECTOR_DIRECT_MOUNT_ARM_WIDTH_Y = 0.0
+M6_DETECTOR_DIRECT_MOUNT_ARM_T_Z = 0.0
+M6_DETECTOR_DIRECT_MOUNT_WEB_WIDTH_Y = 0.0
+M6_DETECTOR_DIRECT_MOUNT_WEB_T_X = 0.0
+M6_DETECTOR_DIRECT_MOUNT_POST_OVERLAP_X = 2.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D = 18.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D = 6.8
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z = 0.2
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z = 0.5
+M6_DETECTOR_DIRECT_MOUNT_ARM_MIN_X = POST_CENTER
+M6_DETECTOR_DIRECT_MOUNT_ARM_MAX_X = POST_CENTER
+M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_ARM_TOP_Z = M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z = M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_X = POST_CENTER - POST_WIDTH / 2
+M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_X = M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_X
+M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_Z = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
+M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_Z = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z = (
     M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
-    + M6_BALLHEAD_NET_STUD_LENGTH
-    + 0.2
+    - M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z
 )
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z = (
+    M6_DETECTOR_BALLHEAD_CENTER_Z
+    - M6_BALLHEAD_HOUSING_LENGTH_X / 2
+    - M6_BALLHEAD_BASE_T / 2
+    + M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z
+)
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_HEIGHT_Z = (
+    M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z
+    - M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z
+)
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_CENTER_X = POST_CENTER
+
+# Installed detector/ballhead coordinates are the raw detector coordinates plus
+# one rigid z translation. The standalone part dimensions and the 20 mm pitch
+# remain unchanged; only the assembled placement clears the net top.
+for _installed_z_name in (
+    "M6_DETECTOR_BODY_BOTTOM_Z",
+    "M6_DETECTOR_SHELL_BOTTOM_Z",
+    "M6_DETECTOR_SHELL_SUPPORT_BOSS_CENTER_Z",
+    "M6_DETECTOR_SHELL_SUPPORT_BOSS_BOTTOM_Z",
+    "M6_DETECTOR_SHELL_SUPPORT_BOSS_TOP_Z",
+    "M6_DETECTOR_BALLHEAD_CENTER_Z",
+    "M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_ARM_TOP_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z",
+):
+    globals()[_installed_z_name] += M6_DETECTOR_MOUNT_RAISE_Z
+del _installed_z_name
 M6_PITCH_YOKE_T = 8.0
 M6_PITCH_YOKE_WIDTH_Y = 158.0
 M6_PITCH_FRAME_T = 6.0
@@ -220,8 +314,9 @@ M6_PITCH_PIVOT_OFFSET_Z = 26.0
 M6_ROLL_PIVOT_D = 6.5
 M6_ROLL_PLATE_D = 110.0
 # Current body-first 45-degree L-sensor contract.  These direct values mirror the
-# SCAD inputs; the global body/shell/support coordinates below are derived from
-# the table edge and the +10...+190 mm channel schedule.
+# SCAD inputs; the raw body/shell/support coordinates below are derived from
+# the table edge and the +10...+190 mm channel schedule, then the installed
+# rigid group is raised by M6_DETECTOR_MOUNT_RAISE_Z.
 M6_SENSOR_ROLL_DEG = -45.0
 M6_DETECTOR_BODY_DEPTH_Y = 56.0
 M6_DETECTOR_BODY_LENGTH_X = 10.0
@@ -265,7 +360,35 @@ M6_SENSOR_INSTALLED_THREAD_TIP_X = 755.25
 M6_SENSOR_INSTALLED_CABLE_EXIT_X = 772.25
 M6_DETECTOR_NUT_MIN_X = 756.25
 M6_DETECTOR_SENSOR_HEAD_Y_OFFSET = 0.0
-POST_TOP = max(NET_HEIGHT + BEAM_LAST + 3.0 + 18.0, M6_ARRAY_TOP + 18.0)
+
+# Apply the installed rigid-group translation to the absolute detector
+# coordinates. Dimension fields stay unchanged; only the x datum moves.
+M6_SENSOR_AXIS_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_SENSOR_MOUNT_HOLE_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_BODY_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_MAX_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_SPLIT_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_FRONT_MAX_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_REAR_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_SUPPORT_BOSS_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_SUPPORT_BOSS_MAX_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_SUPPORT_BOSS_CENTER_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_SHELL_SUPPORT_HOLE_ENTRY_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_BALLHEAD_CENTER_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_SENSOR_INSTALLED_HEAD_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_SENSOR_INSTALLED_THREAD_TIP_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_SENSOR_INSTALLED_CABLE_EXIT_X += DETECTOR_ASSEMBLY_OFFSET_X
+M6_DETECTOR_NUT_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
+# The active light-yellow stand is the straight lower post up to the underside
+# of the direct ballhead top seat.  The plotting ceiling remains independent so
+# the detector itself can extend above the post without creating an upper post.
+POST_TOP = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
+PREVIEW_TOP = max(
+    POST_TOP,
+    M6_DETECTOR_SHELL_BOTTOM_Z + M6_DETECTOR_SHELL_HEIGHT_Z,
+    M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z,
+)
 NET_SPAN = 2 * (POST_CENTER + POST_WIDTH / 2)
 REFERENCE_HEIGHT = 50.0
 SENSOR_X = 0.32 * NET_SPAN / 2
@@ -306,18 +429,31 @@ def draw_front(ax) -> None:
     )
 
     for x, label in (
-        (-POST_CENTER, "left integrated post"),
-        (POST_CENTER, "right integrated post"),
+        (-POST_CENTER, "left light-yellow lower stand"),
+        (POST_CENTER, "right light-yellow lower stand"),
     ):
         ax.add_patch(
             Rectangle(
                 (x - POST_WIDTH / 2, POST_BOTTOM),
                 POST_WIDTH,
                 POST_TOP - POST_BOTTOM,
-                facecolor="#e67e22",
-                edgecolor="#8d4c13",
+                facecolor="#d4a24c",
+                edgecolor="#8d6513",
                 alpha=0.88,
                 label=label,
+            )
+        )
+
+    for x in (-NET_CLAMP_CYLINDER_CENTER_X, NET_CLAMP_CYLINDER_CENTER_X):
+        ax.add_patch(
+            Rectangle(
+                (x - NET_CLAMP_CYLINDER_ACTUAL_D / 2, NET_CLAMP_CHANNEL_BOTTOM_Z),
+                NET_CLAMP_CYLINDER_ACTUAL_D,
+                NET_CLAMP_CYLINDER_HEIGHT,
+                facecolor="#e2a52f",
+                edgecolor="#815b0f",
+                alpha=0.88,
+                label="PETG 打印卡网圆柱 Ø12（U 槽内）" if x < 0 else "_nolegend_",
             )
         )
 
@@ -377,7 +513,7 @@ def draw_front(ax) -> None:
                 facecolor="#8796a5",
                 edgecolor="#3e4b57",
                 alpha=0.08,
-                label="x+ 后盖圆角矩形；背面中央为采购球头加厚 boss" if side < 0 else "_nolegend_",
+                label="x+ 后盖接驳边直角、后端圆角；背面中央为采购球头加厚 boss" if side < 0 else "_nolegend_",
             )
         )
         ax.add_patch(
@@ -408,7 +544,12 @@ def draw_front(ax) -> None:
             )
         )
         for index in range(BEAM_COUNT):
-            z = NET_HEIGHT + M6_SENSOR_FIRST_HEIGHT + index * M6_SENSOR_CENTER_PITCH
+            z = (
+                NET_HEIGHT
+                + M6_SENSOR_FIRST_HEIGHT
+                + index * M6_SENSOR_CENTER_PITCH
+                + M6_DETECTOR_MOUNT_RAISE_Z
+            )
             head_x = (
                 M6_SENSOR_INSTALLED_HEAD_MIN_X
                 if side > 0
@@ -524,8 +665,11 @@ def draw_front(ax) -> None:
         fontsize=8,
     )
     ax.set_xlim(-POST_CENTER - 90, POST_CENTER + 110)
-    ax.set_ylim(POST_BOTTOM - 12, POST_TOP + 20)
-    ax.set_title("Integrated net stand: front intent")
+    ax.set_ylim(
+        min(POST_BOTTOM, CLAMP_REINFORCEMENT_NEAR_TABLE_BOTTOM_Z) - 12,
+        PREVIEW_TOP + 20,
+    )
+    ax.set_title("Integrated net stand: front intent (M6 assembly +20 mm; PETG net rod)")
     ax.set_xlabel("table width / mm")
     ax.set_ylabel("z relative to table top / mm")
     ax.grid(True, alpha=0.22)
@@ -595,7 +739,12 @@ def draw_side(ax) -> None:
         )
     )
     for index in range(BEAM_COUNT):
-        z = NET_HEIGHT + M6_SENSOR_FIRST_HEIGHT + index * M6_SENSOR_CENTER_PITCH
+        z = (
+            NET_HEIGHT
+            + M6_SENSOR_FIRST_HEIGHT
+            + index * M6_SENSOR_CENTER_PITCH
+            + M6_DETECTOR_MOUNT_RAISE_Z
+        )
         ax.plot(
             M6_SENSOR_AXIS_X - TABLE_EDGE,
             z,
@@ -647,7 +796,7 @@ def draw_side(ax) -> None:
         ],
         color="#b6bdc3",
         linewidth=4.0,
-        label="采购球头 z− 接口（由金属 90°连接器承接）",
+        label="采购球头 z− 接口 → 浅黄色下段一体 M8 承座",
     )
     ax.plot(
         [boss_max_x - TABLE_EDGE, ballhead_x - M6_BALLHEAD_HOUSING_D / 2],
@@ -656,47 +805,19 @@ def draw_side(ax) -> None:
         linewidth=4.0,
         label="采购球头 M8 外牙 → 后盖 x+ 背面中央 boss",
     )
-    # The ballhead's z- interface is not the net-clamp post itself.  A
-    # purchased metal 90-degree connector starts at the interface's lowest
-    # end, runs along x, then rises to the post's upper x-through slot.  Draw
-    # this before the orange post so the 2 mm overlap is visibly carried by
-    # the post rather than appearing as a floating gray plate.
-    connector_arm_min_x = M6_NET_CONNECTOR_ARM_MIN_X - TABLE_EDGE
-    connector_arm_max_x = M6_NET_CONNECTOR_ARM_MAX_X - TABLE_EDGE
-    connector_leg_min_x = M6_NET_CONNECTOR_LEG_MIN_X - TABLE_EDGE
-    connector_leg_max_x = M6_NET_CONNECTOR_LEG_MAX_X - TABLE_EDGE
+    # Direct light-yellow lower-stand support. The annular socket is centred
+    # on the straight post; the previous horizontal yellow seat/arm is gone.
     ax.add_patch(
         Rectangle(
-            (connector_arm_min_x, M6_NET_CONNECTOR_ARM_BOTTOM_Z),
-            connector_arm_max_x - connector_arm_min_x,
-            M6_NET_CONNECTOR_ARM_TOP_Z - M6_NET_CONNECTOR_ARM_BOTTOM_Z,
-            facecolor="#58626a",
-            edgecolor="#26313b",
-            alpha=0.92,
-            label="采购金属 90°连接器：从球头 z−最低端起",
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (connector_leg_min_x, M6_NET_CONNECTOR_LEG_BOTTOM_Z),
-            connector_leg_max_x - connector_leg_min_x,
-            M6_NET_CONNECTOR_LEG_TOP_Z - M6_NET_CONNECTOR_LEG_BOTTOM_Z,
-            facecolor="#58626a",
-            edgecolor="#26313b",
-            alpha=0.92,
-            label="连接器竖直腿 → 网架立柱两枚 M6 贯穿孔（直连）",
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (ballhead_x - 7.0, M6_NET_CONNECTOR_SOCKET_BOTTOM_Z),
-            14.0,
-            M6_NET_CONNECTOR_SOCKET_TOP_Z - M6_NET_CONNECTOR_SOCKET_BOTTOM_Z,
-            facecolor="#58626a",
-            edgecolor="#26313b",
+            (M6_DETECTOR_DIRECT_MOUNT_SOCKET_CENTER_X - TABLE_EDGE - M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D / 2,
+             M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z),
+            M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D,
+            M6_DETECTOR_DIRECT_MOUNT_SOCKET_HEIGHT_Z,
+            facecolor="#d4a24c",
+            edgecolor="#8d6513",
             linewidth=1.0,
-            alpha=0.34,
-            label="球头 z− 接口套筒（Ø14 / Ø8.6）",
+            alpha=0.75,
+            label="一体 M8 承座（球头与立柱同轴；无横向黄色承托臂）",
         )
     )
     ax.add_patch(
@@ -711,15 +832,28 @@ def draw_side(ax) -> None:
     ax.add_patch(
         Polygon(
             [
-                (CLAMP_GUSSET_START_X, CLAMP_GUSSET_BOTTOM_Z),
-                (CLAMP_GUSSET_END_X, CLAMP_GUSSET_BOTTOM_Z),
-                (CLAMP_GUSSET_END_X, CLAMP_GUSSET_TOP_Z),
+                (
+                    CLAMP_REINFORCEMENT_START_X,
+                    CLAMP_REINFORCEMENT_NEAR_TABLE_BOTTOM_Z,
+                ),
+                (
+                    CLAMP_REINFORCEMENT_END_X,
+                    CLAMP_REINFORCEMENT_OUTER_BOTTOM_Z,
+                ),
+                (
+                    CLAMP_REINFORCEMENT_END_X,
+                    CLAMP_REINFORCEMENT_TOP_Z,
+                ),
+                (
+                    CLAMP_REINFORCEMENT_START_X,
+                    CLAMP_REINFORCEMENT_TOP_Z,
+                ),
             ],
             closed=True,
             facecolor="#4f5963",
             edgecolor="#2e353c",
             alpha=0.92,
-            label="under-clamp load gusset pair",
+            label="全宽实心下部支撑：靠台侧厚 40 mm，外侧 8 mm 斜底",
         )
     )
     ax.add_patch(
@@ -754,11 +888,34 @@ def draw_side(ax) -> None:
             (post_x0, POST_BOTTOM),
             POST_WIDTH,
             POST_TOP - POST_BOTTOM,
-            facecolor="#e67e22",
-            edgecolor="#8d4c13",
+            facecolor="#d4a24c",
+            edgecolor="#8d6513",
             alpha=0.88,
-            label="integrated upright",
+            label="浅黄色下段立柱（含一体 M8 承座）",
         )
+    )
+    ax.add_patch(
+        Rectangle(
+            (
+                NET_CLAMP_CYLINDER_CENTER_X - TABLE_EDGE
+                - NET_CLAMP_CYLINDER_ACTUAL_D / 2,
+                NET_CLAMP_CHANNEL_BOTTOM_Z,
+            ),
+            NET_CLAMP_CYLINDER_ACTUAL_D,
+            NET_CLAMP_CYLINDER_HEIGHT,
+            facecolor="#e2a52f",
+            edgecolor="#815b0f",
+            alpha=0.9,
+            label="PETG 打印卡网圆柱 Ø12（外侧 x+ 插入 U 槽）",
+        )
+    )
+    ax.annotate(
+        "网布穿过立柱主体的 y 向过道：3 mm",
+        xy=(post_x0 + POST_WIDTH / 2, NET_HEIGHT / 2),
+        xytext=(post_x0 - 58, NET_HEIGHT / 2 + 18),
+        fontsize=7,
+        color="#7d5a0c",
+        arrowprops={"arrowstyle": "->", "color": "#7d5a0c", "lw": 0.8},
     )
     ax.add_patch(
         Rectangle(
@@ -774,7 +931,7 @@ def draw_side(ax) -> None:
         [CLAMP_SCREW_BOTTOM, CLAMP_PRESSURE_PAD_TOP],
         color="#444",
         linewidth=CLAMP_SCREW_D / 2,
-        label="M8 screw below tabletop",
+        label="加长 M8 丝杆（仍位于台面下方）",
     )
     ax.add_patch(
         Rectangle(
@@ -832,7 +989,7 @@ def draw_side(ax) -> None:
         )
     )
     ax.set_xlim(-82, CLAMP_PAD_OUTER_X + 18)
-    ax.set_ylim(CLAMP_KNOB_BOTTOM - 8, POST_TOP + 20)
+    ax.set_ylim(CLAMP_KNOB_BOTTOM - 8, PREVIEW_TOP + 20)
     inset = ax.inset_axes([0.52, 0.58, 0.44, 0.34])
     inset.set_facecolor("#f7f9fb")
     inset.add_patch(
@@ -901,7 +1058,7 @@ def draw_side(ax) -> None:
     inset.set_ylabel("z", fontsize=7)
     inset.tick_params(labelsize=6)
     inset.grid(True, alpha=0.2)
-    ax.set_title("No-drill under-table C-clamp + M6 45° L-body: side intent")
+    ax.set_title("No-drill C-clamp + solid tapered 40 mm lower support + raised M6 body: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
     ax.set_ylabel("z / mm")
     ax.grid(True, alpha=0.22)
@@ -929,22 +1086,31 @@ def front_arc_points(x_min: float, x_max: float, y_min: float, y_max: float):
     return points
 
 
-def rounded_rect_points(
+def rear_back_rounded_points(
     x_min: float, x_max: float, y_min: float, y_max: float, radius: float
 ):
-    """Return a sampled rounded rectangle in the x/y plan plane."""
+    """Return a plan footprint with a straight x- edge and rounded x+ rear."""
 
     radius = min(radius, (x_max - x_min) / 2, (y_max - y_min) / 2)
-    points = [(x_min + radius, y_min), (x_max - radius, y_min)]
-    for start, end, cx, cy in (
-        (-90, 0, x_max - radius, y_min + radius),
-        (0, 90, x_max - radius, y_max - radius),
-        (90, 180, x_min + radius, y_max - radius),
-        (180, 270, x_min + radius, y_min + radius),
-    ):
-        for angle in range(start, end + 1, 10):
-            radians = math.radians(angle)
-            points.append((cx + radius * math.cos(radians), cy + radius * math.sin(radians)))
+    points = [(x_min, y_min), (x_max - radius, y_min)]
+    for angle in range(-90, 1, 10):
+        radians = math.radians(angle)
+        points.append(
+            (
+                x_max - radius + radius * math.cos(radians),
+                y_min + radius + radius * math.sin(radians),
+            )
+        )
+    points.append((x_max, y_max - radius))
+    for angle in range(0, 91, 10):
+        radians = math.radians(angle)
+        points.append(
+            (
+                x_max - radius + radius * math.cos(radians),
+                y_max - radius + radius * math.sin(radians),
+            )
+        )
+    points.append((x_min, y_max))
     return points
 
 
@@ -968,7 +1134,7 @@ def draw_top(ax) -> None:
 
     front = plan(front_arc_points(shell_min_x, front_max_x, shell_min_y, shell_max_y))
     rear = plan(
-        rounded_rect_points(
+        rear_back_rounded_points(
             rear_min_x,
             shell_max_x,
             shell_min_y,
@@ -995,7 +1161,7 @@ def draw_top(ax) -> None:
             edgecolor="#197331",
             linewidth=1.8,
             alpha=0.28,
-            label="x+ 后盖：圆角矩形俯视轮廓",
+            label="x+ 后盖：接驳边直角、后端圆角俯视轮廓",
         )
     )
 
@@ -1083,7 +1249,7 @@ def draw_top(ax) -> None:
     ax.set_xlim(-36, 36)
     ax.set_ylim(-24, 16)
     ax.set_aspect("equal", adjustable="box")
-    ax.set_title("z+ 俯视：前盖正弧 + 后盖圆角矩形")
+    ax.set_title("z+ 俯视：前盖正弧 + 后盖直角接驳/后端圆角")
     ax.set_xlabel("y（球台前后）/ mm")
     ax.set_ylabel("-(x-分型面) / mm；上方为 x- 光学端")
     ax.grid(True, alpha=0.22)

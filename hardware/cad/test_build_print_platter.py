@@ -143,13 +143,17 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 3 or sum(p["part_count"] for p in data["plates"]) != 23:
+    if len(data["plates"]) != 2 or sum(p["part_count"] for p in data["plates"]) != 17:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化")
     groups = [plate.get("material_group") for plate in data["plates"]]
-    if groups != ["PETG", "PETG", "TPU/柔性"]:
+    if groups != ["PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")
     oversized = {item["file"] for item in data["oversized"]}
-    if oversized != {f"net-rail-segment-{index}.stl" for index in range(3)}:
+    if oversized != {
+        *(f"net-rail-segment-{index}.stl" for index in range(3)),
+        "left-lower-stand-segment.stl",
+        "right-lower-stand-segment.stl",
+    }:
         raise AssertionError(f"默认超尺寸清单发生变化: {oversized}")
 
 

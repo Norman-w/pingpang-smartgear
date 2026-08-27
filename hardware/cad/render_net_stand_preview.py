@@ -83,22 +83,6 @@ def main() -> None:
     render(openscad, "right_stand", args.output_dir / "net-stand-right.png", 1200, 1000)
     render(
         openscad,
-        "post_segment",
-        args.output_dir / "net-stand-post-segment-lower.png",
-        700,
-        1200,
-        definitions=("post_segment_index=0",),
-    )
-    render(
-        openscad,
-        "post_segment",
-        args.output_dir / "net-stand-post-segment-upper.png",
-        700,
-        1200,
-        definitions=("post_segment_index=1",),
-    )
-    render(
-        openscad,
         "lower_stand_segment",
         args.output_dir / "net-stand-lower-stand-segment.png",
         1200,
@@ -106,17 +90,27 @@ def main() -> None:
     )
     render(
         openscad,
-        "post_joint_sleeve",
-        args.output_dir / "net-stand-post-joint-sleeve.png",
+        "net_clamp_rod",
+        args.output_dir / "net-stand-net-clamp-rod-right.png",
         700,
-        700,
+        1000,
+        definitions=("SIDE=1",),
     )
     render(
         openscad,
-        "post_joint_key",
-        args.output_dir / "net-stand-post-joint-key.png",
+        "net_clamp_rod",
+        args.output_dir / "net-stand-net-clamp-rod-left.png",
         700,
+        1000,
+        definitions=("SIDE=-1",),
+    )
+    render(
+        openscad,
+        "net_clamp_fit_probe",
+        args.output_dir / "net-stand-net-clamp-fit-probe-right.png",
         700,
+        1000,
+        definitions=("SIDE=1",),
     )
     render(openscad, "table_clamp", args.output_dir / "net-stand-table-clamp.png", 1200, 900)
     render(

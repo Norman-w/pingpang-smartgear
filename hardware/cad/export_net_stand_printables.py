@@ -44,6 +44,7 @@ PART_NAMES_ZH = {
     "sensor_clamp_lip": "PVDF 薄膜压片",
     "reference_carriage_body": "参考线端座",
     "calibration_gauge": "过网高度标定规",
+    "net_clamp_rod": "U 槽卡网圆柱",
 }
 
 
@@ -120,6 +121,17 @@ ASSEMBLY_COMPONENTS = [
         "notes": "固定在三段网顶承载条与两侧立柱之间。",
     },
     {
+        "id": "net-clamp-rods",
+        "name_zh": "U 槽卡网圆柱（PETG 打印）",
+        "name_en": "printed PETG net-retention rods",
+        "kind": "卡网结构件",
+        "status": "PETG 打印件 / 非采购件",
+        "printable": True,
+        "quantity": "2 根（左右各 1）",
+        "scad_part": "net_clamp_rod",
+        "notes": "网布从立柱外侧塞入 U 形槽后，圆柱沿 x 推入锁住；Ø14 mm 只作干涉校核，实际打印圆柱为 Ø12 mm，直径小 2 mm。",
+    },
+    {
         "id": "pvdf-film",
         "name_zh": "PVDF 压电薄膜",
         "name_en": "PVDF piezo film",
@@ -161,7 +173,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 套（左右各 1）",
         "scad_part": "m6_ballhead",
-        "notes": "默认采购 13mm球【M8外牙】；球头保持竖直，横向 M8 外牙从各自 x 后端进入背面中央加厚 boss，z− 接口向下由采购金属 90°连接器从最低端承接，连接器以两枚 M6 贯穿螺栓直接固定到网架立柱。偏航、俯仰、旋转微调依靠采购球头锁紧机构，不打印 90°连接器、灰色适配板或重复金色螺栓。",
+        "notes": "默认采购 13mm球【M8外牙】；球头保持竖直，横向 M8 外牙从各自 x 后端进入背面中央加厚 boss，z− 接口直接拧入浅黄色下段的一体 M8 承座。偏航、俯仰、旋转微调依靠采购球头锁紧机构；当前装配不再使用深灰色 90°连接器或深黄色上段立柱。",
     },
     {
         "id": "m6-ballhead-variants",
@@ -269,29 +281,11 @@ def _indexed_side_specs(
 
 
 def _indexed_post_specs() -> list[ExportSpec]:
-    specs: list[ExportSpec] = []
-    for label, value in (("right", 1), ("left", -1)):
-        # index=0 is exported as lower_stand_segment below so the first-print
-        # lower upright and its C clamp are one physically assembleable part.
-        for index in (1,):
-            specs.append(
-                ExportSpec(
-                    filename=f"{label}-post-segment-{index}.stl",
-                    part="post_segment",
-                    definitions=(
-                        'PART="post_segment"',
-                        f"SIDE={value}",
-                        f"post_segment_index={index}",
-                    ),
-                    side=label,
-                    side_value=value,
-                    index=index,
-                    material="PETG",
-                    orientation="底面朝下；接缝方向沿 Z 轴，切片时保留外壁和局部加厚。",
-                    notes="两段立柱之一；必须与同侧套筒和内芯配合，不把 post 装配预览直接切片。",
-                )
-            )
-    return specs
+    # The former dark-yellow upper post was removed from the active design.
+    # Keep this helper as an explicit empty compatibility boundary so old
+    # callers do not accidentally reintroduce a standalone upper segment into
+    # the current print package.
+    return []
 
 
 def _indexed_rail_specs() -> list[ExportSpec]:
@@ -333,32 +327,23 @@ def _indexed_rail_specs() -> list[ExportSpec]:
 
 
 def build_export_specs() -> list[ExportSpec]:
-    specs = _indexed_post_specs()
+    specs: list[ExportSpec] = []
     specs.extend(
         _side_specs(
             "lower_stand_segment",
             "lower-stand-segment",
             "PETG",
             "底面朝下；下段立柱与 C 形夹已经一体化，接缝方向沿 Z 轴。",
-            "首样左右各一件；包含 post_segment_index=0 与固定 C 形夹，避免分件相互干涉。",
+            "首样左右各一件；包含浅黄色下段、固定 C 形夹和一体 M8 球头承座，蓝色检测器总成直接拧入此承座；桌面夹持开口、压块和螺杆区域保留，灰色夹体外侧下部沿 y 全深为实心渐变支撑，靠台侧厚 40 mm、外侧 8 mm；M8 夹紧丝杆相对原包络加长 12 mm；不再拆分深黄色上段或深灰色连接器。",
         )
     )
     specs.extend(
         _side_specs(
-            "post_joint_sleeve",
-            "post-joint-sleeve",
+            "net_clamp_rod",
+            "net-clamp-rod",
             "PETG",
-            "套筒开口朝上；按实际插接间隙复核，不强压进立柱。",
-            "立柱两段接缝外套筒。",
-        )
-    )
-    specs.extend(
-        _side_specs(
-            "post_joint_key",
-            "post-joint-key",
-            "PETG",
-            "最大平面朝下；装配前检查与套筒的滑动间隙。",
-            "立柱两段接缝内芯/防转键。",
+            "圆柱轴沿 Z；底端朝下；装配时从立柱外侧沿 x 推入 U 槽。",
+            "独立 PETG 卡网圆柱；实际打印 Ø12 mm。Ø14 mm 只作为 U 槽干涉校核基准；网布先塞入外侧开口，再沿 x 推入圆柱锁住。",
         )
     )
     specs.extend(

@@ -30,14 +30,16 @@ PARAMETER_MAP = {
     "CLAMP_SCREW_INSET": "clamp_screw_inset",
     "CLAMP_KNOB_D": "clamp_knob_d",
     "CLAMP_KNOB_H": "clamp_knob_h",
-    "CLAMP_SCREW_TO_KNOB_TOP": "clamp_screw_to_knob_top",
+    "CLAMP_SCREW_TO_KNOB_TOP_BASE": "clamp_screw_to_knob_top_base",
+    "CLAMP_SCREW_EXTRA_LENGTH_Z": "clamp_screw_extra_length_z",
     "CLAMP_NUT_AF": "clamp_nut_af",
     "CLAMP_NUT_H": "clamp_nut_h",
     "CLAMP_NUT_CLEARANCE": "clamp_nut_clearance",
     "CLAMP_KNOB_NUT_GAP": "clamp_knob_nut_gap",
     "CLAMP_LOWER_ARM_CLEARANCE": "clamp_lower_arm_clearance",
-    "CLAMP_GUSSET_T_Y": "clamp_gusset_t_y",
-    "CLAMP_GUSSET_START_INSET": "clamp_gusset_start_inset",
+    "CLAMP_REINFORCEMENT_INBOARD_OFFSET_X": "clamp_reinforcement_inboard_offset_x",
+    "CLAMP_REINFORCEMENT_NEAR_TABLE_THICKNESS_Z": "clamp_reinforcement_near_table_thickness_z",
+    "CLAMP_REINFORCEMENT_DEPTH_Y": "clamp_reinforcement_depth_y",
     "CLAMP_PRESSURE_PAD_WIDTH": "clamp_pressure_pad_width",
     "CLAMP_PRESSURE_PAD_T": "clamp_pressure_pad_t",
     "M6_SENSOR_HEAD_LENGTH_X": "m6_sensor_head_length_x",
@@ -109,9 +111,20 @@ PARAMETER_MAP = {
     "M6_DETECTOR_SHELL_SUPPORT_STUD_ENGAGEMENT_X": "m6_detector_shell_support_stud_engagement_x",
     "M6_DETECTOR_DETECTOR_BALLHEAD_GAP_X": "m6_detector_detector_ballhead_gap_x",
     "M6_DETECTOR_SENSOR_HEAD_Y_OFFSET": "m6_detector_sensor_head_y_offset",
+    "M6_DETECTOR_DIRECT_MOUNT_ARM_WIDTH_Y": "m6_detector_direct_mount_arm_width_y",
+    "M6_DETECTOR_DIRECT_MOUNT_ARM_T_Z": "m6_detector_direct_mount_arm_t_z",
+    "M6_DETECTOR_DIRECT_MOUNT_WEB_WIDTH_Y": "m6_detector_direct_mount_web_width_y",
+    "M6_DETECTOR_DIRECT_MOUNT_WEB_T_X": "m6_detector_direct_mount_web_t_x",
+    "M6_DETECTOR_DIRECT_MOUNT_POST_OVERLAP_X": "m6_detector_direct_mount_post_overlap_x",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D": "m6_detector_direct_mount_socket_outer_d",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D": "m6_detector_direct_mount_socket_tap_d",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z": "m6_detector_direct_mount_socket_bottom_clearance_z",
+    "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z": "m6_detector_direct_mount_socket_top_clearance_z",
 }
 
 BROWSER_PARAMETER_MAP = {
+    "mountRaiseZ": "M6_DETECTOR_MOUNT_RAISE_Z",
+    "netPassageWidthY": "NET_PASSAGE_WIDTH_Y",
     "sensorPitch": "M6_SENSOR_CENTER_PITCH",
     "sensorRollDeg": "M6_SENSOR_ROLL_DEG",
     "bodyCenterY": "M6_DETECTOR_BODY_CENTER_Y",
@@ -136,6 +149,13 @@ BROWSER_PARAMETER_MAP = {
     "ballheadNetStudD": "M6_BALLHEAD_NET_STUD_D",
     "ballheadTiltDeg": "M6_BALLHEAD_TILT_RANGE_DEG",
     "ballheadRotationDeg": "M6_BALLHEAD_ROTATION_RANGE_DEG",
+    "directMountArmWidthY": "M6_DETECTOR_DIRECT_MOUNT_ARM_WIDTH_Y",
+    "directMountArmThicknessZ": "M6_DETECTOR_DIRECT_MOUNT_ARM_T_Z",
+    "directMountWebWidthY": "M6_DETECTOR_DIRECT_MOUNT_WEB_WIDTH_Y",
+    "directMountWebThicknessX": "M6_DETECTOR_DIRECT_MOUNT_WEB_T_X",
+    "directMountPostOverlapX": "M6_DETECTOR_DIRECT_MOUNT_POST_OVERLAP_X",
+    "directMountSocketOuterD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D",
+    "directMountSocketTapD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D",
 }
 
 
@@ -203,8 +223,9 @@ def main() -> None:
         "显示网布、M6 光电器件、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
-        "球头 z- 接口从最低端承接采购金属 90°连接器",
-        "连接器直接接到网架立柱",
+        "球头 z- 接口直接落在浅黄色下段最高水平面的一体 M8 承座",
+        "取消横向黄色承托臂",
+        "不再显示深黄色上段和深灰色独立连接器",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:

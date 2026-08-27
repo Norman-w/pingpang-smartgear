@@ -50,6 +50,7 @@ PARTS = (
     "m6_detector_shell_front",
     "m6_detector_shell_rear",
     "m6_detector_bottom_cover",
+    "net_clamp_rod",
     "m6_detector_net_connector",
     "m6_detector_mount",
     "m6_ballhead",
@@ -412,6 +413,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_screw_bottom_z",
         "clamp_screw_length",
         "clamp_screw_tip_radius",
+        "clamp_screw_to_knob_top_base",
+        "clamp_screw_extra_length_z",
         "clamp_screw_to_knob_top",
         "clamp_nut_af",
         "clamp_nut_h",
@@ -690,10 +693,20 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_hole_entry_x",
         "m6_detector_shell_support_hole_center_x",
         "m6_detector_ballhead_center_x",
+        "m6_detector_mount_x_offset",
+        "m6_detector_mount_raise_z",
+        "m6_detector_assembly_ballhead_center_x",
+        "m6_detector_assembly_optical_axis_x",
         "m6_detector_ballhead_center_y",
         "m6_detector_ballhead_center_z",
+        "m6_detector_ballhead_base_center_z",
+        "m6_detector_ballhead_net_stud_center_z",
         "m6_detector_ballhead_sensor_stud_center_x",
         "m6_detector_ballhead_net_interface_bottom_z",
+        "m6_detector_assembly_ballhead_center_z",
+        "m6_detector_assembly_ballhead_base_center_z",
+        "m6_detector_assembly_ballhead_net_stud_center_z",
+        "m6_detector_assembly_ballhead_net_interface_bottom_z",
         "m6_detector_net_connector_interface_height_z",
         "m6_detector_net_connector_socket_bottom_z",
         "m6_detector_net_connector_socket_top_z",
@@ -710,6 +723,28 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_net_connector_leg_top_z",
         "m6_detector_net_connector_leg_height_z",
         "m6_detector_net_connector_mount_height_z",
+        "net_clamp_channel_depth_x",
+        "net_clamp_cylinder_insertion_depth_x",
+        "net_clamp_channel_back_wall_t_x",
+        "net_clamp_cylinder_interference_d",
+        "net_clamp_cylinder_actual_d",
+        "net_clamp_channel_side_clearance",
+        "net_clamp_channel_back_clearance",
+        "net_clamp_channel_width_y",
+        "net_clamp_channel_bottom_z",
+        "net_clamp_channel_top_z",
+        "net_clamp_channel_void_min_x",
+        "net_clamp_channel_void_max_x",
+        "net_clamp_cylinder_center_x",
+        "net_clamp_cylinder_height",
+        "net_sheet_t",
+        "net_passage_width_y",
+        "net_passage_side_clearance_y",
+        "net_passage_body_extension_x",
+        "net_passage_min_x",
+        "net_passage_max_x",
+        "net_passage_bottom_z",
+        "net_passage_top_z",
         "stg120_head_length",
         "stg120_active_length",
         "stg120_head_width",
@@ -727,12 +762,16 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "reference_carriage_depth",
         "clamp_pad_depth",
         "clamp_outboard_extension_min",
-        "clamp_gusset_t_y",
-        "clamp_gusset_start_inset",
-        "clamp_gusset_start_x",
-        "clamp_gusset_end_x",
-        "clamp_gusset_top_z",
-        "clamp_gusset_bottom_z",
+        "clamp_reinforcement_inboard_offset_x",
+        "clamp_reinforcement_near_table_thickness_z",
+        "clamp_reinforcement_depth_y",
+        "clamp_reinforcement_start_x",
+        "clamp_reinforcement_end_x",
+        "clamp_reinforcement_top_z",
+        "clamp_reinforcement_near_table_bottom_z",
+        "clamp_reinforcement_outer_thickness_z",
+        "clamp_reinforcement_outer_bottom_z",
+        "clamp_lower_arm_t",
     }
     missing = required - parameters.keys()
     if missing:
@@ -788,20 +827,42 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     ):
         raise RuntimeError(f"clamp does not bridge edge with an under-table screw: {parameters}")
     if not (
-        parameters["clamp_gusset_t_y"] > 0
-        and parameters["clamp_gusset_t_y"] < parameters["clamp_pad_depth"] / 2
-        and parameters["clamp_gusset_start_x"] > parameters["clamp_pressure_pad_x"]
+        parameters["clamp_reinforcement_inboard_offset_x"] > 0
+        and parameters["clamp_reinforcement_near_table_thickness_z"] == 40
+        and parameters["clamp_reinforcement_depth_y"] == parameters["clamp_pad_depth"]
+        and parameters["clamp_reinforcement_start_x"] < table_edge
+        and parameters["clamp_reinforcement_start_x"]
+        > parameters["clamp_pressure_pad_x"]
         + parameters["clamp_pressure_pad_width"]
         / 2
-        and parameters["clamp_gusset_end_x"] > parameters["clamp_gusset_start_x"]
-        and parameters["clamp_gusset_end_x"] > parameters["clamp_outer_wall_x"]
-        and parameters["clamp_gusset_top_z"] < -parameters["table_thickness"]
-        and parameters["clamp_gusset_top_z"] > parameters["clamp_lower_arm_top_z"]
-        and parameters["clamp_gusset_bottom_z"]
-        < parameters["clamp_lower_arm_bottom_z"]
+        and parameters["clamp_reinforcement_end_x"]
+        > parameters["clamp_reinforcement_start_x"]
+        and parameters["clamp_reinforcement_end_x"]
+        > parameters["clamp_outer_wall_x"]
+        and parameters["clamp_reinforcement_top_z"]
+        == parameters["clamp_lower_arm_top_z"]
+        and parameters["clamp_reinforcement_near_table_bottom_z"]
+        == parameters["clamp_reinforcement_top_z"]
+        - parameters["clamp_reinforcement_near_table_thickness_z"]
+        and parameters["clamp_reinforcement_outer_thickness_z"]
+        == parameters["clamp_lower_arm_t"]
+        and parameters["clamp_reinforcement_outer_bottom_z"]
+        == parameters["clamp_reinforcement_top_z"]
+        - parameters["clamp_reinforcement_outer_thickness_z"]
+        and parameters["clamp_reinforcement_near_table_bottom_z"]
+        < parameters["clamp_reinforcement_outer_bottom_z"]
+        < parameters["clamp_reinforcement_top_z"]
     ):
-        raise RuntimeError(f"under-clamp triangular gusset geometry is inconsistent: {parameters}")
+        raise RuntimeError(
+            f"solid tapered under-clamp reinforcement geometry is inconsistent: {parameters}"
+        )
     if not (
+        parameters["clamp_screw_to_knob_top_base"] == 32
+        and parameters["clamp_screw_extra_length_z"] == 12
+        and parameters["clamp_screw_to_knob_top"]
+        == parameters["clamp_screw_to_knob_top_base"]
+        + parameters["clamp_screw_extra_length_z"]
+        and
         parameters["clamp_screw_d"] == 8
         and parameters["clamp_screw_pitch"] == 1.25
         and
@@ -1140,10 +1201,19 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     rear_hole_module = module_text("m6_detector_shell_support_hole_positive()")
     front_shell_module = module_text("m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha)")
     rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
+    rear_footprint_module = module_text("m6_detector_rear_rounded_footprint_positive()")
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
-    connector_module = module_text("m6_detector_net_connector_positive()")
+    direct_mount_module = module_text("m6_detector_direct_mount_positive()")
+    table_clamp_body_module = module_text("table_clamp_body_positive()")
+    post_module = module_text("post_positive()")
+    post_segment_module = module_text("post_segment_positive(index = 0)")
+    lower_stand_module = module_text("lower_stand_segment_positive()")
     mount_module = module_text("m6_detector_mount_positive()")
+    assembly_module = module_text("m6_detector_assembly_positive()")
     exploded_module = module_text("m6_detector_exploded_positive()")
+    exploded_assembly_module = module_text("m6_detector_exploded_assembly_positive()")
+    gimbal_module = module_text("m6_gimbal_positive()")
+    stand_module = module_text("stand(side = 1)")
     if (
         "m6_detector_body_envelope_positive();" not in body_module
         or "cube([m6_detector_body_length_x" not in body_envelope_module
@@ -1158,6 +1228,10 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_sensor_head_width_y + 1.6" in body_module
         or "m6_detector_front_arc_footprint_positive();" not in front_outer_module
         or "m6_detector_rear_rounded_footprint_positive();" not in rear_outer_module
+        or "polygon(points = concat(" not in rear_footprint_module
+        or "rear_min_x = m6_detector_shell_rear_min_x;" not in rear_footprint_module
+        or "rear_max_x - radius" not in rear_footprint_module
+        or "offset(r = m6_detector_shell_corner_radius)" in rear_footprint_module
         or "m6_detector_shell_support_boss_positive();" not in rear_outer_module
         or "m6_detector_shell_support_hole_positive();" not in rear_shell_module
         or "m6_detector_body_tail_clearance_positive" in rear_shell_module
@@ -1181,12 +1255,22 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             r"m6_cylinder_z\(\s*m6_detector_cable_exit_d,",
             bottom_cover_module,
         )
-        or "difference()" not in connector_module
-        or "m6_cylinder_z(" not in connector_module
-        or "m6_cylinder_x(" not in connector_module
-        or "m6_detector_net_connector_post_bolt_y" not in connector_module
-        or "m6_detector_net_connector_positive();" not in mount_module
-        or "m6_detector_net_connector_positive();" not in exploded_module
+        or "difference()" not in direct_mount_module
+        or "m6_cylinder_z(" not in direct_mount_module
+        or "m6_detector_direct_mount_positive();" not in post_module
+        or "m6_detector_direct_mount_positive();" not in lower_stand_module
+        or "net_passage_negative_positive();" not in post_segment_module
+        or "net_clamp_channel_negative_positive();" not in post_segment_module
+        or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_body_module
+        or "m6_detector_mount_raise_z" not in assembly_module
+        or "m6_detector_mount_raise_z" not in exploded_assembly_module
+        or "net_clamp_rod_positive();" not in stand_module
+        or "cube([" in direct_mount_module
+        or "m6_detector_mount_x_offset" not in assembly_module
+        or "m6_detector_mount_x_offset" not in exploded_assembly_module
+        or "m6_detector_assembly_positive();" not in gimbal_module
+        or "m6_detector_net_connector_positive();" in mount_module
+        or "m6_detector_net_connector_positive();" in exploded_module
         or "intersection(" in exploded_module
         or "m6_mount_adapter_positive();" in mount_module
         or "m6_post_mount_hardware_positive();" in mount_module
@@ -1626,79 +1710,222 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
 
     if not (
         math.isclose(
-            parameters["m6_detector_ballhead_net_interface_bottom_z"],
-            parameters["m6_detector_ballhead_net_stud_center_z"]
+            parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"],
+            parameters["m6_detector_assembly_ballhead_net_stud_center_z"]
             - parameters["m6_ballhead_net_stud_length"] / 2,
             rel_tol=0,
             abs_tol=1e-4,
         )
         and math.isclose(
-            parameters["m6_detector_net_connector_interface_height_z"],
-            parameters["m6_ballhead_net_stud_length"],
+            parameters["m6_detector_direct_mount_socket_bottom_z"],
+            parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
+            - parameters["m6_detector_direct_mount_socket_bottom_clearance_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
         and math.isclose(
-            parameters["m6_detector_net_connector_mount_height_z"],
-            parameters["m6_post_mount_hole_z"]
-            - parameters["m6_detector_ballhead_net_interface_bottom_z"],
+            parameters["m6_detector_direct_mount_socket_top_z"],
+            parameters["m6_detector_assembly_ballhead_base_center_z"]
+            - parameters["m6_ballhead_base_t"] / 2
+            + parameters["m6_detector_direct_mount_socket_top_clearance_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_net_connector_mount_height_z"] > 0
-        and parameters["m6_detector_net_connector_arm_min_x"]
-        < parameters["m6_detector_ballhead_center_x"]
-        < parameters["m6_detector_net_connector_arm_max_x"]
         and math.isclose(
-            parameters["m6_detector_net_connector_post_inner_face_x"],
+            parameters["m6_detector_direct_mount_socket_height_z"],
+            parameters["m6_detector_direct_mount_socket_top_z"]
+            - parameters["m6_detector_direct_mount_socket_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_direct_mount_socket_bottom_z"]
+        < parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
+        < parameters["m6_detector_direct_mount_socket_top_z"]
+        and parameters["m6_detector_direct_mount_socket_outer_d"]
+        > parameters["m6_detector_direct_mount_socket_tap_d"]
+        and parameters["m6_detector_direct_mount_socket_tap_d"]
+        > parameters["m6_ballhead_net_stud_d"] * 0.8
+        and math.isclose(
+            parameters["m6_detector_direct_mount_socket_center_x"],
+            parameters["post_center_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_assembly_ballhead_center_x"],
+            parameters["post_center_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_mount_x_offset"] > 0
+        and parameters["m6_detector_assembly_optical_axis_x"]
+        > parameters["table_width"] / 2
+        and parameters["m6_detector_assembly_optical_axis_x"]
+        < parameters["net_span"] / 2
+        and math.isclose(
+            parameters["m6_detector_direct_mount_arm_min_x"],
+            parameters["post_center_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_direct_mount_arm_max_x"],
+            parameters["post_center_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_direct_mount_arm_width_y"] == 0
+        and parameters["m6_detector_direct_mount_arm_t_z"] == 0
+        and parameters["m6_detector_direct_mount_socket_outer_d"]
+        <= parameters["post_body_width"]
+        and math.isclose(
+            parameters["m6_detector_direct_mount_post_inner_face_x"],
             parameters["post_center_x"] - parameters["post_body_width"] / 2,
             rel_tol=0,
             abs_tol=1e-4,
         )
         and math.isclose(
-            parameters["m6_detector_net_connector_arm_max_x"],
-            parameters["m6_detector_net_connector_post_inner_face_x"]
-            + parameters["m6_detector_net_connector_post_overlap_x"],
+            parameters["m6_detector_direct_mount_lower_post_top_z"],
+            parameters["m6_detector_direct_mount_arm_bottom_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_net_connector_leg_min_x"]
-        < parameters["m6_detector_net_connector_post_inner_face_x"]
-        < parameters["m6_detector_net_connector_leg_max_x"]
-        and parameters["m6_detector_net_connector_leg_width_y"]
-        < parameters["post_body_depth"]
-        and parameters["m6_detector_net_connector_leg_bottom_z"]
-        <= parameters["m6_detector_net_connector_arm_bottom_z"]
-        and parameters["m6_detector_net_connector_leg_top_z"]
-        > parameters["m6_post_mount_hole_z"]
+        and parameters["m6_detector_direct_mount_lower_post_top_z"]
+        > parameters["post_bottom"]
+        and parameters["m6_detector_direct_mount_lower_post_top_z"]
+        - parameters["post_bottom"]
+        < 270
+        and parameters["m6_detector_direct_mount_web_width_y"] == 0
+        and parameters["m6_detector_direct_mount_web_t_x"] == 0
         and math.isclose(
-            parameters["m6_detector_net_connector_leg_height_z"],
-            parameters["m6_detector_net_connector_leg_top_z"]
-            - parameters["m6_detector_net_connector_leg_bottom_z"],
+            parameters["m6_detector_direct_mount_arm_top_z"],
+            parameters["m6_detector_direct_mount_arm_bottom_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_net_connector_post_bolt_y"]
-        == parameters["m6_post_mount_hole_y"]
-        and parameters["m6_detector_net_connector_post_bolt_d"]
-        <= parameters["m6_post_mount_clearance_d"]
-        and parameters["m6_detector_net_connector_socket_bottom_z"]
-        < parameters["m6_detector_ballhead_net_interface_bottom_z"]
-        < parameters["m6_detector_net_connector_socket_top_z"]
-        and math.isclose(
-            parameters["m6_detector_net_connector_socket_height_z"],
-            parameters["m6_detector_net_connector_socket_top_z"]
-            - parameters["m6_detector_net_connector_socket_bottom_z"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and parameters["m6_detector_net_connector_socket_clearance_d"]
-        > parameters["m6_ballhead_net_stud_d"]
-        and parameters["m6_detector_net_connector_arm_bottom_z"]
-        < parameters["m6_detector_net_connector_arm_top_z"]
+        and parameters["m6_detector_direct_mount_arm_bottom_z"]
+        >= parameters["net_height"]
     ):
         raise RuntimeError(
-            f"downward ballhead net connector / net-clamp post interface is inconsistent: {parameters}"
+            f"direct ballhead-to-light-yellow lower-stand interface is inconsistent: {parameters}"
+        )
+
+
+def validate_net_retention_contract(parameters: dict[str, float]) -> None:
+    """Validate the printable outboard U-slot and its separate locking rod."""
+
+    source_text = SOURCE.read_text(encoding="utf-8")
+    required_fragments = (
+        "module net_passage_negative_positive()",
+        "module net_clamp_channel_negative_positive()",
+        "module net_clamp_rod_positive()",
+        "module net_clamp_fit_probe_positive()",
+        "net_passage_negative_positive();",
+        "net_clamp_channel_negative_positive();",
+        "net_clamp_rod_positive();",
+    )
+    if any(fragment not in source_text for fragment in required_fragments):
+        raise RuntimeError(
+            "net retention source is incomplete: the 3 mm passage, post U-slot, "
+            "printable rod, fit probe and assembly call must all remain present"
+        )
+
+    post_inner_x = parameters["post_center_x"] - parameters["post_body_width"] / 2
+    post_outer_x = parameters["post_center_x"] + parameters["post_body_width"] / 2
+    expected_passage_min_x = (
+        post_inner_x - parameters["net_passage_body_extension_x"] - 0.2
+    )
+    expected_passage_max_x = (
+        post_outer_x + parameters["net_passage_body_extension_x"] + 0.2
+    )
+    expected_void_min_x = (
+        post_outer_x
+        - parameters["net_clamp_channel_depth_x"]
+        + parameters["net_clamp_channel_back_wall_t_x"]
+    )
+    actual_radius = parameters["net_clamp_cylinder_actual_d"] / 2
+    interference_radius = parameters["net_clamp_cylinder_interference_d"] / 2
+    if not (
+        math.isclose(
+            parameters["net_clamp_channel_depth_x"],
+            parameters["post_body_width"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_clamp_cylinder_insertion_depth_x"],
+            parameters["post_body_width"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and 0 < parameters["net_clamp_channel_back_wall_t_x"]
+        < parameters["net_clamp_channel_depth_x"]
+        and math.isclose(
+            parameters["net_clamp_cylinder_actual_d"],
+            parameters["net_clamp_cylinder_interference_d"] - 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and actual_radius > 0
+        and interference_radius > actual_radius
+        and parameters["net_clamp_channel_width_y"]
+        > parameters["net_clamp_cylinder_interference_d"]
+        and math.isclose(
+            parameters["net_clamp_channel_void_min_x"],
+            expected_void_min_x,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_clamp_channel_void_min_x"] > post_inner_x
+        and parameters["net_clamp_channel_void_max_x"] > post_outer_x
+        and parameters["net_clamp_channel_void_min_x"]
+        < parameters["net_clamp_channel_void_max_x"]
+        and parameters["net_clamp_channel_bottom_z"] == 0
+        and parameters["net_clamp_channel_top_z"] == parameters["net_height"]
+        and math.isclose(
+            parameters["net_clamp_cylinder_height"],
+            parameters["net_clamp_channel_top_z"]
+            - parameters["net_clamp_channel_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_clamp_cylinder_center_x"]
+        >= parameters["net_clamp_channel_void_min_x"] + interference_radius
+        and parameters["net_clamp_cylinder_center_x"]
+        <= parameters["net_clamp_channel_void_max_x"] - interference_radius
+        and parameters["net_passage_width_y"] == 3
+        and parameters["net_passage_width_y"] > parameters["net_sheet_t"]
+        and math.isclose(
+            parameters["net_passage_side_clearance_y"],
+            (parameters["net_passage_width_y"] - parameters["net_sheet_t"]) / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_passage_body_extension_x"] > 0
+        and math.isclose(
+            parameters["net_passage_min_x"],
+            expected_passage_min_x,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_passage_max_x"],
+            expected_passage_max_x,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_passage_min_x"] < post_inner_x
+        and parameters["net_passage_max_x"] > post_outer_x
+        and parameters["net_passage_min_x"] < parameters["net_passage_max_x"]
+        and parameters["net_passage_bottom_z"] == 0
+        and parameters["net_passage_top_z"] == parameters["net_height"]
+        and parameters["net_passage_top_z"] > parameters["net_passage_bottom_z"]
+        and parameters["m6_detector_direct_mount_lower_post_top_z"]
+            >= parameters["net_clamp_channel_top_z"]
+    ):
+        raise RuntimeError(
+            "net passage/U-slot/printed rod dimensions do not match the post width, "
+            "3 mm net passage, 2 mm diameter reduction or full net-height channel"
         )
 
 
@@ -1708,6 +1935,7 @@ def main() -> None:
         output_dir = Path(directory)
         parameters = probe_parameters(openscad, output_dir)
         validate_current_m6_contract(parameters)
+        validate_net_retention_contract(parameters)
 
         for part in PARTS:
             output = output_dir / f"{part}.stl"
@@ -1774,6 +2002,7 @@ def main() -> None:
             "post_joint_sleeve",
             "post_joint_key",
             "lower_stand_segment",
+            "net_clamp_rod",
             "table_clamp",
             "table_clamp_section",
             "table_clamp_body",
@@ -1869,47 +2098,9 @@ def main() -> None:
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
         lower_stand_bounds = stl_bounds(output_dir / "lower_stand_segment.stl")
-        connector_bounds = stl_bounds(output_dir / "m6_detector_net_connector.stl")
+        net_clamp_rod_bounds = stl_bounds(output_dir / "net_clamp_rod.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
-        if not (
-            abs(connector_bounds[0] - parameters["m6_detector_net_connector_arm_min_x"]) < 0.01
-            and abs(connector_bounds[1] - parameters["m6_detector_net_connector_arm_max_x"]) < 0.01
-            and abs(
-                connector_bounds[2]
-                + parameters["m6_detector_net_connector_leg_width_y"] / 2
-            )
-            < 0.01
-            and abs(
-                connector_bounds[3]
-                - parameters["m6_detector_net_connector_leg_width_y"] / 2
-            )
-            < 0.01
-            and abs(
-                connector_bounds[4]
-                - parameters["m6_detector_net_connector_socket_bottom_z"]
-            )
-            < 0.01
-            and abs(
-                connector_bounds[5]
-                - parameters["m6_detector_net_connector_leg_top_z"]
-            )
-            < 0.01
-        ):
-            raise RuntimeError(
-                "purchased metal connector envelope does not span the ballhead-to-post path: "
-                f"{connector_bounds}"
-            )
-        if not (
-            connector_bounds[1] > parameters["m6_detector_net_connector_post_inner_face_x"]
-            and connector_bounds[0] < parameters["m6_detector_ballhead_center_x"]
-            and connector_bounds[4]
-            <= parameters["m6_detector_ballhead_net_interface_bottom_z"]
-            and connector_bounds[5] >= parameters["m6_post_mount_hole_z"]
-        ):
-            raise RuntimeError(
-                f"connector does not directly overlap the net-frame upright/ballhead envelope: {connector_bounds}"
-            )
         if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
             raise RuntimeError(f"net rail is not centered across the table: {rail_bounds}")
         if abs(net_bounds[5] - (parameters["net_height"] - parameters["net_rail_height"])) > 0.01:
@@ -2064,14 +2255,44 @@ def main() -> None:
             raise RuntimeError(f"uprights do not clear the optical window: {assembly_bounds}")
         if not (
             abs(post_bounds[4] - parameters["post_bottom"]) < 0.01
-            and post_bounds[5] > parameters["net_height"] + parameters["beam_last_height"]
-            and post_segment_bounds[5] - post_segment_bounds[4] < 240
+            and post_bounds[5]
+            >= parameters["m6_detector_direct_mount_socket_top_z"] - 0.01
+            and post_segment_bounds[5]
+            >= parameters["m6_detector_direct_mount_lower_post_top_z"] - 0.01
+            and post_segment_bounds[5] - post_segment_bounds[4] < 270
             and post_segment_bounds[1] - post_segment_bounds[0] > parameters["post_body_width"]
             and post_segment_bounds[3] - post_segment_bounds[2] > parameters["post_body_depth"]
         ):
             raise RuntimeError(
-                f"post assembly/segment bounds or lower reinforcement are not printable: post={post_bounds}, "
+                f"post lower-segment/direct-support bounds are not printable: post={post_bounds}, "
                 f"segment={post_segment_bounds}"
+            )
+        if not (
+            abs(
+                (net_clamp_rod_bounds[0] + net_clamp_rod_bounds[1]) / 2
+                - parameters["net_clamp_cylinder_center_x"]
+            )
+            < 0.01
+            and abs(
+                (net_clamp_rod_bounds[2] + net_clamp_rod_bounds[3]) / 2
+            )
+            < 0.01
+            and abs(
+                (net_clamp_rod_bounds[1] - net_clamp_rod_bounds[0])
+                - parameters["net_clamp_cylinder_actual_d"]
+            )
+            < 0.1
+            and abs(
+                (net_clamp_rod_bounds[3] - net_clamp_rod_bounds[2])
+                - parameters["net_clamp_cylinder_actual_d"]
+            )
+            < 0.1
+            and abs(net_clamp_rod_bounds[4] - parameters["net_clamp_channel_bottom_z"]) < 0.01
+            and abs(net_clamp_rod_bounds[5] - parameters["net_clamp_channel_top_z"]) < 0.01
+        ):
+            raise RuntimeError(
+                "printed PETG net-clamp rod bounds do not match the U-slot datum: "
+                f"rod={net_clamp_rod_bounds}"
             )
         if not (
             lower_stand_bounds[0] <= parameters["clamp_pad_x"] + 0.01
@@ -2084,6 +2305,20 @@ def main() -> None:
             raise RuntimeError(
                 "integrated lower stand segment does not contain both the post and C clamp: "
                 f"lower={lower_stand_bounds}, post_segment={post_segment_bounds}"
+            )
+        socket_x = parameters["m6_detector_direct_mount_socket_center_x"]
+        socket_radius = parameters["m6_detector_direct_mount_socket_outer_d"] / 2
+        if not (
+            lower_stand_bounds[0] <= socket_x - socket_radius + 0.01
+            and lower_stand_bounds[1] >= socket_x + socket_radius - 0.01
+            and lower_stand_bounds[2] <= -socket_radius + 0.01
+            and lower_stand_bounds[3] >= socket_radius - 0.01
+            and lower_stand_bounds[5]
+            >= parameters["m6_detector_direct_mount_socket_top_z"] - 0.01
+        ):
+            raise RuntimeError(
+                "integrated lower stand segment does not contain the direct ballhead support: "
+                f"lower={lower_stand_bounds}"
             )
         if not (
             coupon_bounds[0] < 0 < coupon_bounds[1]
