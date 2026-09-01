@@ -14,6 +14,8 @@ const refs = {
   assemblyStepOutput: $("#assembly-step-output"),
   showTable: $("#show-table"),
   showNonPrinted: $("#show-nonprinted"),
+  showSkpCandidate: $("#show-skp-candidate"),
+  showSkpFit: $("#show-skp-fit"),
   bedPreset: $("#bed-preset"),
   bedWidth: $("#bed-width"),
   bedDepth: $("#bed-depth"),
@@ -48,6 +50,7 @@ const refs = {
   assemblyStatusBadge: $("#assembly-status-badge"),
   assemblySelectionBadge: $("#assembly-selection-badge"),
   fitM6: $("#fit-m6"),
+  fitSkp: $("#fit-skp"),
   assemblyHoverLabel: $("#assembly-hover-label"),
   assemblyGuideCard: $("#assembly-guide-card"),
   assemblyStepList: $("#assembly-step-list"),
@@ -76,7 +79,8 @@ const PRESETS = {
 
 const COLORS = {
   stand: { label: "立柱 / 夹持", color: "#f6bd67" },
-  rail: { label: "网顶 / 导轨", color: "#b28cff" },
+  net: { label: "网布 / 卡网夹", color: "#e9eef0" },
+  rail: { label: "历史网顶轨道（不在当前装配）", color: "#b28cff" },
   optical: { label: "M6 十路光电阵列", color: "#74a7ff" },
   sensor: { label: "PVDF 传感", color: "#62e4d1" },
   calibration: { label: "标定 / 参考", color: "#fb817c" },
@@ -84,21 +88,24 @@ const COLORS = {
 };
 
 const ASSEMBLY_STEPS = [
-  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 12 mm，靠球台侧下部支撑厚 40 mm，向外侧以 12 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
-  { number: 2, label: "浅黄色下段、3 mm 过道、U 槽与打印卡网柱", description: "浅黄色下段与桌下夹体一体承载网顶承托；当前装配不再显示深黄色上段立柱、接缝套筒/内芯或其它独立上段连接件，左右外边界各离台边 152.5 mm；球头/检测器总成整体上抬 20 mm 以越过网顶，直立下段不再接横向黄色承托臂；网布先沿 x 穿过立柱主体 y 向 3 mm 过道，再进入下段外侧开口的 U 形槽，最后从外侧沿 x 推入独立 PETG Ø12 卡网圆柱，Ø14 仅为干涉校核基准。" },
-  { number: 3, label: "网顶承载条与网布", description: "三段约 623.33 mm 的网顶承载条用拼接片锁紧，形成名义总宽 1830 mm 的网顶基准，再挂上真实网布。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示：可摆到水平的上端固定 1/4-20 外牙从 x- 进入后盖中央 1/4 捕获螺母 boss，选定的下端 M8 外牙向 z- 进入浅黄色下段顶装 M8 螺母；球头本体不打印，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂；蓝色总成不再经过深灰色独立连接器。" },
-  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后随总成上抬 20 mm 为 +30…+210 mm，按 20 mm 节距核对网顶高度、两侧阵列平行度与微调锁紧；同时检查 U 槽开口方向、Ø12 打印卡网圆柱插入和网布夹持；器件输出参数仍以实测证据为准。" },
+  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
+  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm，底端不插入 C 形座。网柱下端 35×58 mm，从承托面起经 30 mm 实心锥形过渡收至 28×38 mm，之后保持恒定到顶端；没有台阶、外套圈、后置延长块、两只脚、裤裆或独立滑靴。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
+  { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
+  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查黄灰交界 z=16 mm、固定网柱底端与承托面共面、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm 共面、接触面以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
 ];
 
 const ASSEMBLY_GROUPS = {
   clamp: { label: "台下夹紧", color: "#f6bd67", stage: 1 },
+  clamp_fixed: { label: "固定夹体 / 立柱基台", color: "#687985", stage: 1 },
   post: { label: "左右立柱", color: "#f28b50", stage: 2 },
-  rail: { label: "网顶承载", color: "#e9eef0", stage: 3 },
+  net: { label: "网布 / 卡网夹", color: "#e9eef0", stage: 3 },
+  rail: { label: "历史网顶轨道（不在当前装配）", color: "#b28cff", stage: 5 },
   optical: { label: "M6 十路光电阵列", color: "#74a7ff", stage: 4 },
   sensor: { label: "PVDF 擦网", color: "#62e4d1", stage: 4 },
   reference: { label: "标定参考", color: "#fb817c", stage: 5 },
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
+  skp_candidate: { label: "SKP 腿脚候选", color: "#43d34d", stage: 2 },
   context: { label: "球台背景", color: "#75858b", stage: 0 },
 };
 
@@ -124,8 +131,11 @@ const state = {
     selectedId: null,
     hoveredId: null,
     focusM6: false,
+    focusSkpCandidate: false,
     showTable: true,
     showNonPrinted: true,
+    showSkpCandidate: true,
+    showSkpFit: true,
     items: [],
     loaded: false,
     loadError: null,
@@ -193,6 +203,7 @@ function categoryKey(entry) {
   if (text.includes("m6") || text.includes("十路") || text.includes("stg120") || text.includes("stg-120") || text.includes("光纤")
       || text.includes("optical") || text.includes("module") || text.includes("光学")) return "optical";
   if (text.includes("sensor") || text.includes("pvdf") || text.includes("film")) return "sensor";
+  if (text.includes("net") && !text.includes("net-rail")) return "net";
   if (text.includes("rail") || text.includes("net-rail")) return "rail";
   if (text.includes("gauge") || text.includes("reference") || text.includes("pin")) return "calibration";
   if (text.includes("stand") || text.includes("post") || text.includes("clamp") || text.includes("knob")) return "stand";
@@ -216,6 +227,8 @@ function materialClass(group) {
 
 function sourceSize(entry) {
   if (Array.isArray(entry?.source_size_mm)) return entry.source_size_mm.map(number);
+  const declaredBounds = boundsFromEntry(entry);
+  if (declaredBounds) return declaredBounds.size;
   if (Array.isArray(entry?.source_bounds) && entry.source_bounds.length === 2) {
     return entry.source_bounds[1].map(number).map((value, index) => value - number(entry.source_bounds[0][index]));
   }
@@ -270,8 +283,10 @@ function sideSign(entry) {
 
 function assemblyGroupKey(entry) {
   const part = String(entry?.part || entry?.file || entry?.id || "").toLowerCase();
+  if (part.includes("net_clamp") || part.includes("net-clamp") || part.includes("net-fabric")) return "net";
+  if (part.includes("post_clamp_carrier") || part.includes("post")) return "post";
+  if (part.includes("clamp_body_segment")) return "clamp_fixed";
   if (part.includes("clamp") || part.includes("knob") || part.includes("lower_stand")) return "clamp";
-  if (part.includes("post")) return "post";
   if (part.includes("net_rail")) return "rail";
   if (part.includes("m6") || part.includes("stg120") || part.includes("stg-120") || part.includes("optical")) return "optical";
   if (part.includes("sensor") || part.includes("pvdf")) return "sensor";
@@ -287,24 +302,134 @@ function explosionVector(group, side = 0) {
   const outward = side || 1;
   switch (group) {
     case "clamp": return [outward * 118, 0, -74];
-    case "post": return [outward * 74, 0, 42];
+    // The inboard shell owns the fixed seating shelf. Keep this datum fixed
+    // while covers, pads and knobs are exploded as service items; only the
+    // one-piece post carrier travels along the real x slide direction.
+    case "clamp_fixed": return [0, 0, 0];
+    // The post/carrier is a true x-direction slide-in.  Do not lift it in z
+    // during the exploded view: at explode=0 its bottom must remain seated on
+    // the clamp-base datum, and the only separation shown is the real slide
+    // direction.
+    case "post": return [outward * 74, 0, 0];
+    case "net": return [0, 0, 82];
     case "rail": return [0, 0, 82];
     case "optical": return [side ? outward * 162 : 0, 0, 28];
     case "sensor": return [0, -126, 48];
     case "reference": return [outward * 142, -78, 48];
     case "hardware": return [outward * 128, -32, -70];
+    // Keep the SKP candidate visually separate from the post in the exploded
+    // view. Its real installed position remains directly under the post when
+    // amount=0; the larger x offset is only a review aid.
+    case "skp_candidate": return [outward * 154, 0, -12];
     default: return [0, 0, 0];
   }
 }
 
 function sourcePrintableEntries() {
   const entries = state.sourceManifest?.parts || state.manifest?.parts || [];
-  // These are the former dark-yellow upper-post/seam parts.  Filtering them
-  // also keeps an old cached manifest from resurrecting the two removed visual
-  // components before the regenerated print package is loaded.
-  const removedActiveParts = new Set(["post_segment", "post_joint_sleeve", "post_joint_key"]);
+  // Filter retired split-post/seam parts so an old cached manifest cannot
+  // resurrect them before the regenerated one-piece print package is loaded.
+  const removedActiveParts = new Set([
+    "post_segment",
+    "lower_stand_segment",
+    "upper_stand_segment",
+    "post_joint_sleeve",
+    "post_joint_key",
+    "net_rail_segment",
+    "net_rail_splice",
+    "net_rail_saddle",
+    "net_clamp_rod",
+    "m6_detector_net_connector",
+  ]);
   return entries.filter((entry) => entry && entry.file && entry.printable !== false
     && !removedActiveParts.has(entry.part));
+}
+
+// The source M6 STL files are exported in the reusable/raw coordinate frame.
+// The SCAD assembly applies one rigid x/z translation to the complete optical
+// package. Keep that datum here as a value derived from the actual manifest so
+// the browser cannot silently fall back to the old hand-written 901/84.6
+// placement when the post or rear-cover dimensions change.
+const M6_PREVIEW_MIN_RAISE_Z = 20;
+const M6_PREVIEW_NET_TOP_Z = 168.5;
+const M6_PREVIEW_SHELL_CLEARANCE_Z = 2;
+const M6_PREVIEW_BALLHEAD_STUD_LENGTH_X = 16;
+const M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X = 12;
+const M6_PREVIEW_BALLHEAD_GAP_X = 2;
+const M6_PREVIEW_BALLHEAD_HOUSING_D = 28;
+const M6_PREVIEW_BALLHEAD_HOUSING_LENGTH_Z = 26;
+const M6_PREVIEW_BALLHEAD_BASE_T = 8;
+const M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z = 28;
+
+function deriveAssemblyDatums(entries) {
+  const rightPost = entries.find((entry) => entry.part === "post_clamp_carrier"
+    && sideSign(entry) > 0)
+    || entries.find((entry) => entry.part === "post_clamp_carrier");
+  const rightRear = entries.find((entry) => entry.part === "m6_detector_shell_rear"
+    && sideSign(entry) > 0)
+    || entries.find((entry) => entry.part === "m6_detector_shell_rear");
+  const rightBody = entries.find((entry) => entry.part === "m6_detector_body"
+    && sideSign(entry) > 0)
+    || entries.find((entry) => entry.part === "m6_detector_body");
+  const postBounds = boundsFromEntry(rightPost);
+  const rearBounds = boundsFromEntry(rightRear);
+  const bodyBounds = boundsFromEntry(rightBody);
+
+  // These fallbacks match the current SCAD design only for an old/corrupt
+  // manifest. Normal preview loads always take the values from the source
+  // manifest above.
+  const postCenterX = postBounds
+    ? (postBounds.min[0] + postBounds.max[0]) / 2
+    : 901;
+  const postTopZ = postBounds?.max?.[2] ?? 260.5;
+  const rearMaxX = rearBounds?.max?.[0] ?? 796.4;
+  const rawBallheadCenterX = rearMaxX
+    + (M6_PREVIEW_BALLHEAD_STUD_LENGTH_X - M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X)
+    + M6_PREVIEW_BALLHEAD_GAP_X
+    + M6_PREVIEW_BALLHEAD_HOUSING_D / 2;
+  const rawBallheadCenterZ = rearBounds
+    ? (rearBounds.min[2] + rearBounds.max[2]) / 2
+    : 252.5;
+  const rawBallheadBaseCenterZ = rawBallheadCenterZ
+    - M6_PREVIEW_BALLHEAD_HOUSING_LENGTH_Z / 2
+    - M6_PREVIEW_BALLHEAD_BASE_T / 2;
+  const rawBallheadBaseBottomZ = rawBallheadBaseCenterZ
+    - M6_PREVIEW_BALLHEAD_BASE_T / 2;
+  const rawShellBottomZ = rearBounds?.min?.[2] ?? 141.5;
+  const m6RaiseZ = Math.max(
+    M6_PREVIEW_MIN_RAISE_Z,
+    M6_PREVIEW_NET_TOP_Z + M6_PREVIEW_SHELL_CLEARANCE_Z - rawShellBottomZ,
+  );
+  const installedBallheadBaseBottomZ = rawBallheadBaseBottomZ + m6RaiseZ;
+  const postTopErrorZ = postTopZ - installedBallheadBaseBottomZ;
+  const rawBodyCenterX = bodyBounds
+    ? (bodyBounds.min[0] + bodyBounds.max[0]) / 2
+    : 766.25;
+  const rawBodyCenterZ = bodyBounds
+    ? (bodyBounds.min[2] + bodyBounds.max[2]) / 2
+    : 252.5;
+
+  return {
+    postCenterX,
+    postTopZ,
+    rawRearMaxX: rearMaxX,
+    rawBallheadCenterX,
+    rawBallheadCenterZ,
+    rawBallheadBaseCenterZ,
+    rawBallheadBaseBottomZ,
+    rawBodyCenterX,
+    rawBodyCenterZ,
+    m6OffsetX: postCenterX - rawBallheadCenterX,
+    m6RaiseZ,
+    installedBallheadCenterX: postCenterX,
+    installedBallheadCenterZ: rawBallheadCenterZ + m6RaiseZ,
+    installedBallheadBaseCenterZ: rawBallheadBaseCenterZ + m6RaiseZ,
+    installedBallheadBaseBottomZ,
+    postTopErrorZ,
+    installedBodyCenterX: rawBodyCenterX
+      + (postCenterX - rawBallheadCenterX),
+    installedBodyCenterZ: rawBodyCenterZ + m6RaiseZ,
+  };
 }
 
 function assemblySourcePath(entry) {
@@ -336,15 +461,43 @@ function makeAssemblyItem(options) {
     explosion: options.explosion || explosionVector(options.group || "hardware", options.side || 0),
     sourceEntry: options.sourceEntry || null,
     sourcePath: options.sourcePath || null,
+    stlTransform: options.stlTransform || null,
+    candidate: Boolean(options.candidate),
+    fitCandidate: Boolean(options.fitCandidate),
     side: options.side || 0,
     object: null,
   };
 }
 
-function makePrintableAssemblyItem(entry) {
+function makePrintableAssemblyItem(entry, assemblyDatums) {
   const bounds = boundsFromEntry(entry);
   if (!bounds) return null;
   const group = assemblyGroupKey(entry);
+  let baseMin = bounds.min;
+  let stlTransform = null;
+  if (entry.part === "net_clamp_clip") {
+    // The printable STL is deliberately laid flat: SCAD rotates the installed
+    // x/y/z clip datum onto x/y/z print axes. Restore that transform only in
+    // the assembly viewer so the source STL remains print-friendly.
+    const side = sideSign(entry);
+    baseMin = side > 0
+      ? [893.2, -3.3, 168.5]
+      : [-919.3, -3.3, 168.5];
+    stlTransform = { rotation: [-Math.PI / 2, 0, 0] };
+  }
+  if (String(entry.part || "").startsWith("m6_detector_")) {
+    // M6 parts are exported in the raw positive/negative coordinate frame,
+    // while all non-printable optical proxies below use installed coordinates.
+    // Apply the same rigid transform to every printable M6 STL, including the
+    // rear cover and bottom cable exit, so the rear-cover boss shares the
+    // purchased ballhead's installation axis instead of floating at x=raw.
+    const side = sideSign(entry);
+    baseMin = [
+      bounds.min[0] + side * assemblyDatums.m6OffsetX,
+      bounds.min[1],
+      bounds.min[2] + assemblyDatums.m6RaiseZ,
+    ];
+  }
   return makeAssemblyItem({
     id: `stl:${entry.file}`,
     name_zh: partName(entry),
@@ -359,9 +512,10 @@ function makePrintableAssemblyItem(entry) {
     shape: "stl",
     sourceEntry: entry,
     sourcePath: assemblySourcePath(entry),
-    base_min: bounds.min,
+    base_min: baseMin,
     size: bounds.size,
     side: sideSign(entry),
+    stlTransform,
     explosion: explosionVector(group, sideSign(entry)),
   });
 }
@@ -370,8 +524,18 @@ function firstEntry(entries, predicate) {
   return entries.find(predicate) || null;
 }
 
-function makeProxyAssemblyItems(entries) {
+function makeProxyAssemblyItems(entries, assemblyDatums) {
   const items = [];
+  // The printable M6 body/covers are already loaded from the current source
+  // manifest.  Keep only the purchased optical hardware as browser proxies;
+  // otherwise the same blue body/shell is shown once from STL and once again
+  // as a proxy, which looks like extra vertical parts in the assembly.
+  const sourceM6Parts = new Set(
+    entries
+      .filter((entry) => String(entry?.part || "").startsWith("m6_detector_"))
+      .map((entry) => entry.part),
+  );
+  const hasSourceM6Part = (part) => sourceM6Parts.has(part);
   const stgHead = {
     length: 130,
     activeLength: 120,
@@ -381,12 +545,13 @@ function makeProxyAssemblyItems(entries) {
     pitch: 3.87,
     count: 32,
   };
-  const railEntries = entries.filter((entry) => entry.part === "net_rail_segment");
-  const railBounds = railEntries.map(boundsFromEntry).filter(Boolean);
-  const railMinX = railBounds.length ? Math.min(...railBounds.map((item) => item.min[0])) : -915;
-  const railMaxX = railBounds.length ? Math.max(...railBounds.map((item) => item.max[0])) : 915;
-  const railTopZ = railBounds.length ? Math.min(...railBounds.map((item) => item.min[2])) : 142.5;
-  const netSpan = railMaxX - railMinX;
+  // The active net has no top rail. These are the direct cloth datum values;
+  // legacy rail entries are filtered before this proxy is built.
+  const netMinX = -915;
+  const netMaxX = 915;
+  const netBottomZ = 16;
+  const netTopZ = 168.5;
+  const netSpan = netMaxX - netMinX;
 
   items.push(makeAssemblyItem({
     id: "context:table",
@@ -409,12 +574,12 @@ function makeProxyAssemblyItems(entries) {
     name_en: "table-tennis net fabric",
     kind: "网布装配件",
     material: "外购网布",
-    group: "rail",
+    group: "net",
     shape: "box",
-    base_min: [railMinX, -0.6, 0],
-    size: [netSpan, 1.2, railTopZ],
+    base_min: [netMinX, -0.6, netBottomZ],
+    size: [netSpan, 1.2, netTopZ - netBottomZ],
     explosion: [0, 0, 82],
-    notes: "半透明网布占位，用于确认网顶承载条与过网窗口关系。",
+    notes: "半透明真实网布占位；网顶不设置轨道。网布端部止在立柱外侧面，卡夹由网布张力和绳的拉力压住，立柱内嵌单一止挡配合卡夹一体扣舌只防向外拔出；无穿钉。",
   }));
   items.push(makeAssemblyItem({
     id: "hardware:reference-line",
@@ -424,19 +589,112 @@ function makeProxyAssemblyItems(entries) {
     material: "外购线材",
     group: "reference",
     shape: "box",
-    base_min: [railMinX, -0.5, 202],
+    base_min: [netMinX, -0.5, 202],
     size: [netSpan, 1, 1],
     explosion: [0, -78, 48],
     notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
 
+  // The gray C-clamp fit candidate is a separate STL made by subtracting the
+  // combined yellow/green seating tool. Keep the formal gray clamp in the
+  // array as well; assemblyVisible() swaps it out when this review switch is
+  // enabled, so the page can compare the uncut and fitted versions.
+  const skpFitClampAssets = [
+    {
+      sideLabel: "right",
+      side: 1,
+      name: "右侧",
+      file: "right-clamp-body-skp-leg-foot-fit.stl",
+      baseMin: [680.5, -29, -75],
+    },
+    {
+      sideLabel: "left",
+      side: -1,
+      name: "左侧",
+      file: "left-clamp-body-skp-leg-foot-fit.stl",
+      baseMin: [-918.5, -29, -75],
+    },
+  ];
+  for (const asset of skpFitClampAssets) {
+    items.push(makeAssemblyItem({
+      id: `candidate:skp-fit-clamp:${asset.sideLabel}`,
+      name_zh: `灰色 C 型夹让位候选（${asset.name}）`,
+      name_en: `gray C-clamp fit candidate (${asset.sideLabel})`,
+      kind: "候选装配件",
+      material: "待定（显示/验证用）",
+      material_group: "候选件",
+      group: "clamp_fixed",
+      stage: 1,
+      color: "#687985",
+      nonPrinted: false,
+      fitCandidate: true,
+      shape: "stl",
+      sourcePath: new URL(
+        `../../post-skp-leg-foot-stage1-v0.1/${asset.file}?preview=skp-leg-foot-fit`,
+        state.manifestUrl,
+      ).href,
+      base_min: asset.baseMin,
+      size: [238, 58, 91],
+      side: asset.side,
+      explosion: [0, 0, 0],
+      notes: "灰色 C 型夹由黄色立柱下端与绿色 SKP 腿脚候选的组合外形做让位差集得到；保持原夹紧结构，其余区域不变。这里是可装配候选版，尚未替换正式打印件。",
+    }));
+  }
+
+  // The SKP-derived lower leg/foot remains outside the formal print manifest
+  // while the user reviews the new C-clamp fit candidate. Load the chamfered
+  // STL here so the existing assembly/explosion viewer can inspect the same
+  // coordinate frame without changing the 33-piece printable package.
+  const skpCandidateAssets = [
+    {
+      sideLabel: "right",
+      side: 1,
+      name: "右侧",
+      file: "right-post-skp-leg-foot-stage1.stl",
+      baseMin: [859.8, -18, -4],
+    },
+    {
+      sideLabel: "left",
+      side: -1,
+      name: "左侧",
+      file: "left-post-skp-leg-foot-stage1.stl",
+      baseMin: [-918.5, -18, -4],
+    },
+  ];
+  for (const asset of skpCandidateAssets) {
+    items.push(makeAssemblyItem({
+      id: `candidate:skp-leg-foot:${asset.sideLabel}`,
+      name_zh: `SKP 腿脚候选（${asset.name}，3 mm 终端倒角）`,
+      name_en: `SKP-derived lower leg/foot candidate (${asset.sideLabel}, chamfered)`,
+      kind: "候选 CAD 件",
+      material: "待定（显示/验证用）",
+      material_group: "候选件",
+      group: "skp_candidate",
+      stage: 2,
+      color: "#43d34d",
+      nonPrinted: false,
+      candidate: true,
+      shape: "stl",
+      sourcePath: new URL(
+        `../../post-skp-leg-foot-stage1-v0.1/${asset.file}?preview=skp-stage1-chamfered`,
+        state.manifestUrl,
+      ).href,
+      base_min: asset.baseMin,
+      size: [58.7, 36, 20],
+      side: asset.side,
+      explosion: explosionVector("skp_candidate", asset.side),
+      notes: "来自用户提供的 SKP 形状关系：下段向下延伸至脚底，左右两组对称侧形状仍属于同一个候选件；蓝色脚沿 x 向台内伸入 15 mm，终端上缘做 3×3 mm、45° 倒角，底面保持平面。这里只用于网页装配/爆炸检查，尚未进入正式打印 manifest，也尚未与 C 型夹做干涉。",
+    }));
+  }
+
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
-  // the rear PETG cover has the visible thickened 1/4-20 boss, while the vertical
-  // purchased ballhead's downward interface is carried by the integrated
-  // light-yellow lower stand. No gray bridge is an active assembly part.
+  // the rear PETG cover has the visible thickened 1/4-20 boss. The purchased
+  // ballhead is vertical and its downward M8 stud lands on the flat top of the
+  // same fixed post. All z values below start in the raw source frame and are
+  // shifted together by the derived shell-clearance datum.
   const m6Geometry = {
     axisX: 763,
-    mountRaiseZ: 20,
+    mountRaiseZ: assemblyDatums.m6RaiseZ,
     // Vendor drawing: 20 mm overall from the gray cable-side hex to the
     // threaded optical tip, with the final 14 mm being the hollow M6x0.75
     // barrel. The blue guard is a perpendicular local-z cable branch, not an
@@ -539,15 +797,19 @@ function makeProxyAssemblyItems(entries) {
     ballheadLockKnobD: 18,
     ballheadLockKnobTY: 8,
     ballheadLockKnobRidgeCount: 24,
-    ballheadCenterX: 816.4,
+    ballheadCenterX: assemblyDatums.rawBallheadCenterX,
     ballheadCenterY: 0,
-    ballheadCenterZ: 252.5,
-    ballheadBaseCenterZ: 235.5,
+    ballheadCenterZ: assemblyDatums.rawBallheadCenterZ,
+    ballheadBaseCenterZ: assemblyDatums.rawBallheadBaseCenterZ,
     ballheadBaseD: 32,
     ballheadBaseT: 8,
-    ballheadNetStudCenterZ: 217.5,
-    ballheadNetStudLength: 28,
-    ballheadSensorStudCenterX: 792.4,
+    ballheadNetStudCenterZ: assemblyDatums.rawBallheadBaseCenterZ
+      - M6_PREVIEW_BALLHEAD_BASE_T / 2
+      - M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z / 2,
+    ballheadNetStudLength: M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z,
+    ballheadSensorStudCenterX: assemblyDatums.rawRearMaxX
+      + M6_PREVIEW_BALLHEAD_STUD_LENGTH_X / 2
+      - M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X,
     ballheadSensorStudD: 6.35,
     ballheadSensorThreadCoreD: 5.35,
     ballheadSensorThreadPitch: 1.27,
@@ -562,25 +824,25 @@ function makeProxyAssemblyItems(entries) {
     ballheadNutClearance: 0.35,
     ballheadTiltDeg: 90,
     ballheadRotationDeg: 360,
-    netClampChannelDepthX: 28,
-    netClampCylinderInsertionDepthX: 28,
+    netClampChannelDepthX: 25,
+    netClampCylinderInsertionDepthX: 25,
     netClampChannelBackWallTX: 3,
     netPassageWidthY: 3,
     netClampCylinderInterferenceD: 14,
     netClampCylinderActualD: 12,
-    netClampChannelWidthY: 15.2,
+    netClampChannelWidthY: 8,
     netClampChannelBottomZ: 0,
     netClampChannelTopZ: 152.5,
-    netClampChannelVoidMinX: 890,
-    netClampChannelVoidMaxX: 915.2,
-    netClampCylinderCenterX: 897.6,
+    netClampChannelVoidMinX: 893,
+    netClampChannelVoidMaxX: 919.5,
+    netClampCylinderCenterX: 900.6,
     netClampCylinderHeight: 152.5,
   };
   // The detector/ballhead is installed as one rigid group. Move its raw
   // right-side coordinate chain to the net-post centre so the purchased
-  // ballhead's downward interface lands directly on the straight lower post;
-  // this removes the previous horizontal yellow support arm.
-  const detectorOffsetX = 901 - m6Geometry.ballheadCenterX;
+  // ballhead's downward interface lands directly on the one-piece upright socket;
+  // this removes the previous horizontal support arm.
+  const detectorOffsetX = assemblyDatums.m6OffsetX;
   const absoluteXFields = [
     "axisX",
     "fitThreadTipX",
@@ -611,7 +873,7 @@ function makeProxyAssemblyItems(entries) {
   for (const field of absoluteXFields) {
     m6Geometry[field] += detectorOffsetX;
   }
-  const detectorRaiseZ = m6Geometry.mountRaiseZ;
+  const detectorRaiseZ = assemblyDatums.m6RaiseZ;
   for (const field of [
     "bodyBottomZ",
     "sensorBaseZ",
@@ -632,53 +894,62 @@ function makeProxyAssemblyItems(entries) {
   // This keeps the red direction references on the actual apertures.
   m6Geometry.assembledOpticalAxisX = m6Geometry.fitThreadTipX;
   Object.assign(m6Geometry, {
-    postCenterX: 901,
+    postCenterX: assemblyDatums.postCenterX,
     postBodyWidth: 28,
     postBodyDepth: 38,
-    postInnerFaceX: 887,
+    postInnerFaceX: assemblyDatums.postCenterX - 28 / 2,
     ballheadNetInterfaceBottomZ:
       m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
     directMountArmWidthY: 0,
     directMountArmThicknessZ: 0,
-    // Compatibility fields: the active lower stand has no horizontal seat or
-    // side-return web; only the post-centred vertical socket remains.
+    // Compatibility fields: the fixed-net post has no horizontal seat or
+    // side-return web. Its flat top owns the central M8 tap pilot.
     directMountWebWidthY: 0,
     directMountWebThicknessX: 0,
     directMountPostOverlapX: 2,
+    // The active post socket is a tap pilot in the flat top; the clearance
+    // diameter remains a first-article mouth/fit reference for the bought M8.
     directMountSocketOuterD: 24,
     directMountSocketTapD: 6.8,
     directMountSocketClearanceD: 8.6,
-    directMountSocketBaseOverlapZ: 6,
-    directMountNutLoadingClearanceZ: 1,
+    directMountSocketBaseOverlapZ: 0,
+    directMountNutLoadingClearanceZ: 0,
+    directMountThreadDepthExtraZ: 2,
+    directMountThreadDepthZ:
+      m6Geometry.ballheadNetStudLength + 2,
+    directMountThreadBottomZ:
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+      - m6Geometry.ballheadNetStudLength - 2,
+    directMountThreadTopZ:
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2,
     directMountSocketBottomZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+      - m6Geometry.ballheadNetStudLength - 2,
     directMountSocketTopZ:
-      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2,
     directMountSocketHeightZ:
-      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5
-      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6),
+      m6Geometry.ballheadNetStudLength + 2,
     directMountSocketCenterZ:
-      (m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5
-        + m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 - 6) / 2,
-    directMountSocketCenterX: 901,
+      (m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+        + m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+        - m6Geometry.ballheadNetStudLength - 2) / 2,
+    directMountSocketCenterX: assemblyDatums.postCenterX,
     directMountNutPocketBottomZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+      - m6Geometry.ballheadNetStudLength - 2,
     directMountNutPocketCenterZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1
-      + (m6Geometry.ballheadBottomNutH + 2 * m6Geometry.ballheadNutClearance) / 2,
-    directMountNutLoadingDepthZ:
-      (m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2 + 0.5)
-      - (m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2 + 1),
-    directMountArmMinX: 901,
-    directMountArmMaxX: 901,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2
+      - m6Geometry.ballheadNetStudLength - 2,
+    directMountNutLoadingDepthZ: 0,
+    directMountArmMinX: assemblyDatums.postCenterX,
+    directMountArmMaxX: assemblyDatums.postCenterX,
     directMountArmBottomZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2,
     directMountArmTopZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
-    directMountLowerPostTopZ:
-      m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
-    directMountWebMinX: 887,
-    directMountWebMaxX: 887,
+      m6Geometry.ballheadBaseCenterZ - m6Geometry.ballheadBaseT / 2,
+    directMountLowerPostTopZ: assemblyDatums.postTopZ,
+    directMountWebMinX: assemblyDatums.postCenterX - 28 / 2,
+    directMountWebMaxX: assemblyDatums.postCenterX - 28 / 2,
     directMountWebMinZ:
       m6Geometry.ballheadNetStudCenterZ - m6Geometry.ballheadNetStudLength / 2,
     directMountWebMaxZ:
@@ -919,7 +1190,7 @@ function makeProxyAssemblyItems(entries) {
       continue;
     }
 
-    items.push(makeAssemblyItem({
+    if (!hasSourceM6Part("m6_detector_body")) items.push(makeAssemblyItem({
       id: `hardware:m6-detector-body:${sideLabel}`,
       name_zh: `M6 PETG 长条主体（${sideName}）`,
       name_en: "M6 rectangular PETG detector body, future CNC-compatible",
@@ -933,7 +1204,7 @@ function makeProxyAssemblyItems(entries) {
       explosion: [side * 54, 0, 28],
       notes: "主体就是 x=10 mm 厚、y=56 mm 宽、z=216 mm 的连续矩形长条；真实 M6 L 型器件从外侧沿 x 装入，灰色 AF8 六角卡入浅窝，中空外丝朝台内穿出并由一枚原配螺帽锁紧。两条 y± 边槽只导向前后盖舌片，主体不带 T 尾座、M8 孔或主体内线缆槽。",
     }));
-    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+    if (m6Geometry.showShell && !hasSourceM6Part("m6_detector_shell_front")) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-front:${sideLabel}`,
       name_zh: `M6 前盖：x- 光学端正球弧（${sideName}）`,
       name_en: "M6 front spherical-arc cover",
@@ -953,7 +1224,7 @@ function makeProxyAssemblyItems(entries) {
       explosion: [side * -92, 0, 46],
       notes: "x- 光学端前盖为正球弧，从主体 z+ 套入；它占两条 y± 边槽的 x- 半，M3/M4 沉头螺钉只锁入主体导孔。",
     }));
-    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+    if (m6Geometry.showShell && !hasSourceM6Part("m6_detector_shell_rear")) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
       name_zh: `M6 后盖：直角接驳边/后端圆角与加厚 1/4-20 支撑 boss（${sideName}）`,
       name_en: "M6 rear cover with straight joint edge, rounded rear corners, and 1/4-20 boss",
@@ -992,7 +1263,7 @@ function makeProxyAssemblyItems(entries) {
       explosion: [side * 118, 0, 38],
       notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø7.0 1/4-20 外牙通孔，内藏一颗标准 1/4-20 螺母。boss 根部在 y± 两侧各有一条约 3.4×26.4×12 mm 的实体桥接肋，根部从 |y|=4 mm 起并跨到后壳侧壁，避开中央 Ø7 通孔；后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
-    if (m6Geometry.showShell) items.push(makeAssemblyItem({
+    if (m6Geometry.showShell && !hasSourceM6Part("m6_detector_bottom_cover")) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
       name_zh: `M6 底盖与线缆套管孔（${sideName}）`,
       name_en: "M6 bottom cover with cable sleeve exit",
@@ -1037,7 +1308,7 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadHousingD, m6Geometry.ballheadBodyDepthY, m6Geometry.ballheadHousingLength],
       side,
       explosion: [side * 154, -28, 20],
-      notes: "云台本体不打印；按商品实景的 13 mm 球、360°旋转、90°开口和竖直壳体姿态占位。上端 1/4-20 外牙朝 x- 连接后盖，下端选 M8 外牙朝 z- 连接立柱；旋钮/球体为可见金属包络。",
+      notes: "云台本体不打印；按商品实景的 13 mm 球、360°旋转、90°开口和竖直壳体姿态占位。上端 1/4-20 外牙朝 x- 连接后盖；下端 M8 外牙朝 z- 进入浅黄色立柱顶面中心的 M8 攻丝底孔；旋钮/球体为可见金属包络。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-base:${sideLabel}`,
@@ -1052,7 +1323,7 @@ function makeProxyAssemblyItems(entries) {
       size: [m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseD, m6Geometry.ballheadBaseT],
       side,
       explosion: [side * 154, -28, -4],
-      notes: "底座是采购云台的一部分，商品上端固定螺纹为 1/4-20 外牙（约 6.35 mm）；本项目下端选择 M8 外牙，z- 直接落入浅黄色直立下段顶面的同轴 Ø24 mm 承座，承座内为 Ø8.6 mm 通孔和 AF13.7 顶装开口，标准 M8 螺母从 z+ 放入并坐在高出立柱顶面 1 mm 的肩面。承座向下与直立立柱重叠 6 mm，不再使用横向黄色承托臂。",
+      notes: `底座是采购云台的一部分，商品上端固定螺纹为 1/4-20 外牙（约 6.35 mm）；本项目下端选择 M8 外牙，直接落在网架立柱顶端 z=${formatNumber(assemblyDatums.postTopZ)} mm 的中心 M8 安装轴线上。立柱和后盖共用 y=0 轴心，不增加横向桥件。`,
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
@@ -1103,7 +1374,7 @@ function makeProxyAssemblyItems(entries) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: "采购球头下端选择 M8 外牙，朝 z- 直接穿过浅黄色直立下段顶面的 Ø8.6 mm 通孔并压住从 z+ 顶装的标准 M8 螺母；接口与立柱中心同轴，承座外径 Ø24 mm、向下进入直立立柱 6 mm，取消横向黄色承托臂，直立下段不再用侧面向上返的竖向耳，也不再插入深灰色独立连接器。",
+      notes: `采购球头下端选择 M8 外牙，朝 z- 插入浅黄色立柱顶面中心的 M8 攻丝底孔；安装顶面 z=${formatNumber(assemblyDatums.postTopZ)} mm，孔轴 x=${formatNumber(assemblyDatums.postCenterX)}、y=0，与球头底座及后盖 boss 同轴。不设置外露圆形承座、六角螺母窝、侧向承力耳或旧版独立连接器。`,
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -1339,24 +1610,10 @@ function makeProxyAssemblyItems(entries) {
       }));
     }
   }
-  const gauge = firstEntry(entries, (entry) => entry.part === "calibration_gauge");
-  const gaugeBounds = boundsFromEntry(gauge);
-  if (gaugeBounds) {
-    items.push(makeAssemblyItem({
-      id: "tool:calibration-gauge",
-      name_zh: "过网高度标定规（装配外工具）",
-      name_en: "height calibration gauge",
-      kind: "标定工具",
-      material: "PETG",
-      group: "reference",
-      nonPrinted: false,
-      shape: "box",
-      base_min: [900, 120, 0],
-      size: gaugeBounds.size,
-      explosion: [0, 128, 56],
-      notes: "这是历史 STG-120ML 的 32 点 / 3.87 mm 间距标定工具，不安装在当前 M6 网架上；只用于历史资料回溯。",
-    }));
-  }
+  // calibration_gauge remains a separately printable calibration tool in the
+  // manifest, but it is deliberately absent from the installed assembly. It
+  // was the tall red/pink proxy that made the current web preview look as if an
+  // extra component had been mounted beside the clamp.
 
   for (const entry of entries) {
     const group = assemblyGroupKey(entry);
@@ -1544,11 +1801,13 @@ function makeProxyAssemblyItems(entries) {
 
 function buildAssemblyItems() {
   const sourceEntries = sourcePrintableEntries();
+  const assemblyDatums = deriveAssemblyDatums(sourceEntries);
+  state.assembly.datums = assemblyDatums;
   const printable = sourceEntries
     .filter((entry) => entry.part !== "calibration_gauge")
-    .map(makePrintableAssemblyItem)
+    .map((entry) => makePrintableAssemblyItem(entry, assemblyDatums))
     .filter(Boolean);
-  return printable.concat(makeProxyAssemblyItems(sourceEntries));
+  return printable.concat(makeProxyAssemblyItems(sourceEntries, assemblyDatums));
 }
 
 function assemblyItemById(id) {
@@ -1561,14 +1820,23 @@ function isM6FocusItem(item) {
   return key.includes("m6");
 }
 
+function isSkpCandidateItem(item) {
+  return Boolean(item?.candidate && item.group === "skp_candidate");
+}
+
 function setM6FocusVisuals(focus) {
   const { THREE, scene } = state.three;
   if (!THREE || !scene) return;
+  const datums = state.assembly.datums || deriveAssemblyDatums(sourcePrintableEntries());
   if (!state.three.m6AxesHelper) {
     const helper = new THREE.AxesHelper(34);
     // Local origin: center of the right M6 body. Positive x is the beam
     // direction, positive y is toward the table/front, and positive z is up.
-    helper.position.set(768, 0, 227.5);
+    helper.position.set(
+      datums.installedBodyCenterX,
+      0,
+      datums.installedBodyCenterZ,
+    );
     helper.traverse((child) => {
       if (!child.material) return;
       child.material.depthTest = false;
@@ -1585,7 +1853,11 @@ function setM6FocusVisuals(focus) {
 function assemblyVisible(item) {
   if (item.context && !state.assembly.showTable) return false;
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
+  if (item.candidate && !state.assembly.showSkpCandidate) return false;
+  if (item.fitCandidate && !state.assembly.showSkpFit) return false;
+  if (item.sourceEntry?.part === "clamp_body_segment" && state.assembly.showSkpFit) return false;
   if (state.assembly.focusM6 && !isM6FocusItem(item)) return false;
+  if (state.assembly.focusSkpCandidate && !(isSkpCandidateItem(item) && item.side === 1)) return false;
   return true;
 }
 
@@ -1657,6 +1929,71 @@ function dimensionsForAngle(size, angle) {
   return angle === 90 ? [size[1], size[0], size[2]] : [...size];
 }
 
+function matrixMultiply(left, right) {
+  return [0, 1, 2].map((row) => [0, 1, 2].map((column) => (
+    left[row][0] * right[0][column]
+    + left[row][1] * right[1][column]
+    + left[row][2] * right[2][column]
+  )));
+}
+
+function rotationMatrixXYZ([rxDeg, ryDeg, rzDeg]) {
+  const rx = rxDeg * Math.PI / 180;
+  const ry = ryDeg * Math.PI / 180;
+  const rz = rzDeg * Math.PI / 180;
+  const cx = Math.cos(rx);
+  const sx = Math.sin(rx);
+  const cy = Math.cos(ry);
+  const sy = Math.sin(ry);
+  const cz = Math.cos(rz);
+  const sz = Math.sin(rz);
+  const rotateX = [[1, 0, 0], [0, cx, -sx], [0, sx, cx]];
+  const rotateY = [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]];
+  const rotateZ = [[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]];
+  return matrixMultiply(rotateZ, matrixMultiply(rotateY, rotateX));
+}
+
+function rotatePoint(matrix, point) {
+  return [0, 1, 2].map((row) => (
+    matrix[row][0] * point[0]
+    + matrix[row][1] * point[1]
+    + matrix[row][2] * point[2]
+  ));
+}
+
+function rotatedBoundsForMatrix(entry, matrix) {
+  const bounds = boundsFromEntry(entry);
+  if (!bounds) return null;
+  const points = [];
+  [bounds.min[0], bounds.max[0]].forEach((x) => {
+    [bounds.min[1], bounds.max[1]].forEach((y) => {
+      [bounds.min[2], bounds.max[2]].forEach((z) => points.push(rotatePoint(matrix, [x, y, z])));
+    });
+  });
+  const min = [0, 1, 2].map((axis) => Math.min(...points.map((point) => point[axis])));
+  const max = [0, 1, 2].map((axis) => Math.max(...points.map((point) => point[axis])));
+  return { min, max, size: max.map((value, axis) => value - min[axis]) };
+}
+
+function printOrientations(entry) {
+  // Keep the browser result identical to build_print_platter.py.  The active
+  // The upright/carrier is one whole active post part; its first-article
+  // contract is the tested rigid diagonal pose, so do not offer upright
+  // candidates that look geometrically possible but are not the locked print
+  // orientation.
+  const rotations = entry?.part === "post_clamp_carrier"
+    ? [{ label: "diagonal-rx0-ry51-rz45", euler: [0, 51, 45] }]
+    : [
+        { label: "z0", euler: [0, 0, 0] },
+        { label: "z90", euler: [0, 0, 90] },
+      ];
+  return rotations.map((rotation, rank) => {
+    const matrix = rotationMatrixXYZ(rotation.euler);
+    const bounds = rotatedBoundsForMatrix(entry, matrix);
+    return { ...rotation, rank, matrix, bounds, size: bounds?.size || sourceSize(entry) };
+  });
+}
+
 function packPreview() {
   const bed = readBed();
   if (bed.width_mm <= 0 || bed.depth_mm <= 0 || bed.height_mm <= 0 || bed.part_gap_mm <= 0 || bed.edge_margin_mm < 0 || bed.width_mm <= bed.edge_margin_mm * 2 || bed.depth_mm <= bed.edge_margin_mm * 2) {
@@ -1701,8 +2038,7 @@ function packPreview() {
 
     for (const entry of ordered) {
       const size = sourceSize(entry);
-      const candidates = [0, 90]
-        .map((angle) => ({ angle, size: dimensionsForAngle(size, angle) }))
+      const candidates = printOrientations(entry)
         .filter(({ size: candidate }) => (
           candidate[0] <= bed.width_mm - bed.edge_margin_mm * 2 + 1e-6
           && candidate[1] <= bed.depth_mm - bed.edge_margin_mm * 2 + 1e-6
@@ -1731,7 +2067,7 @@ function packPreview() {
             const x = row.x;
             const y = row.y;
             if (x + width > bed.width_mm - bed.edge_margin_mm + 1e-6 || y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
-            const score = [Math.max(row.height, depth), candidate.angle, width, x, y];
+            const score = [Math.max(row.height, depth), candidate.rank, width, x, y];
             if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
               best = { ...candidate, x, y, score };
             }
@@ -1744,7 +2080,7 @@ function packPreview() {
             const x = bed.edge_margin_mm;
             const y = rowY;
             if (y + depth > bed.depth_mm - bed.edge_margin_mm + 1e-6) continue;
-            const score = [depth, candidate.angle, width, x, y];
+            const score = [depth, candidate.rank, width, x, y];
             if (!best || score.some((value, index) => value < best.score[index] && score.slice(0, index).every((before, beforeIndex) => before === best.score[beforeIndex]))) {
               best = { ...candidate, x, y, score };
             }
@@ -1769,7 +2105,10 @@ function packPreview() {
           status: "placed",
           material_group: group,
           plate_id: plate.id,
-          rotation_z_deg: best.angle,
+          orientation_label: best.label,
+          rotation_euler_deg: best.euler,
+          rotation_matrix: best.matrix,
+          rotation_z_deg: best.euler[0] === 0 && best.euler[1] === 0 ? best.euler[2] : null,
           x_mm: best.x,
           y_mm: best.y,
           source_size_mm: size,
@@ -1817,7 +2156,7 @@ function render() {
   refs.oversizedBadge.textContent = `${(state.layout.oversized || []).length} 件`;
   if (refs.oversizeNoteTitle) refs.oversizeNoteTitle.textContent = `当前有 ${(state.layout.oversized || []).length} 件需要处理`;
   if (refs.oversizeNoteText) refs.oversizeNoteText.textContent = (state.layout.oversized || []).length
-    ? "网顶承载条约 623 mm，不能硬塞进当前打印床。页面会保留它们，等待换大床或再次拆分。"
+    ? "有零件超出当前打印床，页面会保留它们，等待换大床或再次拆分。"
     : "当前打印床可以容纳源清单中的全部零件。仍需在切片器中复核方向、支撑和首层。";
 
   if (state.activePlateIndex >= plates.length) state.activePlateIndex = Math.max(0, plates.length - 1);
@@ -1867,8 +2206,8 @@ function renderMode() {
     refs.modelKicker.textContent = state.uiMode === "exploded" ? "三维爆炸检查" : "三维装配检查";
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
-      ? "爆炸距离只改变显示位置；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、网布、PVDF、M6 45° L 型 PETG 长方条主体、20 mm 节距、总成上抬 20 mm、x 向前后分段壳体、共享 y± 边槽、斜向 7 字让位孔、后盖 1/4-20 boss、竖直采购 13 mm 球头按实物包络显示；球头 z- 接口直接落在浅黄色下段最高水平面的 M8 捕获螺母；后盖与前盖接驳边保持直角，仅后盖自身 x+ 后部两个角圆滑；下段立柱主体沿 x 留出 y 向 3 mm 网布过道，外侧再开 U 形卡网槽，槽内显示独立 PETG Ø12 打印圆柱（Ø14 干涉校核基准）；灰色桌下夹体在桌面夹持开口之外为 y 全深实心渐变支撑，靠台侧 40 mm、外侧 8 mm，M8 丝杆相应加长；检测器/球头总成移到立柱中心，取消横向黄色承托臂，当前不再显示深黄色上段和深灰色独立连接器。";
+      ? "爆炸距离只沿真实 x 向滑入方向改变显示位置；立柱保持原 z 坐标，爆炸归零时其底端与固定 C 夹最高承托面 z=16 mm 共面，不进入 C 形座。网布/卡夹功能区到 z=168.5 mm；固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从承托面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。完整灰色 C 形主体与整根橙色固定网柱分开打印；立柱从黄灰交界 z=16 mm 起一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从承托面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；取消旧版横向承托臂，不再显示旧版独立上段外件和旧版独立连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
@@ -2340,9 +2679,15 @@ function clearThreeModel() {
 
 function loadGeometry(url) {
   const Loader = state.three.STLLoader;
+  const requestUrl = new URL(url, window.location.href);
+  // STL filenames are stable across exports.  Key the browser request by the
+  // current source manifest hash so the assembly view cannot keep an older
+  // mesh after the printable geometry has been regenerated.
+  const version = state.sourceManifest?.source_sha256 || state.manifest?.source_sha256;
+  if (version) requestUrl.searchParams.set("v", String(version).slice(0, 16));
   return new Promise((resolve, reject) => {
     const loader = new Loader();
-    loader.load(url, resolve, undefined, reject);
+    loader.load(requestUrl.href, resolve, undefined, reject);
   });
 }
 
@@ -2364,9 +2709,20 @@ function addGeometryMesh(THREE, geometry, color, entry = null, center = false) {
   if (center) {
     mesh.position.set(-size.x / 2, -size.y / 2, 0);
   } else if (entry) {
-    const angle = number(entry.rotation_z_deg);
-    mesh.rotation.z = angle * Math.PI / 180;
-    mesh.position.set(angle === 90 ? number(entry.x_mm) + size.y : number(entry.x_mm), number(entry.y_mm), 0);
+    if (Array.isArray(entry.rotation_matrix) && entry.rotation_matrix.length === 3) {
+      const matrixValues = entry.rotation_matrix.flat().map((value) => number(value));
+      const placementMatrix = new THREE.Matrix4().set(...matrixValues, 0, 0, 0, 1);
+      geometry.applyMatrix4(placementMatrix);
+      geometry.computeBoundingBox();
+      const rotatedMin = geometry.boundingBox.min;
+      geometry.translate(-rotatedMin.x, -rotatedMin.y, -rotatedMin.z);
+      geometry.computeBoundingBox();
+      mesh.position.set(number(entry.x_mm), number(entry.y_mm), 0);
+    } else {
+      const angle = number(entry.rotation_z_deg);
+      mesh.rotation.z = angle * Math.PI / 180;
+      mesh.position.set(angle === 90 ? number(entry.x_mm) + size.y : number(entry.x_mm), number(entry.y_mm), 0);
+    }
   }
   state.three.modelRoot.add(mesh);
   return mesh;
@@ -2396,6 +2752,11 @@ function fitThreeCamera(filter = null) {
 function fitM6OrientationCamera() {
   state.assembly.focusM6 = !state.assembly.focusM6;
   if (state.assembly.focusM6) {
+    state.assembly.focusSkpCandidate = false;
+    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.classList.remove("active");
+  }
+  if (state.assembly.focusM6) {
     state.assembly.showTable = false;
     refs.showTable.checked = false;
     refs.fitM6.textContent = "恢复完整装配";
@@ -2418,6 +2779,41 @@ function fitM6OrientationCamera() {
     const distance = state.three.camera.position.distanceTo(target) * 0.68;
     state.three.camera.position.set(
       target.x + distance * 0.32,
+      target.y - distance,
+      target.z + distance * 0.18,
+    );
+    state.three.controls.update();
+  }
+}
+
+function fitSkpCandidateCamera() {
+  const nextFocus = !state.assembly.focusSkpCandidate;
+  if (nextFocus && state.assembly.focusM6) {
+    state.assembly.focusM6 = false;
+    setM6FocusVisuals(false);
+    refs.fitM6.textContent = "M6 右侧近景";
+    refs.fitM6.classList.remove("active");
+  }
+  state.assembly.focusSkpCandidate = nextFocus;
+  if (nextFocus) {
+    state.assembly.showSkpCandidate = true;
+    refs.showSkpCandidate.checked = true;
+    refs.fitSkp.textContent = "恢复完整装配";
+    refs.fitSkp.classList.add("active");
+  } else {
+    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.classList.remove("active");
+  }
+  updateAssemblyScene();
+  render();
+  fitThreeCamera(nextFocus ? isSkpCandidateItem : null);
+  if (nextFocus && state.three.camera && state.three.controls) {
+    // The side elevation makes the candidate's x-direction 15 mm extension,
+    // flat bottom and terminal chamfer readable before the user orbits it.
+    const target = state.three.controls.target.clone();
+    const distance = state.three.camera.position.distanceTo(target);
+    state.three.camera.position.set(
+      target.x + distance * 0.12,
       target.y - distance,
       target.z + distance * 0.18,
     );
@@ -2823,6 +3219,36 @@ function createAssemblyProxy(THREE, item) {
         metalness: 0.92,
       });
     }
+  } else if (item.shape === "detent") {
+    const ballD = number(options.ball_d, 4);
+    const ball = new THREE.SphereGeometry(ballD / 2, 24, 16);
+    addProxyPart(THREE, group, item, ball,
+      place([width / 2, depth / 2, number(options.ball_center_z, height * 0.85)]), {
+        color: "#d8dde2",
+        roughness: 0.18,
+        metalness: 0.92,
+      });
+    const springD = number(options.spring_d, 3);
+    const springH = number(options.spring_h, 8.5);
+    const spring = new THREE.CylinderGeometry(springD / 2, springD / 2, springH, 16);
+    spring.rotateX(Math.PI / 2);
+    addProxyPart(THREE, group, item, spring,
+      place([width / 2, depth / 2, number(options.spring_bottom_z, 1.2) + springH / 2]), {
+        color: "#b8bec4",
+        roughness: 0.24,
+        metalness: 0.85,
+        opacity: 0.7,
+      });
+    const retainerD = number(options.retainer_d, 5.5);
+    const retainerH = number(options.retainer_h, 1.5);
+    const retainer = new THREE.CylinderGeometry(retainerD / 2, retainerD / 2, retainerH, 24);
+    retainer.rotateX(Math.PI / 2);
+    addProxyPart(THREE, group, item, retainer,
+      place([width / 2, depth / 2, number(options.retainer_center_z, retainerH / 2)]), {
+        color: "#4b535b",
+        roughness: 0.32,
+        metalness: 0.72,
+      });
   } else if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);
     const radialSegments = item.shape === "hex" ? 6 : 24;
@@ -2847,8 +3273,8 @@ function createAssemblyProxy(THREE, item) {
     const isBeamWindow = item.shape === "stg120-beam-window";
     addProxyPart(THREE, group, item, geometry, place([width / 2, depth / 2, height / 2]), {
       color: isBeamWindow ? "#fb817c" : undefined,
-      opacity: isBeamWindow ? 0.18 : (item.group === "rail" && item.nonPrinted ? 0.34 : undefined),
-      depthWrite: isBeamWindow ? false : (item.group !== "rail" || !item.nonPrinted),
+      opacity: isBeamWindow ? 0.18 : ((item.group === "rail" || item.group === "net") && item.nonPrinted ? 0.34 : undefined),
+      depthWrite: isBeamWindow ? false : ((item.group !== "rail" && item.group !== "net") || !item.nonPrinted),
     });
     if (item.shape === "stg120-head") {
       const slit = new THREE.BoxGeometry(0.35, Math.max(1, depth - 2), Math.min(height - 10, 120));
@@ -2892,7 +3318,9 @@ function setAssemblyMaterialState(material, active, progressAlpha) {
 
 function updateAssemblyScene() {
   if (!state.three.ready) return;
-  const amount = state.assembly.explode;
+  // Assembly and exploded views share the same loaded objects.  Never let a
+  // stale slider value move objects while the normal assembly tab is active.
+  const amount = state.uiMode === "assembly" ? 0 : state.assembly.explode;
   for (const item of state.assembly.items) {
     const object = item.object;
     if (!object) continue;
@@ -2918,18 +3346,21 @@ function updateAssemblyScene() {
     });
   }
   if (refs.assemblyStatusBadge) {
-    refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · ${Math.round(amount * 100)}% 爆炸`;
+    refs.assemblyStatusBadge.textContent = state.uiMode === "assembly"
+      ? `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · 完整装配`
+      : `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · ${Math.round(amount * 100)}% 爆炸`;
   }
 }
 
 async function loadAssemblyModel() {
   if (!state.three.ready) return;
   const { THREE } = state.three;
+  if (state.uiMode === "assembly") state.assembly.explode = 0;
   const requestId = ++state.three.loadId;
   clearThreeModel();
   state.assembly.items = buildAssemblyItems();
   state.assembly.loadError = null;
-  setModelPlaceholder("正在载入装配预览…", `${state.assembly.items.length} 个对象；打印件按源 STL 坐标恢复`);
+  setModelPlaceholder("正在载入装配预览…", `${state.assembly.items.length} 个对象；打印件已恢复到安装基准`);
   const failures = [];
   for (const item of state.assembly.items.filter((candidate) => candidate.shape !== "stl")) {
     createAssemblyProxy(THREE, item);
@@ -2941,6 +3372,9 @@ async function loadAssemblyModel() {
       normalizedGeometry(THREE, geometry);
       const material = assemblyMaterial(THREE, item);
       const mesh = new THREE.Mesh(geometry, material);
+      if (item.stlTransform?.rotation) {
+        mesh.rotation.set(...item.stlTransform.rotation);
+      }
       const group = new THREE.Group();
       group.position.set(...item.baseMin);
       group.add(mesh);
@@ -3186,13 +3620,23 @@ async function loadManifest() {
     state.activePlateIndex = 0;
     state.selectedFile = null;
     state.modelMode = "plate";
+    state.uiMode = "assembly";
     state.assembly.items = [];
     state.assembly.loaded = false;
+    state.assembly.explode = 0;
+    state.assembly.datums = null;
     state.assembly.selectedId = null;
     state.assembly.hoveredId = null;
     state.assembly.focusM6 = false;
+    state.assembly.focusSkpCandidate = false;
+    state.assembly.showSkpCandidate = true;
+    state.assembly.showSkpFit = true;
     refs.fitM6.textContent = "M6 右侧近景";
     refs.fitM6.classList.remove("active");
+    refs.showSkpCandidate.checked = true;
+    refs.showSkpFit.checked = true;
+    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.classList.remove("active");
     setBedInputs(state.layout.print_bed);
     const sourceHref = state.manifest.source_manifest
       ? new URL(state.manifest.source_manifest, state.manifestUrl).href
@@ -3266,6 +3710,7 @@ refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
 refs.fitModel.addEventListener("click", fitThreeCamera);
 refs.fitM6?.addEventListener("click", fitM6OrientationCamera);
+refs.fitSkp?.addEventListener("click", fitSkpCandidateCamera);
 refs.downloadLayout.addEventListener("click", downloadLayout);
 refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
   button.addEventListener("click", () => setViewMode(button.dataset.viewMode));
@@ -3292,6 +3737,21 @@ refs.showTable.addEventListener("change", () => {
 refs.showNonPrinted.addEventListener("change", () => {
   state.assembly.showNonPrinted = refs.showNonPrinted.checked;
   updateAssemblyScene();
+});
+refs.showSkpCandidate?.addEventListener("change", () => {
+  state.assembly.showSkpCandidate = refs.showSkpCandidate.checked;
+  if (!state.assembly.showSkpCandidate && state.assembly.focusSkpCandidate) {
+    state.assembly.focusSkpCandidate = false;
+    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.classList.remove("active");
+  }
+  updateAssemblyScene();
+  renderAssemblyGuide();
+});
+refs.showSkpFit?.addEventListener("change", () => {
+  state.assembly.showSkpFit = refs.showSkpFit.checked;
+  updateAssemblyScene();
+  renderAssemblyGuide();
 });
 refs.clearAssemblySelection.addEventListener("click", () => {
   state.assembly.selectedId = null;

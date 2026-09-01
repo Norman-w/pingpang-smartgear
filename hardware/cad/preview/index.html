@@ -13,7 +13,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./style.css?v=m6-axis-fix-v4">
+  <link rel="stylesheet" href="./style.css?v=net-clamp-passive-keeper-v5">
 </head>
 <body>
   <header class="topbar">
@@ -50,6 +50,8 @@
         <input id="assembly-step" class="range-input" type="range" min="0" max="5" step="1" value="5">
         <label class="check-row"><input id="show-table" type="checkbox" checked><span>显示球台与球网背景</span></label>
         <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、M6 光电器件、PVDF 和标准件</span></label>
+        <label class="check-row"><input id="show-skp-candidate" type="checkbox" checked><span>显示 SKP 腿脚候选（未进入正式打印清单）</span></label>
+        <label class="check-row"><input id="show-skp-fit" type="checkbox" checked><span>显示灰色 C 型夹让位候选</span></label>
         <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；M6 光电器件、铝合金基座和金属标准件按外购/机加工件处理。</p>
       </section>
 
@@ -168,6 +170,7 @@
             <span id="assembly-status-badge" class="soft-badge">装配坐标 · mm</span>
             <span id="assembly-selection-badge" class="assembly-selection-badge">悬停或点击三维零件查看中文名称</span>
             <button id="fit-m6" class="tiny-button" type="button">M6 右侧近景</button>
+            <button id="fit-skp" class="tiny-button" type="button">SKP 腿脚近景</button>
             <span class="assembly-axis-legend">坐标：x=光束左右 · y=前后(+y前) · z=竖直(+z上)</span>
           </div>
           <div id="model-host" class="model-host">
@@ -247,6 +250,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=m6-axis-fix-v4"></script>
+  <script type="module" src="./app.js?v=skp-leg-foot-fit-v3"></script>
 </body>
 </html>
