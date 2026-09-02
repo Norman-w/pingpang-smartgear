@@ -32,6 +32,7 @@
 //   PART="post_skp_leg_foot_c_clamp_fit" C 方案黄色立柱+绿色下段+灰色夹体装配候选
 //   PART="post_skp_leg_foot_c_clamp_fit_exploded" C 方案沿 x 向拆开的候选装配
 //   PART="post_skp_leg_foot_c_clamp_fit_detail" C 方案底部黄色/绿色/灰色近景
+//   PART="table_clamp_screw_side_reinforced" C 夹旋钮两侧斜坡侧墙延长候选
 //   PART="post_skp_leg_foot_fit_tool" 黄色下端+绿色腿脚的 C 型夹让位工具（诊断）
 //   PART="clamp_body_skp_leg_foot_fit" 用黄色+绿色候选外形对灰色 C 夹做让位的诊断件
 //   PART="post_skp_leg_foot_clamp_fit" 黄色立柱+绿色腿脚+让位后的灰色 C 夹可装配候选
@@ -912,8 +913,8 @@ clamp_screw_pitch = 1.25;
 clamp_screw_bore_d = clamp_screw_d + 0.8;
 // 82 mm 台下有效舌长的中点：螺杆中心距台边 41 mm。
 clamp_screw_inset = 41;
-// 外包络仍保持 Ø36 mm；用圆形齿凸做 18 齿圆角锯齿握持圈，谷底为 Ø30 mm。
-// 这样手指有明确的抗滑着力点，但不改变旋钮与螺杆的安装包络。
+// 基准旋钮外包络为 Ø36 mm；用圆形齿凸做 18 齿圆角锯齿握持圈，谷底为 Ø30 mm。
+// 审看候选可以单独放大外径，但正式基准仍保留 Ø36 mm。
 clamp_knob_d = 36;
 clamp_knob_grip_root_d = 30;
 clamp_knob_grip_tooth_count = 18;
@@ -1924,6 +1925,32 @@ function clamp_reinforcement_bottom_z_at(x) =
         (clamp_reinforcement_end_x - clamp_reinforcement_start_x) *
         (clamp_reinforcement_outer_bottom_z -
          clamp_reinforcement_near_table_bottom_z);
+// Review-only local reinforcement around the hand knob. The two side walls
+// continue the existing sloped underside back to the lower arm's farthest
+// table-side end. The review knob is only slightly larger (Ø40) for grip; its
+// 20 mm axial thickness stays unchanged. The centered opening is the review
+// knob diameter plus 2 mm per side, leaving 7 mm side strips in the current
+// 58 mm depth. The screw-rod extension is derived from the maximum wall
+// height, not the knob thickness.
+clamp_screw_side_reinforced_knob_d = clamp_knob_d + 4;
+clamp_screw_side_reinforced_knob_h = clamp_knob_h;
+clamp_screw_side_reinforcement_start_x = clamp_pad_x;
+clamp_screw_side_reinforcement_join_x = clamp_reinforcement_start_x;
+clamp_screw_side_reinforcement_top_z = clamp_lower_arm_bottom_z;
+clamp_screw_side_reinforcement_central_clearance_y =
+    clamp_screw_side_reinforced_knob_d / 2 + 2;
+clamp_screw_side_reinforcement_side_width_y =
+    clamp_reinforcement_depth_y / 2 -
+    clamp_screw_side_reinforcement_central_clearance_y;
+clamp_screw_side_reinforcement_bottom_z_start =
+    clamp_reinforcement_bottom_z_at(
+        clamp_screw_side_reinforcement_start_x);
+clamp_screw_side_reinforcement_bottom_z_join =
+    clamp_reinforcement_bottom_z_at(
+        clamp_screw_side_reinforcement_join_x);
+clamp_screw_side_reinforcement_max_height_z =
+    clamp_screw_side_reinforcement_top_z -
+    clamp_screw_side_reinforcement_bottom_z_start;
 clamp_electronics_cavity_x_min =
     clamp_reinforcement_start_x + clamp_electronics_cavity_inboard_margin_x;
 clamp_electronics_cavity_x_max =
@@ -2022,6 +2049,24 @@ clamp_knob_nut_z = clamp_knob_drive_nut_z;
 clamp_screw_bottom_z =
     clamp_knob_lock_nut_z - clamp_screw_capture_extension;
 clamp_screw_length = clamp_screw_top_z - clamp_screw_bottom_z;
+// The review side-wall height becomes extra metal threaded-rod length. The
+// pressure-pad end stays fixed; the rod and its knob/nut stack move downward
+// together so the unchanged-thickness knob remains at the new rod end.
+clamp_screw_side_reinforced_screw_extension_h =
+    clamp_screw_side_reinforcement_max_height_z;
+clamp_screw_side_reinforced_screw_bottom_z =
+    clamp_screw_bottom_z - clamp_screw_side_reinforced_screw_extension_h;
+clamp_screw_side_reinforced_screw_length =
+    clamp_screw_length + clamp_screw_side_reinforced_screw_extension_h;
+// The handwheel is mounted at the new lower end of the longer rod. Its
+// original 20 mm thickness is translated downward by exactly the added rod
+// length, so the rod end remains captured inside the knob rather than sticking
+// out below it.
+clamp_screw_side_reinforced_knob_top_z =
+    clamp_knob_top_z - clamp_screw_side_reinforced_screw_extension_h;
+clamp_screw_side_reinforced_knob_bottom_z =
+    clamp_screw_side_reinforced_knob_top_z -
+    clamp_screw_side_reinforced_knob_h;
 clamp_screw_tip_radius = clamp_screw_d / 2;
 default_side = SIDE == 0 ? 1 : SIDE;
 
@@ -2920,6 +2965,29 @@ assert(clamp_reinforcement_inboard_offset_x > 0 &&
            clamp_reinforcement_outer_bottom_z <
                clamp_reinforcement_top_z,
        "solid tapered under-clamp reinforcement/bridge must be full-depth, clear of the pad, and 40-to-12 mm");
+assert(clamp_screw_side_reinforcement_start_x == clamp_pad_x &&
+           clamp_screw_side_reinforcement_join_x ==
+               clamp_reinforcement_start_x &&
+           clamp_screw_side_reinforcement_start_x <
+               clamp_screw_side_reinforcement_join_x &&
+           clamp_screw_side_reinforcement_side_width_y > 0 &&
+           clamp_screw_side_reinforcement_central_clearance_y * 2 <
+               clamp_reinforcement_depth_y &&
+           clamp_screw_side_reinforcement_bottom_z_start <
+               clamp_screw_side_reinforcement_bottom_z_join &&
+           clamp_screw_side_reinforcement_max_height_z > 0 &&
+           clamp_screw_side_reinforced_knob_h == clamp_knob_h &&
+           clamp_screw_side_reinforced_knob_d > clamp_knob_d &&
+           clamp_screw_side_reinforced_screw_extension_h ==
+               clamp_screw_side_reinforcement_max_height_z &&
+           clamp_screw_side_reinforced_screw_length > clamp_screw_length &&
+           clamp_screw_side_reinforced_screw_bottom_z < clamp_screw_bottom_z &&
+           clamp_screw_side_reinforced_knob_top_z < clamp_knob_top_z &&
+           clamp_screw_side_reinforced_knob_bottom_z <
+               clamp_screw_side_reinforced_screw_bottom_z &&
+           clamp_screw_side_reinforced_screw_bottom_z <
+               clamp_screw_side_reinforced_knob_top_z,
+       "knob-side reinforcement must reach the table-side clamp end while the rod is lengthened and the unchanged-thickness knob remains at the new rod end");
 assert(clamp_electronics_cavity_x_min > clamp_screw_x &&
            clamp_electronics_cavity_x_min >
                clamp_pressure_pad_x + clamp_pressure_pad_width / 2 &&
@@ -3244,6 +3312,33 @@ module clamp_solid_outboard_bridge_positive() {
                      clamp_solid_bridge_top_z],
                     [clamp_solid_bridge_start_x,
                      clamp_solid_bridge_top_z]
+                ]);
+}
+
+module clamp_screw_side_reinforcement_positive(y_side) {
+    // One of the two added sloped side walls beside the hand knob. It starts
+    // at the lower arm's farthest table-side end and joins the existing full
+    // tapered body at the table edge. The centered Ø44 mm opening clears the
+    // Ø40 mm review knob by 2 mm on each side; nothing is added in the knob path.
+    side_y_center = y_side > 0
+        ? clamp_screw_side_reinforcement_central_clearance_y +
+              clamp_screw_side_reinforcement_side_width_y / 2
+        : -clamp_screw_side_reinforcement_central_clearance_y -
+              clamp_screw_side_reinforcement_side_width_y / 2;
+    translate([0, side_y_center, 0])
+        rotate([90, 0, 0])
+            linear_extrude(
+                height = clamp_screw_side_reinforcement_side_width_y,
+                center = true)
+                polygon(points = [
+                    [clamp_screw_side_reinforcement_start_x,
+                     clamp_screw_side_reinforcement_bottom_z_start],
+                    [clamp_screw_side_reinforcement_join_x,
+                     clamp_screw_side_reinforcement_bottom_z_join],
+                    [clamp_screw_side_reinforcement_join_x,
+                     clamp_screw_side_reinforcement_top_z + 0.2],
+                    [clamp_screw_side_reinforcement_start_x,
+                     clamp_screw_side_reinforcement_top_z + 0.2]
                 ]);
 }
 
@@ -4142,6 +4237,17 @@ module table_clamp_body_positive() {
     clamp_electronics_battery_rails_positive();
 }
 
+module table_clamp_body_screw_side_reinforced_positive() {
+    // Review-only local-strength candidate. The original C body, C opening,
+    // electronics cavity, and M8 load path are untouched; only the matching
+    // pair of side walls is added beside the knob.
+    union() {
+        table_clamp_body_positive();
+        clamp_screw_side_reinforcement_positive(-1);
+        clamp_screw_side_reinforcement_positive(1);
+    }
+}
+
 module clamp_body_segment_positive() {
     // Printable fixed gray clamp shell. It contains the complete C-frame
     // envelope, trapezoid electronics cavity, two full-length female
@@ -4210,60 +4316,84 @@ module clamp_top_pad_positive() {
             cube([clamp_top_pad_width, clamp_top_pad_depth, clamp_top_pad_t]);
 }
 
-module clamp_screw_positive() {
+module clamp_screw_positive(
+    screw_bottom_z = clamp_screw_bottom_z,
+    screw_length = clamp_screw_length
+) {
     // 这是金属外购螺杆的几何占位。首样不打印螺纹，使用真实 M8×1.25
     // 螺杆承受夹紧载荷；圆头只用于检查与台底压块的接触位置。
     color("silver") {
-        translate([clamp_screw_x, 0, clamp_screw_bottom_z])
+        translate([clamp_screw_x, 0, screw_bottom_z])
             cylinder(d = clamp_screw_d,
-                     h = clamp_screw_length - clamp_screw_tip_radius);
+                     h = screw_length - clamp_screw_tip_radius);
         translate([clamp_screw_x, 0,
                    clamp_screw_top_z - clamp_screw_tip_radius])
             sphere(r = clamp_screw_tip_radius);
     }
 }
 
-module clamp_knob_grip_positive() {
+module clamp_knob_grip_positive(
+    knob_height = clamp_knob_h,
+    knob_diameter = clamp_knob_d,
+    knob_top_z = clamp_knob_top_z
+) {
     // A round root plus overlapping round lobes gives a printable, rounded
-    // saw-tooth grip.  The valleys stay inside the original Ø36 mm envelope,
-    // while every lobe has a continuous radial connection to the root.
-    translate([clamp_screw_x, 0, clamp_knob_bottom_z]) {
-        cylinder(d = clamp_knob_grip_root_d, h = clamp_knob_h, $fn = 96);
+    // saw-tooth grip. The optional review diameter changes only the hand
+    // envelope; the axial thickness and M8 drive interface stay unchanged.
+    knob_root_diameter =
+        clamp_knob_grip_root_d + knob_diameter - clamp_knob_d;
+    knob_tooth_pitch_r =
+        knob_diameter / 2 - clamp_knob_grip_tooth_d / 2;
+    translate([clamp_screw_x, 0,
+               knob_top_z - knob_height]) {
+        cylinder(d = knob_root_diameter, h = knob_height, $fn = 96);
         for (index = [0 : clamp_knob_grip_tooth_count - 1])
             rotate([0, 0, 360 * index / clamp_knob_grip_tooth_count])
-                translate([clamp_knob_grip_tooth_pitch_r, 0, 0])
+                translate([knob_tooth_pitch_r, 0, 0])
                     cylinder(d = clamp_knob_grip_tooth_d,
-                             h = clamp_knob_h,
+                             h = knob_height,
                              $fn = 24);
     }
 }
 
-module clamp_knob_positive() {
+module clamp_knob_positive(
+    knob_height = clamp_knob_h,
+    knob_diameter = clamp_knob_d,
+    knob_top_z = clamp_knob_top_z
+) {
     color("dimgray")
         difference() {
-            clamp_knob_grip_positive();
+            clamp_knob_grip_positive(
+                knob_height,
+                knob_diameter,
+                knob_top_z);
             // The center bore lets the rod pass through the printed handwheel.
-            translate([clamp_screw_x, 0, clamp_knob_bottom_z - 1])
-                cylinder(d = clamp_screw_bore_d, h = clamp_knob_h + 2);
+            translate([clamp_screw_x, 0,
+                       knob_top_z - knob_height - 1])
+                cylinder(d = clamp_screw_bore_d, h = knob_height + 2);
             // Two M8 nuts are pre-tightened against each other on the rod and
             // captured as one hex stack. This gives the handwheel a positive
             // drive interface; the lower-arm nut is the only stationary thread.
             translate([clamp_screw_x, 0,
-                       clamp_knob_top_z - clamp_knob_nut_pocket_depth])
+                       knob_top_z - clamp_knob_nut_pocket_depth])
                 hex_prism(clamp_nut_pocket_af,
                           clamp_knob_nut_pocket_depth + 0.01);
         }
 }
 
-module clamp_knob_nut_positive() {
+module clamp_knob_nut_positive(knob_top_z = clamp_knob_top_z) {
     // Install these two standard nuts on the M8 rod and tighten them against
     // each other before inserting the stack into the printed knob. The
     // resulting jam pair rotates with the rod and does not create a second
     // independently constrained thread.
+    knob_nut_top_z = knob_top_z - clamp_knob_nut_top_z_clearance;
+    knob_drive_nut_z = knob_nut_top_z - clamp_nut_h;
+    knob_lock_nut_z =
+        knob_drive_nut_z - clamp_knob_nut_gap - clamp_nut_h;
     color("gold") {
-        translate([clamp_screw_x, 0, clamp_knob_drive_nut_z])
+        translate([clamp_screw_x, 0, knob_drive_nut_z])
             m8_nut_positive();
-        translate([clamp_screw_x, 0, clamp_knob_lock_nut_z])
+        translate([clamp_screw_x, 0, knob_lock_nut_z])
             m8_nut_positive();
     }
 }
@@ -5055,6 +5185,33 @@ module table_clamp_positive() {
     clamp_screw_positive();
     clamp_knob_positive();
     clamp_knob_nut_positive();
+}
+
+module table_clamp_screw_side_reinforced_positive() {
+    // Review-only correction requested by the user: the C-clamp remains the
+    // same, while two sloped side walls are extended back to clamp_pad_x on
+    // either side of the hand knob. The knob keeps its original 20 mm
+    // thickness and uses a slightly larger review diameter; the screw rod is
+    // lengthened by the measured maximum wall height. The pressure-pad top
+    // datum stays fixed; the knob/nut stack moves with the extended rod.
+    table_clamp_body_screw_side_reinforced_positive();
+    post_clamp_carrier_positive();
+    if (clamp_slide_interface_enabled) {
+        clamp_slide_detent_hardware_positive();
+        clamp_slide_lock_hardware_positive();
+    }
+    clamp_top_pad_positive();
+    clamp_body_nut_positive();
+    clamp_pressure_pad_positive();
+    clamp_screw_positive(
+        clamp_screw_side_reinforced_screw_bottom_z,
+        clamp_screw_side_reinforced_screw_length);
+    clamp_knob_positive(
+        clamp_screw_side_reinforced_knob_h,
+        clamp_screw_side_reinforced_knob_d,
+        clamp_screw_side_reinforced_knob_top_z);
+    clamp_knob_nut_positive(
+        clamp_screw_side_reinforced_knob_top_z);
 }
 
 module clamp_slide_fit_probe_positive() {
@@ -9409,6 +9566,34 @@ module parameter_probe() {
              clamp_solid_bridge_start_x));
     echo(str("NETSTAND_PARAM clamp_solid_bridge_top_z=",
              clamp_solid_bridge_top_z));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_start_x=",
+             clamp_screw_side_reinforcement_start_x));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_join_x=",
+             clamp_screw_side_reinforcement_join_x));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_central_clearance_y=",
+             clamp_screw_side_reinforcement_central_clearance_y));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_side_width_y=",
+             clamp_screw_side_reinforcement_side_width_y));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_bottom_z_start=",
+             clamp_screw_side_reinforcement_bottom_z_start));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_bottom_z_join=",
+             clamp_screw_side_reinforcement_bottom_z_join));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforcement_max_height_z=",
+             clamp_screw_side_reinforcement_max_height_z));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_knob_d=",
+             clamp_screw_side_reinforced_knob_d));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_knob_h=",
+             clamp_screw_side_reinforced_knob_h));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_screw_extension_h=",
+             clamp_screw_side_reinforced_screw_extension_h));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_screw_bottom_z=",
+             clamp_screw_side_reinforced_screw_bottom_z));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_screw_length=",
+             clamp_screw_side_reinforced_screw_length));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_knob_top_z=",
+             clamp_screw_side_reinforced_knob_top_z));
+    echo(str("NETSTAND_PARAM clamp_screw_side_reinforced_knob_bottom_z=",
+             clamp_screw_side_reinforced_knob_bottom_z));
     echo(str("NETSTAND_PARAM clamp_reinforcement_start_x=",
              clamp_reinforcement_start_x));
     echo(str("NETSTAND_PARAM clamp_reinforcement_end_x=",
@@ -10123,6 +10308,8 @@ if (PART == "assembly") {
     sided(default_side) clamp_slide_fit_section_positive();
 } else if (PART == "table_clamp") {
     sided(default_side) table_clamp_positive();
+} else if (PART == "table_clamp_screw_side_reinforced") {
+    sided(default_side) table_clamp_screw_side_reinforced_positive();
 } else if (PART == "table_clamp_section") {
     sided(default_side) table_clamp_section_positive();
 } else if (PART == "table_clamp_body") {
