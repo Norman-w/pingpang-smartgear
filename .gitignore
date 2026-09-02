@@ -30,6 +30,11 @@ hardware/cad/exports/
 hardware/cad/rendered/
 hardware/prints/
 
+# Electronics generated models, reports, and KiCad local session state
+hardware/electronics/3d/v0.2/
+hardware/electronics/output/
+*.kicad_prl
+
 # ESP-IDF generated project configuration
 firmware/sdkconfig
 firmware/sdkconfig.old

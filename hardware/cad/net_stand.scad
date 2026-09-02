@@ -26,6 +26,12 @@
 //   PART="post_skp_leg_foot_stage1" 按用户 SKP 原尺寸实现的单一腿脚候选件（含终端倒角）
 //   PART="post_skp_leg_foot_stage1_raw" 用户 SKP 腿脚原尺寸、未倒角诊断件
 //   PART="post_skp_leg_foot_stage1_exploded" 当前立柱与 SKP 腿脚候选件爆炸预览（不含C形夹）
+//   PART="post_skp_leg_foot_c" 新 SKP 整体加厚底座 C 方案候选件（含孔/底坑）
+//   PART="post_skp_leg_foot_c_wear_pad" 兼容入口；新 C 方案无独立耐磨垫
+//   PART="clamp_body_skp_leg_foot_c_fit" 新 C 方案底座让位后的灰色 C 型夹候选
+//   PART="post_skp_leg_foot_c_clamp_fit" C 方案黄色立柱+绿色下段+灰色夹体装配候选
+//   PART="post_skp_leg_foot_c_clamp_fit_exploded" C 方案沿 x 向拆开的候选装配
+//   PART="post_skp_leg_foot_c_clamp_fit_detail" C 方案底部黄色/绿色/灰色近景
 //   PART="post_skp_leg_foot_fit_tool" 黄色下端+绿色腿脚的 C 型夹让位工具（诊断）
 //   PART="clamp_body_skp_leg_foot_fit" 用黄色+绿色候选外形对灰色 C 夹做让位的诊断件
 //   PART="post_skp_leg_foot_clamp_fit" 黄色立柱+绿色腿脚+让位后的灰色 C 夹可装配候选
@@ -1185,20 +1191,20 @@ post_down_extension_stage1_raw_max_x =
     max(post_down_extension_stage1_top_max_x,
         post_down_extension_stage1_bottom_max_x);
 
-// 用户提供的 SKP 是同一个器件的四个组：Group#1 是上方立柱/接口参照，
-// Group#2 是中间的连续 y-z 截面，Group#3/Group#4 是同一器件中 y 向对称的
-// 两个 15 mm 腿脚延伸。这里只搬入 Group#2/3/4 作为当前“脚”候选件；
-// Group#1 不重复生成，因为当前正式立柱仍由 post_body_positive() 管理。
-// 所有数字均由 SKP 的 mm 坐标直接记录，不做缩放。Group#1 的参照立柱
-// 在 SKP 中为 43.7 mm；它不是当前正式下端 35 mm 宽面的尺寸。
+// 用户最新提供的 SKP 是一个完整的下端接口示意：根部 Group#1 是参照
+// 立柱，ROOT 是新的整体底座。ROOT 的底部没有旧版中央裤裆，而是两侧
+// 15 mm 外伸、两个 Ø4 mm 螺丝通孔，以及一个 Ø6 mm、深 2 mm 的中央底坑。
+// 这里只把 ROOT 的底座几何搬入候选件；参照立柱仍由 post_body_positive()
+// 管理，避免把示意文件里的短立柱重复叠加到正式立柱上。所有数字均由
+// SKP 的 mm 坐标直接记录，不做缩放。
 post_skp_leg_foot_reference_upright_width_x = 43.7;
 post_skp_leg_foot_reference_lower_depth_y = 57;
 post_skp_leg_foot_reference_interface_z = 20;
 post_skp_leg_foot_main_length_x = 43.7;
 post_skp_leg_foot_side_extension_x = 15;
 post_skp_leg_foot_side_height_z = 7;
-post_skp_leg_foot_lower_min_y_local = 10.5;
-post_skp_leg_foot_lower_max_y_local = 46.5;
+post_skp_leg_foot_lower_min_y_local = 5.5;
+post_skp_leg_foot_lower_max_y_local = 51.5;
 post_skp_leg_foot_profile_top_z = 20;
 // The user's correction is an edge datum, not a center datum: the SKP lower
 // main body must finish flush with the yellow lower transition and gray clamp
@@ -1219,8 +1225,8 @@ post_skp_leg_foot_min_x =
     post_skp_leg_foot_origin_x - post_skp_leg_foot_side_extension_x;
 post_skp_leg_foot_max_x =
     post_skp_leg_foot_origin_x + post_skp_leg_foot_main_length_x;
-// The lower Groups #2/#3/#4 occupy y=10.5..46.5; the wider y=0..57 envelope
-// belongs to Group#1's lower transition and is intentionally not duplicated.
+// The ROOT base occupies y=5.5..51.5; its 57 mm reference span is centered at
+// y=28.5 in the SKP, so the assembled candidate is symmetric about y=0.
 post_skp_leg_foot_min_y =
     post_skp_leg_foot_origin_y + post_skp_leg_foot_lower_min_y_local;
 post_skp_leg_foot_max_y =
@@ -1241,6 +1247,56 @@ post_skp_leg_foot_exploded_offset_x = 75;
 // visible yellow or green geometry.
 post_skp_leg_foot_fit_clearance = clamp_slide_clearance;
 post_skp_leg_foot_fit_cutter_overlap_z = 0.5;
+
+// C 方案候选：不再增加任何外挂肋、导向肩或独立蓝色耐磨垫，直接采用
+// 新 SKP ROOT 的整体底座。SKP 的局部 y 中心是 28.5 mm；映射到装配坐标
+// 后为 y=0。两枚 Ø4 mm 孔和中央底坑都保留为绿色候选本体的一部分。
+post_skp_c_source_y_center = post_skp_leg_foot_reference_lower_depth_y / 2;
+post_skp_c_main_min_y_local = 11.5;
+post_skp_c_main_max_y_local = 45.5;
+post_skp_c_side_lower_min_y_local = 5.5;
+post_skp_c_side_lower_max_y_local = 23.5;
+post_skp_c_side_upper_min_y_local = 33.5;
+post_skp_c_side_upper_max_y_local = 51.5;
+post_skp_c_fastener_x_local = -7;
+post_skp_c_fastener_y_local = [17.5, 39.5];
+post_skp_c_fastener_d = 4;
+post_skp_c_clamp_fastener_d = 4.4;
+post_skp_c_clamp_fastener_bottom_z = clamp_top_pad_t - 0.1;
+post_skp_c_clamp_fastener_top_z = post_bottom + 0.1;
+post_skp_c_pocket_x_local = 33.7;
+post_skp_c_pocket_y_local = 28.5;
+post_skp_c_pocket_d = 6;
+post_skp_c_pocket_depth_z = 2;
+
+// “咯噔”定位件从灰色 C 夹内部向上顶入绿色底部圆坑。球顶到达
+// SKP 底坑的 2 mm 平底；定位件只负责到位反馈，不承担主承力路径。
+post_skp_c_detent_x =
+    post_skp_leg_foot_origin_x + post_skp_c_pocket_x_local;
+post_skp_c_detent_y = 0;
+post_skp_c_detent_ball_d = 4;
+post_skp_c_detent_bore_d = 4.4;
+post_skp_c_detent_bore_bottom_z =
+    post_skp_leg_foot_bottom_z - 10;
+post_skp_c_detent_bore_top_z =
+    post_skp_leg_foot_bottom_z + post_skp_c_pocket_depth_z + 0.2;
+post_skp_c_detent_ball_center_z = post_skp_leg_foot_bottom_z;
+post_skp_c_detent_dimple_d = post_skp_c_pocket_d;
+post_skp_c_detent_dimple_bottom_z = post_skp_leg_foot_bottom_z;
+post_skp_c_detent_dimple_depth_z = post_skp_c_pocket_depth_z;
+post_skp_c_detent_retainer_d = 5.5;
+post_skp_c_detent_retainer_t_z = 1.2;
+post_skp_c_detent_retainer_bottom_z =
+    post_skp_c_detent_bore_bottom_z;
+post_skp_c_detent_spring_d = 3;
+post_skp_c_detent_spring_bottom_z =
+    post_skp_c_detent_bore_bottom_z +
+    post_skp_c_detent_retainer_t_z + 0.2;
+post_skp_c_detent_spring_top_z =
+    post_skp_c_detent_ball_center_z - post_skp_c_detent_ball_d / 2;
+post_skp_c_detent_spring_h =
+    post_skp_c_detent_spring_top_z -
+    post_skp_c_detent_spring_bottom_z;
 // Keep the crotch below the net's z=0 lower edge with the same 0.35 mm
 // display/print clearance. The main nominal post still seats flat at z=16 mm;
 // the raised tie is only the shoe-to-shoe connector and detent carrier.
@@ -3079,6 +3135,48 @@ assert(post_skp_leg_foot_reference_upright_width_x > 0 &&
            post_skp_leg_foot_min_y < post_skp_leg_foot_max_y &&
            post_skp_leg_foot_bottom_z < post_skp_leg_foot_top_z,
        "SKP leg/foot dimensions and terminal chamfer must be positive");
+assert(post_skp_c_source_y_center == 28.5 &&
+           post_skp_c_main_min_y_local < post_skp_c_main_max_y_local &&
+           post_skp_c_side_lower_min_y_local <
+               post_skp_c_side_lower_max_y_local &&
+           post_skp_c_side_upper_min_y_local <
+               post_skp_c_side_upper_max_y_local &&
+           post_skp_c_fastener_x_local < 0 &&
+           len(post_skp_c_fastener_y_local) == 2 &&
+           post_skp_c_fastener_y_local[0] >
+               post_skp_c_side_lower_min_y_local &&
+           post_skp_c_fastener_y_local[0] <
+               post_skp_c_side_lower_max_y_local &&
+           post_skp_c_fastener_y_local[1] >
+               post_skp_c_side_upper_min_y_local &&
+           post_skp_c_fastener_y_local[1] <
+               post_skp_c_side_upper_max_y_local &&
+           post_skp_c_fastener_d > 0 &&
+           post_skp_c_clamp_fastener_d > post_skp_c_fastener_d &&
+           post_skp_c_pocket_x_local > 0 &&
+           post_skp_c_pocket_x_local < post_skp_leg_foot_main_length_x &&
+           post_skp_c_pocket_y_local == post_skp_c_source_y_center &&
+           post_skp_c_pocket_d > 0 &&
+           post_skp_c_pocket_depth_z > 0 &&
+           post_skp_c_pocket_depth_z < post_skp_leg_foot_side_height_z,
+       "new SKP C candidate must retain the two through holes and the shallow central bottom pocket");
+assert(post_skp_c_detent_x > post_skp_leg_foot_origin_x +
+           post_skp_c_detent_dimple_d / 2 &&
+           post_skp_c_detent_x < post_skp_leg_foot_max_x -
+           post_skp_c_detent_dimple_d / 2 &&
+           post_skp_c_detent_y == 0 &&
+           post_skp_c_detent_bore_d > post_skp_c_detent_ball_d &&
+           post_skp_c_detent_bore_bottom_z < post_skp_c_detent_bore_top_z &&
+           post_skp_c_detent_ball_center_z - post_skp_c_detent_ball_d / 2 >=
+               post_skp_c_detent_bore_bottom_z &&
+           post_skp_c_detent_ball_center_z + post_skp_c_detent_ball_d / 2 <=
+               post_skp_c_detent_bore_top_z &&
+           post_skp_c_detent_dimple_bottom_z ==
+               post_skp_leg_foot_bottom_z &&
+           post_skp_c_detent_dimple_depth_z > 0 &&
+           post_skp_c_detent_spring_h > 0 &&
+           post_skp_c_detent_retainer_t_z > 0,
+       "C candidate detent must align with the new SKP bottom pocket and remain a locating feature");
 
 function beam_z(height) = net_height + height;
 function m6_sensor_z(index) =
@@ -5613,41 +5711,36 @@ module post_skp_terminal_xz_limit_positive(y_min, y_max) {
 }
 
 module post_skp_group2_positive() {
-    // Group#2 end-face loop, copied from the supplied SKP in mm.  The
-    // concave profile intentionally retains the central y=23.5..33.5,
-    // z=0..12 opening; it is not two separate devices.
+    // New SKP ROOT main body: x=0..43.7, with the two 6 mm tapered side
+    // faces running from y=5.5..51.5 at z=0 to y=11.5..45.5 at z=7.
     post_skp_yz_prism_positive([
-        [33.5, 0],
-        [46.5, 0],
-        [40.5, 7],
-        [40.5, 20],
-        [16.5, 20],
-        [16.5, 7],
-        [10.5, 0],
-        [23.5, 0],
-        [23.5, 12],
-        [33.5, 12]
+        [5.5, 0],
+        [11.5, 7],
+        [11.5, 20],
+        [45.5, 20],
+        [45.5, 7],
+        [51.5, 0]
     ], 0, post_skp_leg_foot_main_length_x);
 }
 
 module post_skp_group3_raw_positive() {
-    // Group#3 is the upper-y symmetric side shoe in the supplied SKP.
+    // New SKP ROOT upper-y side extension, x=-15..0.
     post_skp_yz_prism_positive([
-        [33.5, 0],
-        [33.5, post_skp_leg_foot_side_height_z],
-        [40.5, post_skp_leg_foot_side_height_z],
-        [46.5, 0]
+        [post_skp_c_side_upper_min_y_local, 0],
+        [post_skp_c_side_upper_max_y_local, 0],
+        [45.5, post_skp_leg_foot_side_height_z],
+        [33.5, post_skp_leg_foot_side_height_z]
     ], -post_skp_leg_foot_side_extension_x,
        post_skp_leg_foot_side_extension_x);
 }
 
 module post_skp_group4_raw_positive() {
-    // Group#4 is the lower-y symmetric side shoe in the supplied SKP.
+    // New SKP ROOT lower-y side extension, x=-15..0.
     post_skp_yz_prism_positive([
-        [10.5, 0],
-        [16.5, post_skp_leg_foot_side_height_z],
+        [post_skp_c_side_lower_min_y_local, 0],
+        [post_skp_c_side_lower_max_y_local, 0],
         [23.5, post_skp_leg_foot_side_height_z],
-        [23.5, 0]
+        [11.5, post_skp_leg_foot_side_height_z]
     ], -post_skp_leg_foot_side_extension_x,
        post_skp_leg_foot_side_extension_x);
 }
@@ -5655,50 +5748,334 @@ module post_skp_group4_raw_positive() {
 module post_skp_group3_chamfered_positive() {
     intersection() {
         post_skp_group3_raw_positive();
-        post_skp_terminal_xz_limit_positive(33.5, 46.5);
+        post_skp_terminal_xz_limit_positive(
+            post_skp_c_side_upper_min_y_local,
+            post_skp_c_side_upper_max_y_local);
     }
 }
 
 module post_skp_group4_chamfered_positive() {
     intersection() {
         post_skp_group4_raw_positive();
-        post_skp_terminal_xz_limit_positive(10.5, 23.5);
+        post_skp_terminal_xz_limit_positive(
+            post_skp_c_side_lower_min_y_local,
+            post_skp_c_side_lower_max_y_local);
     }
 }
 
+module post_skp_c_fastener_holes_negative_positive() {
+    // The two Ø4 mm holes are vertical through-holes in the two x- side
+    // extensions. Their local SKP centers are (-7,17.5) and (-7,39.5).
+    for (y_local = post_skp_c_fastener_y_local)
+        translate([
+            post_skp_leg_foot_origin_x + post_skp_c_fastener_x_local,
+            post_skp_leg_foot_origin_y + y_local,
+            post_skp_leg_foot_bottom_z - 0.02
+        ])
+            cylinder(
+                d = post_skp_c_fastener_d,
+                h = post_skp_leg_foot_side_height_z + 0.04,
+                $fn = 24);
+}
+
+module post_skp_c_bottom_pocket_negative_positive() {
+    // Exact new-SKP underside pocket: Ø6 mm, 2 mm deep, open from the
+    // bottom plane and ending at the flat z=2 mm pocket floor.
+    translate([
+        post_skp_leg_foot_origin_x + post_skp_c_pocket_x_local,
+        post_skp_leg_foot_origin_y + post_skp_c_pocket_y_local,
+        post_skp_leg_foot_bottom_z - 0.02
+    ])
+        cylinder(
+            d = post_skp_c_pocket_d,
+            h = post_skp_c_pocket_depth_z + 0.02,
+            $fn = 24);
+}
+
 module post_skp_leg_foot_stage1_raw_positive() {
-    // Exact lower-device geometry from SKP Groups #2/#3/#4, before the
-    // explicitly requested terminal chamfer.  This is still one device; the
-    // symmetric groups are joined at their shared x=0 interface.
+    // Exact new SKP ROOT lower-device geometry before the requested terminal
+    // chamfer. The two symmetric side regions remain one joined candidate;
+    // the central lower crotch is absent.
     color("limegreen")
-        union() {
-            post_skp_group2_positive();
-            post_skp_group3_raw_positive();
-            post_skp_group4_raw_positive();
+        difference() {
+            union() {
+                post_skp_group2_positive();
+                post_skp_group3_raw_positive();
+                post_skp_group4_raw_positive();
+            }
+            post_skp_c_fastener_holes_negative_positive();
+            post_skp_c_bottom_pocket_negative_positive();
         }
 }
 
 module post_skp_leg_foot_stage1_positive() {
-    // Printable checkpoint: the SKP lower device with a 3 x 3 mm 45-degree
-    // upper leading chamfer on both 15 mm terminal shoes.  The C-clamp is
-    // deliberately absent until the user accepts this shape.
+    // Review checkpoint: the new SKP ROOT with a 3 x 3 mm 45-degree chamfer
+    // on the upper leading edge of both 15 mm side extensions. The bottom
+    // plane, two through-holes and central pocket remain unchanged.
     color("limegreen")
-        union() {
-            post_skp_group2_positive();
-            post_skp_group3_chamfered_positive();
-            post_skp_group4_chamfered_positive();
+        difference() {
+            union() {
+                post_skp_group2_positive();
+                post_skp_group3_chamfered_positive();
+                post_skp_group4_chamfered_positive();
+            }
+            post_skp_c_fastener_holes_negative_positive();
+            post_skp_c_bottom_pocket_negative_positive();
         }
 }
 
+module post_skp_c_root_cheek_positive(y_side) {
+    // One outer root cheek per y side.  Its inner edge reaches well into the
+    // original SKP side wall; the outer edge is the only new envelope.  A
+    // two-end hull gives a short 3-D taper toward the 15 mm foot instead of a
+    // second rectangular collar or a long dovetail.
+    y_min = y_side > 0
+        ? post_skp_leg_foot_max_y - post_skp_c_root_cheek_inner_reach_y
+        : -post_skp_c_root_cheek_outer_y;
+    y_max = y_side > 0
+        ? post_skp_c_root_cheek_outer_y
+        : -post_skp_leg_foot_max_y + post_skp_c_root_cheek_inner_reach_y;
+    hull() {
+        translate([
+            post_skp_c_root_cheek_min_x,
+            y_min,
+            post_skp_c_root_cheek_bottom_z
+        ])
+            cube([
+                post_skp_c_root_cheek_start_span_x,
+                y_max - y_min,
+                post_skp_c_root_cheek_start_height_z
+            ]);
+        translate([
+            post_skp_c_root_cheek_max_x - post_skp_c_root_cheek_end_span_x,
+            y_min,
+            post_skp_c_root_cheek_bottom_z
+        ])
+            cube([
+                post_skp_c_root_cheek_end_span_x,
+                y_max - y_min,
+                post_skp_c_root_cheek_end_height_z
+            ]);
+    }
+}
+
+module post_skp_c_guide_shoulder_positive(y_side) {
+    // Short lower guide shoulder along the actual x- insertion extension.
+    // It widens only the outside of each existing shoe and remains below the
+    // central bridge, so the SKP y-z opening is unchanged.
+    y_min = y_side > 0
+        ? post_skp_leg_foot_max_y - post_skp_c_guide_shoulder_inner_reach_y
+        : -post_skp_c_guide_shoulder_outer_y;
+    y_max = y_side > 0
+        ? post_skp_c_guide_shoulder_outer_y
+        : -post_skp_leg_foot_max_y + post_skp_c_guide_shoulder_inner_reach_y;
+    hull() {
+        translate([
+            post_skp_c_guide_shoulder_min_x,
+            y_min,
+            post_skp_c_guide_shoulder_bottom_z
+        ])
+            cube([
+                post_skp_c_guide_shoulder_start_span_x,
+                y_max - y_min,
+                post_skp_c_guide_shoulder_start_height_z
+            ]);
+        translate([
+            post_skp_c_guide_shoulder_max_x - post_skp_c_guide_shoulder_end_span_x,
+            y_min,
+            post_skp_c_guide_shoulder_bottom_z
+        ])
+            cube([
+                post_skp_c_guide_shoulder_end_span_x,
+                y_max - y_min,
+                post_skp_c_guide_shoulder_end_height_z
+            ]);
+    }
+}
+
+module post_skp_c_wear_pad_piece_positive(y_side) {
+    // The two pieces are the replaceable contact pads under the 15 mm blue
+    // extension.  Keep each pad as a plain closed prism for robust STL export.
+    y_min = y_side > 0
+        ? post_skp_leg_foot_origin_y + 33.5 + post_skp_c_wear_pad_inset_y
+        : post_skp_leg_foot_origin_y + 10.5 + post_skp_c_wear_pad_inset_y;
+    translate([
+        post_skp_c_wear_pad_min_x,
+        y_min,
+        post_skp_c_wear_pad_bottom_z
+    ])
+        cube([
+            post_skp_c_wear_pad_length_x,
+            post_skp_c_wear_pad_width_y,
+            post_skp_c_wear_pad_t_z
+        ]);
+}
+
+module post_skp_c_wear_pad_positive() {
+    // Retired: the new SKP already contains the full-width side extensions.
+    // No separate blue pad or hanging add-on belongs to the C candidate.
+}
+
+module post_skp_c_detent_dimple_negative_positive() {
+    // Compatibility entry point. The new SKP feature is a straight Ø6 mm,
+    // 2 mm-deep underside pocket, not the old conical crotch dimple.
+    post_skp_c_bottom_pocket_negative_positive();
+}
+
+module post_skp_c_detent_bore_negative_positive() {
+    // Service bore in the fixed gray C-clamp. The retainer is below the gray
+    // seat; the 4 mm ball only reaches the green pocket at final insertion.
+    translate([
+        post_skp_c_detent_x,
+        post_skp_c_detent_y,
+        post_skp_c_detent_bore_bottom_z
+    ])
+        cylinder(
+            d = post_skp_c_detent_bore_d,
+            h = post_skp_c_detent_bore_top_z -
+                post_skp_c_detent_bore_bottom_z,
+            $fn = 32);
+}
+
+module post_skp_c_detent_hardware_positive() {
+    // Visual-only purchased hardware: steel ball, short spring and bottom
+    // retainer. This is a locator, not a structural fastener or load path.
+    color("silver")
+        translate([
+            post_skp_c_detent_x,
+            post_skp_c_detent_y,
+            post_skp_c_detent_ball_center_z
+        ])
+            sphere(d = post_skp_c_detent_ball_d, $fn = 32);
+    color("silver", 0.5)
+        translate([
+            post_skp_c_detent_x,
+            post_skp_c_detent_y,
+            post_skp_c_detent_spring_bottom_z
+        ])
+            cylinder(
+                d = post_skp_c_detent_spring_d,
+                h = post_skp_c_detent_spring_h,
+                $fn = 16);
+    color("dimgray")
+        translate([
+            post_skp_c_detent_x,
+            post_skp_c_detent_y,
+            post_skp_c_detent_retainer_bottom_z
+        ])
+            cylinder(
+                d = post_skp_c_detent_retainer_d,
+                h = post_skp_c_detent_retainer_t_z,
+                $fn = 32);
+}
+
+module post_skp_leg_foot_c_positive() {
+    // Corrected C-scheme structural candidate: use the new SKP ROOT as one
+    // integrated, thickened base. It has no external cheeks, no guide
+    // shoulders, no blue add-ons, and no central crotch.
+    post_skp_leg_foot_stage1_positive();
+}
+
+module post_skp_leg_foot_c_fit_tool_positive() {
+    // Clearance tool for the corrected integrated SKP base. Split each
+    // positive primitive into its own Minkowski operation for robust CGAL
+    // evaluation. Holes and the underside pocket are omitted from this
+    // exterior envelope because they remove green material and cannot cause
+    // an outside interference with the gray C-clamp.
+    clear_cube = [
+        2 * post_skp_leg_foot_fit_clearance,
+        2 * post_skp_leg_foot_fit_clearance,
+        2 * post_skp_leg_foot_fit_clearance
+    ];
+    union() {
+        minkowski() {
+            post_skp_group2_positive();
+            cube(clear_cube, center = true);
+        }
+        minkowski() {
+            post_skp_group3_chamfered_positive();
+            cube(clear_cube, center = true);
+        }
+        minkowski() {
+            post_skp_group4_chamfered_positive();
+            cube(clear_cube, center = true);
+        }
+        minkowski() {
+            translate([0, 0, -post_skp_leg_foot_fit_cutter_overlap_z])
+                post_interface_transition_positive();
+            cube(clear_cube, center = true);
+        }
+    }
+}
+
+module post_skp_c_clamp_fastener_holes_negative_positive() {
+    // Matching Ø4.4 mm clearance holes in the gray upper C-clamp shelf. The
+    // green source holes stay Ø4 mm; this 0.4 mm enlargement is reserved only
+    // for the review fit and the later screw-selection step.
+    for (y_local = post_skp_c_fastener_y_local)
+        translate([
+            post_skp_leg_foot_origin_x + post_skp_c_fastener_x_local,
+            post_skp_leg_foot_origin_y + y_local,
+            post_skp_c_clamp_fastener_bottom_z
+        ])
+            cylinder(
+                d = post_skp_c_clamp_fastener_d,
+                h = post_skp_c_clamp_fastener_top_z -
+                    post_skp_c_clamp_fastener_bottom_z,
+                $fn = 24);
+}
+
+module clamp_body_skp_leg_foot_c_fit_positive() {
+    // Gray C-clamp candidate with the corrected integrated SKP seating
+    // envelope, the two matching fastener holes, and the central detent
+    // service bore removed. The formal gray body remains unchanged until this
+    // candidate is accepted.
+    color("slategray")
+        difference() {
+            clamp_body_segment_positive();
+            post_skp_leg_foot_c_fit_tool_positive();
+            post_skp_c_detent_bore_negative_positive();
+            post_skp_c_clamp_fastener_holes_negative_positive();
+        }
+}
+
+module post_skp_leg_foot_c_clamp_fit_positive() {
+    // Assembly-only corrected C-scheme candidate. The yellow post, integrated
+    // green SKP base and silver locator hardware are shown with the matching
+    // gray pocket and two screw holes; none is added to the formal manifest.
+    clamp_body_skp_leg_foot_c_fit_positive();
+    post_body_positive();
+    post_skp_leg_foot_c_positive();
+    post_skp_c_detent_hardware_positive();
+}
+
+module post_skp_leg_foot_c_clamp_fit_exploded_positive() {
+    // Review-only exploded view. Keep the gray fitted C-clamp fixed and move
+    // the yellow post, green integrated SKP base, and detent stack together
+    // along the real x insertion/removal direction.
+    clamp_body_skp_leg_foot_c_fit_positive();
+    translate([preview_slide_out_offset_x, 0, 0]) {
+        post_body_positive();
+        post_skp_leg_foot_c_positive();
+        post_skp_c_detent_hardware_positive();
+    }
+}
+
+module post_skp_leg_foot_c_clamp_fit_detail_positive() {
+    // Lower-interface detail view: retain only the gray fitted clamp, the
+    // yellow 30 mm transition, the green SKP base, and the detent stack so
+    // the actual seating/interference relationship is legible without the
+    // full-height post hiding the lower geometry.
+    clamp_body_skp_leg_foot_c_fit_positive();
+    color("goldenrod")
+        post_interface_transition_positive();
+    post_skp_leg_foot_c_positive();
+    post_skp_c_detent_hardware_positive();
+}
+
 module post_skp_leg_foot_fit_tool_positive() {
-    // Build one subtractive tool from the visible yellow lower transition and
-    // the green SKP lower device.  Keep the boolean operands as the original
-    // closed solids: applying Minkowski to this concave, overlapping compound
-    // makes CGAL 6.1 return an empty Nef object on the current macOS build.
-    // Apply the clearance to each closed primitive separately.  A single
-    // Minkowski around the concave, overlapping compound makes CGAL 6.1
-    // return an empty Nef object on the current macOS build; split operands
-    // retain the same silhouette while keeping the boolean robust.
+    // Legacy stage-1 clearance tool retained for comparison with the C
+    // candidate. Apply the clearance to each closed primitive separately.
     union() {
         minkowski() {
             post_skp_group2_positive();
@@ -8863,6 +9240,26 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM post_skp_leg_foot_terminal_chamfer_z=", post_skp_leg_foot_terminal_chamfer_z));
     echo(str("NETSTAND_PARAM post_skp_leg_foot_fit_clearance=", post_skp_leg_foot_fit_clearance));
     echo(str("NETSTAND_PARAM post_skp_leg_foot_fit_cutter_overlap_z=", post_skp_leg_foot_fit_cutter_overlap_z));
+    echo(str("NETSTAND_PARAM post_skp_c_source_y_center=", post_skp_c_source_y_center));
+    echo(str("NETSTAND_PARAM post_skp_c_main_min_y_local=", post_skp_c_main_min_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_main_max_y_local=", post_skp_c_main_max_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_side_lower_min_y_local=", post_skp_c_side_lower_min_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_side_lower_max_y_local=", post_skp_c_side_lower_max_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_side_upper_min_y_local=", post_skp_c_side_upper_min_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_side_upper_max_y_local=", post_skp_c_side_upper_max_y_local));
+    echo(str("NETSTAND_PARAM post_skp_c_fastener_x_local=", post_skp_c_fastener_x_local));
+    echo(str("NETSTAND_PARAM post_skp_c_fastener_d=", post_skp_c_fastener_d));
+    echo(str("NETSTAND_PARAM post_skp_c_clamp_fastener_d=", post_skp_c_clamp_fastener_d));
+    echo(str("NETSTAND_PARAM post_skp_c_pocket_x_local=", post_skp_c_pocket_x_local));
+    echo(str("NETSTAND_PARAM post_skp_c_pocket_d=", post_skp_c_pocket_d));
+    echo(str("NETSTAND_PARAM post_skp_c_pocket_depth_z=", post_skp_c_pocket_depth_z));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_x=", post_skp_c_detent_x));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_ball_center_z=", post_skp_c_detent_ball_center_z));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_bore_d=", post_skp_c_detent_bore_d));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_bore_bottom_z=", post_skp_c_detent_bore_bottom_z));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_bore_top_z=", post_skp_c_detent_bore_top_z));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_dimple_bottom_z=", post_skp_c_detent_dimple_bottom_z));
+    echo(str("NETSTAND_PARAM post_skp_c_detent_dimple_depth_z=", post_skp_c_detent_dimple_depth_z));
     echo(str("NETSTAND_PARAM net_post_top_z=", net_post_top_z));
     echo(str("NETSTAND_PARAM net_span=", net_span));
     echo(str("NETSTAND_PARAM post_segment_count=", post_segment_count));
@@ -9642,6 +10039,18 @@ if (PART == "assembly") {
     sided(default_side) post_skp_leg_foot_stage1_raw_positive();
 } else if (PART == "post_skp_leg_foot_stage1_exploded") {
     sided(default_side) post_skp_leg_foot_stage1_exploded_positive();
+} else if (PART == "post_skp_leg_foot_c") {
+    sided(default_side) post_skp_leg_foot_c_positive();
+} else if (PART == "post_skp_leg_foot_c_wear_pad") {
+    sided(default_side) post_skp_c_wear_pad_positive();
+} else if (PART == "clamp_body_skp_leg_foot_c_fit") {
+    sided(default_side) clamp_body_skp_leg_foot_c_fit_positive();
+} else if (PART == "post_skp_leg_foot_c_clamp_fit") {
+    sided(default_side) post_skp_leg_foot_c_clamp_fit_positive();
+} else if (PART == "post_skp_leg_foot_c_clamp_fit_exploded") {
+    sided(default_side) post_skp_leg_foot_c_clamp_fit_exploded_positive();
+} else if (PART == "post_skp_leg_foot_c_clamp_fit_detail") {
+    sided(default_side) post_skp_leg_foot_c_clamp_fit_detail_positive();
 } else if (PART == "post_skp_leg_foot_fit_tool") {
     sided(default_side) post_skp_leg_foot_fit_tool_positive();
 } else if (PART == "clamp_body_skp_leg_foot_fit") {

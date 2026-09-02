@@ -89,7 +89,7 @@ const COLORS = {
 
 const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm，底端不插入 C 形座。网柱下端 35×58 mm，从承托面起经 30 mm 实心锥形过渡收至 28×38 mm，之后保持恒定到顶端；没有台阶、外套圈、后置延长块、两只脚、裤裆或独立滑靴。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
+  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm。勾选候选开关时，网页叠加当前审查中的 SKP C 方案：绿色件直接采用用户最新 SKP 的整体底座，向 x- 延伸 15 mm，中央没有旧式裤裆，底部保留两个 Ø4 mm 穿孔和一个 Ø6×2 mm 咯噔圆坑；两侧外伸段末端保留 3×3 mm、45° 倒角。灰色候选由黄色/绿色外形做让位，并配套两枚 Ø4.4 mm 螺丝孔和中央定位孔；这些候选对象不属于正式 33 件 manifest。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
   { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查黄灰交界 z=16 mm、固定网柱底端与承托面共面、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm 共面、接触面以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
@@ -596,22 +596,24 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   }));
 
   // The gray C-clamp fit candidate is a separate STL made by subtracting the
-  // combined yellow/green seating tool. Keep the formal gray clamp in the
-  // array as well; assemblyVisible() swaps it out when this review switch is
-  // enabled, so the page can compare the uncut and fitted versions.
+  // yellow/green seating envelope of the corrected integrated SKP base. It
+  // also carries the two matching screw-hole clearances and the detent bore.
+  // Keep the formal gray clamp in the array as well;
+  // assemblyVisible() swaps it out when this review switch is enabled, so the
+  // page can compare the uncut and fitted versions.
   const skpFitClampAssets = [
     {
       sideLabel: "right",
       side: 1,
       name: "右侧",
-      file: "right-clamp-body-skp-leg-foot-fit.stl",
+      file: "right-clamp-body-skp-leg-foot-c-fit.stl",
       baseMin: [680.5, -29, -75],
     },
     {
       sideLabel: "left",
       side: -1,
       name: "左侧",
-      file: "left-clamp-body-skp-leg-foot-fit.stl",
+      file: "left-clamp-body-skp-leg-foot-c-fit.stl",
       baseMin: [-918.5, -29, -75],
     },
   ];
@@ -630,42 +632,43 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       fitCandidate: true,
       shape: "stl",
       sourcePath: new URL(
-        `../../post-skp-leg-foot-stage1-v0.1/${asset.file}?preview=skp-leg-foot-fit`,
+        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-fit-v2`,
         state.manifestUrl,
       ).href,
       base_min: asset.baseMin,
       size: [238, 58, 91],
       side: asset.side,
       explosion: [0, 0, 0],
-      notes: "灰色 C 型夹由黄色立柱下端与绿色 SKP 腿脚候选的组合外形做让位差集得到；保持原夹紧结构，其余区域不变。这里是可装配候选版，尚未替换正式打印件。",
+      notes: "灰色 C 型夹由黄色立柱承托区和绿色新 SKP 整体底座的外形做让位差集得到，并保留两枚对应螺丝孔与中央咯噔孔；保持原夹紧结构，其余区域不变。这里是可装配候选版，尚未替换正式打印件。",
     }));
   }
 
-  // The SKP-derived lower leg/foot remains outside the formal print manifest
-  // while the user reviews the new C-clamp fit candidate. Load the chamfered
-  // STL here so the existing assembly/explosion viewer can inspect the same
-  // coordinate frame without changing the 33-piece printable package.
+  // The SKP-derived C-scheme lower device remains outside the formal print
+  // manifest while the user reviews the fit candidate. Load the structural
+  // STL in the same coordinate frame so the assembly/explosion viewer can
+  // inspect the actual integrated candidate without changing the 33-piece
+  // printable package.
   const skpCandidateAssets = [
     {
       sideLabel: "right",
       side: 1,
       name: "右侧",
-      file: "right-post-skp-leg-foot-stage1.stl",
-      baseMin: [859.8, -18, -4],
+      file: "right-post-skp-leg-foot-c-v0.2.stl",
+      baseMin: [859.8, -23, -4],
     },
     {
       sideLabel: "left",
       side: -1,
       name: "左侧",
-      file: "left-post-skp-leg-foot-stage1.stl",
-      baseMin: [-918.5, -18, -4],
+      file: "left-post-skp-leg-foot-c-v0.2.stl",
+      baseMin: [-918.5, -23, -4],
     },
   ];
   for (const asset of skpCandidateAssets) {
     items.push(makeAssemblyItem({
       id: `candidate:skp-leg-foot:${asset.sideLabel}`,
-      name_zh: `SKP 腿脚候选（${asset.name}，3 mm 终端倒角）`,
-      name_en: `SKP-derived lower leg/foot candidate (${asset.sideLabel}, chamfered)`,
+      name_zh: `SKP C 方案整体底座候选（${asset.name}，含孔和末端倒角）`,
+      name_en: `SKP-derived integrated C-scheme base (${asset.sideLabel}, holed and chamfered)`,
       kind: "候选 CAD 件",
       material: "待定（显示/验证用）",
       material_group: "候选件",
@@ -676,14 +679,49 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       candidate: true,
       shape: "stl",
       sourcePath: new URL(
-        `../../post-skp-leg-foot-stage1-v0.1/${asset.file}?preview=skp-stage1-chamfered`,
+        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-v2`,
         state.manifestUrl,
       ).href,
       base_min: asset.baseMin,
-      size: [58.7, 36, 20],
+      size: [58.7, 46, 20],
       side: asset.side,
       explosion: explosionVector("skp_candidate", asset.side),
-      notes: "来自用户提供的 SKP 形状关系：下段向下延伸至脚底，左右两组对称侧形状仍属于同一个候选件；蓝色脚沿 x 向台内伸入 15 mm，终端上缘做 3×3 mm、45° 倒角，底面保持平面。这里只用于网页装配/爆炸检查，尚未进入正式打印 manifest，也尚未与 C 型夹做干涉。",
+      notes: "直接按用户最新 SKP ROOT 实现：整体底座向 x- 伸入 15 mm；两侧对称外伸仍属于同一个器件；中央没有旧式裤裆；底部保留两个 Ø4 mm 贯穿孔和一个 Ø6 mm、深 2 mm 的咯噔圆坑；两侧外伸段上缘保留 3×3 mm、45° 末端倒角。这里只用于网页装配/爆炸检查，尚未进入正式打印 manifest。",
+    }));
+  }
+
+  const skpDetentAssets = [
+    { sideLabel: "right", side: 1, name: "右侧", baseMinX: 905.75 },
+    { sideLabel: "left", side: -1, name: "左侧", baseMinX: -911.25 },
+  ];
+  for (const asset of skpDetentAssets) {
+    items.push(makeAssemblyItem({
+      id: `candidate:skp-c-detent:${asset.sideLabel}`,
+      name_zh: `C 方案“咯噔”定位球/弹簧/压盖（${asset.name}）`,
+      name_en: `C-scheme spring-ball detent stack (${asset.sideLabel})`,
+      kind: "候选装配占位",
+      material: "钢球 + 弹簧 + 压盖",
+      material_group: "候选件",
+      group: "skp_candidate",
+      stage: 2,
+      color: "#d8dde2",
+      candidate: true,
+      shape: "detent",
+      base_min: [asset.baseMinX, -2.75, -14],
+      size: [5.5, 5.5, 12],
+      side: asset.side,
+      explosion: [asset.side * 154, 0, -42],
+      shapeOptions: {
+        ball_d: 4,
+        ball_center_z: 10,
+        spring_d: 3,
+        spring_h: 6.6,
+        spring_bottom_z: 1.4,
+        retainer_d: 5.5,
+        retainer_h: 1.2,
+        retainer_center_z: 0.6,
+      },
+      notes: "定位球位于绿色新 SKP 底部 Ø6 mm 圆坑下方，只负责到位触感和定位，不承担立柱的竖向或侧向承力；正式标准件尺寸仍需按实物复核。",
     }));
   }
 
@@ -1821,7 +1859,11 @@ function isM6FocusItem(item) {
 }
 
 function isSkpCandidateItem(item) {
-  return Boolean(item?.candidate && item.group === "skp_candidate");
+  if (!item || item.side !== 1) return false;
+  if (item.candidate && item.group === "skp_candidate") return true;
+  if (item.fitCandidate) return true;
+  const part = item.sourceEntry?.part;
+  return part === "post_clamp_carrier" || part === "clamp_body_segment";
 }
 
 function setM6FocusVisuals(focus) {
@@ -2753,7 +2795,7 @@ function fitM6OrientationCamera() {
   state.assembly.focusM6 = !state.assembly.focusM6;
   if (state.assembly.focusM6) {
     state.assembly.focusSkpCandidate = false;
-    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
   }
   if (state.assembly.focusM6) {
@@ -2801,7 +2843,7 @@ function fitSkpCandidateCamera() {
     refs.fitSkp.textContent = "恢复完整装配";
     refs.fitSkp.classList.add("active");
   } else {
-    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
   }
   updateAssemblyScene();
@@ -3635,7 +3677,7 @@ async function loadManifest() {
     refs.fitM6.classList.remove("active");
     refs.showSkpCandidate.checked = true;
     refs.showSkpFit.checked = true;
-    refs.fitSkp.textContent = "SKP 腿脚近景";
+    refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
     setBedInputs(state.layout.print_bed);
     const sourceHref = state.manifest.source_manifest
@@ -3742,7 +3784,7 @@ refs.showSkpCandidate?.addEventListener("change", () => {
   state.assembly.showSkpCandidate = refs.showSkpCandidate.checked;
   if (!state.assembly.showSkpCandidate && state.assembly.focusSkpCandidate) {
     state.assembly.focusSkpCandidate = false;
-    refs.fitSkp.textContent = "SKP 腿脚近景";
+  refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
   }
   updateAssemblyScene();
