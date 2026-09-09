@@ -1780,16 +1780,19 @@ m6_detector_net_connector_mount_height_z =
     m6_post_mount_hole_z -
     m6_detector_ballhead_net_interface_bottom_z;
 
-// The 208 x 24 mm receiver carrier is installed vertically in the +y side of
-// the M6 rear/cable cavity. Its component side points toward -x. The board
-// datum is intentionally outside the 10 mm optical bar and behind the rear
-// cover boss; the harness still exits through the y- gland/trunk.
-m6_receiver_carrier_length_z = 208;
-m6_receiver_carrier_width_y = 24;
+// The compact receiver carrier is installed vertically in the +y side of the
+// M6 rear/cable cavity. Its component side points toward -x. The ten optical
+// heads remain at 20 mm pitch in the M6 body, but their 3-wire harnesses
+// converge before entering this board; board length is therefore independent
+// of optical spacing. Centering this board in the shell leaves the y- side for
+// the common cable trunk and does not stretch the PCB along the optical array.
+m6_receiver_carrier_length_z = 80;
+m6_receiver_carrier_width_y = 32;
 m6_receiver_carrier_board_t_x = 1.6;
 m6_receiver_carrier_board_x = m6_detector_shell_inner_max_x - 3.6;
 m6_receiver_carrier_board_y = m6_detector_shell_inner_max_y - 1.5;
-m6_receiver_carrier_board_z_min = m6_detector_body_bottom_z + 7;
+m6_receiver_carrier_board_z_min =
+    m6_detector_body_center_z - m6_receiver_carrier_length_z / 2;
 m6_receiver_carrier_board_z_max =
     m6_receiver_carrier_board_z_min + m6_receiver_carrier_length_z;
 m6_receiver_carrier_component_depth_x = 6.4;
@@ -3266,6 +3269,9 @@ function net_rail_segment_start(index) =
 function net_rail_splice_center(index) =
     net_rail_segment_start(index) + net_rail_segment_length - net_rail_splice_overlap / 2;
 
+include <laser_micro_mount.scad>
+include <receiver_mount.scad>
+
 module sided(side = 1) {
     if (side >= 0) {
         children();
@@ -4106,14 +4112,14 @@ module clamp_electronics_emitter_fit_preview_positive() {
     clamp_electronics_local_wiring_positive();
 }
 
-module clamp_electronics_system_preview() {
+module clamp_electronics_system_preview(show_optical = true) {
     // Right = receiver/main control; left = emitter/internal power. Both
     // clamp cavities are shown with real boards in their installed shells.
-    sided(1) clamp_electronics_m6_integration_preview_positive(false);
-    sided(-1) clamp_electronics_m6_integration_preview_positive(true);
+    sided(1) clamp_electronics_m6_integration_preview_positive(false, show_optical);
+    sided(-1) clamp_electronics_m6_integration_preview_positive(true, show_optical);
 }
 
-module clamp_electronics_m6_integration_preview_positive(is_emitter = false) {
+module clamp_electronics_m6_integration_preview_positive(is_emitter = false, show_optical = true) {
     // Close system relationship: the local clamp installation, the real
     // board-to-M6 service route, and the installed M6 shell/receiver PCB all
     // share the same world datum.  This is the evidence model for routing and
@@ -4123,7 +4129,13 @@ module clamp_electronics_m6_integration_preview_positive(is_emitter = false) {
     else
         clamp_electronics_fit_preview_positive();
     clamp_electronics_wiring_reference_positive();
-    m6_detector_assembly_positive();
+    if (show_optical) {
+        if (bare_laser_enabled) {
+            if(is_emitter) laser_micro_detector_positive();
+            else receiver_detector_positive();
+        }
+        else m6_detector_assembly_positive();
+    }
 }
 
 module clamp_electronics_exploded_positive() {
@@ -7325,7 +7337,7 @@ module m6_detector_sensor_fit_voids_positive() {
     }
 }
 
-module m6_detector_body_positive() {
+module m6_detector_body_positive(screw_z = m6_detector_body_screw_z) {
     color("lightsteelblue")
         difference() {
             m6_detector_body_envelope_positive();
@@ -7339,7 +7351,7 @@ module m6_detector_body_positive() {
             // Two pairs of M3/M4 cover pilot holes enter from the optical and
             // cable sides.  The countersink lives in the removable covers.
             for (y_position = m6_detector_shell_screw_y) {
-                for (z_position = m6_detector_body_screw_z) {
+                for (z_position = screw_z) {
                     m6_cylinder_x(
                         m6_detector_shell_screw_pilot_d,
                         m6_detector_body_length_x + 2,
@@ -7698,7 +7710,7 @@ module m6_detector_front_optical_holes_positive() {
     }
 }
 
-module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
+module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha, screw_z = m6_detector_body_screw_z) {
     // Front is the optical x- end. It keeps the positive spherical arc, spans
     // full y, owns the x- half of both side grooves, and is installed/removed
     // by sliding from z+ before the rear cover. It is fixed from x- by two
@@ -7712,7 +7724,7 @@ module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
                     m6_detector_shell_min_x + m6_detector_shell_wall,
                     m6_detector_shell_front_max_x + 1);
                 m6_detector_front_optical_holes_positive();
-                for (z_position = m6_detector_body_screw_z) {
+                for (z_position = screw_z) {
                     m6_countersink_x(
                         m6_detector_shell_min_x,
                         1,
@@ -7730,7 +7742,7 @@ module m6_detector_shell_front_positive(alpha = m6_detector_shell_alpha) {
     }
 }
 
-module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
+module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha, screw_z = m6_detector_body_screw_z) {
     // Rear is the cable x+ end. It is rounded-rectangle shaped, owns the x+
     // half of both side grooves, and has a centered rear-face boss with an
     // x-axis 1/4-20 clearance hole for the purchased ballhead. It is fixed from
@@ -7747,7 +7759,7 @@ module m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha) {
                     m6_detector_shell_rear_min_x - 1,
                     m6_detector_shell_inner_max_x + 1);
                 m6_detector_shell_support_hole_positive();
-                for (z_position = m6_detector_body_screw_z) {
+                for (z_position = screw_z) {
                     m6_countersink_x(
                         m6_detector_shell_max_x,
                         -1,
@@ -9290,7 +9302,11 @@ module stand(side = 1) {
     sided(side) {
         table_clamp_positive();
         net_clamp_clip_positive();
-        m6_gimbal_positive();
+        if (bare_laser_enabled) {
+            if(side<0) laser_micro_detector_positive();
+            else receiver_detector_positive();
+        }
+        else m6_gimbal_positive();
     }
 }
 
@@ -10170,7 +10186,46 @@ module parameter_probe() {
     cube([0.2, 0.2, 0.2]);
 }
 
-if (PART == "assembly") {
+if (PART == "laser_micro_metadata") { laser_micro_metadata();
+} else if (PART == "laser_micro_service_collision") { laser_micro_service_collision();
+} else if (PART == "laser_micro_service_tool") { lm_service_tool();
+} else if (PART == "laser_micro_cover_containment") { laser_micro_cover_containment();
+} else if (PART == "laser_micro_collision") { laser_micro_collision();
+} else if (PART == "laser_micro_base") { lm_frame(false);
+} else if (PART == "laser_micro_cap") { lm_frame(true);
+} else if (PART == "laser_micro_liner_lower") { lm_liner(false);
+} else if (PART == "laser_micro_liner_upper") { lm_liner(true);
+} else if (PART == "laser_micro_carrier") { lm_carrier();
+} else if (PART == "laser_micro_laser") { lm_laser();
+} else if (PART == "laser_micro_screw_a") { lm_adjust_screw(1);
+} else if (PART == "laser_micro_screw_b") { lm_adjust_screw(-1);
+} else if (PART == "laser_micro_nuts") {
+    for(s=[-1,1]) { lm_adjust_nut(s); lm_adjust_nut(s,true); }
+} else if (PART == "laser_micro_spring") { lm_spring();
+} else if (PART == "laser_micro_cap_hardware") { lm_cap_hardware();
+} else if (PART == "laser_micro_retention") { lm_retention_hardware();
+} else if (PART == "laser_micro_mount_hardware") { lm_mount_hardware();
+} else if (PART == "laser_micro_assembly") { laser_micro_assembly();
+} else if (PART == "laser_micro_rail") { laser_micro_rail_positive();
+} else if (PART == "laser_micro_front_cover") { laser_micro_front_cover();
+} else if (PART == "laser_micro_rear_cover") { laser_micro_rear_cover();
+} else if (PART == "laser_micro_bottom_cover") { laser_micro_bottom_cover();
+} else if (PART == "laser_micro_bottom_gasket") { laser_micro_bottom_gasket();
+} else if (PART == "laser_micro_front_hardware") { laser_micro_front_hardware();
+} else if (PART == "laser_micro_array") { laser_micro_array_positive();
+} else if (PART == "laser_micro_detector") { sided(default_side) laser_micro_detector_positive();
+} else if (PART == "receiver_rail") { receiver_rail_positive();
+} else if (PART == "receiver_front_cover") { laser_micro_front_cover();
+} else if (PART == "receiver_rear_cover") { receiver_rear_cover();
+} else if (PART == "receiver_bottom_cover") { laser_micro_bottom_cover();
+} else if (PART == "receiver_bottom_gasket") { laser_micro_bottom_gasket();
+} else if (PART == "receiver_front_hardware") { laser_micro_front_hardware();
+} else if (PART == "receiver_heads") { m6_detector_sensor_array_positive();
+} else if (PART == "receiver_pcb") { m6_receiver_carrier_board_raw_positive();
+} else if (PART == "receiver_detector") { sided(default_side) receiver_detector_positive();
+} else if (PART == "receiver_cover_collision") { receiver_cover_collision();
+} else if (PART == "receiver_cover_containment") { receiver_cover_containment();
+} else if (PART == "assembly") {
     table_preview();
     net_panel();
     stand(1);
@@ -10179,7 +10234,8 @@ if (PART == "assembly") {
     // The complete assembly includes the real electronics in their two
     // trapezoid clamp cavities.  Dedicated section/explosion PARTs below are
     // used for close inspection because the whole stand is a very large view.
-    clamp_electronics_system_preview();
+    // stand() already owns the optical hardware; do not add it a second time.
+    clamp_electronics_system_preview(false);
     if (m6_show_optical_direction) {
         m6_optical_full_direction_preview();
     }

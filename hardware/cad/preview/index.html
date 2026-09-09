@@ -13,7 +13,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./style.css?v=net-clamp-passive-keeper-v5">
+  <link rel="stylesheet" href="./style.css?v=laser-micro-v1">
 </head>
 <body>
   <header class="topbar">
@@ -49,7 +49,13 @@
         <label class="field-label" for="assembly-step">装配进度 <output id="assembly-step-output">完整</output></label>
         <input id="assembly-step" class="range-input" type="range" min="0" max="5" step="1" value="5">
         <label class="check-row"><input id="show-table" type="checkbox" checked><span>显示球台与球网背景</span></label>
-        <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、M6 光电器件、PVDF 和标准件</span></label>
+        <label class="check-row"><input id="show-nonprinted" type="checkbox" checked><span>显示网布、M6 光电器件、线路板、PVDF 和标准件</span></label>
+        <label class="check-row"><input id="show-electronics" type="checkbox" checked><span>显示线路板真实 3D 模型</span></label>
+        <label class="check-row"><input id="use-bare-laser" type="checkbox" checked><span>左侧使用裸激光可调夹座</span></label>
+        <label class="check-row"><input id="open-laser-shell" type="checkbox"><span>隐藏左侧头套，仅供查看内部</span></label>
+        <label class="check-row"><input id="open-receiver-shell" type="checkbox"><span>隐藏右侧头套，仅供查看内部</span></label>
+        <p class="control-help" id="laser-integration-note">实际调节从 A/B 编号孔进入，头套、邻居和球头保持固定。右侧接收器与驱动电路待单独选型。</p>
+        <p class="control-help" id="receiver-integration-note">接收端已同步加大前盖、底盖及安装接口；内部暂留 M6 接收头参考。<a href="../../../docs/receiver-mount-v0.1.zh-CN.md" target="_blank">接收端零件与说明</a></p>
         <label class="check-row"><input id="show-skp-candidate" type="checkbox" checked><span>显示 SKP 腿脚候选（未进入正式打印清单）</span></label>
         <label class="check-row"><input id="show-skp-fit" type="checkbox" checked><span>显示灰色 C 方案让位候选</span></label>
         <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；M6 光电器件、铝合金基座和金属标准件按外购/机加工件处理。</p>
@@ -115,6 +121,7 @@
       </div>
 
       <nav class="mode-tabs" id="mode-tabs" role="tablist" aria-label="查看模式">
+        <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="laser"><span class="mode-tab-title">夹座特写</span><span class="mode-tab-help">原位操作 / 单颗微调</span></button>
         <button class="mode-tab" type="button" role="tab" aria-selected="true" data-view-mode="assembly">
           <span class="mode-tab-title">装配预览</span>
           <span class="mode-tab-help">完整安装关系</span>
@@ -125,7 +132,7 @@
         </button>
         <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="print">
           <span class="mode-tab-title">打印拼盘</span>
-          <span class="mode-tab-help">PETG / TPU 分盘</span>
+          <span class="mode-tab-help">网架通用件 / 原 M6 方案</span>
         </button>
         <button class="mode-tab" type="button" role="tab" aria-selected="false" data-view-mode="parts">
           <span class="mode-tab-title">零件清单</span>
@@ -134,6 +141,10 @@
       </nav>
 
       <div id="error-banner" class="error-banner" hidden></div>
+      <section id="laser-detail-panel" class="visual-card" hidden>
+        <div class="visual-card-head"><span class="card-label">裸激光头 / 独立夹座</span><div><button id="laser-show-array" class="tiny-button" type="button">查看整排安装关系</button> <button id="receiver-show-array" class="tiny-button" type="button">查看接收端</button></div></div>
+        <iframe id="laser-detail-frame" title="可调夹座与原位操作三维特写" loading="lazy"></iframe>
+      </section>
 
       <div class="plate-tabs print-control" id="plate-tabs" role="tablist" aria-label="打印床拼盘选择" data-print-only></div>
 
@@ -169,8 +180,26 @@
           <div id="assembly-toolbar" class="assembly-toolbar" hidden>
             <span id="assembly-status-badge" class="soft-badge">装配坐标 · mm</span>
             <span id="assembly-selection-badge" class="assembly-selection-badge">悬停或点击三维零件查看中文名称</span>
+            <span class="focus-preset-label">重点查看</span>
+            <div id="focus-presets" class="focus-presets" role="group" aria-label="快速查看重点部位">
+              <button class="tiny-button focus-preset-button active" type="button" data-focus-preset="global" aria-pressed="true" title="恢复完整装配取景">全局</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="connection" aria-pressed="false" title="聚焦立柱底部与 C 夹让位连接区">立柱/C夹</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="m6" aria-pressed="false" title="聚焦右侧 M6 十路阵列">M6 阵列</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="laserArray" aria-pressed="false" title="聚焦左侧十颗可调裸激光夹座">裸激光阵列</button>
+            </div>
             <button id="fit-m6" class="tiny-button" type="button">M6 右侧近景</button>
             <button id="fit-skp" class="tiny-button" type="button">C 方案近景</button>
+            <span class="view-preset-label">方向</span>
+            <div id="view-presets" class="view-presets" role="group" aria-label="快速切换装配视角">
+              <button class="tiny-button view-preset-button active" type="button" data-view-preset="iso" aria-pressed="true" title="等轴测视角">等轴</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="front" aria-pressed="false" title="从 +y 前方看">前视</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="back" aria-pressed="false" title="从 -y 后方看">后视</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="right" aria-pressed="false" title="从 +x 右侧看">右视</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="left" aria-pressed="false" title="从 -x 左侧看">左视</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="top" aria-pressed="false" title="从 +z 上方看">俯视</button>
+              <button class="tiny-button view-preset-button" type="button" data-view-preset="bottom" aria-pressed="false" title="从 -z 下方看">仰视</button>
+              <button class="tiny-button" type="button" id="model-pan-mode" aria-pressed="false" title="启用后用左键拖动平移；中键、右键始终可平移">平移</button>
+            </div>
             <span class="assembly-axis-legend">坐标：x=光束左右 · y=前后(+y前) · z=竖直(+z上)</span>
           </div>
           <div id="model-host" class="model-host">
@@ -250,6 +279,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=skp-leg-foot-fit-v4"></script>
+  <script type="module" src="./app.js?v=laser-micro-v1"></script>
 </body>
 </html>

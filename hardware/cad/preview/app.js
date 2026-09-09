@@ -1,3 +1,5 @@
+import {createCadCamera,resizeCadCamera,configureCadNavigation} from "./cad-navigation.js";
+
 const $ = (selector) => document.querySelector(selector);
 
 const refs = {
@@ -14,6 +16,7 @@ const refs = {
   assemblyStepOutput: $("#assembly-step-output"),
   showTable: $("#show-table"),
   showNonPrinted: $("#show-nonprinted"),
+  showElectronics: $("#show-electronics"),
   showSkpCandidate: $("#show-skp-candidate"),
   showSkpFit: $("#show-skp-fit"),
   bedPreset: $("#bed-preset"),
@@ -49,8 +52,10 @@ const refs = {
   assemblyToolbar: $("#assembly-toolbar"),
   assemblyStatusBadge: $("#assembly-status-badge"),
   assemblySelectionBadge: $("#assembly-selection-badge"),
+  focusPresetButtons: Array.from(document.querySelectorAll("#focus-presets [data-focus-preset]")),
   fitM6: $("#fit-m6"),
   fitSkp: $("#fit-skp"),
+  viewPresetButtons: Array.from(document.querySelectorAll("#view-presets [data-view-preset]")),
   assemblyHoverLabel: $("#assembly-hover-label"),
   assemblyGuideCard: $("#assembly-guide-card"),
   assemblyStepList: $("#assembly-step-list"),
@@ -105,13 +110,35 @@ const ASSEMBLY_GROUPS = {
   sensor: { label: "PVDF 擦网", color: "#62e4d1", stage: 4 },
   reference: { label: "标定参考", color: "#fb817c", stage: 5 },
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
+  electronics: { label: "线路板 / 电子腔", color: "#2bbbad", stage: 1 },
   skp_candidate: { label: "SKP 腿脚候选", color: "#43d34d", stage: 2 },
   context: { label: "球台背景", color: "#75858b", stage: 0 },
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
 
+// The page legend defines +y as the table/front direction.  These directions
+// are camera positions, not object rotations, so the same presets remain valid
+// after switching between assembled and exploded placement.
+const VIEW_PRESETS = Object.freeze({
+  iso: { direction: [1, -1, 0.8], up: [0, 0, 1] },
+  front: { direction: [0, 1, 0], up: [0, 0, 1] },
+  back: { direction: [0, -1, 0], up: [0, 0, 1] },
+  right: { direction: [1, 0, 0], up: [0, 0, 1] },
+  left: { direction: [-1, 0, 0], up: [0, 0, 1] },
+  top: { direction: [0, 0, 1], up: [0, 1, 0] },
+  bottom: { direction: [0, 0, -1], up: [0, -1, 0] },
+  connection: { direction: [0.65, -1, -0.55], up: [0, 0, 1] },
+  m6: { direction: [-0.55, -1, 0.3], up: [0, 0, 1] },
+  laserArray: { direction: [0.45, -1, 0.18], up: [0, 0, 1] },
+});
+
 const state = {
+  laserManifest: null,
+  receiverManifest: null,
+  laserEnabled: true,
+  laserOpenShell: false,
+  receiverOpenShell: false,
   manifest: null,
   sourceManifest: null,
   manifestUrl: null,
@@ -132,8 +159,11 @@ const state = {
     hoveredId: null,
     focusM6: false,
     focusSkpCandidate: false,
+    focusPreset: "global",
+    viewPreset: "iso",
     showTable: true,
     showNonPrinted: true,
+    showElectronics: true,
     showSkpCandidate: true,
     showSkpFit: true,
     items: [],
@@ -317,6 +347,7 @@ function explosionVector(group, side = 0) {
     case "sensor": return [0, -126, 48];
     case "reference": return [outward * 142, -78, 48];
     case "hardware": return [outward * 128, -32, -70];
+    case "electronics": return [0, 0, 12];
     // Keep the SKP candidate visually separate from the post in the exploded
     // view. Its real installed position remains directly under the post when
     // amount=0; the larger x offset is only a review aid.
@@ -1845,7 +1876,86 @@ function buildAssemblyItems() {
     .filter((entry) => entry.part !== "calibration_gauge")
     .map((entry) => makePrintableAssemblyItem(entry, assemblyDatums))
     .filter(Boolean);
-  return printable.concat(makeProxyAssemblyItems(sourceEntries, assemblyDatums));
+  const all = printable.concat(makeProxyAssemblyItems(sourceEntries, assemblyDatums));
+  if (!state.laserEnabled || !state.laserManifest) return all;
+  return all.filter((item) => !replacedByLaserCassette(item)
+    && !(state.receiverManifest && replacedByReceiver(item)))
+    .concat(makeLaserCassetteItems(),makeReceiverItems());
+}
+
+function replacedByReceiver(item) {
+  if(item.side!==1)return false;
+  return ["m6_detector_body","m6_detector_shell_front","m6_detector_shell_rear","m6_detector_bottom_cover","m6_detector_bottom_gasket"].includes(item.sourceEntry?.part)
+    || /m6-(fit-body|detector-body|rear-hex-seat|shell-)/.test(item.id)
+    || /electronics:m6/.test(item.id);
+}
+
+function isReceiverShell(item) {
+  return item.side===1 && /^receiver:(front_cover|rear_cover|bottom_cover|bottom_gasket)$/.test(item.id);
+}
+
+function makeReceiverItems() {
+  const manifest=state.receiverManifest;
+  if(!manifest)return [];
+  const p=manifest.parameters;
+  const base=new URL("../exports/receiver-mount-v0.1/manifest.json",window.location.href);
+  return manifest.parts.map(part=>makeAssemblyItem({
+    id:`receiver:${part.id}`,name_zh:part.name_zh,material:part.material,
+    kind:part.printable?"接收端首样打印件":"外购件接口参考",
+    group:part.id==="pcb"?"electronics":"optical",stage:4,side:1,color:part.color,
+    nonPrinted:!part.printable,shape:"stl",
+    sourcePath:new URL(`${part.file}?receiver=${part.sha256.slice(0,12)}`,base).href,
+    base_min:[part.bounds.min[0]+p.installed_offset_x,part.bounds.min[1],part.bounds.min[2]+p.installed_offset_z],
+    size:part.bounds.size,
+    explosion:part.id==="front_cover"||part.id==="front_hardware"?[-24,0,0]
+      :part.id==="bottom_cover"||part.id==="bottom_gasket"?[0,0,-20]:[24,0,0],
+    notes:"接收端与发射端共用加大前盖、底盖和柔性垫；接收端承载条及后盖配套改为端部固定孔。内部M6头及子板暂作接口参考，接收器选型未确认。",
+  }));
+}
+
+function replacedByLaserCassette(item) {
+  if (item.side !== -1) return false;
+  return ["m6_detector_body","m6_detector_shell_front","m6_detector_shell_rear","m6_detector_bottom_cover","m6_detector_bottom_gasket"].includes(item.sourceEntry?.part)
+    || /m6-(fit-|device-|rear-hex-seat|detector-body)/.test(item.id)
+    || /m6-shell-/.test(item.id)
+    || /electronics:m6/.test(item.id);
+}
+
+function isLaserShell(item) {
+  return item.side === -1 && (/laser:(front_cover|rear_cover|bottom_cover|bottom_gasket)/.test(item.id) || /m6_detector_(shell|bottom)/.test(item.sourceEntry?.part || "")
+    || /m6-(shell-|bottom-cover)/.test(item.id));
+}
+
+function makeLaserCassetteItems() {
+  const manifest = state.laserManifest;
+  const p = manifest.parameters;
+  const base = new URL("../exports/laser-micro-mount-v0.1/manifest.json", window.location.href);
+  const items = [];
+  for (const part of manifest.parts) {
+    const rawPart = part.scope === "array";
+    const count = rawPart ? 1 : p.count;
+    for (let i = 0; i < count; i += 1) {
+      const rail = rawPart;
+      const origin = rawPart ? [0,0,0] : [p.origin_x,0,p.first_z+i*p.pitch];
+      items.push(makeAssemblyItem({
+        id: `laser:${part.id}:${i}`, name_zh: `裸激光 ${rail ? "" : `${i+1}号 · `}${part.name_zh}`,
+        material: part.material, kind: part.printable ? "裸激光首样打印件" : "外购件尺寸占位",
+        group: "optical", stage: 4, side: -1, color: part.color,
+        nonPrinted: !part.printable, shape: "stl",
+        sourcePath: new URL(`${part.file}?laser=${part.sha256.slice(0,12)}`,base).href,
+        stlTransform: {mirrorX:true, mirrorAroundBounds:true},
+        base_min: [-(origin[0]+part.bounds.max[0]+p.installed_offset_x),part.bounds.min[1],origin[2]+part.bounds.min[2]+p.installed_offset_z],
+        size: part.bounds.size,
+        explosion: rail ? [-45,0,0] : [-45-part.explosion[0],part.explosion[1],part.explosion[2]],
+        notes: `与单颗特写共用 SCAD 导出的 STL。裸头 Ø${p.module_d}×${p.module_length} mm 为占位；每颗 ±${p.range_deg}°，球头负责整排粗调。`,
+      }));
+    }
+  }
+  return items;
+}
+
+function isLaserArrayItem(item) {
+  return item.side === -1 && (item.id.startsWith("laser:") || isLaserShell(item) || /m6-ballhead/.test(item.id));
 }
 
 function assemblyItemById(id) {
@@ -1854,6 +1964,7 @@ function assemblyItemById(id) {
 
 function isM6FocusItem(item) {
   if (!item || item.side !== 1) return false;
+  if(item.id.startsWith("receiver:"))return true;
   const key = `${item.id || ""} ${item.name_zh || ""}`.toLowerCase();
   return key.includes("m6");
 }
@@ -1865,6 +1976,17 @@ function isSkpCandidateItem(item) {
   const part = item.sourceEntry?.part;
   return part === "post_clamp_carrier" || part === "clamp_body_segment";
 }
+
+function isRightConnectionFocusItem(item) {
+  return Boolean(item && item.side === 1 && item.candidate && item.group === "skp_candidate");
+}
+
+const FOCUS_PRESETS = Object.freeze({
+  global: { cameraPreset: "iso", filter: null, distanceScale: 1.9 },
+  connection: { cameraPreset: "connection", filter: isRightConnectionFocusItem, distanceScale: 1.55 },
+  m6: { cameraPreset: "m6", filter: isM6FocusItem, distanceScale: 1.65 },
+  laserArray: { cameraPreset: "laserArray", filter: isLaserArrayItem, distanceScale: 1.5 },
+});
 
 function setM6FocusVisuals(focus) {
   const { THREE, scene } = state.three;
@@ -1893,8 +2015,12 @@ function setM6FocusVisuals(focus) {
 }
 
 function assemblyVisible(item) {
+  if (state.laserEnabled && state.laserOpenShell && isLaserShell(item)) return false;
+  if (state.laserEnabled && state.receiverOpenShell && isReceiverShell(item)) return false;
+  if (state.assembly.focusPreset === "laserArray" && !isLaserArrayItem(item)) return false;
   if (item.context && !state.assembly.showTable) return false;
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
+  if (item.group === "electronics" && !state.assembly.showElectronics) return false;
   if (item.candidate && !state.assembly.showSkpCandidate) return false;
   if (item.fitCandidate && !state.assembly.showSkpFit) return false;
   if (item.sourceEntry?.part === "clamp_body_segment" && state.assembly.showSkpFit) return false;
@@ -2219,10 +2345,20 @@ function render() {
 }
 
 function renderMode() {
+  const laserMode = state.uiMode === "laser";
   const designMode = state.uiMode === "assembly" || state.uiMode === "exploded";
   const printMode = state.uiMode === "print";
   const partsMode = state.uiMode === "parts";
   document.body.dataset.viewMode = state.uiMode;
+  $("#open-laser-shell").disabled = !state.laserEnabled;
+  $("#open-receiver-shell").disabled = !state.laserEnabled || !state.receiverManifest;
+  $("#receiver-show-array").disabled = !state.receiverManifest;
+  refs.focusPresetButtons.forEach(button => {
+    if (button.dataset.focusPreset === "laserArray") button.disabled = !state.laserEnabled;
+  });
+  $(".intro-block p").textContent = state.laserEnabled
+    ? "夹座特写可演示发射端原位调整。两端使用加大前腔和配套底盖，可分别隐藏头套检查内部；接收元件和电路尚待选型。"
+    : "检查左右夹台、网架与原 M6 十路阵列的安装关系，再查看独立打印件。";
 
   refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
     button.setAttribute("aria-selected", String(button.dataset.viewMode === state.uiMode));
@@ -2232,13 +2368,14 @@ function renderMode() {
   });
   if (refs.assemblyControlCard) refs.assemblyControlCard.hidden = !designMode;
   if (refs.layoutCard) refs.layoutCard.hidden = designMode || partsMode;
-  if (refs.visualGrid) refs.visualGrid.hidden = partsMode;
+  if (refs.visualGrid) refs.visualGrid.hidden = partsMode || laserMode;
+  $("#laser-detail-panel").hidden = !laserMode;
   if (refs.modelCard) {
     refs.modelCard.hidden = partsMode;
     refs.modelCard.classList.toggle("design-model", designMode);
   }
-  if (refs.detailGrid) refs.detailGrid.hidden = designMode;
-  if (refs.componentCard) refs.componentCard.hidden = false;
+  if (refs.detailGrid) refs.detailGrid.hidden = designMode || laserMode;
+  if (refs.componentCard) refs.componentCard.hidden = laserMode || (designMode && state.laserEnabled);
   if (refs.assemblyGuideCard) refs.assemblyGuideCard.hidden = !designMode;
   if (refs.assemblyToolbar) refs.assemblyToolbar.hidden = !designMode;
   if (refs.showPlateModel) refs.showPlateModel.hidden = designMode;
@@ -2251,6 +2388,11 @@ function renderMode() {
       ? "爆炸距离只沿真实 x 向滑入方向改变显示位置；立柱保持原 z 坐标，爆炸归零时其底端与固定 C 夹最高承托面 z=16 mm 共面，不进入 C 形座。网布/卡夹功能区到 z=168.5 mm；固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从承托面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
       : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。完整灰色 C 形主体与整根橙色固定网柱分开打印；立柱从黄灰交界 z=16 mm 起一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从承托面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；取消旧版横向承托臂，不再显示旧版独立上段外件和旧版独立连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
+    if (state.laserEnabled) {
+      refs.modelTitle.textContent = state.assembly.focusPreset === "laserArray" ? "裸激光十路夹座 · 原球头粗调"
+        :state.assembly.focusPreset==="m6"&&state.receiverManifest?"接收端 · 加大前腔与配套底盖":"网架装配 · 两端加大头套";
+      refs.modelCaption.textContent = "两端光轴保持 20 mm 间距，共用加深 6 mm、总宽 63.6 mm 的完整弧形前盖及配套底盖。发射端从 A/B 编号孔调整；接收端同步更新承载条、前盖、后盖和底部垫片。接收元件与电路暂保留 M6 接口参考，选型未确认。";
+    }
     refs.explodeOutput.textContent = `${Math.round(state.assembly.explode * 100)}`;
     refs.explodeRange.value = String(Math.round(state.assembly.explode * 100));
     refs.assemblyStepOutput.textContent = state.assembly.step >= ASSEMBLY_STEPS.length
@@ -2290,6 +2432,10 @@ function renderAssemblyGuide() {
     title.textContent = step.label;
     const description = document.createElement("small");
     description.textContent = step.description;
+    if (state.laserEnabled && step.number === 4) {
+      title.textContent = "裸激光十路夹座、头套与原球头";
+      description.textContent = "发射端裸头装入独立夹座，先锁整排球头粗调，再调 A/B 螺钉并锁紧。两端同步使用加大前盖、配套底盖及端部固定孔；接收端保留原 M6 接收元件作接口参考，实际接收器和两端电路需单独选型验证。";
+    }
     copy.append(title, description);
     button.append(numberBadge, copy);
     button.addEventListener("click", () => {
@@ -2770,9 +2916,42 @@ function addGeometryMesh(THREE, geometry, color, entry = null, center = false) {
   return mesh;
 }
 
-function fitThreeCamera(filter = null) {
+function setViewPresetActive(preset) {
+  refs.viewPresetButtons.forEach((button) => {
+    const active = Boolean(preset) && button.dataset.viewPreset === preset;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function setFocusPresetActive(preset) {
+  refs.focusPresetButtons.forEach((button) => {
+    const active = Boolean(preset) && button.dataset.focusPreset === preset;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function assemblyCameraFilter() {
+  if (state.assembly.focusM6) return isM6FocusItem;
+  if (state.assembly.focusSkpCandidate) return isSkpCandidateItem;
+  return FOCUS_PRESETS[state.assembly.focusPreset]?.filter || null;
+}
+
+function assemblyCameraFitScale() {
+  if (state.assembly.focusM6) return FOCUS_PRESETS.m6.distanceScale;
+  if (state.assembly.focusSkpCandidate) return FOCUS_PRESETS.connection.distanceScale;
+  return FOCUS_PRESETS[state.assembly.focusPreset]?.distanceScale || FOCUS_PRESETS.global.distanceScale;
+}
+
+function fitThreeCamera(filter = null, preset = null, distanceScale = 1.9) {
   const { THREE, camera, controls, modelRoot } = state.three;
   if (!THREE || !camera || !controls || !modelRoot || !modelRoot.children.length) return;
+  const isAssemblyView = state.uiMode === "assembly" || state.uiMode === "exploded";
+  const selectedPreset = preset && VIEW_PRESETS[preset]
+    ? preset
+    : (isAssemblyView ? state.assembly.viewPreset : "iso");
+  const view = VIEW_PRESETS[selectedPreset] || VIEW_PRESETS.iso;
   const candidates = modelRoot.children.filter((object) => (
     object.visible && (!filter || filter(object.userData.assemblyItem))
   ));
@@ -2782,13 +2961,73 @@ function fitThreeCamera(filter = null) {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z, 1);
-  const distance = maxDimension * 1.9;
-  camera.position.set(center.x + distance, center.y - distance, center.z + distance * 0.8);
+  const distance = maxDimension * distanceScale;
+  const direction = new THREE.Vector3(...view.direction).normalize();
+  camera.up.set(...view.up);
+  camera.position.copy(center).addScaledVector(direction, distance);
   camera.near = Math.max(0.1, maxDimension / 1000);
   camera.far = Math.max(5000, maxDimension * 10);
-  camera.updateProjectionMatrix();
+  resizeCadCamera(camera,refs.modelHost.clientWidth,refs.modelHost.clientHeight,
+    distance*Math.tan(THREE.MathUtils.degToRad(21)),true);
   controls.target.copy(center);
   controls.update();
+  if (isAssemblyView) {
+    state.assembly.viewPreset = selectedPreset;
+    setViewPresetActive(selectedPreset);
+  }
+}
+
+function applyViewPreset(preset) {
+  if (!VIEW_PRESETS[preset]) return;
+  if (state.uiMode !== "assembly" && state.uiMode !== "exploded") return;
+  // The quick view should respect an already selected M6 or SKP close-up, but
+  // otherwise frame all currently visible objects, including the explosion.
+  fitThreeCamera(assemblyCameraFilter(), preset, assemblyCameraFitScale());
+}
+
+function clearLegacyFocusModes() {
+  state.assembly.focusM6 = false;
+  state.assembly.focusSkpCandidate = false;
+  setM6FocusVisuals(false);
+  refs.fitM6.textContent = "M6 右侧近景";
+  refs.fitM6.classList.remove("active");
+  refs.fitSkp.textContent = "C 方案近景";
+  refs.fitSkp.classList.remove("active");
+}
+
+function applyFocusPreset(preset) {
+  const config = FOCUS_PRESETS[preset];
+  if (!config || (state.uiMode !== "assembly" && state.uiMode !== "exploded")) return;
+  clearLegacyFocusModes();
+  state.assembly.focusPreset = preset;
+  state.assembly.showTable = preset === "global";
+  refs.showTable.checked = state.assembly.showTable;
+  if (preset === "laserArray") {
+    state.laserOpenShell = false;
+    $("#open-laser-shell").checked = false;
+    state.assembly.showNonPrinted = true;
+    refs.showNonPrinted.checked = true;
+  }
+  if(preset==="m6" && state.receiverManifest){
+    state.receiverOpenShell=false;
+    $("#open-receiver-shell").checked=false;
+  }
+  if (preset === "connection") {
+    state.assembly.showSkpCandidate = true;
+    state.assembly.showSkpFit = true;
+    refs.showSkpCandidate.checked = true;
+    refs.showSkpFit.checked = true;
+  }
+  if (preset === "m6") {
+    state.assembly.showNonPrinted = true;
+    state.assembly.showElectronics = true;
+    refs.showNonPrinted.checked = true;
+    refs.showElectronics.checked = true;
+  }
+  setFocusPresetActive(preset);
+  updateAssemblyScene();
+  render();
+  fitThreeCamera(config.filter, config.cameraPreset, config.distanceScale);
 }
 
 function fitM6OrientationCamera() {
@@ -2801,18 +3040,27 @@ function fitM6OrientationCamera() {
   if (state.assembly.focusM6) {
     state.assembly.showTable = false;
     refs.showTable.checked = false;
+    state.assembly.focusPreset = "m6";
+    setFocusPresetActive("m6");
     refs.fitM6.textContent = "恢复完整装配";
     refs.fitM6.classList.add("active");
   } else {
     state.assembly.showTable = true;
     refs.showTable.checked = true;
+    state.assembly.focusPreset = "global";
+    state.assembly.viewPreset = "iso";
+    setFocusPresetActive("global");
     refs.fitM6.textContent = "M6 右侧近景";
     refs.fitM6.classList.remove("active");
   }
   setM6FocusVisuals(state.assembly.focusM6);
   updateAssemblyScene();
   render();
-  fitThreeCamera(state.assembly.focusM6 ? isM6FocusItem : null);
+  fitThreeCamera(
+    state.assembly.focusM6 ? isM6FocusItem : null,
+    state.assembly.focusM6 ? "m6" : "iso",
+    state.assembly.focusM6 ? FOCUS_PRESETS.m6.distanceScale : FOCUS_PRESETS.global.distanceScale,
+  );
   if (state.assembly.focusM6 && state.three.camera && state.three.controls) {
     // Use a rear elevation for the check: x reads left-to-right on screen,
     // z reads bottom-to-top, and the -45 degree roll remains visible in the
@@ -2824,7 +3072,10 @@ function fitM6OrientationCamera() {
       target.y - distance,
       target.z + distance * 0.18,
     );
+    state.three.camera.zoom=1/0.68;
+    state.three.camera.updateProjectionMatrix();
     state.three.controls.update();
+    setViewPresetActive(null);
   }
 }
 
@@ -2840,15 +3091,24 @@ function fitSkpCandidateCamera() {
   if (nextFocus) {
     state.assembly.showSkpCandidate = true;
     refs.showSkpCandidate.checked = true;
+    state.assembly.focusPreset = "connection";
+    setFocusPresetActive("connection");
     refs.fitSkp.textContent = "恢复完整装配";
     refs.fitSkp.classList.add("active");
   } else {
+    state.assembly.focusPreset = "global";
+    state.assembly.viewPreset = "iso";
+    setFocusPresetActive("global");
     refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
   }
   updateAssemblyScene();
   render();
-  fitThreeCamera(nextFocus ? isSkpCandidateItem : null);
+  fitThreeCamera(
+    nextFocus ? isSkpCandidateItem : null,
+    nextFocus ? "connection" : "iso",
+    nextFocus ? FOCUS_PRESETS.connection.distanceScale : FOCUS_PRESETS.global.distanceScale,
+  );
   if (nextFocus && state.three.camera && state.three.controls) {
     // The side elevation makes the candidate's x-direction 15 mm extension,
     // flat bottom and terminal chamfer readable before the user orbits it.
@@ -2860,6 +3120,7 @@ function fitSkpCandidateCamera() {
       target.z + distance * 0.18,
     );
     state.three.controls.update();
+    setViewPresetActive(null);
   }
 }
 
@@ -2869,8 +3130,7 @@ function resizeThree() {
   const width = Math.max(1, refs.modelHost.clientWidth);
   const height = Math.max(1, refs.modelHost.clientHeight);
   renderer.setSize(width, height, false);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+  resizeCadCamera(camera,width,height);
 }
 
 function assemblyMaterial(THREE, item, options = {}) {
@@ -3413,9 +3673,17 @@ async function loadAssemblyModel() {
       if (requestId !== state.three.loadId) return;
       normalizedGeometry(THREE, geometry);
       const material = assemblyMaterial(THREE, item);
+      if (item.stlTransform?.mirrorX) {
+        material.side = THREE.DoubleSide;
+        material.needsUpdate = true;
+      }
       const mesh = new THREE.Mesh(geometry, material);
       if (item.stlTransform?.rotation) {
         mesh.rotation.set(...item.stlTransform.rotation);
+      }
+      if (item.stlTransform?.mirrorX) {
+        mesh.scale.x = -1;
+        if (item.stlTransform.mirrorAroundBounds) mesh.position.x = geometry.boundingBox.max.x;
       }
       const group = new THREE.Group();
       group.position.set(...item.baseMin);
@@ -3435,7 +3703,7 @@ async function loadAssemblyModel() {
     ? `装配预览已载入，但有 ${failures.length} 个 STL 读取失败；非打印占位仍可检查。`
     : "装配预览已载入；鼠标悬停查看中文名称，点击零件查看材料和装配说明。";
   updateAssemblyScene();
-  fitThreeCamera();
+  fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale());
   renderAssemblyGuide();
 }
 
@@ -3507,7 +3775,7 @@ async function loadModel() {
       await loadAssemblyModel();
     } else {
       updateAssemblyScene();
-      fitThreeCamera();
+      fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale());
     }
     return;
   }
@@ -3590,11 +3858,10 @@ async function initThree() {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     refs.modelHost.append(renderer.domElement);
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 5000);
+    const camera = createCadCamera(THREE,100,10000);
     camera.up.set(0, 0, 1);
     const controls = new state.three.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+    configureCadNavigation(controls,camera,refs.modelHost,$("#model-pan-mode"));
     const grid = new THREE.GridHelper(800, 32, "#31545b", "#173036");
     grid.rotation.x = Math.PI / 2;
     scene.add(grid);
@@ -3657,6 +3924,23 @@ async function loadManifest() {
       }
     }
     state.generatedLayout = generatedLayoutFromManifest(state.manifest);
+    try {
+      const laserResponse = await fetch(new URL("../exports/laser-micro-mount-v0.1/manifest.json",window.location.href),{cache:"no-store"});
+      if (!laserResponse.ok) throw new Error(`HTTP ${laserResponse.status}`);
+      state.laserManifest = await laserResponse.json();
+    } catch (error) {
+      state.laserEnabled = false;
+      $("#use-bare-laser").checked = false;
+      $("#use-bare-laser").disabled = true;
+      $("#laser-integration-note").textContent = `裸激光模型尚未导出：${error.message}。请运行 export_laser_micro_mount.py。`;
+    }
+    try {
+      const response=await fetch(new URL("../exports/receiver-mount-v0.1/manifest.json",window.location.href),{cache:"no-store"});
+      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      state.receiverManifest=await response.json();
+    } catch(error) {
+      $("#receiver-integration-note").textContent=`接收端新版外壳未载入：${error.message}。请运行 export_receiver_mount.py 后刷新。`;
+    }
     state.layout = state.generatedLayout;
     state.generated = true;
     state.activePlateIndex = 0;
@@ -3671,14 +3955,24 @@ async function loadManifest() {
     state.assembly.hoveredId = null;
     state.assembly.focusM6 = false;
     state.assembly.focusSkpCandidate = false;
+    state.assembly.focusPreset = "global";
+    state.assembly.viewPreset = "iso";
+    state.assembly.showTable = true;
+    state.assembly.showNonPrinted = true;
+    state.assembly.showElectronics = true;
     state.assembly.showSkpCandidate = true;
     state.assembly.showSkpFit = true;
     refs.fitM6.textContent = "M6 右侧近景";
     refs.fitM6.classList.remove("active");
     refs.showSkpCandidate.checked = true;
     refs.showSkpFit.checked = true;
+    refs.showElectronics.checked = true;
     refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
+    refs.showTable.checked = true;
+    refs.showNonPrinted.checked = true;
+    setViewPresetActive("iso");
+    setFocusPresetActive("global");
     setBedInputs(state.layout.print_bed);
     const sourceHref = state.manifest.source_manifest
       ? new URL(state.manifest.source_manifest, state.manifestUrl).href
@@ -3690,6 +3984,10 @@ async function loadManifest() {
     setStatus(`已载入 ${state.layout.parts.length} 个打印清单条目`, "ok");
     render();
     await initThree();
+    if (new URLSearchParams(window.location.search).get("view") === "laser") setViewMode("laser");
+    if (new URLSearchParams(window.location.search).get("view") === "receiver") {
+      await loadAssemblyModel();applyFocusPreset("m6");
+    }
   } catch (error) {
     showError(`找不到或无法读取拼盘 manifest：${state.manifestUrl.href}。请先运行导出和拼盘脚本，再通过本地 HTTP 服务打开此页。(${error?.message || error})`);
     refs.plateCount.textContent = "—";
@@ -3700,18 +3998,52 @@ async function loadManifest() {
 }
 
 function setViewMode(mode) {
-  if (!["assembly", "exploded", "print", "parts"].includes(mode)) return;
+  if (!["assembly", "exploded", "print", "parts", "laser"].includes(mode)) return;
   state.uiMode = mode;
   if (mode === "assembly") state.assembly.explode = 0;
   if (mode === "exploded" && state.assembly.explode === 0) state.assembly.explode = ASSEMBLY_DEFAULT_EXPLODE;
   if (mode === "parts") state.modelMode = "plate";
   render();
+  if (mode === "laser") {
+    const frame = $("#laser-detail-frame");
+    if (!frame.hasAttribute("src")) frame.src = "./laser-micro.html";
+    return;
+  }
   if (mode === "parts") {
     if (state.three.ready) clearThreeModel();
     return;
   }
   loadModel();
 }
+
+$("#use-bare-laser").addEventListener("change", async (event) => {
+  state.laserEnabled = event.target.checked;
+  if (!state.laserEnabled && state.assembly.focusPreset === "laserArray") {
+    state.assembly.focusPreset = "global";
+    state.assembly.showTable = true;
+    refs.showTable.checked = true;
+  }
+  setFocusPresetActive(state.assembly.focusPreset);
+  await loadAssemblyModel(); render();
+});
+$("#open-laser-shell").addEventListener("change", (event) => {
+  state.laserOpenShell = event.target.checked; updateAssemblyScene();
+});
+$("#open-receiver-shell").addEventListener("change",event=>{
+  state.receiverOpenShell=event.target.checked;updateAssemblyScene();
+});
+$("#receiver-show-array").addEventListener("click",async()=>{
+  if(!state.receiverManifest)return;
+  state.laserEnabled=true;$("#use-bare-laser").checked=true;
+  state.uiMode="assembly";render();
+  await loadAssemblyModel();applyFocusPreset("m6");
+});
+$("#laser-show-array").addEventListener("click", async () => {
+  if (!state.laserManifest) return;
+  state.laserEnabled = true; $("#use-bare-laser").checked = true;
+  state.uiMode = "assembly"; render();
+  await loadAssemblyModel(); applyFocusPreset("laserArray");
+});
 
 refs.bedPreset.addEventListener("change", () => {
   const preset = PRESETS[refs.bedPreset.value];
@@ -3750,9 +4082,15 @@ refs.resetButton.addEventListener("click", () => {
 });
 refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
-refs.fitModel.addEventListener("click", fitThreeCamera);
+refs.fitModel.addEventListener("click", () => fitThreeCamera());
 refs.fitM6?.addEventListener("click", fitM6OrientationCamera);
 refs.fitSkp?.addEventListener("click", fitSkpCandidateCamera);
+refs.focusPresetButtons.forEach((button) => {
+  button.addEventListener("click", () => applyFocusPreset(button.dataset.focusPreset));
+});
+refs.viewPresetButtons.forEach((button) => {
+  button.addEventListener("click", () => applyViewPreset(button.dataset.viewPreset));
+});
 refs.downloadLayout.addEventListener("click", downloadLayout);
 refs.modeTabs?.querySelectorAll("[data-view-mode]").forEach((button) => {
   button.addEventListener("click", () => setViewMode(button.dataset.viewMode));
@@ -3767,6 +4105,25 @@ refs.explodedButton.addEventListener("click", () => {
   state.assembly.explode = ASSEMBLY_DEFAULT_EXPLODE;
   setViewMode("exploded");
 });
+
+const VIEW_PRESET_KEYS = Object.freeze({
+  1: "iso",
+  2: "front",
+  3: "back",
+  4: "right",
+  5: "left",
+  6: "top",
+  7: "bottom",
+});
+document.addEventListener("keydown", (event) => {
+  if (event.metaKey || event.ctrlKey || event.altKey || event.defaultPrevented) return;
+  const tagName = event.target?.tagName?.toLowerCase();
+  if (["input", "select", "textarea", "button", "a"].includes(tagName)) return;
+  const preset = VIEW_PRESET_KEYS[event.key];
+  if (!preset) return;
+  event.preventDefault();
+  applyViewPreset(preset);
+});
 refs.assemblyStep.addEventListener("input", () => {
   state.assembly.step = number(refs.assemblyStep.value, ASSEMBLY_STEPS.length);
   updateAssemblyScene();
@@ -3779,6 +4136,11 @@ refs.showTable.addEventListener("change", () => {
 refs.showNonPrinted.addEventListener("change", () => {
   state.assembly.showNonPrinted = refs.showNonPrinted.checked;
   updateAssemblyScene();
+});
+refs.showElectronics?.addEventListener("change", () => {
+  state.assembly.showElectronics = refs.showElectronics.checked;
+  updateAssemblyScene();
+  renderAssemblyGuide();
 });
 refs.showSkpCandidate?.addEventListener("change", () => {
   state.assembly.showSkpCandidate = refs.showSkpCandidate.checked;

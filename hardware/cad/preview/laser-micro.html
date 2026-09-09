@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>激光夹座 · 原位调整</title>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <link rel="stylesheet" href="./laser-micro.css">
+</head>
+<body>
+  <header><div><small>独立微调 · 原球头负责整排粗调</small><h1>可调激光夹座</h1></div><span id="dimension">正在读取尺寸…</span></header>
+  <main>
+    <section class="viewer">
+      <nav class="mode-switch" aria-label="演示模式"><button id="service-mode" aria-pressed="true">原位调节 · 邻居不拆</button><button id="single-mode" aria-pressed="false">单颗结构</button></nav>
+      <nav aria-label="夹座查看方式">
+        <button data-view="iso" aria-pressed="true">等轴</button><button data-view="front" aria-pressed="false">出光端</button><button data-view="top" aria-pressed="false">俯视</button><button data-view="rear" aria-pressed="false">调节端</button>
+        <button id="pan-mode" aria-pressed="false" title="启用后用左键拖动平移；中键、右键始终可平移">平移</button><button id="reset">归零</button>
+      </nav>
+      <div id="viewport" role="img" aria-label="可旋转的夹座三维模型"><p id="loading" role="status">正在载入夹座 STL…</p></div>
+      <p id="view-caption" class="caption">拖动旋转 · 滚轮缩放</p>
+      <div class="downloads"><a id="manifest-link" href="../exports/laser-micro-mount-v0.1/manifest.json" target="_blank">尺寸与导出清单 ↗</a><a href="../../../docs/laser-micro-mount-v0.1.zh-CN.md" target="_blank">结构与装配说明 ↗</a></div>
+      <details class="part-downloads"><summary>下载独立打印件</summary><div id="print-files"></div></details>
+    </section>
+    <aside>
+      <section id="service-controls" class="controls"><h2>邻居和头套保持安装</h2>
+        <label for="channel">调节哪一颗</label><select id="channel" disabled></select>
+        <div class="tool-sides" role="group" aria-label="调节入口"><button id="tool-a" aria-pressed="false">A 侧</button><button id="tool-b" aria-pressed="true">B 侧</button></div>
+        <label for="withdraw">抽出工具 <output id="withdraw-out">0 mm</output></label><input id="withdraw" type="range" min="0" max="60" step="1" value="0" disabled>
+        <label class="check"><input id="service-shell" type="checkbox">头套半透明，查看孔内</label>
+        <p id="service-status" class="readout" aria-live="polite">正在载入原位调节模型…</p>
+        <ol class="service-steps"><li>球头先完成整排粗调并锁住。</li><li>从对应编号的孔伸入工具，调 A / B。</li><li>内六角保持顶丝不转，外套筒拧紧锁母。</li></ol>
+        <p class="note">套筒需为对边 4 mm 的贯通薄壁款，外径 ≤6 mm、有效长度 ≥60 mm；中间穿 1 mm 内六角。先核对实物工具尺寸。</p>
+      </section>
+      <section id="single-controls" class="controls" hidden><h2>试着调整一颗</h2>
+        <label for="pitch">上下角度 <output id="pitch-out">0.0°</output></label><input id="pitch" type="range" min="-3" max="3" step="0.1" value="0" disabled>
+        <label for="yaw">左右角度 <output id="yaw-out">0.0°</output></label><input id="yaw" type="range" min="-3" max="3" step="0.1" value="0" disabled>
+        <p id="screw-readout" class="readout" aria-live="polite">A / B 螺钉位移：0 / 0 mm</p>
+        <label for="explode">拆开查看 <output id="explode-out">0%</output></label><input id="explode" type="range" min="0" max="100" step="1" value="0" disabled>
+        <label class="check"><input id="translucent" type="checkbox" checked>上夹座半透明</label>
+      </section>
+      <section id="single-parts" class="parts" hidden><h2>结构怎么起作用</h2>
+        <button data-parts="carrier,liner_lower,liner_upper"><i style="--part:#46cfb2">1</i><span><b>前端球面支点</b><small>夹筒转动，光头靠近支点，衬垫由上下夹座夹住。</small></span></button>
+        <button data-parts="screw_a,screw_b,nuts"><i style="--part:#b8c6cf">2</i><span><b>两颗斜向微调螺钉</b><small>A / B 同向调上下，差动调左右；调好后拧紧锁母。</small></span></button>
+        <button data-parts="spring,base"><i style="--part:#647d96">3</i><span><b>底部金属弹簧预紧</b><small>持续把夹筒顶向两颗螺钉，减少松旷。</small></span></button>
+        <button data-parts="laser,retention,mount_hardware"><i style="--part:#d4b567">4</i><span><b>独立装入整排</b><small>裸头由限位顶丝固定，小夹座两侧螺钉连接承载条。</small></span></button>
+      </section>
+      <p class="note">当前为尺寸可修改的首样模型。转角演示不等于实物精度；需实测裸头尺寸、弹簧预紧和锁紧后的光点漂移。</p>
+    </aside>
+  </main>
+  <script type="module" src="./laser-micro.js"></script>
+</body></html>
