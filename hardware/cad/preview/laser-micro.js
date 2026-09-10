@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {createCadCamera,resizeCadCamera,configureCadNavigation} from "./cad-navigation.js";
+import {benchStep, flatTip, motionAt} from "./laser-kinematics.js";
 
 const $ = (id) => document.getElementById(id);
 const host = $("viewport");
@@ -47,38 +48,97 @@ function resize(){const r=host.getBoundingClientRect();if(!r.width||!r.height)re
 new ResizeObserver(resize).observe(host);
 view();resize();
 renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
-function tip(sign,p,y) {
-  const a=[Math.cos(p)*Math.cos(y),Math.cos(p)*Math.sin(y),-Math.sin(p)];
-  const l=manifest.parameters.lever,r=manifest.parameters.tail_d/2;
-  const b=l*a[0],c=(sign*a[1]+a[2])/Math.sqrt(2),aa=1-c*c,bb=-2*b*c,cc=l*l-b*b-r*r;
-  return (-bb+Math.sqrt(bb*bb-4*aa*cc))/(2*aa);
+function phase(e,a,b){return Math.min(1,Math.max(0,(e-a)/(b-a)));}
+function fallbackBenchMotion(e) {
+  return [
+    [35*phase(e,.44,.52),0,16*phase(e,.36,.44)],
+    [0,32*phase(e,.30,.36),18*phase(e,.18,.30)],
+    [0,-24*phase(e,.60,.66),11*phase(e,.52,.60)],
+    [-24*phase(e,.76,.84),0,18*phase(e,.66,.76)],
+    [
+      -24*phase(e,.76,.84)+20*phase(e,.92,1),
+      0,
+      18*phase(e,.66,.76),
+    ],
+    .6*phase(e,0,.08),
+    1.2*phase(e,.08,.18),
+    1.2*phase(e,.84,.92),
+    Math.min(18*phase(e,.66,.76),2.8),
+  ];
+}
+function motionSamples(samples, progress, fallback) {
+  if(!Array.isArray(samples)||!samples.length) return fallback(progress);
+  try {
+    const values = motionAt(samples, progress);
+    if(Array.isArray(values)) return values;
+  } catch (_) {}
+  return fallback(progress);
+}
+function partBaseOffset(id,e,bench) {
+  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring]=bench;
+  if(["cap","cap_hardware","cap_bolts","lock_a","lock_b","nuts","front_bolts","front_nuts"].includes(id)) return cap;
+  if(id==="carrier") return carrier;
+  if(id==="laser") return laser;
+  if(id==="liner_upper") return upper;
+  if(id==="spring") return [0,0,spring];
+  if(id==="retention"||id==="retention_screw"||id==="retention_nut") return carrier;
+  if(id==="cap_bolt_a") return [0,-10,0];
+  if(id==="cap_bolt_b") return [0,10,0];
+  if(id==="cap_nuts") return [0,0,0];
+  if(id==="screw_a"||id==="screw_b") return [0,0,0];
+  return [0,0,0];
 }
 function update(){
   if(!manifest)return;
   const pitch=Number($("pitch").value),yaw=Number($("yaw").value),e=Number($("explode").value)/100;
   const p=THREE.MathUtils.degToRad(pitch),y=THREE.MathUtils.degToRad(yaw);
   const rotation=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,p,y,"ZYX"));
-  const ta=tip(1,p,y)-manifest.parameters.tail_d/2,tb=tip(-1,p,y)-manifest.parameters.tail_d/2;
+  const ta=flatTip(manifest.parameters,1,p,y)-manifest.parameters.tail_d/2,tb=flatTip(manifest.parameters,-1,p,y)-manifest.parameters.tail_d/2;
+  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring]=motionSamples(manifest?.bench_motion,e,fallbackBenchMotion);
   for(const part of manifest.parts){
     const mesh=meshes.get(part.id);if(!mesh)continue;
-    mesh.position.set(...part.explosion.map(v=>v*e));mesh.quaternion.identity();mesh.scale.set(1,1,1);
+    const explode=Array.isArray(part.explosion)?part.explosion.map(v=>v*e):[0,0,0];
+    const base=partBaseOffset(part.id,e,[cap,bolt,upper,carrier,laser,lock,screw,retention,spring]);
+    mesh.position.set(
+      explode[0]+base[0],
+      explode[1]+base[1],
+      explode[2]+base[2],
+    );
+    mesh.quaternion.identity();mesh.scale.set(1,1,1);
     if(part.moving){mesh.quaternion.copy(rotation);mesh.position.applyQuaternion(rotation);}
     if(part.id==="screw_a"||part.id==="screw_b"){
       const sign=part.id==="screw_a"?1:-1,delta=sign===1?ta:tb;
       mesh.position.add(new THREE.Vector3(0,sign*delta/Math.sqrt(2),delta/Math.sqrt(2)));
     }
+    if(part.id==="cap_bolt_a") { mesh.position.x += cap[0]; mesh.position.y += -10; mesh.position.z += cap[2]+bolt[2]; }
+    if(part.id==="cap_bolt_b") { mesh.position.x += cap[0]; mesh.position.y += 10; mesh.position.z += cap[2]+bolt[2]; }
+    if(part.id==="screw_a") { mesh.position.x += cap[0]; mesh.position.z += cap[2]+bolt[2]-screw; }
+    if(part.id==="screw_b") { mesh.position.x += cap[0]; mesh.position.z += cap[2]+bolt[2]-screw; }
+    if(part.id==="lock_a"||part.id==="lock_b"||part.id==="nuts") {
+      mesh.position.z += lock;
+    }
+    if(part.id==="retention"||part.id==="retention_screw"||part.id==="retention_nut") {
+      mesh.position.y += retention;
+    }
     if(part.id==="spring"){
-      const h=3.1-manifest.parameters.lever*Math.sin(p),ratio=h/3.1;
-      mesh.scale.z=ratio;mesh.position.z=-7.4*(1-ratio);
+      mesh.position.z += spring;
     }
     if(part.id==="cap"){
       mesh.material.opacity=$("translucent").checked?.24:1;
       mesh.material.transparent=$("translucent").checked;mesh.material.depthWrite=!$("translucent").checked;
     }
   }
-  beamRoot.quaternion.copy(rotation);beamRoot.position.set(10*e,-10*e,9*e).applyQuaternion(rotation);
+  beamRoot.quaternion.copy(rotation);
+  if(Array.isArray(manifest?.cover_motion)&&manifest.cover_motion.length){
+    const [rear,front]=motionSamples(manifest.cover_motion,e,()=>[ [10*e,-10*e,9*e], [0,0,0] ]);
+    const beamMotion = front;
+    beamRoot.position.set(...beamMotion).applyQuaternion(rotation);
+  } else {
+    beamRoot.position.set(10*e,-10*e,9*e).applyQuaternion(rotation);
+  }
   $("pitch-out").textContent=`${pitch.toFixed(1)}°`;$("yaw-out").textContent=`${yaw.toFixed(1)}°`;$("explode-out").textContent=`${Math.round(e*100)}%`;
   $("screw-readout").textContent=`相对零位：A ${ta.toFixed(2)} mm / B ${tb.toFixed(2)} mm。每转 ${manifest.parameters.screw_pitch} mm；此处演示调节几何。`;
+  if(!serviceMode)$("view-caption").textContent=benchStep(e);
   host.dataset.pitch=String(pitch);host.dataset.yaw=String(yaw);host.dataset.explode=String(e);
 }
 function numberLabel(number){
