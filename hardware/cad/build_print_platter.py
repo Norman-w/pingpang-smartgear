@@ -26,6 +26,26 @@ EXPORT_ROOT = HERE / "exports" / "net-stand-v0.1"
 SOURCE_MANIFEST = EXPORT_ROOT / "manifest.json"
 DEFAULT_OUTPUT = EXPORT_ROOT / "print-platter-256"
 TRIANGLE = struct.Struct("<12fH")
+# The taller one-piece post is the only part that needs a reduced nominal bed
+# edge margin after the verified diagonal pose is applied.  Its transformed
+# envelope is about 252.5 mm on a 256 mm bed, leaving roughly 1.75 mm per side.
+# All other parts retain the normal 5 mm margin.
+PART_EDGE_MARGINS_MM: dict[str, float] = {
+    "post_clamp_carrier": 1.5,
+}
+
+Matrix3 = tuple[tuple[float, float, float], ...]
+Bounds3 = tuple[tuple[float, float, float], tuple[float, float, float]]
+
+
+@dataclass(frozen=True)
+class Orientation:
+    """A rigid print orientation, including optional 3D tilt."""
+
+    label: str
+    euler_deg: tuple[float, float, float]
+    matrix: Matrix3
+    rotated_bounds: Bounds3
 
 PRESETS: dict[str, dict[str, object]] = {
     "x1c-256": {
@@ -63,10 +83,10 @@ class BinaryStl:
 class Placement:
     source: dict[str, object]
     mesh: BinaryStl
-    rotation_z_deg: int
+    orientation: Orientation
     x: float
     y: float
-    rotated_bounds: tuple[tuple[float, float, float], tuple[float, float, float]]
+    rotated_bounds: Bounds3
 
 
 def sha256_file(path: Path) -> str:
@@ -144,38 +164,71 @@ def rotate_xy(x: float, y: float, angle: int) -> tuple[float, float]:
     raise ValueError(f"仅支持 0/90 度 Z 轴旋转，收到 {angle}")
 
 
+def matrix_multiply(left: Matrix3, right: Matrix3) -> Matrix3:
+    return tuple(
+        tuple(sum(left[row][index] * right[index][column] for index in range(3))
+              for column in range(3))
+        for row in range(3)
+    )
+
+
+def rotation_matrix_xyz(rx_deg: float, ry_deg: float, rz_deg: float) -> Matrix3:
+    """Return Rz * Ry * Rx, matching the documented platter Euler order."""
+    rx = math.radians(rx_deg)
+    ry = math.radians(ry_deg)
+    rz = math.radians(rz_deg)
+    cx, sx = math.cos(rx), math.sin(rx)
+    cy, sy = math.cos(ry), math.sin(ry)
+    cz, sz = math.cos(rz), math.sin(rz)
+    rotate_x: Matrix3 = ((1.0, 0.0, 0.0), (0.0, cx, -sx), (0.0, sx, cx))
+    rotate_y: Matrix3 = ((cy, 0.0, sy), (0.0, 1.0, 0.0), (-sy, 0.0, cy))
+    rotate_z: Matrix3 = ((cz, -sz, 0.0), (sz, cz, 0.0), (0.0, 0.0, 1.0))
+    return matrix_multiply(rotate_z, matrix_multiply(rotate_y, rotate_x))
+
+
+def rotate_point(point: tuple[float, float, float], matrix: Matrix3) -> tuple[float, float, float]:
+    return tuple(sum(matrix[row][axis] * point[axis] for axis in range(3)) for row in range(3))
+
+
+def transform_bounds(bounds: Bounds3, matrix: Matrix3) -> Bounds3:
+    lo, hi = bounds
+    points = [
+        rotate_point((x, y, z), matrix)
+        for x in (lo[0], hi[0])
+        for y in (lo[1], hi[1])
+        for z in (lo[2], hi[2])
+    ]
+    return (
+        tuple(min(point[axis] for point in points) for axis in range(3)),
+        tuple(max(point[axis] for point in points) for axis in range(3)),
+    )
+
+
 def rotate_bounds(
     bounds: tuple[tuple[float, float, float], tuple[float, float, float]],
     angle: int,
 ) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
-    lo, hi = bounds
-    points = [
-        rotate_xy(x, y, angle)
-        for x in (lo[0], hi[0])
-        for y in (lo[1], hi[1])
-    ]
-    return (
-        (min(point[0] for point in points), min(point[1] for point in points), lo[2]),
-        (max(point[0] for point in points), max(point[1] for point in points), hi[2]),
-    )
+    return transform_bounds(bounds, rotation_matrix_xyz(0, 0, angle))
 
 
 def transform_triangles(
     triangles: Iterable[tuple[float, ...]],
-    angle: int,
+    matrix: Matrix3,
     shift: tuple[float, float, float],
 ) -> tuple[tuple[float, ...], ...]:
     transformed: list[tuple[float, ...]] = []
     for values in triangles:
         moved = list(values)
-        normal_x, normal_y = rotate_xy(values[0], values[1], angle)
-        moved[0:3] = [normal_x, normal_y, values[2]]
+        normal = rotate_point((values[0], values[1], values[2]), matrix)
+        moved[0:3] = [normal[0], normal[1], normal[2]]
         for start in (3, 6, 9):
-            x, y = rotate_xy(values[start], values[start + 1], angle)
+            x, y, z = rotate_point(
+                (values[start], values[start + 1], values[start + 2]), matrix
+            )
             moved[start:start + 3] = [
                 x + shift[0],
                 y + shift[1],
-                values[start + 2] + shift[2],
+                z + shift[2],
             ]
         transformed.append(tuple(moved))
     return tuple(transformed)
@@ -195,21 +248,38 @@ def dimensions(bounds):
     return tuple(bounds[1][axis] - bounds[0][axis] for axis in range(3))
 
 
+def edge_margin_for_part(part: str | None, default: float) -> float:
+    return PART_EDGE_MARGINS_MM.get(str(part or ""), default)
+
+
 def fit_orientations(
     mesh: BinaryStl,
     bed_width: float,
     bed_depth: float,
     bed_height: float,
     margin: float,
-) -> list[tuple[int, tuple[tuple[float, float, float], tuple[float, float, float]]]]:
+    part: str | None = None,
+) -> list[Orientation]:
     usable_width = bed_width - 2 * margin
     usable_depth = bed_depth - 2 * margin
-    candidates = []
-    for angle in (0, 90):
-        rotated = rotate_bounds(mesh.bounds, angle)
+    candidates: list[Orientation] = []
+    rotations = [
+        ("z0", (0.0, 0.0, 0.0)),
+        ("z90", (0.0, 0.0, 90.0)),
+    ]
+    if part == "post_clamp_carrier":
+        # The complete installed part is intentionally kept whole.  Although
+        # the active post is taller than the 256 mm build height, the complete
+        # carrier stays one piece and uses this rigid 3D tilt.  The post has a
+        # part-specific 1.5 mm nominal edge margin; supports remain a slicer
+        # decision and the source mesh is never cut or scaled.
+        rotations = [("diagonal-rx0-ry51-rz45", (0.0, 51.0, 45.0))]
+    for label, euler_deg in rotations:
+        matrix = rotation_matrix_xyz(*euler_deg)
+        rotated = transform_bounds(mesh.bounds, matrix)
         size = dimensions(rotated)
         if size[0] <= usable_width + 1e-6 and size[1] <= usable_depth + 1e-6 and size[2] <= bed_height + 1e-6:
-            candidates.append((angle, rotated))
+            candidates.append(Orientation(label, euler_deg, matrix, rotated))
     return candidates
 
 
@@ -270,7 +340,16 @@ def pack_parts(
         for item in ordered:
             filename = str(item["file"])
             mesh = meshes[filename]
-            candidates = fit_orientations(mesh, bed_width, bed_depth, bed_height, margin)
+            part = str(item.get("part") or "")
+            item_margin = edge_margin_for_part(part, margin)
+            candidates = fit_orientations(
+                mesh,
+                bed_width,
+                bed_depth,
+                bed_height,
+                item_margin,
+                part=part,
+            )
             if not candidates:
                 oversized_entry = {
                     "file": filename,
@@ -295,42 +374,52 @@ def pack_parts(
                 # Keep a strict shelf frontier.  Back-filling an earlier row can
                 # make a later row overlap when the earlier row grows taller, so
                 # rows are never revisited after the frontier moves on.
-                best: tuple[float, int, tuple[tuple[float, float, float], tuple[float, float, float]], float, float] | None = None
+                best: tuple[tuple[float, ...], Orientation, float, float] | None = None
                 row = current_rows[-1] if current_rows else None
                 if row is not None:
-                    for angle, rotated in candidates:
-                        rotated_size = dimensions(rotated)
-                        x = row["x"]
-                        y = row["y"]
-                        if x + rotated_size[0] > bed_width - margin + 1e-6:
+                    for orientation_index, orientation in enumerate(candidates):
+                        rotated_size = dimensions(orientation.rotated_bounds)
+                        x = max(row["x"], item_margin)
+                        y = max(row["y"], item_margin)
+                        if x + rotated_size[0] > bed_width - item_margin + 1e-6:
                             continue
-                        if y + rotated_size[1] > bed_depth - margin + 1e-6:
+                        if y + rotated_size[1] > bed_depth - item_margin + 1e-6:
                             continue
-                        score = (max(row["height"], rotated_size[1]), angle, rotated_size[0], x, y)
-                        if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
-                            best = (score[0], angle, rotated, x, y)
+                        score = (
+                            max(row["height"], rotated_size[1]),
+                            orientation_index,
+                            rotated_size[0],
+                            x,
+                            y,
+                        )
+                        if best is None or score < best[0]:
+                            best = (score, orientation, x, y)
 
                 if best is None:
-                    row_y = margin if row is None else row["y"] + row["height"] + gap
-                    for angle, rotated in candidates:
-                        rotated_size = dimensions(rotated)
-                        x = margin
+                    row_y = (
+                        item_margin
+                        if row is None
+                        else max(item_margin, row["y"] + row["height"] + gap)
+                    )
+                    for orientation_index, orientation in enumerate(candidates):
+                        rotated_size = dimensions(orientation.rotated_bounds)
+                        x = item_margin
                         y = row_y
-                        if y + rotated_size[1] > bed_depth - margin + 1e-6:
+                        if y + rotated_size[1] > bed_depth - item_margin + 1e-6:
                             continue
-                        score = (rotated_size[1], angle, rotated_size[0], x, y)
-                        if best is None or score < (best[0], best[1], dimensions(best[2])[0], best[3], best[4]):
-                            best = (score[0], angle, rotated, x, y)
+                        score = (rotated_size[1], orientation_index, rotated_size[0], x, y)
+                        if best is None or score < best[0]:
+                            best = (score, orientation, x, y)
                     if best is not None:
-                        _, angle, rotated, x, y = best
-                        rotated_size = dimensions(rotated)
+                        _, orientation, x, y = best
+                        rotated_size = dimensions(orientation.rotated_bounds)
                         current_rows.append({"x": x + rotated_size[0] + gap, "y": y, "height": rotated_size[1]})
                     else:
                         start_plate(current_material_group)
                         continue
                 else:
-                    _, angle, rotated, x, y = best
-                    rotated_size = dimensions(rotated)
+                    _, orientation, x, y = best
+                    rotated_size = dimensions(orientation.rotated_bounds)
                     row["x"] = x + rotated_size[0] + gap
                     row["height"] = max(row["height"], rotated_size[1])
 
@@ -338,7 +427,9 @@ def pack_parts(
                 # bounds are derived from x/y; using final_bounds as the transform
                 # origin would leave the source CAD's absolute coordinates in the
                 # combined STL.
-                plates[-1].append(Placement(item, mesh, angle, x, y, rotated))
+                plates[-1].append(
+                    Placement(item, mesh, orientation, x, y, orientation.rotated_bounds)
+                )
                 placed = True
 
         # A material group containing only oversized parts should not leave an
@@ -384,7 +475,7 @@ def build_manifest(
             )
             transformed = transform_triangles(
                 placement.mesh.triangles,
-                placement.rotation_z_deg,
+                placement.orientation.matrix,
                 shift,
             )
             triangles.extend(transformed)
@@ -415,12 +506,23 @@ def build_manifest(
                 "index": item.get("index"),
                 "plate_id": plate_id,
                 "status": "placed",
-                "rotation_z_deg": placement.rotation_z_deg,
+                "orientation_label": placement.orientation.label,
+                "rotation_euler_deg": list(placement.orientation.euler_deg),
+                "rotation_matrix": [list(row) for row in placement.orientation.matrix],
+                "rotation_z_deg": (
+                    placement.orientation.euler_deg[2]
+                    if placement.orientation.euler_deg[0] == 0
+                    and placement.orientation.euler_deg[1] == 0
+                    else None
+                ),
                 "x_mm": placement.x,
                 "y_mm": placement.y,
                 "source_path": os.path.relpath(placement.mesh.path, output_dir).replace(os.sep, "/"),
                 "source_sha256": sha256_file(placement.mesh.path),
                 "source_size_mm": list(dimensions(placement.mesh.bounds)),
+                "edge_margin_mm": edge_margin_for_part(
+                    str(item.get("part") or ""), margin
+                ),
                 "placed_bounds": [list(value) for value in placed_bounds],
                 "label": filename.replace(".stl", ""),
             }
@@ -486,12 +588,14 @@ def build_manifest(
         "install_model": source_manifest.get("install_model"),
         "assembly_components": source_manifest.get("assembly_components", []),
         "packing": {
-            "algorithm": "deterministic shelf packing from actual STL bounds",
+            "algorithm": "deterministic shelf packing from actual STL bounds with tested rigid 3D tilt candidates",
             "rigid_transforms_only": True,
+            "three_dimensional_rotation": True,
             "scaling": False,
             "remeshing": False,
             "boolean_union": False,
             "separate_material_groups": True,
+            "part_edge_margins_mm": dict(PART_EDGE_MARGINS_MM),
             "material_groups": sorted(
                 {material_group_for(item) for item in source_manifest.get("parts", [])},
                 key=lambda group: (group != "PETG", group),
@@ -502,7 +606,7 @@ def build_manifest(
         "parts": parts,
         "notes": [
             "拼盘 STL 由多个互相独立的封闭零件组成，不是装配件，也不改变源零件尺寸。",
-            "超出当前打印床的零件不会被裁切或缩放；网顶长件需要换大床、进一步拆分或改用铝型材。",
+            "整根固定网柱是一件；其当前一体件从黄灰交界 z=16 mm 共面起向上至 z=372.5 mm，高度 356.5 mm；网布/卡夹的功能通道仍只到 z=168.5 mm，不向下插入 C 形座，也不附带独立滑轨载体。X1C 采用已验证的 rx=0°、ry=51°、rz=45° 三轴斜放，实际包络约 252.5×252.5×251.6 mm，按该件专用 1.5 mm 名义边缘余量排版；不裁切、不缩放，导入切片器后仍需配置支撑并确认设备实际可用范围。",
             "STL 不保存切片参数；导入切片器时仍需确认 1:1 单位、支撑、壁数、填充和首层。",
             "不同材料组严格分盘：TPU/柔性件不会与 PETG 零件进入同一张拼盘；混合材料标注的试样按柔性材料盘处理。",
         ],

@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from build_print_platter import dimensions, rotation_matrix_xyz, transform_bounds
 from validate_scad import find_openscad, stl_bounds, stl_x_center
 
 
@@ -21,23 +22,39 @@ PARTS = (
     "right_stand",
     "post",
     "post_segment",
-    "lower_stand_segment",
-    "post_joint_sleeve",
-    "post_joint_key",
+    "post_clamp_carrier",
+    "clamp_body_segment",
+    "post_clamp_slide_exploded",
+    "post_clamp_slide_interface_exploded",
+    "clamp_slide_post_foot_detent_detail",
+    "post_joint_exploded",
+    "clamp_slide_exploded",
+    "clamp_slide_fit_probe",
+    "clamp_slide_fit_section",
     "table_clamp",
     "table_clamp_section",
     "table_clamp_body",
+    "clamp_electronics_cover",
+    "clamp_electronics_gasket",
+    "clamp_electronics_ui_panel",
+    "clamp_electronics_ui_bezel",
+    "clamp_electronics_emitter_preview",
+    "clamp_electronics_system_preview",
+    "clamp_electronics_full_cutaway",
+    "clamp_electronics_exploded",
+    "clamp_electronics_emitter_exploded",
+    "clamp_electronics_system_exploded",
+    "table_clamp_electronics_preview",
+    "table_clamp_electronics_cutaway_preview",
     "clamp_top_pad",
     "clamp_pressure_pad",
+    "clamp_pressure_pad_guard",
     "clamp_screw",
+    "clamp_printed_screw",
     "clamp_body_nut",
     "clamp_knob",
     "clamp_knob_nut",
     "net",
-    "net_rail",
-    "net_rail_segment",
-    "net_rail_splice",
-    "net_rail_saddle",
     "optical_rail",
     "optical_strip",
     "optical_module_carrier",
@@ -50,7 +67,12 @@ PARTS = (
     "m6_detector_shell_front",
     "m6_detector_shell_rear",
     "m6_detector_bottom_cover",
-    "net_clamp_rod",
+    "m6_detector_wiring_reference",
+    "m6_detector_bottom_gasket",
+    "m6_detector_cable_gland",
+    "net_clamp_fit_probe",
+    "net_clamp_fit_section",
+    "net_clamp_clip",
     "m6_detector_net_connector",
     "m6_detector_mount",
     "m6_ballhead",
@@ -76,10 +98,16 @@ PREVIEW_ONLY_PARTS = {
     "left_stand",
     "right_stand",
     "post",
+    "post_clamp_slide_exploded",
+    "post_clamp_slide_interface_exploded",
+    "clamp_slide_post_foot_detent_detail",
+    "post_joint_exploded",
+    "clamp_slide_exploded",
+    "clamp_slide_fit_probe",
+    "clamp_slide_fit_section",
     "table_clamp_section",
     "table_clamp",
     "net",
-    "net_rail",
     "optical_strip",
     "m6_sensor_rail",
     "m6_sensor_array",
@@ -87,13 +115,25 @@ PREVIEW_ONLY_PARTS = {
     "m6_detector_fit_body",
     "m6_detector_mount",
     "m6_detector_net_connector",
+    "net_clamp_fit_probe",
+    "net_clamp_fit_section",
     "m6_ballhead",
     "m6_gimbal",
     "stg120_preview",
     "sensor_mount",
     "reference_carriage",
+    "table_clamp_electronics_preview",
+    "table_clamp_electronics_cutaway_preview",
+    "clamp_electronics_ui_panel",
+    "clamp_electronics_emitter_preview",
+    "clamp_electronics_system_preview",
+    "clamp_electronics_full_cutaway",
+    "clamp_electronics_exploded",
+    "clamp_electronics_emitter_exploded",
+    "clamp_electronics_system_exploded",
+    "m6_detector_wiring_reference",
 }
-NO_DRILL_TABLE_THICKNESSES = (18, 25, 30)
+NO_DRILL_TABLE_THICKNESSES = (12, 18, 25, 30, 40)
 
 
 def run_openscad(openscad: str, output: Path, *definitions: str) -> subprocess.CompletedProcess[str]:
@@ -273,6 +313,59 @@ def require_stl(
             )
 
 
+def validate_post_clamp_slide_path(
+    openscad: str, output_dir: Path, parameters: dict[str, float]
+) -> None:
+    """Prove the coplanar seat and the later x-only service clear-out path.
+
+    The current upright starts exactly on the fixed C-clamp's z=16 mm upper
+    support plane.  The two printable solids may share that boundary face, but
+    they must not have a positive-volume intersection at the seated datum or
+    at any sampled x-only slide position.
+    """
+
+    offsets = (0, 0.5, 1, 1.5, 2, 4, 8, 41, 82)
+    for side in (1, -1):
+        for offset in offsets:
+            output = output_dir / f"post-clamp-collision-side-{side}-{offset:g}.stl"
+            result = run_openscad(
+                openscad,
+                output,
+                'PART="post_clamp_fit_collision_probe_at_offset"',
+                f"SIDE={side}",
+                f"fit_probe_offset_x={offset}",
+            )
+            empty_probe = "Current top level object is empty" in result.stdout
+            if result.returncode != 0 and not empty_probe:
+                raise RuntimeError(
+                    f"OpenSCAD rejected the post/clamp path probe SIDE={side} "
+                    f"offset={offset:g}:\n{result.stdout}"
+                )
+            # OpenSCAD may omit a completely empty STL.  A coplanar seat has
+            # zero volume; any positive-volume result is an unintended
+            # penetration into the fixed C-clamp.
+            volume_mm3 = 0.0
+            if output.is_file() and output.stat().st_size > 0:
+                volume_mm3 = _stl_volume(output)
+            if volume_mm3 > 0.01:
+                raise RuntimeError(
+                    "post/clamp carrier has positive-volume penetration; the seat must be coplanar: "
+                    f"SIDE={side}, offset={offset:g}, volume_mm3={volume_mm3:.3f}"
+                )
+    if not (
+        parameters["clamp_slide_entry_open_x"]
+        > parameters["clamp_fixed_body_max_x"]
+        and parameters["clamp_slide_entry_open_x"]
+        >= parameters["clamp_fixed_body_max_x"]
+        + parameters["clamp_slide_clearance"]
+    ):
+        raise RuntimeError(
+            "female slideway entry is not open through the fixed body's x+ face: "
+            f"entry={parameters['clamp_slide_entry_open_x']}, "
+            f"body_max={parameters['clamp_fixed_body_max_x']}"
+        )
+
+
 def validate_no_drill_thickness(
     openscad: str,
     output_dir: Path,
@@ -280,6 +373,9 @@ def validate_no_drill_thickness(
     top_pad_t: float,
     pressure_pad_socket_depth: float,
     knob_nut_stack_depth: float,
+    body_nut_z: float,
+    body_nut_top_z: float,
+    guard_post_h: float,
 ) -> None:
     """Compile the under-table pressure path for a first-pass thickness matrix."""
 
@@ -287,7 +383,9 @@ def validate_no_drill_thickness(
     body = output_dir / f"table-clamp-body-{table_thickness}.stl"
     top_pad = output_dir / f"top-pad-{table_thickness}.stl"
     pad = output_dir / f"pressure-pad-{table_thickness}.stl"
+    guard = output_dir / f"pressure-pad-guard-{table_thickness}.stl"
     screw = output_dir / f"clamp-screw-{table_thickness}.stl"
+    printed_screw = output_dir / f"clamp-printed-screw-{table_thickness}.stl"
     body_nut = output_dir / f"clamp-body-nut-{table_thickness}.stl"
     knob = output_dir / f"clamp-knob-{table_thickness}.stl"
     knob_nut = output_dir / f"clamp-knob-nut-{table_thickness}.stl"
@@ -307,9 +405,19 @@ def validate_no_drill_thickness(
         f"pressure pad table_thickness={table_thickness}",
     )
     require_stl(
+        run_openscad(openscad, guard, 'PART="clamp_pressure_pad_guard"', *definitions),
+        guard,
+        f"pressure pad back guard table_thickness={table_thickness}",
+    )
+    require_stl(
         run_openscad(openscad, screw, 'PART="clamp_screw"', *definitions),
         screw,
         f"clamp screw table_thickness={table_thickness}",
+    )
+    require_stl(
+        run_openscad(openscad, printed_screw, 'PART="clamp_printed_screw"', *definitions),
+        printed_screw,
+        f"temporary printed clamp screw table_thickness={table_thickness}",
     )
     require_stl(
         run_openscad(openscad, body_nut, 'PART="clamp_body_nut"', *definitions),
@@ -328,7 +436,9 @@ def validate_no_drill_thickness(
     )
     top_pad_bounds = stl_bounds(top_pad)
     pad_bounds = stl_bounds(pad)
+    guard_bounds = stl_bounds(guard)
     screw_bounds = stl_bounds(screw)
+    printed_screw_bounds = stl_bounds(printed_screw)
     body_nut_bounds = stl_bounds(body_nut)
     knob_bounds = stl_bounds(knob)
     knob_nut_bounds = stl_bounds(knob_nut)
@@ -339,7 +449,14 @@ def validate_no_drill_thickness(
         and pad_bounds[5] < tabletop_bottom
         and screw_bounds[5] < tabletop_bottom
         and screw_bounds[5] <= pad_bounds[4] + pressure_pad_socket_depth + 0.01
+        and printed_screw_bounds[5] < tabletop_bottom
+        and printed_screw_bounds[5] <= pad_bounds[4] + pressure_pad_socket_depth + 0.01
+        and guard_bounds[2] < guard_bounds[3]
+        and guard_bounds[4] < pad_bounds[4]
+        and guard_bounds[5] <= pad_bounds[4] + guard_post_h + 0.01
         and body_nut_bounds[5] < tabletop_bottom
+        and body_nut_bounds[4] >= body_nut_z - 0.01
+        and body_nut_bounds[5] <= body_nut_top_z + 0.01
         and knob_bounds[5] < tabletop_bottom
         and knob_nut_bounds[5] < tabletop_bottom
         and knob_nut_bounds[4] >= knob_bounds[4] - 0.01
@@ -366,7 +483,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "table_width",
         "table_thickness",
         "net_post_outboard_extension",
+        "net_fixture_bottom_z",
         "net_height",
+        "net_top_rail_required",
+        "net_panel_top_z",
         "net_rail_height",
         "net_rail_depth",
         "beam_count",
@@ -377,10 +497,36 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "post_offset",
         "post_body_width",
         "post_body_depth",
+        "clamp_slide_interface_enabled",
         "post_bottom",
+        "post_interface_transition_height_z",
+        "post_interface_transition_extra_x",
+        "post_interface_transition_extra_y",
+        "post_c_clamp_overlap_depth_z",
+        "post_interface_transition_bottom_width_x",
+        "post_interface_transition_bottom_depth_y",
+        "post_lower_overlap_solid_height_z",
+        "post_interface_transition_start_z",
+        "post_interface_transition_top_z",
+        "post_interface_transition_outer_max_x",
+        "net_post_top_z",
         "post_segment_count",
         "post_segment_length",
         "post_joint_gap",
+        "preview_fit_display_gap",
+        "post_joint_above_net_clearance_z",
+        "active_post_top_z",
+        "active_post_total_height",
+        "active_post_segment_length",
+        "active_post_joint_z",
+        "post_split_z",
+        "post_lower_segment_z",
+        "post_lower_segment_height",
+        "post_upper_segment_z",
+        "post_upper_segment_height",
+        "m4_joint_bolt_clearance_d",
+        "m4_joint_bolt_length",
+        "m4_joint_bolt_z_offset",
         "net_span",
         "net_rail_segment_count",
         "net_rail_segment_length",
@@ -393,6 +539,12 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "net_rail_saddle_height",
         "post_top",
         "sensor_x",
+        "sensor_length",
+        "sensor_depth",
+        "sensor_height",
+        "sensor_post_clearance_x",
+        "sensor_film_y",
+        "sensor_film_height",
         "sensor_film_length",
         "sensor_film_depth",
         "sensor_clamp_tab_width",
@@ -409,6 +561,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_screw_x",
         "clamp_screw_d",
         "clamp_screw_pitch",
+        "clamp_table_thickness_min",
+        "clamp_table_thickness_max",
         "clamp_threaded_boss_d",
         "clamp_threaded_boss_h",
         "clamp_top_pad_x",
@@ -431,6 +585,9 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_knob_nut_stack_depth",
         "clamp_knob_nut_pocket_depth",
         "clamp_body_nut_z",
+        "clamp_body_nut_top_z",
+        "clamp_body_nut_pocket_z",
+        "clamp_body_nut_load_from_top",
         "clamp_knob_d",
         "clamp_knob_grip_root_d",
         "clamp_knob_grip_tooth_count",
@@ -457,6 +614,17 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pressure_pad_screw_socket_depth",
         "clamp_pressure_pad_screw_socket_mouth_d",
         "clamp_pressure_pad_screw_socket_chamfer_h",
+        "clamp_pressure_pad_guard_outer_d",
+        "clamp_pressure_pad_guard_inner_d",
+        "clamp_pressure_pad_guard_t",
+        "clamp_pressure_pad_guard_post_d",
+        "clamp_pressure_pad_guard_post_h",
+        "clamp_pressure_pad_guard_post_radius",
+        "clamp_printed_screw_shaft_d",
+        "clamp_printed_screw_thread_root_d",
+        "clamp_printed_screw_head_d",
+        "clamp_printed_screw_head_h",
+        "clamp_printed_screw_head_flat_h",
         "optical_locating_hole_d",
         "optical_rail_width",
         "optical_module_depth",
@@ -773,12 +941,38 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_net_connector_leg_top_z",
         "m6_detector_net_connector_leg_height_z",
         "m6_detector_net_connector_mount_height_z",
+        "m6_detector_direct_mount_socket_bottom_z",
+        "m6_detector_direct_mount_socket_top_z",
+        "m6_detector_direct_mount_socket_height_z",
+        "m6_detector_direct_mount_socket_center_z",
         "m6_detector_direct_mount_socket_clearance_d",
+        "m6_detector_direct_mount_socket_tap_d",
+        "m6_detector_direct_mount_enabled",
         "m6_detector_direct_mount_socket_base_overlap_z",
+        "m6_detector_direct_mount_socket_bottom_clearance_z",
+        "m6_detector_direct_mount_socket_top_clearance_z",
+        "m6_detector_direct_mount_thread_tap_d",
+        "m6_detector_direct_mount_thread_depth_z",
+        "m6_detector_direct_mount_thread_bottom_z",
+        "m6_detector_direct_mount_thread_top_z",
+        "m6_detector_direct_mount_thread_depth_extra_z",
+        "m6_detector_direct_mount_socket_center_x",
         "m6_detector_direct_mount_nut_loading_clearance_z",
         "m6_detector_direct_mount_nut_pocket_center_z",
         "m6_detector_direct_mount_nut_pocket_bottom_z",
         "m6_detector_direct_mount_nut_loading_depth_z",
+        "m6_detector_direct_mount_arm_min_x",
+        "m6_detector_direct_mount_arm_max_x",
+        "m6_detector_direct_mount_arm_width_y",
+        "m6_detector_direct_mount_arm_t_z",
+        "m6_detector_direct_mount_post_inner_face_x",
+        "m6_detector_direct_mount_arm_bottom_z",
+        "m6_detector_direct_mount_arm_top_z",
+        "m6_detector_direct_mount_lower_post_top_z",
+        "m6_detector_direct_mount_web_width_y",
+        "m6_detector_direct_mount_web_t_x",
+        "net_fixture_bottom_z",
+        "net_panel_bottom_z",
         "net_clamp_channel_depth_x",
         "net_clamp_cylinder_insertion_depth_x",
         "net_clamp_channel_back_wall_t_x",
@@ -793,6 +987,34 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "net_clamp_channel_void_max_x",
         "net_clamp_cylinder_center_x",
         "net_clamp_cylinder_height",
+        "net_clamp_channel_outboard_extension_x",
+        "net_clamp_clip_clearance_x",
+        "net_clamp_clip_length_x",
+        "net_clamp_clip_inner_x",
+        "net_clamp_clip_outer_x",
+        "net_clamp_clip_jaw_t_y",
+        "net_clamp_clip_jaw_center_y",
+        "net_clamp_clip_jaw_clearance_y",
+        "net_clamp_clip_jaw_gap_y",
+        "net_clamp_clip_outer_half_y",
+        "net_clamp_clip_crossbar_t_x",
+        "net_clamp_keeper_enabled",
+        "net_clamp_keeper_x_min",
+        "net_clamp_keeper_x_max",
+        "net_clamp_keeper_y_min",
+        "net_clamp_keeper_y_max",
+        "net_clamp_keeper_z",
+        "net_clamp_keeper_height_z",
+        "net_clamp_keeper_relief_min_x",
+        "net_clamp_keeper_relief_max_x",
+        "net_clamp_keeper_relief_min_y",
+        "net_clamp_keeper_relief_max_y",
+        "net_clamp_keeper_latch_x_min",
+        "net_clamp_keeper_latch_x_max",
+        "net_clamp_keeper_latch_y_min",
+        "net_clamp_keeper_latch_y_max",
+        "net_clamp_keeper_latch_z",
+        "net_clamp_keeper_latch_height_z",
         "net_sheet_t",
         "net_passage_width_y",
         "net_passage_side_clearance_y",
@@ -832,6 +1054,90 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_reinforcement_outer_thickness_z",
         "clamp_reinforcement_outer_bottom_z",
         "clamp_lower_arm_t",
+        "post_joint_rail_height_z",
+        "post_joint_rail_z0",
+        "post_joint_rail_root_overlap_z",
+        "post_joint_rail_x_base_width",
+        "post_joint_rail_x_neck_width",
+        "post_joint_rail_y_depth",
+        "post_joint_rail_clearance",
+        "post_joint_lock_z",
+        "clamp_slide_split_x",
+        "clamp_slide_shoe_deepening_x",
+        "clamp_slide_length_x",
+        "clamp_slide_tongue_attach_x",
+        "clamp_slide_tongue_min_x",
+        "clamp_slide_receiver_length_x",
+        "clamp_slide_rail_y_outer",
+        "clamp_slide_rail_y_depth",
+        "clamp_slide_rail_head_width_y",
+        "clamp_slide_rail_neck_width_y",
+        "clamp_slide_rail_head_height_z",
+        "clamp_slide_rail_neck_height_z",
+        "clamp_slide_shoe_drop_z",
+        "clamp_slide_rail_floor_z",
+        "clamp_slide_rail_base_width_z",
+        "clamp_slide_rail_neck_width_z",
+        "clamp_slide_rail_height_z",
+        "clamp_slide_rail_center_z",
+        "clamp_slide_clearance",
+        "clamp_slide_receiver_floor_z",
+        "clamp_slide_receiver_top_z",
+        "clamp_slide_receiver_neck_height_z",
+        "clamp_slide_seat_z",
+        "clamp_slide_post_seat_clearance_x",
+        "clamp_slide_post_seat_end_x",
+        "clamp_fixed_body_max_x",
+        "clamp_slide_entry_open_x",
+        "clamp_slide_post_foot_root_width_y",
+        "clamp_slide_post_foot_ankle_inboard_extension_x",
+        "clamp_slide_post_foot_root_min_x",
+        "clamp_slide_post_foot_root_max_x",
+        "clamp_slide_post_foot_bridge_min_x",
+        "clamp_slide_post_foot_bridge_max_x",
+        "clamp_slide_post_foot_cross_tie_length_x",
+        "clamp_slide_post_foot_cross_tie_top_z",
+        "clamp_slide_post_foot_cross_tie_height_z",
+        "clamp_slide_post_foot_cross_tie_bottom_z",
+        "clamp_slide_post_foot_cross_tie_bottom_half_y",
+        "clamp_slide_post_foot_cross_tie_top_half_y",
+        "clamp_slide_post_foot_cross_tie_bridge_half_y",
+        "clamp_slide_post_foot_bottom_z",
+        "clamp_slide_post_foot_top_z",
+        "clamp_slide_post_foot_transition_section_count",
+        "clamp_slide_post_foot_transition_slice_z",
+        "clamp_slide_post_foot_transition_start_z",
+        "clamp_slide_post_foot_transition_side_start_z",
+        "clamp_slide_post_foot_transition_end_z",
+        "clamp_slide_post_foot_post_fusion_inset",
+        "clamp_slide_post_foot_side_top_inner_y",
+        "clamp_slide_post_foot_side_top_outer_y",
+        "clamp_slide_post_foot_side_outer_y",
+        "clamp_slide_post_foot_ankle_height_z",
+        "clamp_slide_post_foot_slope_top_min_x",
+        "clamp_slide_post_foot_slope_top_max_x",
+        "clamp_slide_post_foot_shoe_buried_overlap_z",
+        "clamp_slide_post_foot_shoe_overlap_z",
+        "clamp_slide_post_foot_root_overlap_z",
+        "clamp_slide_lock_x",
+        "clamp_slide_lock_bore_d",
+        "clamp_slide_lock_bolt_d",
+        "clamp_slide_lock_bolt_length",
+        "clamp_slide_lock_nut_af",
+        "clamp_slide_lock_nut_h",
+        "clamp_slide_detent_x",
+        "clamp_slide_detent_y_count",
+        "clamp_slide_detent_y_center",
+        "clamp_slide_detent_ball_d",
+        "clamp_slide_detent_ball_offset_z",
+        "clamp_slide_detent_ball_center_z",
+        "clamp_slide_detent_bore_d",
+        "clamp_slide_detent_bore_top_z",
+        "clamp_slide_detent_dimple_d",
+        "clamp_slide_detent_dimple_depth_z",
+        "clamp_slide_detent_female_roof_z",
+        "clamp_slide_detent_spring_d",
+        "clamp_slide_detent_spring_h",
     }
     missing = required - parameters.keys()
     if missing:
@@ -866,11 +1172,438 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
             f"{parameters}"
         )
     if not (
-        parameters["post_segment_count"] == 2
-        and 100 < parameters["post_segment_length"] < 240
-        and parameters["post_joint_gap"] == 2
+        parameters["post_segment_count"] == 1
+        and parameters["post_joint_gap"] == 0
+        and math.isclose(
+            parameters["post_bottom"],
+            parameters["clamp_slide_seat_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_post_top_z"],
+            parameters["post_top"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["post_segment_length"],
+            parameters["active_post_total_height"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_post_top_z"] > parameters["net_panel_top_z"]
+        and 0 < parameters["preview_fit_display_gap"] <= 0.2
+        and math.isclose(
+            parameters["active_post_top_z"],
+            parameters["net_post_top_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["active_post_total_height"],
+            parameters["net_post_top_z"] - parameters["post_bottom"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["active_post_segment_length"],
+            parameters["active_post_total_height"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["post_segment_length"],
+            parameters["active_post_total_height"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["post_lower_segment_z"],
+            parameters["post_bottom"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["post_lower_segment_height"],
+            parameters["active_post_total_height"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["post_upper_segment_height"] == 0
+        and parameters["post_split_z"] == parameters["active_post_top_z"]
+        and parameters["post_upper_segment_z"] == parameters["active_post_top_z"]
+        and parameters["active_post_joint_z"] == parameters["active_post_top_z"]
     ):
-        raise RuntimeError(f"unexpected printable post segmentation: {parameters}")
+        raise RuntimeError(f"unexpected one-piece printable post parameters: {parameters}")
+    if parameters["clamp_slide_interface_enabled"] and not (
+        parameters["clamp_slide_shoe_deepening_x"] >= 8
+        and parameters["clamp_slide_shoe_drop_z"] >= 9
+        and parameters["clamp_slide_receiver_length_x"]
+        == 73 + parameters["clamp_slide_shoe_deepening_x"]
+        and parameters["clamp_slide_length_x"]
+        == 71 + parameters["clamp_slide_shoe_deepening_x"]
+        and parameters["clamp_slide_tongue_min_x"]
+        + parameters["clamp_slide_receiver_length_x"]
+        == parameters["clamp_fixed_body_max_x"]
+        and parameters["clamp_slide_tongue_min_x"]
+        + parameters["clamp_slide_length_x"]
+        <= parameters["clamp_slide_post_foot_root_max_x"]
+        and parameters["clamp_slide_post_foot_root_max_x"]
+        - (
+            parameters["clamp_slide_tongue_min_x"]
+            + parameters["clamp_slide_length_x"]
+        )
+        <= 0.75
+        and parameters["clamp_slide_receiver_length_x"] >= 60
+        and parameters["clamp_slide_tongue_attach_x"] >= 35.5
+        and math.isclose(
+            parameters["clamp_slide_tongue_attach_x"],
+            parameters["clamp_slide_post_foot_root_max_x"]
+            - parameters["clamp_slide_split_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_tongue_min_x"] < parameters["clamp_slide_split_x"]
+        and parameters["clamp_slide_split_x"]
+        < parameters["clamp_slide_tongue_min_x"]
+        + parameters["clamp_slide_length_x"]
+        and parameters["clamp_slide_rail_y_outer"] > 0
+        and parameters["clamp_slide_rail_y_depth"] >= 16
+        and parameters["clamp_slide_rail_head_width_y"]
+        > parameters["clamp_slide_rail_neck_width_y"]
+        > 0
+        and parameters["clamp_slide_rail_head_width_y"] >= 16
+        and parameters["clamp_slide_rail_neck_width_y"] >= 10
+        and parameters["clamp_slide_rail_head_height_z"] >= 6.5
+        and parameters["clamp_slide_rail_neck_height_z"] >= 5.5
+        and math.isclose(
+            parameters["clamp_slide_rail_height_z"],
+            parameters["clamp_slide_rail_head_height_z"]
+            + parameters["clamp_slide_rail_neck_height_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["clamp_slide_rail_floor_z"],
+            parameters["clamp_slide_rail_center_z"]
+            - parameters["clamp_slide_rail_height_z"] / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_rail_base_width_z"]
+        > parameters["clamp_slide_rail_neck_width_z"]
+        > 0
+        and parameters["clamp_slide_rail_height_z"] >= 12
+        and parameters["clamp_slide_clearance"] > 0
+        and parameters["clamp_slide_receiver_floor_z"]
+        < parameters["clamp_slide_rail_floor_z"]
+        and parameters["clamp_slide_receiver_top_z"]
+        > parameters["clamp_slide_rail_floor_z"]
+        + parameters["clamp_slide_rail_height_z"]
+        and parameters["clamp_slide_receiver_neck_height_z"] > 0
+        and math.isclose(
+            parameters["clamp_slide_receiver_top_z"],
+            parameters["clamp_slide_receiver_floor_z"]
+            + parameters["clamp_slide_rail_head_height_z"]
+            + parameters["clamp_slide_clearance"]
+            + parameters["clamp_slide_receiver_neck_height_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_rail_y_outer"]
+        + parameters["clamp_slide_rail_head_width_y"] / 2
+        + parameters["clamp_slide_clearance"]
+        < parameters["clamp_pad_depth"] / 2
+        and parameters["clamp_slide_rail_y_outer"]
+        - parameters["clamp_slide_post_foot_root_width_y"] / 2
+        - parameters["clamp_slide_clearance"]
+        > parameters["net_passage_width_y"] / 2
+        and parameters["clamp_slide_rail_y_outer"]
+        + parameters["clamp_slide_post_foot_root_width_y"] / 2
+        + parameters["clamp_slide_clearance"]
+        < parameters["clamp_pad_depth"] / 2
+        and math.isclose(
+            parameters["clamp_slide_post_foot_side_top_inner_y"],
+            parameters["net_passage_width_y"] / 2
+            - parameters["clamp_slide_post_foot_post_fusion_inset"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["clamp_slide_post_foot_side_top_outer_y"],
+            parameters["post_body_depth"] / 2
+            - parameters["clamp_slide_post_foot_post_fusion_inset"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_side_top_inner_y"]
+        < parameters["clamp_slide_post_foot_side_top_outer_y"]
+        and parameters["clamp_slide_post_foot_side_top_outer_y"]
+        < parameters["clamp_slide_rail_y_outer"]
+        + parameters["clamp_slide_post_foot_root_width_y"] / 2
+        and parameters["clamp_slide_post_foot_transition_section_count"] >= 6
+        and parameters["clamp_slide_post_foot_transition_slice_z"] > 0
+        and math.isclose(
+            parameters["clamp_slide_post_foot_transition_start_z"],
+            parameters["clamp_slide_post_foot_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_transition_start_z"]
+        < parameters["clamp_slide_post_foot_top_z"]
+        and math.isclose(
+            parameters["clamp_slide_post_foot_transition_side_start_z"],
+            parameters["clamp_slide_rail_floor_z"]
+            + parameters["clamp_slide_rail_height_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_transition_side_start_z"]
+        < parameters["clamp_slide_post_foot_transition_end_z"]
+        and math.isclose(
+            parameters["clamp_slide_post_foot_transition_end_z"],
+            parameters["post_bottom"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_root_max_x"]
+        - parameters["clamp_slide_post_foot_root_min_x"]
+        >= parameters["post_body_width"] / 2
+        and parameters["clamp_slide_post_foot_root_min_x"]
+        >= parameters["clamp_slide_tongue_min_x"]
+        and parameters["clamp_slide_post_foot_ankle_inboard_extension_x"]
+        >= 8
+        and math.isclose(
+            parameters["clamp_slide_split_x"]
+            - parameters["clamp_slide_post_foot_root_min_x"],
+            parameters["clamp_slide_post_foot_ankle_inboard_extension_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_bridge_min_x"]
+        >= parameters["clamp_slide_post_foot_root_min_x"]
+        and parameters["clamp_slide_post_foot_bridge_max_x"]
+        <= parameters["clamp_slide_post_foot_root_max_x"]
+        and parameters["clamp_slide_post_foot_root_max_x"]
+        - parameters["clamp_slide_post_foot_bridge_max_x"]
+        >= parameters["clamp_slide_clearance"]
+        and parameters["clamp_slide_post_foot_bridge_max_x"]
+        > parameters["clamp_slide_post_foot_bridge_min_x"]
+        and parameters["clamp_slide_post_foot_cross_tie_length_x"] >= 10
+        and parameters["clamp_slide_post_foot_cross_tie_height_z"]
+        > 3
+        and math.isclose(
+            parameters["clamp_slide_post_foot_cross_tie_top_z"],
+            parameters["net_passage_bottom_z"]
+            - parameters["clamp_slide_clearance"]
+            - 0.1,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_cross_tie_top_z"]
+        < parameters["net_passage_bottom_z"]
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_z"]
+        < parameters["clamp_slide_post_foot_cross_tie_top_z"]
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_half_y"]
+        > parameters["clamp_slide_post_foot_cross_tie_top_half_y"]
+        > 0
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_half_y"]
+        < parameters["clamp_slide_rail_y_outer"]
+        - parameters["clamp_slide_rail_head_width_y"] / 2
+        and parameters["clamp_slide_post_foot_cross_tie_bridge_half_y"]
+        > parameters["clamp_slide_post_foot_cross_tie_bottom_half_y"]
+        and parameters["clamp_slide_post_foot_cross_tie_bridge_half_y"]
+        < parameters["clamp_slide_rail_y_outer"]
+        - parameters["clamp_slide_rail_head_width_y"] / 2
+        + parameters["clamp_slide_post_foot_root_width_y"]
+        / 2
+        and parameters["clamp_slide_post_foot_shoe_buried_overlap_z"] > 0
+        and math.isclose(
+            parameters["clamp_slide_rail_floor_z"]
+            + parameters["clamp_slide_rail_height_z"]
+            - parameters["clamp_slide_post_foot_bottom_z"],
+            parameters["clamp_slide_rail_height_z"]
+            + parameters["clamp_slide_post_foot_shoe_buried_overlap_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["clamp_slide_post_foot_bridge_max_x"]
+            - parameters["clamp_slide_post_foot_bridge_min_x"],
+            parameters["clamp_slide_post_foot_cross_tie_length_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_top_z"]
+        > parameters["clamp_slide_rail_floor_z"]
+        + parameters["clamp_slide_rail_height_z"]
+        and parameters["clamp_slide_post_foot_root_max_x"]
+        < parameters["clamp_fixed_body_max_x"]
+        and parameters["clamp_fixed_body_max_x"]
+        - parameters["clamp_slide_post_foot_root_max_x"]
+        >= 1.2
+        and math.isclose(
+            parameters["clamp_slide_seat_z"],
+            parameters["clamp_solid_bridge_top_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_seat_clearance_x"] > 0
+        and parameters["clamp_slide_post_seat_end_x"]
+        >= post_outer_face
+        and parameters["clamp_slide_post_seat_end_x"]
+        == parameters["clamp_fixed_body_max_x"]
+        and math.isclose(
+            parameters["post_bottom"],
+            parameters["clamp_slide_seat_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_seat_z"]
+        > parameters["clamp_slide_rail_floor_z"]
+        + parameters["clamp_slide_rail_height_z"]
+        and parameters["clamp_slide_post_foot_ankle_height_z"] >= 20
+        and math.isclose(
+            parameters["clamp_slide_post_foot_ankle_height_z"],
+            parameters["post_bottom"]
+            - parameters["clamp_slide_post_foot_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_root_overlap_z"] >= 0.2
+        and math.isclose(
+            parameters["clamp_slide_post_foot_top_z"]
+            - parameters["post_bottom"],
+            parameters["clamp_slide_post_foot_root_overlap_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_top_z"]
+        > parameters["post_bottom"]
+        and parameters["clamp_slide_post_foot_bottom_z"]
+        < parameters["clamp_slide_rail_floor_z"]
+        + parameters["clamp_slide_rail_height_z"]
+        and parameters["clamp_slide_post_foot_shoe_overlap_z"] >= 10
+        and math.isclose(
+            parameters["clamp_slide_rail_floor_z"]
+            + parameters["clamp_slide_rail_height_z"]
+            - parameters["clamp_slide_post_foot_bottom_z"],
+            parameters["clamp_slide_post_foot_shoe_overlap_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_lock_x"] > parameters["clamp_slide_tongue_min_x"]
+        and parameters["clamp_slide_lock_x"] < parameters["clamp_slide_split_x"]
+        and parameters["clamp_slide_lock_bore_d"]
+        > parameters["clamp_slide_lock_bolt_d"]
+        and parameters["clamp_slide_lock_bolt_length"] >= 20
+        and parameters["clamp_slide_lock_nut_af"]
+        > parameters["clamp_slide_lock_bolt_d"]
+        and parameters["clamp_slide_lock_nut_h"] > 0
+        and parameters["clamp_slide_detent_y_count"] == 1
+        and parameters["clamp_slide_detent_y_center"] == 0
+        and parameters["clamp_slide_detent_x"]
+        > parameters["clamp_slide_lock_x"]
+        and parameters["clamp_slide_detent_x"]
+        >= parameters["clamp_slide_post_foot_bridge_min_x"]
+        and parameters["clamp_slide_detent_x"]
+        <= parameters["clamp_slide_post_foot_bridge_max_x"]
+        and parameters["clamp_slide_detent_x"]
+        - parameters["clamp_slide_post_foot_bridge_min_x"]
+        >= parameters["clamp_slide_detent_dimple_d"] / 2
+        and parameters["clamp_slide_post_foot_bridge_max_x"]
+        - parameters["clamp_slide_detent_x"]
+        >= parameters["clamp_slide_detent_dimple_d"] / 2
+        and parameters["clamp_slide_detent_x"]
+        > parameters["post_interface_transition_outer_max_x"]
+        and parameters["clamp_slide_detent_x"]
+        < parameters["clamp_fixed_body_max_x"]
+        and parameters["clamp_slide_detent_x"]
+        >= parameters["clamp_slide_post_foot_bridge_min_x"]
+        + parameters["clamp_slide_detent_bore_d"] / 2
+        and parameters["clamp_slide_detent_x"]
+        <= parameters["clamp_slide_post_foot_bridge_max_x"]
+        - parameters["clamp_slide_detent_bore_d"] / 2
+        and parameters["clamp_slide_post_foot_bridge_max_x"]
+        - parameters["clamp_slide_post_foot_bridge_min_x"]
+        >= parameters["clamp_slide_detent_bore_d"]
+        and parameters["clamp_slide_detent_bore_d"]
+        > parameters["clamp_slide_detent_ball_d"]
+        and parameters["clamp_slide_detent_dimple_d"]
+        >= parameters["clamp_slide_detent_ball_d"]
+        and parameters["clamp_slide_detent_dimple_depth_z"] > 0
+        and parameters["clamp_slide_detent_spring_d"]
+        < parameters["clamp_slide_detent_ball_d"]
+        and parameters["clamp_slide_detent_spring_h"] > 0
+        and parameters["clamp_slide_detent_female_roof_z"]
+        > parameters["clamp_slide_rail_center_z"]
+        and parameters["clamp_slide_detent_bore_top_z"]
+        > parameters["clamp_slide_seat_z"]
+        and math.isclose(
+            parameters["clamp_slide_detent_ball_center_z"]
+            - parameters["clamp_slide_post_foot_cross_tie_bottom_z"],
+            parameters["clamp_slide_detent_ball_offset_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_z"]
+        >= parameters["clamp_slide_rail_floor_z"]
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_z"]
+        - parameters["clamp_slide_rail_floor_z"]
+        >= 0.2
+        and parameters["clamp_slide_post_foot_cross_tie_bottom_z"]
+        + parameters["clamp_slide_detent_dimple_depth_z"]
+        >= parameters["clamp_slide_detent_ball_center_z"]
+        + parameters["clamp_slide_detent_ball_d"] / 2
+        and parameters["clamp_slide_detent_bore_top_z"]
+        - parameters["clamp_slide_detent_ball_center_z"]
+        >= parameters["clamp_slide_detent_ball_d"] / 2
+        and math.isclose(
+            parameters["post_interface_transition_height_z"],
+            0,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["post_interface_transition_outer_max_x"],
+            parameters["post_center_x"] + parameters["post_body_width"] / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["post_interface_transition_outer_max_x"]
+        < parameters["net_clamp_channel_void_max_x"]
+        and parameters["net_clamp_clip_outer_x"]
+        > parameters["post_interface_transition_outer_max_x"]
+    ):
+        raise RuntimeError(
+            f"clamp body broad interlocking slideway and anti-slide dimensions are inconsistent: {parameters}"
+        )
+    if not (
+        math.isclose(
+            parameters["clamp_slide_post_foot_slope_top_min_x"],
+            post_inner_face
+            + parameters["clamp_slide_post_foot_post_fusion_inset"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["clamp_slide_post_foot_slope_top_max_x"],
+            post_outer_face
+            - parameters["clamp_slide_post_foot_post_fusion_inset"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["clamp_slide_post_foot_slope_top_min_x"]
+        < parameters["clamp_slide_post_foot_slope_top_max_x"]
+        and parameters["clamp_slide_entry_open_x"]
+        >= parameters["clamp_fixed_body_max_x"]
+        + parameters["clamp_slide_clearance"]
+    ):
+        raise RuntimeError(
+            "sloped post-foot transition or open x+ entry datum is inconsistent: "
+            f"{parameters}"
+        )
     if not (
         parameters["clamp_tongue_extra_length_x"] > 0
         and parameters["clamp_tongue_reach_inboard"]
@@ -901,8 +1634,18 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_outboard_extension_min"] >= 130
         and parameters["clamp_outboard_extension_actual"]
         <= parameters["clamp_horizontal_part_outboard_limit"] + 0.01
+        and math.isclose(
+            parameters["post_interface_transition_outer_max_x"],
+            parameters["clamp_fixed_body_max_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
     ):
-        raise RuntimeError(f"clamp does not bridge edge with an under-table screw: {parameters}")
+        raise RuntimeError(
+            "clamp does not bridge edge with an under-table screw or the gray body "
+            "does not align to the seated post's outboard face: "
+            f"{parameters}"
+        )
     if not (
         parameters["clamp_reinforcement_inboard_offset_x"] > 0
         and parameters["clamp_reinforcement_near_table_thickness_z"] == 40
@@ -960,6 +1703,10 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and
         parameters["clamp_screw_d"] == 8
         and parameters["clamp_screw_pitch"] == 1.25
+        and parameters["clamp_table_thickness_min"]
+        <= parameters["table_thickness"]
+        <= parameters["clamp_table_thickness_max"]
+        and parameters["clamp_table_thickness_max"] == 40
         and
         parameters["clamp_screw_top_z"] < -parameters["table_thickness"]
         and parameters["clamp_pressure_pad_top_z"] < -parameters["table_thickness"]
@@ -974,7 +1721,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         parameters["clamp_pressure_pad_top_z"]
         and parameters["clamp_lower_arm_top_z"] <
         parameters["clamp_pressure_pad_bottom_z"]
-        and parameters["clamp_pad_t"] == 12
+        and parameters["clamp_pad_t"] == 14
         and parameters["clamp_lower_arm_t"] == parameters["clamp_pad_t"]
         and abs(
             parameters["clamp_screw_top_z"]
@@ -991,13 +1738,19 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_pressure_pad_t"]
         > parameters["clamp_pressure_pad_screw_socket_depth"]
         and parameters["clamp_pressure_pad_screw_socket_d"]
-        > parameters["clamp_screw_d"]
+        >= parameters["clamp_printed_screw_head_d"] - 0.01
         and parameters["clamp_pressure_pad_screw_socket_d"]
         < parameters["clamp_pressure_pad_d"]
         and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
-        >= parameters["clamp_pressure_pad_screw_socket_d"]
+        > parameters["clamp_screw_d"]
+        and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
+        < parameters["clamp_pressure_pad_screw_socket_d"]
         and 0 < parameters["clamp_pressure_pad_screw_socket_chamfer_h"]
         < parameters["clamp_pressure_pad_screw_socket_depth"]
+        and parameters["clamp_pressure_pad_guard_outer_d"]
+        > parameters["clamp_pressure_pad_guard_inner_d"]
+        and parameters["clamp_pressure_pad_guard_inner_d"]
+        > parameters["clamp_printed_screw_shaft_d"]
     ):
         raise RuntimeError(f"M8x1.25 clamp pressure path is inconsistent: {parameters}")
     if not (
@@ -1007,6 +1760,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         < parameters["clamp_threaded_boss_d"]
         and parameters["clamp_nut_pocket_depth"] >= parameters["clamp_nut_h"]
         and parameters["clamp_nut_pocket_depth"] < parameters["clamp_threaded_boss_h"]
+        and parameters["clamp_body_nut_load_from_top"] == 1
+        and parameters["clamp_body_nut_pocket_z"]
+        >= parameters["clamp_lower_arm_bottom_z"] - 0.01
+        and parameters["clamp_body_nut_pocket_z"]
+        + parameters["clamp_nut_pocket_depth"]
+        <= parameters["clamp_lower_arm_top_z"] + 0.01
+        and parameters["clamp_body_nut_top_z"]
+        <= parameters["clamp_lower_arm_top_z"] + 0.01
         and parameters["clamp_knob_nut_gap"] >= 0
         and parameters["clamp_knob_nut_stack_depth"]
         == 2 * parameters["clamp_nut_h"] + parameters["clamp_knob_nut_gap"]
@@ -1044,19 +1805,46 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
     if parameters["net_span"] <= parameters["table_width"]:
         raise RuntimeError(f"net span does not bridge the table: {parameters}")
     if not (
+        parameters["net_top_rail_required"] == 0
+        and math.isclose(
+            parameters["net_panel_top_z"],
+            parameters["net_fixture_bottom_z"] + parameters["net_height"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+    ):
+        raise RuntimeError(f"active net still depends on a top rail: {parameters}")
+    if not (
         parameters["net_rail_segment_count"] == 3
         and parameters["net_rail_segment_length"] > 500
         and parameters["net_rail_splice_overlap"] == 20
         and parameters["net_rail_splice_plate_length"] == 60
         and parameters["net_rail_splice_hole_d"] > 0
     ):
-        raise RuntimeError(f"unexpected printable rail segmentation: {parameters}")
+        raise RuntimeError(f"legacy rail diagnostic parameters are inconsistent: {parameters}")
     if not (
         parameters["net_rail_saddle_width"] > parameters["net_rail_saddle_overlap"] > 0
         and parameters["net_rail_saddle_depth"] > parameters["net_rail_depth"]
         and parameters["net_rail_saddle_height"] > 0
     ):
-        raise RuntimeError(f"unexpected rail saddle geometry: {parameters}")
+        raise RuntimeError(f"legacy rail-saddle diagnostic parameters are inconsistent: {parameters}")
+    if not (
+        parameters["sensor_x"] > parameters["sensor_length"] / 2
+        and parameters["sensor_x"] + parameters["sensor_length"] / 2
+        < post_inner_face
+        and math.isclose(
+            post_inner_face
+            - (parameters["sensor_x"] + parameters["sensor_length"] / 2),
+            parameters["sensor_post_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["sensor_post_clearance_x"] >= 10
+        and parameters["sensor_depth"] > 0
+        and parameters["sensor_height"] > 0
+        and parameters["sensor_film_y"] < -parameters["net_sheet_t"] / 2
+    ):
+        raise RuntimeError(f"PVDF sensor mounts are not near the net ends or clear of the posts: {parameters}")
     if not (0 < parameters["optical_locating_hole_d"] < parameters["optical_rail_width"]):
         raise RuntimeError(f"invalid optical locating hole diameter: {parameters}")
     if not (
@@ -1255,9 +2043,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["m6_post_mount_hole_y"]
         > parameters["m6_post_mount_clearance_d"] / 2
         and parameters["m6_post_mount_hole_z"]
-        > parameters["post_bottom"]
-        + parameters["post_segment_length"]
-        + parameters["post_joint_gap"]
+        > parameters["post_interface_transition_top_z"]
         and parameters["m6_post_mount_hole_z"] < parameters["post_top"]
         and parameters["m6_post_mount_bolt_length"]
         >= parameters["m6_mount_plate_t"]
@@ -1359,6 +2145,12 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     def module_text(name: str) -> str:
         marker = f"module {name}"
         start = source_text.find(marker)
+        if start < 0 and "(" in name:
+            # Parameterized modules may evolve from a no-argument contract to
+            # a configurable preview/material contract.  Locate the module by
+            # its stable function name while keeping the body-boundary check.
+            marker = f"module {name.split('(', 1)[0]}"
+            start = source_text.find(marker)
         if start < 0:
             raise RuntimeError(f"current M6 source module is missing: {name}")
         next_module = source_text.find("\nmodule ", start + len(marker))
@@ -1377,12 +2169,23 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
     rear_footprint_module = module_text("m6_detector_rear_rounded_footprint_positive()")
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
+    wiring_module = module_text("m6_detector_cable_routing_reference_positive()")
+    bottom_gasket_module = module_text("m6_detector_bottom_gasket_positive()")
     direct_mount_module = module_text("m6_detector_direct_mount_positive()")
     table_clamp_body_module = module_text("table_clamp_body_positive()")
+    table_clamp_raw_module = module_text("table_clamp_raw_positive()")
+    clamp_body_segment_module = module_text("clamp_body_segment_positive()")
+    clamp_carrier_module = module_text("table_clamp_carrier_positive()")
+    clamp_tongue_module = module_text("clamp_slide_tongues_positive()")
+    clamp_tongue_raw_module = module_text("clamp_slide_tongues_raw_positive(tongue_color = \"darkorange\")")
+    clamp_foot_module = module_text("clamp_slide_post_foot_positive()")
     knob_module = module_text("clamp_knob_positive()")
     post_module = module_text("post_positive()")
     post_segment_module = module_text("post_segment_positive(index = 0)")
-    lower_stand_module = module_text("lower_stand_segment_positive()")
+    post_body_module = module_text("post_body_positive()")
+    transition_module = module_text("post_interface_transition_positive()")
+    post_carrier_module = module_text("post_clamp_carrier_positive()")
+    net_panel_module = module_text("net_panel()")
     mount_module = module_text("m6_detector_mount_positive()")
     assembly_module = module_text("m6_detector_assembly_positive()")
     exploded_module = module_text("m6_detector_exploded_positive()")
@@ -1416,6 +2219,10 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_hex_prism_x(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
+        or "m6_detector_cable_gland_positive();" not in bottom_cover_module
+        or "m6_detector_cable_trunk_positive();" not in wiring_module
+        or "m6_detector_cable_branch_positive(index);" not in wiring_module
+        or "offset(delta = m6_detector_shell_gasket_clearance" not in bottom_gasket_module
         or "m6_detector_shell_tongue_positive(-1, y_side);" not in front_shell_module
         or "m6_detector_shell_tongue_positive(1, y_side);" not in rear_shell_module
         or not re.search(
@@ -1432,21 +2239,46 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             r"m6_cylinder_z\(\s*m6_detector_cable_exit_d,",
             bottom_cover_module,
         )
-        or "difference()" not in direct_mount_module
-        or "m6_cylinder_z(" not in direct_mount_module
-        or "m6_detector_direct_mount_socket_clearance_d" not in direct_mount_module
-        or "m6_detector_direct_mount_nut_loading_depth_z" not in direct_mount_module
-        or "m6_hex_prism(" not in direct_mount_module
-        or "m6_detector_direct_mount_positive();" not in post_module
-        or "m6_detector_direct_mount_positive();" not in lower_stand_module
-        or "net_passage_negative_positive();" not in post_segment_module
-        or "net_clamp_channel_negative_positive();" not in post_segment_module
-        or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_body_module
-        or "clamp_solid_outboard_bridge_positive();" not in table_clamp_body_module
+        or "Compatibility hook retained" not in direct_mount_module
+        or "post_body_positive();" not in post_module
+        or "net_passage_negative_positive();" not in post_body_module
+        or "net_clamp_channel_negative_positive();" not in post_body_module
+        or "net_clamp_keeper_positive();" not in post_body_module
+        or "post_continuous_envelope_positive();" not in post_body_module
+        or not re.search(r"table_clamp_carrier_positive\s*\([^;]*\);", post_carrier_module)
+        or "post_body_positive();" not in post_carrier_module
+        or "net_panel_top_z" not in net_panel_module
+        or "net_rail_saddle_positive();" in stand_module
+        or "net_rail();" in source_text[source_text.find('if (PART == "assembly")'):source_text.find('} else if (PART == "left_stand")')]
+        or "table_clamp_raw_positive();" not in table_clamp_body_module
+        or "clamp_electronics_cavity_negative();" not in table_clamp_body_module
+        or "if (clamp_slide_interface_enabled)" not in table_clamp_body_module
+        or "net_passage_negative_positive();" in table_clamp_body_module
+        or "clamp_electronics_board_standoffs_positive();" not in table_clamp_body_module
+        or "clamp_electronics_emitter_edge_clips_positive();" not in table_clamp_body_module
+        or "clamp_electronics_battery_rails_positive();" not in table_clamp_body_module
+        or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_raw_module
+        or "clamp_solid_outboard_bridge_positive();" not in table_clamp_raw_module
+        or "clamp_electronics_mount_bosses_positive();" not in table_clamp_raw_module
+        or "table_clamp_body_positive();" not in clamp_body_segment_module
+        or "clamp_fixed_body_max_x" not in clamp_body_segment_module
+        or "table_clamp_raw_positive();" in clamp_carrier_module
+        or "clamp_slide_tongues_positive" in clamp_carrier_module
+        or "net_passage_negative_positive();" in clamp_carrier_module
+        or "interlocking_slide_prism_x(" not in clamp_tongue_raw_module
+        or "clamp_slide_rail_head_width_y" not in clamp_tongue_raw_module
+        or "clamp_slide_rail_neck_width_y" not in clamp_tongue_raw_module
+        or "clamp_slide_lock_bores_negative_positive();" not in clamp_tongue_module
+        or "clamp_slide_detent_bores_negative_positive();" in clamp_tongue_module
+        or "post_interface_transition_positive();" not in clamp_foot_module
+        or "post_interface_transition_positive();" in post_body_module
+        or "hull()" in transition_module
         or "clamp_knob_grip_positive();" not in knob_module
         or "m6_detector_mount_raise_z" not in assembly_module
         or "m6_detector_mount_raise_z" not in exploded_assembly_module
-        or "net_clamp_rod_positive();" not in stand_module
+        or "net_clamp_clip_positive();" not in stand_module
+        or "net_clamp_lock_hardware_positive();" in source_text
+        or "net_clamp_clip_lock" in source_text
         or "cube([" in direct_mount_module
         or "m6_detector_mount_x_offset" not in assembly_module
         or "m6_detector_mount_x_offset" not in exploded_assembly_module
@@ -1460,8 +2292,8 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_post_mount_hardware_positive();" in exploded_module
     ):
         raise RuntimeError(
-            "active M6 body/fit path diverged: rectangular body, installed sensor "
-            "voids, rear-cover boss/hole and z+ split-cover footprints must be used"
+            "active M6/mechanical path diverged: rectangular body, installed sensor "
+            "voids, rear-cover boss/hole and one-piece upright/carrier path must be used"
         )
 
     cover_install_order = [
@@ -1941,6 +2773,44 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     ):
         raise RuntimeError(f"vertical commercial ballhead interface is inconsistent: {parameters}")
 
+    # The net remains one net height, but the fixed-net post continues to the
+    # full post_top datum.  The M6 optical group keeps its standalone geometry
+    # datums; its former direct blind-M8 connection must not be treated as an
+    # installed load path until an independent support is designed.
+    if not parameters["m6_detector_direct_mount_enabled"]:
+        if not (
+            math.isclose(
+                parameters["m6_detector_direct_mount_lower_post_top_z"],
+                parameters["net_post_top_z"],
+                rel_tol=0,
+                abs_tol=1e-4,
+            )
+            and math.isclose(
+                parameters["net_post_top_z"],
+                parameters["post_top"],
+                rel_tol=0,
+                abs_tol=1e-4,
+            )
+            and parameters["net_post_top_z"] > parameters["net_panel_top_z"]
+            and math.isclose(
+                parameters["active_post_top_z"],
+                parameters["net_post_top_z"],
+                rel_tol=0,
+                abs_tol=1e-4,
+            )
+            and math.isclose(
+                parameters["active_post_total_height"],
+                parameters["net_post_top_z"] - parameters["post_bottom"],
+                rel_tol=0,
+                abs_tol=1e-4,
+            )
+        ):
+            raise RuntimeError(
+                "tall fixed-net post must reach post_top and stay separate from the M6 direct mount: "
+                f"{parameters}"
+            )
+        return
+
     if not (
         math.isclose(
             parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"],
@@ -1951,8 +2821,8 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and math.isclose(
             parameters["m6_detector_direct_mount_socket_bottom_z"],
-            parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
-            - parameters["m6_detector_direct_mount_socket_base_overlap_z"],
+            parameters["m6_detector_direct_mount_socket_top_z"]
+            - parameters["m6_detector_direct_mount_socket_height_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
@@ -1966,47 +2836,72 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and math.isclose(
             parameters["m6_detector_direct_mount_socket_height_z"],
-            parameters["m6_detector_direct_mount_socket_top_z"]
-            - parameters["m6_detector_direct_mount_socket_bottom_z"],
+            parameters["m6_detector_direct_mount_thread_depth_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_direct_mount_socket_center_z"],
+            (
+                parameters["m6_detector_direct_mount_socket_bottom_z"]
+                + parameters["m6_detector_direct_mount_socket_top_z"]
+            )
+            / 2,
             rel_tol=0,
             abs_tol=1e-4,
         )
         and parameters["m6_detector_direct_mount_socket_bottom_z"]
-        < parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
         < parameters["m6_detector_direct_mount_socket_top_z"]
-        and parameters["m6_detector_direct_mount_socket_base_overlap_z"] >= 4
         and math.isclose(
-            parameters["m6_detector_direct_mount_socket_bottom_z"],
-            parameters["m6_detector_direct_mount_lower_post_top_z"]
-            - parameters["m6_detector_direct_mount_socket_base_overlap_z"],
+            parameters["m6_detector_direct_mount_thread_top_z"],
+            parameters["m6_detector_assembly_ballhead_base_center_z"]
+            - parameters["m6_ballhead_base_t"] / 2,
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_direct_mount_socket_outer_d"]
-        > parameters["m6_detector_direct_mount_socket_clearance_d"] + 4
-        and parameters["m6_detector_direct_mount_socket_clearance_d"]
-        > parameters["m6_ballhead_net_stud_d"]
-        and parameters["m6_detector_direct_mount_nut_loading_clearance_z"] > 0
+        and math.isclose(
+            parameters["m6_detector_direct_mount_thread_bottom_z"],
+            parameters["m6_detector_direct_mount_thread_top_z"]
+            - parameters["m6_detector_direct_mount_thread_depth_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_direct_mount_thread_depth_z"],
+            parameters["m6_ballhead_net_stud_length"]
+            + parameters["m6_detector_direct_mount_thread_depth_extra_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_direct_mount_thread_depth_z"]
+        >= parameters["m6_ballhead_net_stud_length"] + 1
+        and math.isclose(
+            parameters["m6_detector_direct_mount_thread_tap_d"],
+            parameters["m6_detector_direct_mount_socket_tap_d"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_direct_mount_thread_tap_d"]
+        > parameters["m6_ballhead_net_thread_core_d"]
+        and parameters["m6_detector_direct_mount_thread_tap_d"]
+        < parameters["m6_ballhead_net_stud_d"]
+        and parameters["m6_detector_direct_mount_socket_base_overlap_z"] == 0
+        and parameters["m6_detector_direct_mount_socket_bottom_clearance_z"] == 0
+        and parameters["m6_detector_direct_mount_socket_top_clearance_z"] == 0
+        and parameters["m6_detector_direct_mount_nut_loading_clearance_z"] == 0
+        and parameters["m6_detector_direct_mount_nut_loading_depth_z"] == 0
         and math.isclose(
             parameters["m6_detector_direct_mount_nut_pocket_bottom_z"],
-            parameters["m6_detector_direct_mount_lower_post_top_z"]
-            + parameters["m6_detector_direct_mount_nut_loading_clearance_z"],
+            parameters["m6_detector_direct_mount_thread_bottom_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
-        > parameters["m6_detector_direct_mount_lower_post_top_z"]
-        and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
-        - parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
-        >= parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
-        and parameters["m6_detector_direct_mount_nut_pocket_center_z"]
-        + parameters["m6_ballhead_bottom_nut_pocket_depth"] / 2
-        <= parameters["m6_detector_direct_mount_socket_top_z"]
-        and parameters["m6_detector_direct_mount_nut_loading_depth_z"]
-        >= parameters["m6_ballhead_bottom_nut_pocket_depth"]
-        and parameters["m6_ballhead_bottom_nut_pocket_af"]
-        / math.cos(math.radians(30))
-        < parameters["m6_detector_direct_mount_socket_outer_d"]
+        and math.isclose(
+            parameters["m6_detector_direct_mount_nut_pocket_center_z"],
+            parameters["m6_detector_direct_mount_thread_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and math.isclose(
             parameters["m6_detector_direct_mount_socket_center_x"],
             parameters["post_center_x"],
@@ -2038,8 +2933,6 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and parameters["m6_detector_direct_mount_arm_width_y"] == 0
         and parameters["m6_detector_direct_mount_arm_t_z"] == 0
-        and parameters["m6_detector_direct_mount_socket_outer_d"]
-        <= parameters["post_body_width"]
         and math.isclose(
             parameters["m6_detector_direct_mount_post_inner_face_x"],
             parameters["post_center_x"] - parameters["post_body_width"] / 2,
@@ -2048,7 +2941,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
         and math.isclose(
             parameters["m6_detector_direct_mount_lower_post_top_z"],
-            parameters["m6_detector_direct_mount_arm_bottom_z"],
+            parameters["m6_detector_direct_mount_thread_top_z"],
             rel_tol=0,
             abs_tol=1e-4,
         )
@@ -2069,31 +2962,42 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         >= parameters["net_height"]
     ):
         raise RuntimeError(
-            f"direct ballhead-to-light-yellow lower-stand interface is inconsistent: {parameters}"
+            f"direct ballhead-to-same-material-PETG lower-stand interface is inconsistent: {parameters}"
         )
 
 
 def validate_net_retention_contract(parameters: dict[str, float]) -> None:
-    """Validate the printable outboard U-slot and its separate locking rod."""
+    """Validate the real net passage, sliding U clip, and passive keeper."""
 
     source_text = SOURCE.read_text(encoding="utf-8")
     required_fragments = (
         "module net_passage_negative_positive()",
         "module net_clamp_channel_negative_positive()",
-        "module net_clamp_rod_positive()",
+        "module net_clamp_keeper_positive()",
+        "module net_clamp_keeper_relief_negative_positive()",
+        "module net_clamp_keeper_latch_positive()",
+        "module net_clamp_clip_positive()",
         "module net_clamp_fit_probe_positive()",
         "net_passage_negative_positive();",
         "net_clamp_channel_negative_positive();",
-        "net_clamp_rod_positive();",
+        "net_clamp_keeper_positive();",
+        "net_clamp_keeper_relief_negative_positive();",
+        "net_clamp_keeper_latch_positive();",
+        "net_clamp_clip_positive();",
     )
     if any(fragment not in source_text for fragment in required_fragments):
         raise RuntimeError(
             "net retention source is incomplete: the 3 mm passage, post U-slot, "
-            "printable rod, fit probe and assembly call must all remain present"
+            "integrated keeper, printable U clip, fit probe and assembly call must all remain present"
+        )
+    if "net_clamp_clip_lock" in source_text or "net_clamp_lock_hardware_positive" in source_text:
+        raise RuntimeError(
+            "net clip source still contains the retired transverse screw/pin retention path"
         )
 
     post_inner_x = parameters["post_center_x"] - parameters["post_body_width"] / 2
     post_outer_x = parameters["post_center_x"] + parameters["post_body_width"] / 2
+    post_transition_outer_x = parameters["post_interface_transition_outer_max_x"]
     expected_passage_min_x = (
         post_inner_x - parameters["net_passage_body_extension_x"] - 0.2
     )
@@ -2105,45 +3009,67 @@ def validate_net_retention_contract(parameters: dict[str, float]) -> None:
         - parameters["net_clamp_channel_depth_x"]
         + parameters["net_clamp_channel_back_wall_t_x"]
     )
-    actual_radius = parameters["net_clamp_cylinder_actual_d"] / 2
-    interference_radius = parameters["net_clamp_cylinder_interference_d"] / 2
+    expected_void_max_x = post_outer_x + parameters["net_clamp_channel_outboard_extension_x"]
+    clip_length = parameters["net_clamp_clip_length_x"]
+    clip_outer_half_y = parameters["net_clamp_clip_outer_half_y"]
+    channel_width_y = parameters["net_clamp_channel_width_y"]
+    fixture_bottom_z = parameters["net_fixture_bottom_z"]
+    fixture_top_z = fixture_bottom_z + parameters["net_height"]
     if not (
-        math.isclose(
-            parameters["net_clamp_channel_depth_x"],
-            parameters["post_body_width"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
+        parameters["net_clamp_channel_depth_x"] > 20
         and math.isclose(
             parameters["net_clamp_cylinder_insertion_depth_x"],
-            parameters["post_body_width"],
+            parameters["net_clamp_channel_depth_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
         and 0 < parameters["net_clamp_channel_back_wall_t_x"]
         < parameters["net_clamp_channel_depth_x"]
         and math.isclose(
-            parameters["net_clamp_cylinder_actual_d"],
-            parameters["net_clamp_cylinder_interference_d"] - 2,
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and actual_radius > 0
-        and interference_radius > actual_radius
-        and parameters["net_clamp_channel_width_y"]
-        > parameters["net_clamp_cylinder_interference_d"]
-        and math.isclose(
             parameters["net_clamp_channel_void_min_x"],
             expected_void_min_x,
             rel_tol=0,
             abs_tol=1e-4,
         )
+        and math.isclose(
+            parameters["net_clamp_channel_void_max_x"],
+            expected_void_max_x,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["net_clamp_channel_void_min_x"] > post_inner_x
         and parameters["net_clamp_channel_void_max_x"] > post_outer_x
+        and parameters["net_clamp_channel_void_max_x"] > post_transition_outer_x
+        and parameters["net_clamp_clip_outer_x"] > post_transition_outer_x
         and parameters["net_clamp_channel_void_min_x"]
         < parameters["net_clamp_channel_void_max_x"]
-        and parameters["net_clamp_channel_bottom_z"] == 0
-        and parameters["net_clamp_channel_top_z"] == parameters["net_height"]
+        and parameters["net_clamp_channel_outboard_extension_x"]
+        >= parameters["net_clamp_clip_crossbar_t_x"]
+        + parameters["net_clamp_clip_clearance_x"]
+        and math.isclose(
+            parameters["net_clamp_channel_bottom_z"],
+            fixture_bottom_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_clamp_channel_top_z"],
+            fixture_top_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_panel_bottom_z"],
+            fixture_bottom_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_panel_top_z"],
+            fixture_top_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and math.isclose(
             parameters["net_clamp_cylinder_height"],
             parameters["net_clamp_channel_top_z"]
@@ -2151,10 +3077,6 @@ def validate_net_retention_contract(parameters: dict[str, float]) -> None:
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["net_clamp_cylinder_center_x"]
-        >= parameters["net_clamp_channel_void_min_x"] + interference_radius
-        and parameters["net_clamp_cylinder_center_x"]
-        <= parameters["net_clamp_channel_void_max_x"] - interference_radius
         and parameters["net_passage_width_y"] == 3
         and parameters["net_passage_width_y"] > parameters["net_sheet_t"]
         and math.isclose(
@@ -2179,15 +3101,117 @@ def validate_net_retention_contract(parameters: dict[str, float]) -> None:
         and parameters["net_passage_min_x"] < post_inner_x
         and parameters["net_passage_max_x"] > post_outer_x
         and parameters["net_passage_min_x"] < parameters["net_passage_max_x"]
-        and parameters["net_passage_bottom_z"] == 0
-        and parameters["net_passage_top_z"] == parameters["net_height"]
+        and math.isclose(
+            parameters["net_passage_bottom_z"],
+            fixture_bottom_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_passage_top_z"],
+            fixture_top_z,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
         and parameters["net_passage_top_z"] > parameters["net_passage_bottom_z"]
+        and parameters["net_clamp_channel_width_y"]
+        > 2 * parameters["net_clamp_clip_outer_half_y"]
+        and parameters["net_clamp_clip_length_x"] > 15
+        and math.isclose(
+            parameters["net_clamp_clip_length_x"],
+            parameters["net_clamp_channel_void_max_x"]
+            - parameters["net_clamp_channel_void_min_x"]
+            - 2 * parameters["net_clamp_clip_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_clamp_clip_inner_x"],
+            parameters["net_clamp_channel_void_min_x"]
+            + parameters["net_clamp_clip_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["net_clamp_clip_outer_x"],
+            parameters["net_clamp_channel_void_max_x"]
+            - parameters["net_clamp_clip_clearance_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_clamp_clip_inner_x"] > parameters["net_clamp_channel_void_min_x"]
+        and parameters["net_clamp_clip_outer_x"] < parameters["net_clamp_channel_void_max_x"]
+        and parameters["net_clamp_clip_jaw_t_y"] > 1
+        and parameters["net_clamp_clip_jaw_clearance_y"] > 0
+        and math.isclose(
+            parameters["net_clamp_clip_jaw_gap_y"],
+            parameters["net_sheet_t"] + parameters["net_clamp_clip_jaw_clearance_y"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["net_clamp_clip_jaw_gap_y"] < parameters["net_passage_width_y"]
+        and parameters["net_clamp_clip_crossbar_t_x"] > 2
+        and parameters["net_clamp_keeper_enabled"] == 1
+        and parameters["net_clamp_keeper_height_z"] >= 6
+        and parameters["net_clamp_keeper_x_min"] > parameters["net_clamp_clip_inner_x"]
+        and parameters["net_clamp_keeper_x_max"] > parameters["net_clamp_keeper_x_min"]
+        and parameters["net_clamp_keeper_x_max"]
+        < parameters["net_clamp_keeper_relief_max_x"]
+        and parameters["net_clamp_keeper_y_min"]
+        > parameters["net_clamp_clip_jaw_center_y"]
+        and parameters["net_clamp_keeper_y_min"]
+        < parameters["net_clamp_clip_jaw_center_y"]
+        + parameters["net_clamp_clip_jaw_t_y"] / 2
+        and parameters["net_clamp_keeper_y_max"] > channel_width_y / 2
+        and parameters["net_clamp_keeper_z"] > fixture_bottom_z
+        and parameters["net_clamp_keeper_z"]
+        + parameters["net_clamp_keeper_height_z"]
+        < fixture_top_z
+        and parameters["net_clamp_keeper_relief_min_x"]
+        < parameters["net_clamp_clip_inner_x"]
+        and parameters["net_clamp_keeper_relief_max_x"]
+        > parameters["net_clamp_keeper_x_max"]
+        and parameters["net_clamp_keeper_relief_min_y"]
+        < parameters["net_clamp_clip_outer_half_y"]
+        and parameters["net_clamp_keeper_relief_max_y"]
+        > parameters["net_clamp_clip_outer_half_y"]
+        and parameters["net_clamp_keeper_latch_x_min"]
+        >= parameters["net_clamp_keeper_relief_min_x"]
+        and parameters["net_clamp_keeper_latch_x_max"]
+        < parameters["net_clamp_keeper_x_min"]
+        and parameters["net_clamp_keeper_x_min"]
+        - parameters["net_clamp_keeper_latch_x_max"]
+        >= 0.2
+        and parameters["net_clamp_keeper_latch_y_min"]
+        < parameters["net_clamp_keeper_y_min"]
+        and parameters["net_clamp_keeper_latch_y_max"]
+        > parameters["net_clamp_keeper_y_min"]
+        and parameters["net_clamp_keeper_latch_y_max"]
+        <= parameters["net_clamp_keeper_relief_max_y"]
+        and parameters["net_clamp_keeper_latch_z"]
+        >= parameters["net_clamp_keeper_z"]
+        and parameters["net_clamp_keeper_latch_z"]
+        + parameters["net_clamp_keeper_latch_height_z"]
+        <= parameters["net_clamp_keeper_z"]
+        + parameters["net_clamp_keeper_height_z"]
         and parameters["m6_detector_direct_mount_lower_post_top_z"]
-            >= parameters["net_clamp_channel_top_z"]
+        >= parameters["net_clamp_channel_top_z"]
     ):
         raise RuntimeError(
-            "net passage/U-slot/printed rod dimensions do not match the post width, "
-            "3 mm net passage, 2 mm diameter reduction or full net-height channel"
+            "net passage/U-slot/sliding U clip dimensions do not provide a usable full-height feed path"
+        )
+    if not (
+        clip_length > parameters["net_clamp_clip_crossbar_t_x"]
+        and clip_outer_half_y < channel_width_y / 2
+        and parameters["net_clamp_clip_jaw_gap_y"] > parameters["net_sheet_t"]
+        and parameters["net_clamp_clip_jaw_gap_y"] < parameters["net_passage_width_y"]
+        and parameters["net_clamp_keeper_relief_max_x"]
+        - parameters["net_clamp_keeper_relief_min_x"] > 3
+        and parameters["net_clamp_keeper_relief_max_y"]
+        - parameters["net_clamp_keeper_relief_min_y"] > 0.8
+    ):
+        raise RuntimeError(
+            "sliding U clip jaw gap, keeper relief, or one-way latch is inconsistent"
         )
 
 
@@ -2198,6 +3222,7 @@ def main() -> None:
         parameters = probe_parameters(openscad, output_dir)
         validate_current_m6_contract(parameters)
         validate_net_retention_contract(parameters)
+        validate_post_clamp_slide_path(openscad, output_dir, parameters)
 
         for part in PARTS:
             output = output_dir / f"{part}.stl"
@@ -2261,20 +3286,34 @@ def main() -> None:
         for part in (
             "post",
             "post_segment",
-            "post_joint_sleeve",
-            "post_joint_key",
-            "lower_stand_segment",
-            "net_clamp_rod",
+            "post_clamp_carrier",
+            "post_joint_exploded",
+            "clamp_slide_exploded",
+            "clamp_slide_fit_probe",
+            "clamp_slide_fit_section",
+            "clamp_body_segment",
+            "net_clamp_fit_probe",
+            "net_clamp_fit_section",
+            "net_clamp_clip",
             "table_clamp",
             "table_clamp_section",
             "table_clamp_body",
+            "clamp_electronics_cover",
+            "clamp_electronics_gasket",
+            "clamp_electronics_ui_panel",
+            "clamp_electronics_ui_bezel",
+            "clamp_electronics_emitter_preview",
+            "clamp_electronics_full_cutaway",
+            "clamp_electronics_exploded",
+            "clamp_electronics_emitter_exploded",
             "clamp_top_pad",
             "clamp_pressure_pad",
+            "clamp_pressure_pad_guard",
             "clamp_screw",
+            "clamp_printed_screw",
             "clamp_body_nut",
             "clamp_knob",
             "clamp_knob_nut",
-            "net_rail_saddle",
             "optical_rail",
             "optical_strip",
             "optical_module_carrier",
@@ -2282,6 +3321,9 @@ def main() -> None:
             "m6_detector_shell_front",
             "m6_detector_shell_rear",
             "m6_detector_bottom_cover",
+            "m6_detector_cable_gland",
+            "m6_detector_wiring_reference",
+            "m6_detector_bottom_gasket",
             "m6_detector_net_connector",
             "m6_detector_mount",
             "stg120_outer_carrier",
@@ -2332,13 +3374,20 @@ def main() -> None:
                 )
 
         net_bounds = stl_bounds(output_dir / "net.stl")
-        rail_bounds = stl_bounds(output_dir / "net_rail.stl")
-        rail_segment_bounds = stl_bounds(output_dir / "net_rail_segment.stl")
         clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
+        electronics_cover_bounds = stl_bounds(
+            output_dir / "clamp_electronics_cover.stl"
+        )
         clamp_section_bounds = stl_bounds(output_dir / "table_clamp_section.stl")
         top_pad_bounds = stl_bounds(output_dir / "clamp_top_pad.stl")
         pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
+        pressure_pad_guard_bounds = stl_bounds(
+            output_dir / "clamp_pressure_pad_guard.stl"
+        )
         screw_bounds = stl_bounds(output_dir / "clamp_screw.stl")
+        printed_screw_bounds = stl_bounds(
+            output_dir / "clamp_printed_screw.stl"
+        )
         body_nut_bounds = stl_bounds(output_dir / "clamp_body_nut.stl")
         knob_bounds = stl_bounds(output_dir / "clamp_knob.stl")
         knob_nut_bounds = stl_bounds(output_dir / "clamp_knob_nut.stl")
@@ -2349,7 +3398,6 @@ def main() -> None:
         # intentionally contains the pin itself and would hide an absent bore.
         reference_bounds = stl_bounds(output_dir / "reference_carriage_body.stl")
         reference_pin_bounds = stl_bounds(output_dir / "reference_pin.stl")
-        saddle_bounds = stl_bounds(output_dir / "net_rail_saddle.stl")
         optical_rail_bounds = stl_bounds(output_dir / "optical_rail.stl")
         carrier_bounds = stl_bounds(output_dir / "optical_module_carrier.stl")
         stg_outer_bounds = stl_bounds(output_dir / "stg120_outer_carrier.stl")
@@ -2359,33 +3407,32 @@ def main() -> None:
         assembly_bounds = stl_bounds(output_dir / "assembly.stl")
         post_bounds = stl_bounds(output_dir / "post.stl")
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
-        lower_stand_bounds = stl_bounds(output_dir / "lower_stand_segment.stl")
-        net_clamp_rod_bounds = stl_bounds(output_dir / "net_clamp_rod.stl")
+        post_clamp_carrier_bounds = stl_bounds(output_dir / "post_clamp_carrier.stl")
+        clamp_body_segment_bounds = stl_bounds(output_dir / "clamp_body_segment.stl")
+        net_clamp_clip_bounds = stl_bounds(output_dir / "net_clamp_clip.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
-        if rail_bounds[0] >= 0 or rail_bounds[1] <= 0:
-            raise RuntimeError(f"net rail is not centered across the table: {rail_bounds}")
-        if abs(net_bounds[5] - (parameters["net_height"] - parameters["net_rail_height"])) > 0.01:
-            raise RuntimeError(f"net panel top does not meet the net rail datum: {net_bounds}")
-        if abs(rail_bounds[5] - parameters["net_height"]) > 0.01:
-            raise RuntimeError(f"net rail top does not match net height: {rail_bounds}")
+        cavity_x_min = parameters["clamp_electronics_cavity_x_min"]
+        cavity_x_max = parameters["clamp_electronics_cavity_x_max"]
+        cavity_y_half = parameters["clamp_electronics_cavity_y_half"]
+        cavity_length = parameters["clamp_electronics_cavity_length_x"]
+        board_length = parameters["clamp_electronics_board_length_x"]
         if not (
-            abs(rail_bounds[0] + parameters["net_span"] / 2) < 0.01
-            and abs(rail_bounds[1] - parameters["net_span"] / 2) < 0.01
-            and rail_segment_bounds[1] - rail_segment_bounds[0]
-            > 500
+            electronics_cover_bounds[0] < cavity_x_min
+            and electronics_cover_bounds[1] > cavity_x_max
+            and electronics_cover_bounds[3] - electronics_cover_bounds[2]
+            > 2 * cavity_y_half
+            and cavity_length > board_length
         ):
             raise RuntimeError(
-                f"segmented net rail does not cover the full span: rail={rail_bounds}, "
-                f"segment={rail_segment_bounds}"
+                "electronics cover does not span the SCAD cavity/board envelope: "
+                f"cover={electronics_cover_bounds}, cavity="
+                f"({cavity_x_min}, {cavity_x_max}, +/-{cavity_y_half})"
             )
+        if abs(net_bounds[5] - parameters["net_panel_top_z"]) > 0.01:
+            raise RuntimeError(f"net panel top does not meet the direct cloth-top datum: {net_bounds}")
         inner_face = parameters["post_center_x"] - parameters["post_body_width"] / 2
-        if not (
-            saddle_bounds[0] < inner_face < saddle_bounds[1]
-            and saddle_bounds[3] - saddle_bounds[2] > parameters["net_rail_depth"]
-            and abs(saddle_bounds[5] - parameters["net_height"]) < 0.01
-        ):
-            raise RuntimeError(f"rail saddle does not support/stop the net rail: {saddle_bounds}")
+        outer_face = parameters["post_center_x"] + parameters["post_body_width"] / 2
         carrier_center_z = (carrier_bounds[4] + carrier_bounds[5]) / 2
         if not (
             carrier_bounds[1] - carrier_bounds[0] > parameters["optical_module_depth"]
@@ -2512,14 +3559,25 @@ def main() -> None:
             )
             < 0.01
             and abs(screw_bounds[5] - parameters["clamp_screw_top_z"]) < 0.01
+            and pressure_pad_guard_bounds[2] < pressure_pad_guard_bounds[3]
+            and pressure_pad_guard_bounds[4] < pressure_pad_bounds[4]
+            and pressure_pad_guard_bounds[5]
+            <= pressure_pad_bounds[4]
+            + parameters["clamp_pressure_pad_guard_post_h"]
+            + 0.01
+            and printed_screw_bounds[5] < -parameters["table_thickness"]
+            and printed_screw_bounds[5]
+            <= pressure_pad_bounds[4]
+            + parameters["clamp_pressure_pad_screw_socket_depth"]
+            + 0.01
             and abs(knob_bounds[4] - parameters["clamp_knob_bottom_z"]) < 0.01
             and abs(knob_bounds[5] - parameters["clamp_knob_top_z"]) < 0.01
             and screw_bounds[4] < knob_bounds[5]
             and knob_nut_bounds[4] >= knob_bounds[4] - 0.01
             and knob_nut_bounds[5] <= knob_bounds[5] + 0.01
-            and body_nut_bounds[4] >= parameters["clamp_lower_arm_bottom_z"] - 0.01
-            and body_nut_bounds[5] <= parameters["clamp_lower_arm_bottom_z"] +
-            parameters["clamp_nut_pocket_depth"] + 0.01
+            and body_nut_bounds[4] >= parameters["clamp_body_nut_z"] - 0.01
+            and body_nut_bounds[5] <= parameters["clamp_body_nut_top_z"] + 0.01
+            and body_nut_bounds[5] <= parameters["clamp_lower_arm_top_z"] + 0.01
         ):
             raise RuntimeError(
                 "pressure pad, M8 tip or nut capture breaks the no-drill clamp path: "
@@ -2527,12 +3585,22 @@ def main() -> None:
                 f"body_nut={body_nut_bounds}, knob={knob_bounds}, knob_nut={knob_nut_bounds}"
             )
         if not (
-            sensor_bounds[2] < -parameters["net_rail_depth"] / 2
-            and abs(sensor_bounds[3] + parameters["net_rail_depth"] / 2) < 0.01
+            sensor_bounds[0] > parameters["sensor_x"] - parameters["sensor_length"] / 2 - 0.01
+            and sensor_bounds[1] < parameters["sensor_x"] + parameters["sensor_length"] / 2 + 0.01
+            and sensor_bounds[2] < -parameters["net_sheet_t"] / 2
+            and sensor_bounds[3] > parameters["net_sheet_t"] / 2
+            and sensor_bounds[4] < parameters["net_panel_top_z"]
+            and sensor_bounds[5] >= parameters["net_panel_top_z"] - 0.01
+            and sensor_bounds[1] <= inner_face - parameters["sensor_post_clearance_x"] + 0.01
         ):
-            raise RuntimeError(f"PVDF mount does not reach the net rail front face: {sensor_bounds}")
+            raise RuntimeError(f"PVDF mount does not straddle the net top edge or clear the post: {sensor_bounds}")
         if not (
-            film_bounds[2] < film_bounds[3]
+            abs(film_bounds[2] - parameters["sensor_film_y"]) < 0.01
+            and abs(
+                film_bounds[4]
+                - (parameters["net_panel_top_z"] - parameters["sensor_film_height"])
+            ) < 0.01
+            and film_bounds[2] < film_bounds[3]
             and film_lip_bounds[2] < film_bounds[2]
             and film_lip_bounds[3] > film_bounds[3]
         ):
@@ -2546,70 +3614,119 @@ def main() -> None:
             raise RuntimeError(f"uprights do not clear the optical window: {assembly_bounds}")
         if not (
             abs(post_bounds[4] - parameters["post_bottom"]) < 0.01
-            and post_bounds[5]
-            >= parameters["m6_detector_direct_mount_socket_top_z"] - 0.01
-            and post_segment_bounds[5]
-            >= parameters["m6_detector_direct_mount_lower_post_top_z"] - 0.01
-            and post_segment_bounds[5] - post_segment_bounds[4] < 270
-            and post_segment_bounds[1] - post_segment_bounds[0] > parameters["post_body_width"]
-            and post_segment_bounds[3] - post_segment_bounds[2] > parameters["post_body_depth"]
+            and abs(post_bounds[5] - parameters["net_post_top_z"]) < 0.01
+            and post_segment_bounds == post_bounds
+            and abs(
+                post_segment_bounds[5] - post_segment_bounds[4]
+                - (parameters["net_post_top_z"] - parameters["post_bottom"])
+            ) < 0.01
+            and post_segment_bounds[1] - post_segment_bounds[0] >= parameters["post_body_width"]
+            and post_segment_bounds[3] - post_segment_bounds[2] >= parameters["post_body_depth"]
         ):
             raise RuntimeError(
-                f"post lower-segment/direct-support bounds are not printable: post={post_bounds}, "
+                f"one-piece post bounds are inconsistent: post={post_bounds}, "
                 f"segment={post_segment_bounds}"
             )
+        diagonal_post_bounds = transform_bounds(
+            (
+                (post_clamp_carrier_bounds[0], post_clamp_carrier_bounds[2], post_clamp_carrier_bounds[4]),
+                (post_clamp_carrier_bounds[1], post_clamp_carrier_bounds[3], post_clamp_carrier_bounds[5]),
+            ),
+            rotation_matrix_xyz(0, 51, 45),
+        )
+        diagonal_post_size = dimensions(diagonal_post_bounds)
         if not (
-            abs(
-                (net_clamp_rod_bounds[0] + net_clamp_rod_bounds[1]) / 2
-                - parameters["net_clamp_cylinder_center_x"]
-            )
-            < 0.01
-            and abs(
-                (net_clamp_rod_bounds[2] + net_clamp_rod_bounds[3]) / 2
-            )
-            < 0.01
-            and abs(
-                (net_clamp_rod_bounds[1] - net_clamp_rod_bounds[0])
-                - parameters["net_clamp_cylinder_actual_d"]
-            )
-            < 0.1
-            and abs(
-                (net_clamp_rod_bounds[3] - net_clamp_rod_bounds[2])
-                - parameters["net_clamp_cylinder_actual_d"]
-            )
-            < 0.1
-            and abs(net_clamp_rod_bounds[4] - parameters["net_clamp_channel_bottom_z"]) < 0.01
-            and abs(net_clamp_rod_bounds[5] - parameters["net_clamp_channel_top_z"]) < 0.01
+            post_clamp_carrier_bounds[0]
+            <= inner_face
+            - parameters["post_interface_transition_extra_x"]
+            + 0.01
+            and post_clamp_carrier_bounds[1]
+            >= outer_face
+            + parameters["post_interface_transition_extra_x"]
+            - 0.01
+            and post_clamp_carrier_bounds[3] - post_clamp_carrier_bounds[2]
+            >= parameters["post_body_depth"]
+            + 2 * parameters["post_interface_transition_extra_y"]
+            - 0.01
+            and post_clamp_carrier_bounds[4]
+            >= parameters["post_bottom"] - 0.01
+            and post_clamp_carrier_bounds[5]
+            >= post_segment_bounds[5] - 0.01
+            and max(diagonal_post_size) <= 253.0 + 1e-3
         ):
             raise RuntimeError(
-                "printed PETG net-clamp rod bounds do not match the U-slot datum: "
-                f"rod={net_clamp_rod_bounds}"
+                "one-piece post/carrier cannot use the tested 256 mm diagonal print pose "
+                "with the solid seated transition and 1.5 mm part edge margin: "
+                f"carrier={post_clamp_carrier_bounds}, diagonal_size={diagonal_post_size}"
             )
         if not (
-            lower_stand_bounds[0] <= parameters["clamp_pad_x"] + 0.01
-            and lower_stand_bounds[1] >= parameters["clamp_pad_outer_x"] - 0.01
-            and lower_stand_bounds[3] - lower_stand_bounds[2]
+            net_clamp_clip_bounds[1] - net_clamp_clip_bounds[0]
+            > parameters["net_clamp_clip_length_x"] - 0.01
+            and net_clamp_clip_bounds[1] - net_clamp_clip_bounds[0]
+            < parameters["net_clamp_clip_length_x"] + 0.01
+            and net_clamp_clip_bounds[3] - net_clamp_clip_bounds[2]
+            > parameters["net_height"] - 0.01
+            and net_clamp_clip_bounds[3] - net_clamp_clip_bounds[2]
+            < parameters["net_height"] + 0.01
+            and net_clamp_clip_bounds[5] - net_clamp_clip_bounds[4]
+            > 2 * parameters["net_clamp_clip_outer_half_y"] - 0.01
+            and net_clamp_clip_bounds[5] - net_clamp_clip_bounds[4]
+            < 2 * parameters["net_clamp_clip_outer_half_y"] + 0.01
+        ):
+            raise RuntimeError(
+                "printed PETG net-clamp U clip bounds do not match the flat print envelope: "
+                f"clip={net_clamp_clip_bounds}"
+            )
+        if not (
+            post_clamp_carrier_bounds[0]
+            <= inner_face
+            - parameters["post_interface_transition_extra_x"]
+            + 0.01
+            and post_clamp_carrier_bounds[1]
+            >= outer_face
+            + parameters["post_interface_transition_extra_x"]
+            - 0.01
+            and post_clamp_carrier_bounds[3] - post_clamp_carrier_bounds[2]
+            >= parameters["post_body_depth"]
+            + 2 * parameters["post_interface_transition_extra_y"]
+            - 0.01
+            and post_clamp_carrier_bounds[4]
+            >= parameters["post_bottom"] - 0.01
+            and post_clamp_carrier_bounds[5] >= post_segment_bounds[5] - 0.01
+        ):
+            raise RuntimeError(
+                "one-piece post/carrier does not contain the upright and solid seated transition: "
+                f"carrier={post_clamp_carrier_bounds}, post={post_segment_bounds}"
+            )
+        if not (
+            clamp_body_segment_bounds[0]
+            <= parameters["clamp_pad_x"] + 0.01
+            and clamp_body_segment_bounds[1]
+            >= parameters["clamp_fixed_body_max_x"] - 0.01
+            and clamp_body_segment_bounds[1]
+            <= parameters["clamp_fixed_body_max_x"] + 0.01
+            and clamp_body_segment_bounds[3] - clamp_body_segment_bounds[2]
             >= parameters["clamp_pad_depth"] - 0.01
-            and lower_stand_bounds[4] <= parameters["clamp_lower_arm_bottom_z"] + 0.01
-            and lower_stand_bounds[5] >= post_segment_bounds[5] - 0.01
-        ):
+            and clamp_body_segment_bounds[5]
+            >= parameters["clamp_solid_bridge_top_z"] - 0.01
+            ):
             raise RuntimeError(
-                "integrated lower stand segment does not contain both the post and C clamp: "
-                f"lower={lower_stand_bounds}, post_segment={post_segment_bounds}"
+                "fixed gray clamp body does not own the full C-frame outboard face or span the clamp depth: "
+                f"body={clamp_body_segment_bounds}"
             )
         socket_x = parameters["m6_detector_direct_mount_socket_center_x"]
         socket_radius = parameters["m6_detector_direct_mount_socket_outer_d"] / 2
-        if not (
-            lower_stand_bounds[0] <= socket_x - socket_radius + 0.01
-            and lower_stand_bounds[1] >= socket_x + socket_radius - 0.01
-            and lower_stand_bounds[2] <= -socket_radius + 0.01
-            and lower_stand_bounds[3] >= socket_radius - 0.01
-            and lower_stand_bounds[5]
+        if parameters["m6_detector_direct_mount_enabled"] and not (
+            post_segment_bounds[0] <= socket_x - socket_radius + 0.01
+            and post_segment_bounds[1] >= socket_x + socket_radius - 0.01
+            and post_segment_bounds[2] <= -socket_radius + 0.01
+            and post_segment_bounds[3] >= socket_radius - 0.01
+            and post_segment_bounds[5]
             >= parameters["m6_detector_direct_mount_socket_top_z"] - 0.01
         ):
             raise RuntimeError(
-                "integrated lower stand segment does not contain the direct ballhead support: "
-                f"lower={lower_stand_bounds}"
+                "one-piece post does not contain the direct ballhead support: "
+                f"post={post_segment_bounds}"
             )
         if not (
             coupon_bounds[0] < 0 < coupon_bounds[1]
@@ -2634,6 +3751,13 @@ def main() -> None:
                 parameters["clamp_top_pad_t"],
                 parameters["clamp_pressure_pad_screw_socket_depth"],
                 parameters["clamp_knob_nut_stack_depth"],
+                # The lower arm follows the tabletop underside, so the
+                # top-loaded nut datum shifts by the same thickness delta.
+                parameters["clamp_body_nut_z"]
+                - (table_thickness - parameters["table_thickness"]),
+                parameters["clamp_body_nut_top_z"]
+                - (table_thickness - parameters["table_thickness"]),
+                parameters["clamp_pressure_pad_guard_post_h"],
             )
 
         invalid_grid = run_openscad(
@@ -2698,39 +3822,7 @@ def main() -> None:
         if invalid_carrier.returncode == 0:
             raise RuntimeError("OpenSCAD accepted a non-existent optical module index")
 
-        for index in range(3):
-            segment = output_dir / f"net-rail-segment-{index}.stl"
-            require_stl(
-                run_openscad(
-                    openscad,
-                    segment,
-                    'PART="net_rail_segment"',
-                    f"rail_segment_index={index}",
-                ),
-                segment,
-                f"net_rail_segment index={index}",
-            )
-        for index in range(2):
-            splice = output_dir / f"net-rail-splice-{index}.stl"
-            require_stl(
-                run_openscad(
-                    openscad,
-                    splice,
-                    'PART="net_rail_splice"',
-                    f"rail_splice_index={index}",
-                ),
-                splice,
-                f"net_rail_splice index={index}",
-            )
-        invalid_segment = run_openscad(
-            openscad,
-            output_dir / "invalid-rail-segment.stl",
-            'PART="net_rail_segment"',
-            "rail_segment_index=3",
-        )
-        if invalid_segment.returncode == 0:
-            raise RuntimeError("OpenSCAD accepted a non-existent net rail segment")
-        for index in range(2):
+        for index in range(1):
             segment = output_dir / f"post-segment-{index}.stl"
             require_stl(
                 run_openscad(
@@ -2746,18 +3838,10 @@ def main() -> None:
             openscad,
             output_dir / "invalid-post-segment.stl",
             'PART="post_segment"',
-            "post_segment_index=2",
+            "post_segment_index=1",
         )
         if invalid_post_segment.returncode == 0:
             raise RuntimeError("OpenSCAD accepted a non-existent post segment")
-        invalid_splice = run_openscad(
-            openscad,
-            output_dir / "invalid-rail-splice.stl",
-            'PART="net_rail_splice"',
-            "rail_splice_index=2",
-        )
-        if invalid_splice.returncode == 0:
-            raise RuntimeError("OpenSCAD accepted a non-existent net rail splice")
 
     print(
         "NET_STAND_OK "

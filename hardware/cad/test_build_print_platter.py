@@ -105,12 +105,15 @@ def validate_manifest(path: Path, source_manifest_path: Path | None = None) -> N
             if filename in placed_files:
                 raise AssertionError(f"零件重复排版: {filename}")
             placed_files.add(filename)
+            item_margin = float(item.get("edge_margin_mm", margin))
+            if item_margin <= 0 or item_margin > margin:
+                raise AssertionError(f"{filename} 的专用边缘余量无效: {item_margin}")
             lo, hi = item["placed_bounds"]
             if (
-                float(lo[0]) < margin - 1e-3
-                or float(lo[1]) < margin - 1e-3
-                or float(hi[0]) > width - margin + 1e-3
-                or float(hi[1]) > depth - margin + 1e-3
+                float(lo[0]) < item_margin - 1e-3
+                or float(lo[1]) < item_margin - 1e-3
+                or float(hi[0]) > width - item_margin + 1e-3
+                or float(hi[1]) > depth - item_margin + 1e-3
                 or float(lo[2]) < -1e-3
                 or float(hi[2]) > height + 1e-3
             ):
@@ -143,18 +146,30 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    if len(data["plates"]) != 2 or sum(p["part_count"] for p in data["plates"]) != 15:
-        raise AssertionError("默认拼盘的板数/已排版数量发生变化")
+    # The 35×58 mm lower post footprint uses one verified diagonal post
+    # placement per PETG plate; the current deterministic layout is six plates
+    # because each 356.5 mm upright occupies its own diagonal plate.
+    if len(data["plates"]) != 6 or sum(p["part_count"] for p in data["plates"]) != 37:
+        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 6/37）")
     groups = [plate.get("material_group") for plate in data["plates"]]
-    if groups != ["PETG", "TPU/柔性"]:
+    if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")
     oversized = {item["file"] for item in data["oversized"]}
-    if oversized != {
-        *(f"net-rail-segment-{index}.stl" for index in range(3)),
-        "left-lower-stand-segment.stl",
-        "right-lower-stand-segment.stl",
-    }:
-        raise AssertionError(f"默认超尺寸清单发生变化: {oversized}")
+    if oversized:
+        raise AssertionError(f"默认拼盘仍有超尺寸零件: {oversized}")
+    post_entries = [
+        entry
+        for plate in data["plates"]
+        for entry in plate.get("parts", [])
+        if entry.get("part") == "post_clamp_carrier"
+    ]
+    if len(post_entries) != 2 or any(
+        entry.get("orientation_label") != "diagonal-rx0-ry51-rz45"
+        or entry.get("rotation_euler_deg") != [0.0, 51.0, 45.0]
+        or entry.get("edge_margin_mm") != 1.5
+        for entry in post_entries
+    ):
+        raise AssertionError("整根立柱必须在默认 256 mm 拼盘中使用已验证三轴斜放姿态和专用边缘余量")
 
 
 def main() -> int:

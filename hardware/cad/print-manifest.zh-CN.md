@@ -1,102 +1,74 @@
-# 内置式球网支架首样打印与装配清单
+# 内置式球网支架首样打印与装配清单 v0.4-top-load
 
-这份清单只说明当前 `net_stand.scad` 的导出关系，不代表 PETG 实物已经打印、桌下夹持力已经合格，或光学/电气已经接通。当前结构是免打孔夹持：固定 C 形夹体跨过台边，M8 螺杆完全位于台面下方并顶起可动压块；不得把球台打孔作为安装前提。打印前仍需按实际喷嘴、层高、PETG 收缩、球台厚度和标准件尺寸复核。
+本清单以 [`net_stand.scad`](net_stand.scad) 为唯一机械参数源。当前主线是不打孔的桌下 C 形夹：M8 螺杆完全位于台面下方，扁球头向上顶独立台底压块；固定 M8 六角螺母从下臂上侧六角沉孔装入，夹体底面不再开一个相反方向的螺母窝。当前 CAD 按 `12…40 mm` 台面厚度冻结，默认 `25 mm`，超过 `40 mm` 必须重新设计夹体和承力壁。夹体分成“完整固定 C 形主体”和“整根立柱”两件；立柱底面在黄灰交界 `z=16 mm` 与 C 夹最高承托面共面，向上连续一体实心延伸至 `z=372.5 mm`（总高 `356.5 mm`），不向下插入 C 形座；网布/卡夹功能区仍为 `z=16…168.5 mm`，从承托面向上 `30 mm`（至 `z=46 mm`）做封闭实心连续渐变，之后统一保持顶端 `28×38 mm` 截面。立柱不做脚、裤裆、外套圈、后置延长块或独立滑靴，立柱本体也不分段。
 
-## 当前主线：替换传统球网
+这里的“水密”只表示盒盖装好后应严丝合缝、没有明显贯通缝、错台或翘边；不代表 IP 等级、防水认证或实物密封测试已经完成。
 
-| `PART` | 首样数量 | 处理方式 |
+## 结构主线
+
+- 网顶不设置轨道、承载条、拼接片或承托座。网布总宽基准为 `1830 mm`，网顶高度为 `152.5 mm`。
+- 真实网布从球台中心侧先穿过每根立柱的 `3 mm` y 向过道；网布端部止在立柱外侧面，不进入外侧横梁。
+- 全高 U 形卡网夹从桌外侧沿 x 向球台中心滑入立柱外侧接收腔。两片 jaw 夹住名义 `1.2 mm` 网布，名义 jaw 间隙 `1.8 mm`；外侧横梁止挡，网布张力和绳的拉力负责压住卡夹，立柱内嵌单一被动止挡只防向外拔出；正侧 jaw 一体弹性扣舌让止挡越过、回拉时由闭合肩拦住。无穿钉、横向销钉或网夹螺钉。
+- 立柱整根打印，连续网通道并入同一件；固定 C 形主体单独打印。安装时从夹具体开放方向装入并检查无穿模，立柱底面与黄灰交界 `z=16 mm` 共面，实体连续到 `z=372.5 mm`，不向下进入 C 形座；网布/卡夹功能区仍止于 `z=168.5 mm`。从该承托面向上 `30 mm`（至 `z=46 mm`）是 `35×58 → 28×38 mm` 的连续实心渐变，之后为恒定 `28×38 mm` 立柱；不存在台阶、两种粗细矩形柱套接、脚、裤裆、外套圈或后置延长块；当前打印件也没有旧版公母滑轨、咯噔件、M4 滑脱件、固定网柱顶端直连 M8 孔或立柱接缝。图示 `0.1 mm` 只用于分色显示，不是实体间隙。
+- 网布接近左右网架末端的位置各放一个 PVDF 振动传感器座，传感器座与立柱保留 `18 mm` 横向净距。
+
+## 现行独立打印件：37 件
+
+运行 `python3 export_net_stand_printables.py --clean` 实际导出并由 `test_export_net_stand_printables.py` 锁定为 `37/37`：
+
+| 组别 | 数量 | 正式 `PART` |
 | --- | ---: | --- |
-| `right_stand` | 1 | PETG 结构装配检查件；包含右侧立柱、桌下夹持、网顶承托座和 M6 PETG 光学基座；PVDF 座单独导出 |
-| `left_stand` | 1 | PETG 结构装配检查件；为 `right_stand` 的镜像侧；M6 PETG 光学基座和 PVDF 座单独检查 |
-| `post` | 2 | 立柱装配预览；当前每侧只保留直立上移到球头承托面的浅黄色下段、固定 C 形夹和最高水平面 M8 捕获螺母承座，不再装配深黄色上段 |
-| `post_segment` | 0 | 旧版两段立柱兼容诊断入口；深黄色上段不进入当前打印清单 |
-| `lower_stand_segment` | 2 | PETG；左右各 1 件，直立的浅黄色下段、固定 C 形夹和与立柱中心同轴的顶面 M8 捕获螺母承座合并打印，蓝色检测器/球头总成沿 x 对正后直接落在此承座上，不使用横向黄色承托臂；桌面夹持开口、压块和螺杆区域保留，桌边外侧非接触区沿 y 全深做成实心桥体，上下结构舌头各向台内延长 20 mm，台下有效伸入为 82 mm，压紧件位于下舌头中点，台底压紧盘为 Ø50 mm；上下结构夹臂均为 12 mm，灰色下部支撑靠台侧厚 40 mm、外侧收口为 12 mm 并形成斜底；M8 夹紧丝杆相对原包络加长 12 mm |
-| `net_clamp_rod` | 2 | PETG；左右各 1 根独立卡网圆柱；网布先沿 x 穿过立柱主体 y 向 `3 mm` 过道、再从外侧放入 U 形槽，圆柱沿 x 推入锁住；Ø14 mm 仅作干涉校核，实际打印圆柱为 Ø12 mm（直径小 2 mm） |
-| `post_joint_sleeve` | 0 | 旧版两段立柱接缝兼容诊断入口；当前不再使用 |
-| `post_joint_key` | 0 | 旧版两段立柱接缝兼容诊断入口；当前不再使用 |
-| `table_clamp` | 2 | 装配预览，不建议直接作为单件打印；包含固定夹体、台底压块、M8×1.25 螺杆和旋钮边界 |
-| `clamp_top_pad` | 2 | 现场粘贴的外购胶皮，不打印；OpenSCAD 仅保留装配占位，粘在固定上夹板下表面用于防滑和保护台面 |
-| `clamp_pressure_pad` | 2 | PETG Ø50 mm 刚性圆盘压块；左右各一件，位于下舌头台下有效区段中点，顶面平盘接触台底，底面中央浅 M8 圆头收纳窝由螺杆从下方顶入；可选另贴薄胶皮 |
-| `clamp_screw` | 2 | 非打印件；加长的 M8×1.25 竖直金属螺杆/圆头顶端，完全在台面下方，圆头只接触台底可动压块，不穿球台或压块 |
-| `clamp_body_nut` | 2 | 非打印件；左右各 1 枚 M8 六角螺母，捕获在固定下臂的螺母座内，避免依赖 PETG 螺纹 |
-| `clamp_knob` | 2 | PETG 打印手拧旋钮；左右各一件，外径保持 36 mm、外圈为 18 齿圆角锯齿握持结构，含 M8 通孔和两枚对锁螺母捕获窝，旋钮随螺杆转动 |
-| `clamp_knob_nut` | 4 | 非打印件；左右各 2 枚 M8 六角螺母，先在螺杆下端对锁，再装入旋钮捕获窝，避免固定下臂与旋钮形成未定义的双螺纹约束 |
-| `net_rail` | 1 | 三段网顶承载条装配预览；不建议整件打印 |
-| `net_rail_segment` | 3 | PETG；名义总跨度 `1830 mm`，每段约 `623.33 mm`、相邻搭接 `20 mm`；也可按同一接口改用铝型材 |
-| `net_rail_splice` | 2 | PETG；每个接缝一片，带 Ø3.2 mm M3 通孔；M3 螺钉/螺母为标准件 |
-| `net_rail_saddle` | 2 | PETG；左右各一件，跨入立柱内侧并承托网顶承载条，带立柱侧端部限位 |
-| `m6_detector_body` | 2 | PETG 首样打印件，后续可按同一包络改 CNC；简单矩形 `10×56×216 mm`，含 10 个 `20 mm` 节距的 x 向光学让位、绕 x 轴 -45° 的尾线让位和浅六角定位沉孔；主体不带 T 尾座或主体 M8 孔 |
-| `m6_detector_shell_front` / `m6_detector_shell_rear` / `m6_detector_bottom_cover` | 各 2 | PETG 壳体候选件；前盖为 x− 端正圆弧、后盖与前盖接驳边为直角且仅自身 x+ 后部两角圆滑，并在背面中央（y=0、z 中心）带加厚 1/4-20 boss 和隐藏螺母窝，底盖同步采用组合俯视轮廓；当前仍需真实主体/线缆/球头首样复核后放行打印 |
-| `m6_sensor_array` | 2 | 外购器件包络预览，不直接打印；左右各 10 枚 M6 直角对射器件，光学面沿 x 朝球台中心，尾线局部 z- 后绕 x 轴 -45°，单列中心距 20 mm，从各自外侧 x 方向进入 |
-| `m6_detector_mount` | 2 | 左右完整装配预览，不直接打印；包括 45° L 型 PETG 主体、x− 正圆弧前盖、接驳边直角且仅后端圆角的 x+ 后盖、组合轮廓底盖、后盖 1/4-20 boss 和竖直采购 13 mm 球头 |
-| `m6_ballhead` | 2 | 外购件包络预览，不直接打印；采购球头保持竖直姿态，商品上端固定螺纹为 1/4-20 外牙，下端在 `13mm球【1/4内牙】`、`13mm球【1/4外牙】`、`13mm球【3/8外牙】`、`13mm球【M6外牙】`、`13mm球【M8外牙】`、`13mm球【M10外牙】` 中选型，本项目默认 `13mm球【M8外牙】`；上端 1/4-20 沿 x 接入后盖隐藏螺母，下端 M8 外牙 z− 直接拧入浅黄色直立下段顶面的同轴 M8 捕获螺母，检测器/球头总成沿 x 移到立柱中心，不使用横向黄色承托臂或深灰色独立连接器 |
-| `sensor_mount` | 2 | 装配预览，不直接打印；包含座体、PVDF 薄膜和可拆压片的关系 |
-| `sensor_mount_body` | 2 | PETG；左右各一枚，只打印安装座本体，薄膜和压片另装 |
-| `sensor_clamp_lip` | 2 | PETG/TPU 试样，首样归入 `TPU/柔性` 打印盘；左右各一套可拆压片，夹住 `pvdf_film` 两侧，不把薄膜永久粘死 |
-| `pvdf_film` | 2 | 非打印件；PVDF 薄膜包络，首样按实物裁切并保留可替换性 |
-| `calibration_gauge` | 1 | PETG；历史兼容的 STG-120ML 3.87 mm 高度标定规，暂保留用于旧方案回归，不作为 M6 光学精度依据 |
-| `net` | 1 | 非打印件；使用真实球网/网布装配，OpenSCAD 只显示占位几何 |
+| 整根立柱/夹体 | 4 | `post_clamp_carrier` ×2、`clamp_body_segment` ×2 |
+| 桌下电子腔 | 6 | `clamp_electronics_cover` ×2、`clamp_electronics_gasket` ×2、`clamp_electronics_ui_bezel` ×2 |
+| M6 壳体 | 12 | `m6_detector_body`、前盖、后盖、底盖、底盖垫、出线环各左右 1 件 |
+| 卡网/夹紧件 | 10 | `net_clamp_clip` ×2、`clamp_pressure_pad` ×2、`clamp_pressure_pad_guard` ×2、`clamp_printed_screw` ×2、`clamp_knob` ×2 |
+| PVDF/历史工具 | 5 | `sensor_mount_body` ×2、`sensor_clamp_lip` ×2、`calibration_gauge` ×1 |
 
-`assembly` 是整体关系预览，不建议直接导出成一件打印；`left_stand`/`right_stand` 也主要用于装配、干涉和桌下夹持检查。当前首样下段明确使用 `lower_stand_segment` 一体件，深黄色上段与两件接缝零件不再装配。下段立柱主体在网布通过处沿 x 贯穿切出 y 向 `3 mm` 过道，网布先穿过该过道并从外侧放入 U 形卡网槽，再把独立 PETG Ø12 mm 圆柱沿 x 推入；Ø14 mm 只作为干涉校核圆柱，不采购。M6 主线是用户选定的商品 SKU `6122579349941`（M6 直角对射、NPN、0–20 m）；当前按 M6×0.75 建模，光学面沿 x 朝球台中心，安装腿局部 z- 后绕 x 轴 -45°，传感器有效螺纹、外露六角、螺帽厚度、线缆出口和电气接口仍需向卖家/实物确认。M6 主体、前后盖、底盖和浅黄色下段 M8 捕获螺母承座是 PETG 首样候选，后续可改 CNC；采购 13 mm 球头与商品网夹属于外购边界，商品上端 1/4-20 外牙沿 x 接入后盖隐藏螺母，下端默认 M8 外牙 z− 直接拧入浅黄色直立下段顶面的同轴 M8 捕获螺母，不使用横向黄色承托臂或深灰色独立连接器。灰色桌下夹体保留桌面夹持开口、台底压块和螺杆区域；桌边外侧非接触区沿 y 全深为实心桥体，上下结构夹臂均为 12 mm，下部支撑靠台侧厚 40 mm、外侧收口为 12 mm 并形成斜底；M8 夹紧丝杆相对原包络加长 12 mm。PVDF、AFE、线束、ESP32-S3、M8 螺杆、固定下臂螺母、每侧两枚旋钮对锁螺母和网布也属于非 CAD 打印件或标准件；压块软垫必须按实物材料单独确认。旋钮和螺杆的接口现在由 CAD 明确为“固定下臂 M8 螺母 + 旋钮内两枚预先对锁的 M8 螺母 + M8 圆头螺杆”，不使用 PETG 内螺纹或不明确的双固定螺纹。
+逐文件的 `PART`、左右侧、材料、包围盒、体积和封闭拓扑摘要见 [`exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json)。
 
-`table_clamp_section` 只用于桌板剖面核对：灰色区域是桌板实体，上表面可替换保护垫位于固定上夹板与桌面之间，台底黑色/软色压块位于桌底下方，加长圆头螺杆只顶台底压块，固定下臂螺母和旋钮内两枚对锁螺母都在桌板下方；桌边外侧非接触区为 y 全深实心桥体，上下结构夹臂均为 12 mm，下部支撑靠台侧 40 mm、外侧 12 mm 并形成斜底；底部旋钮为外径 36 mm 的 18 齿圆角锯齿手拧结构。它不是新增打印件，也不改变 `table_clamp` 的免打孔装配关系。
+正式清单不包含球台、网布、PVDF 薄膜、ESP32/子板 PCB、电池、M6 光电器件、采购球头、M8/M4/M3 金属件和线束。`post_joint_exploded`、`clamp_slide_exploded`、各类 `fit_section`/`fit_probe` 是检查用组合预览，不是打印件。
 
-## 导出示例
+## 打印姿态与 256 mm 盘
 
-```text
-openscad -D 'PART="post"' -D 'SIDE=1' -o right-post.stl net_stand.scad
-openscad -D 'PART="post"' -D 'SIDE=-1' -o left-post.stl net_stand.scad
-openscad -D 'PART="lower_stand_segment"' -D 'SIDE=1' -o right-lower-stand-segment.stl net_stand.scad
-openscad -D 'PART="net_clamp_rod"' -D 'SIDE=1' -o right-net-clamp-rod.stl net_stand.scad
-openscad -D 'PART="net_clamp_rod"' -D 'SIDE=-1' -o left-net-clamp-rod.stl net_stand.scad
-# post_segment/post_joint_* 仅为历史兼容诊断，不进入当前打印包。
-openscad -D 'PART="clamp_top_pad"' -D 'SIDE=1' -o right-clamp-top-pad.stl net_stand.scad
-openscad -D 'PART="clamp_top_pad"' -D 'SIDE=-1' -o left-clamp-top-pad.stl net_stand.scad
-openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=1' -o right-pressure-pad.stl net_stand.scad
-openscad -D 'PART="clamp_pressure_pad"' -D 'SIDE=-1' -o left-pressure-pad.stl net_stand.scad
-openscad -D 'PART="clamp_body_nut"' -D 'SIDE=1' -o right-clamp-body-nut.stl net_stand.scad
-openscad -D 'PART="clamp_knob_nut"' -D 'SIDE=1' -o right-clamp-knob-nut.stl net_stand.scad
-openscad -D 'PART="clamp_knob"' -D 'SIDE=1' -o right-clamp-knob.stl net_stand.scad
-openscad -D 'PART="net_rail"' -o net-rail.stl net_stand.scad
-openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=0' -o net-rail-segment-0.stl net_stand.scad
-openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=1' -o net-rail-segment-1.stl net_stand.scad
-openscad -D 'PART="net_rail_segment"' -D 'rail_segment_index=2' -o net-rail-segment-2.stl net_stand.scad
-openscad -D 'PART="net_rail_saddle"' -D 'SIDE=1' -o right-net-rail-saddle.stl net_stand.scad
-openscad -D 'PART="net_rail_saddle"' -D 'SIDE=-1' -o left-net-rail-saddle.stl net_stand.scad
-openscad -D 'PART="m6_sensor_array"' -D 'SIDE=1' -o right-m6-sensor-array-preview.stl net_stand.scad
-openscad -D 'PART="m6_sensor_array"' -D 'SIDE=-1' -o left-m6-sensor-array-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_mount"' -D 'SIDE=1' -o right-m6-detector-mount-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_mount"' -D 'SIDE=-1' -o left-m6-detector-mount-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_body"' -D 'SIDE=1' -o right-m6-detector-body-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_shell_front"' -D 'SIDE=1' -o right-m6-detector-front-cover-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_shell_rear"' -D 'SIDE=1' -o right-m6-detector-rear-cover-preview.stl net_stand.scad
-openscad -D 'PART="m6_detector_bottom_cover"' -D 'SIDE=1' -o right-m6-detector-bottom-cover-preview.stl net_stand.scad
-openscad -D 'PART="sensor_mount"' -D 'SIDE=1' -o right-pvdf-mount.stl net_stand.scad
-openscad -D 'PART="sensor_mount_body"' -D 'SIDE=1' -o right-pvdf-mount-body.stl net_stand.scad
-openscad -D 'PART="calibration_gauge"' -o calibration-gauge.stl net_stand.scad
-```
+`net_clamp_clip` 是一件全高、薄厚度的 U 形卡夹：导出 STL 时已把宽面平放，包围盒约 `26.1 × 152.5 × 6.6 mm`；装配时沿 z 立起，从连续立柱本体的外侧开口沿 `x+ → x−` 滑入，外侧横梁负责止挡，不能把它理解成需要轴向插入的圆柱件。其它零件不由脚本缩放或裁切。
 
-批量导出首样打印包：
+默认 `256 × 256 × 256 mm` 拼盘已经生成：[`print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json)。当前目标为 `6` 盘、`37` 件已排版、`0` 件超尺寸：两件整根立柱从 `z=16` 到 `z=372.5 mm`，采用已验证的 `rx=0°、ry=51°、rz=45°` 三轴斜放姿态，各占一张 PETG 盘；实际变换包络约 `252.5×252.5×251.6 mm`，按该件专用 `1.5 mm` 名义边缘余量排版；其余 PETG 合并排版，TPU/柔性单独一盘。这个结果证明保守矩形包络和刚体斜放排版能放入 256 mm 床面，不等于已生成 G-code、已验证切片支撑/首层或已完成实物打印。
+
+## 关键导出命令
 
 ```text
 python3 export_net_stand_printables.py --clean
+python3 build_print_platter.py --preset x1c-256 --clean
 python3 test_export_net_stand_printables.py
+python3 test_build_print_platter.py --default
+python3 validate_net_stand.py
 ```
 
-默认输出到 Git 忽略目录 `exports/net-stand-v0.1/`。其中 `manifest.json` 固化每个 STL 的 `PART`、定义、左右侧、单位、材料组、包围盒和封闭拓扑摘要；`--clean` 只清理该目录中不属于当前 20 件清单的旧 STL，避免旧外挂/旧光学载台零件混入打印包；它只导出独立打印件，不把球台、网布、PVDF 薄膜、M6 光电器件、采购球头、台面胶皮、配套放大器或组合装配预览误当作 PETG 单件。
+单件检查示例：
 
-打印后先做无网桌下夹持检查，再装网布、网顶 PVDF 和光学模块。M8 螺杆按 `M8×1.25` 标准件采购或确认，不能用 PETG 内螺纹替代。没有 M-01/M-02/M-03 的照片、量具读数和记录文件时，现场记录状态必须保持 `pending`。
+```text
+openscad -D 'PART="clamp_body_segment"' -D 'SIDE=1' -o right-clamp-body-segment.stl net_stand.scad
+openscad -D 'PART="post_clamp_carrier"' -D 'SIDE=1' -o right-post-clamp-carrier.stl net_stand.scad
+openscad -D 'PART="net_clamp_clip"' -D 'SIDE=1' -o right-net-clamp-clip.stl net_stand.scad
+openscad -D 'PART="clamp_slide_fit_section"' -D 'SIDE=1' -o clamp-slide-section.png --render net_stand.scad
+openscad -D 'PART="net_clamp_fit_section"' -D 'SIDE=1' -o net-clamp-section.png --render net_stand.scad
+```
 
-## 机械首样顺序
+## 装配顺序
 
-1. 用 `lower_stand_segment`、`clamp_pressure_pad`、现场粘贴的上侧胶皮、每侧三枚标准 M8 螺母（1 枚固定下臂 + 2 枚旋钮对锁）和一段与实物相同厚度的台面样块检查上夹板保护、台底圆盘压块、M8 圆头进入底部收纳窝、加长螺杆行程、18 齿圆角锯齿旋钮的手拧驱动、实心渐变下部支撑和接触面防滑；
-2. 先将左右各自的 `lower_stand_segment` 直接装到球台边缘并确认 M8 捕获螺母承座方向、夹持后立柱不明显倾斜或滑移；不再装配深黄色上段或接缝零件；
-3. 把左右 `net_rail_saddle` 装到立柱内侧，拼接 3 段 `net_rail_segment` 成名义总宽 `1830 mm` 的 `net_rail`，确认左右网柱外边界各比台边外伸 `152.5 mm`、承载条落在承托座且被端挡限位；检查灰色夹体外侧实心渐变下部没有侵入桌面夹持开口，再把真实网布塞入立柱外侧 U 槽，沿 x 推入左右独立 `net_clamp_rod` 圆柱锁住，记录网顶高度、网布张力和两侧平行度；
-4. 先只用一根 M6 PETG 主体、一枚真实 M6 直角对射器件和原配螺帽做主体首样装配，确认光学面水平朝球台中心、L 型安装腿朝下后绕 x 轴 -45°、斜向 7 字孔、浅 AF8 六角沉孔、有效螺纹、至少一枚螺帽的锁紧空间和 20 mm 通道节距；再试装 x− 正圆弧前盖、接驳边直角且仅后端圆角的 x+ 后盖、共享边槽舌和组合轮廓底盖，最后安装左右两侧 20 枚器件和竖直采购球头，确认上端 1/4-20 外牙进入后盖隐藏螺母、下端 M8 外牙 z− 进入浅黄色直立下段顶面的同轴 M8 捕获螺母、检测器/球头总成沿 x 对正立柱中心且没有横向黄色承托臂，再完成偏航、俯仰、旋转微调并记录 NPN 输出/供电边界；
-5. 只有完成机械记录后，才把 `assembly` 的参数继续收敛为下一版打印尺寸。
+1. 先用目标球台厚度样块（本版适用 `12…40 mm`，默认 `25 mm`），安装左右 `post_clamp_carrier`、固定上夹板胶皮、`clamp_pressure_pad`、`clamp_pressure_pad_guard`、M8 金属螺杆或低载临时 `clamp_printed_screw`、下臂上侧固定螺母和旋钮内两枚预对锁螺母；确认不打孔、不碰台面、不干涉压块/螺杆工作区。背护罩四根定位柱插入压块盲孔后点胶，中心孔让杆身通过但挡住扁球头。
+2. 将左右完整固定 `clamp_body_segment` 从桌内侧定位到夹体安装位置；从夹具体的开放装配方向装入整根 `post_clamp_carrier`，确认两件没有穿模或封闭端硬塞。检查立柱底面与 C 夹最高承托面 `z=16 mm` 共面，整根实体向上延伸到 `z=372.5 mm`；网布/卡夹功能区止于 `z=168.5 mm`。再检查从该承托面向上的 `30 mm` 连续渐变至 `z=46 mm` 后保持 `28×38 mm`，没有下插段、台阶、套圈或多余零件。
+3. 不再安装立柱上下分件、接缝套筒或独立上段；球头承座已经与整根立柱顶端一体打印。
+4. 先把真实网布端部从球台中心侧穿过立柱的全高 `3 mm` 过道；网布端边止在立柱外侧面。再把 `net_clamp_clip` 从桌外侧沿 x 滑入，确认两片 jaw 夹住网布、外侧横梁位于立柱外面，一体扣舌让内嵌止挡越过并在终点咯噔落位。拆网时按开对应 jaw 使扣舌让开，反向滑出 U 夹，最后抽出网布；不装穿钉。
+5. 在网端靠近立柱的位置装 PVDF 座/薄膜/压片；每侧传感器与立柱保留 `18 mm` 横向净距。不得把 PVDF 座当作网架承力件。
+6. 依次安装 M6 十路主体、前后盖、底盖、连续压合垫、出线环、线束和采购球头；闭合盖板后检查连续配合面、定位唇和胶条是否严丝合缝，无明显贯通缝或翘边。之后才进行 M6 光轴、球头微调、供电和输出联调。
 
-## 历史方案边界
+## 电子与外购件边界
 
-`net_post_x_clamp.scad` 及其旧打印清单属于前一轮外挂式 X 夹具，保留用于回溯和旧几何回归；不要把旧的 `arm`、`jaw`、`roller_mount`、`reference_carriage` 等零件混入当前内置支架首样。详见 [`legacy/README.md`](legacy/README.md)。
+梯形夹体内部是电子腔，不把器件塞进桌面受力区：主控端预留 ESP32 母板、UI 子板、屏幕窗口、START/MODE 按钮、指示灯、扬声器/蜂鸣器、USB-C 和电池；另一端预留发射电源子板及内置 1S 电池，并保留外接电源接口。PCB、端子/压接线束和电池以 `hardware/electronics/` 的 KiCad/Atopile/装配包为准，先按 fit report 和实物器件复核，再封盖。
 
-旧的 `stg120_outer_carrier`、`stg120_center_bridge`、`stg120_preview` 和 3.87 mm `calibration_gauge` 只属于 STG-120ML 历史验证链；它们不再代表当前 M6 光学阵列的安装方式。当前首样打印包固定为 20 件，台面上侧胶皮改为现场粘贴，其中两根 `net_clamp_rod` 和两枚台底 `clamp_pressure_pad` 是直接打印的 PETG 件；M6 光电器件和采购球头按外购件单独采购；主体/壳体/底盖/浅黄色下段承座先按 PETG 打印，后续可按同一包络改 CNC。
+M6 器件采用左右各十路的实际安装包络，光学轴向球台中心；采购球头、M6 SKU、线束和端子必须按到货尺寸/后缀复核。现有 CAD/网格验证不能代替铜箔生产释放、电气波形、实物装配或承力试验。
+
+## 历史入口
+
+`net_rail*`、`post_joint_sleeve`、`post_joint_key`、`net_clamp_rod` 只保留为旧版本兼容诊断入口，不能复制到正式打印包；当前网顶没有轨道，当前卡网件是 `net_clamp_clip`。

@@ -26,16 +26,21 @@ DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1"
 
 
 PART_NAMES_ZH = {
-    "post_segment": "立柱上段",
-    "lower_stand_segment": "立柱下段 + 桌下夹体",
-    "post_joint_sleeve": "立柱接缝外套筒",
-    "post_joint_key": "立柱接缝防转内芯",
+    "post_segment": "整根立柱（兼容诊断名）",
+    "post_clamp_carrier": "整根立柱 + 实心下宽上窄承座",
+    "lower_stand_segment": "整根立柱（兼容诊断名）",
+    "clamp_body_segment": "完整桌下 C 形夹固定体 + 立柱接触承托面",
+    "upper_stand_segment": "整根立柱（兼容诊断名）",
+    "post_joint_sleeve": "旧版立柱接缝诊断件",
+    "post_joint_key": "旧版立柱接缝诊断件",
     "clamp_top_pad": "台面保护软垫",
     "clamp_pressure_pad": "台底可动压块",
+    "clamp_pressure_pad_guard": "台底压块扁球头防丢背护罩",
+    "clamp_printed_screw": "临时 PETG 扁球头夹紧螺杆",
     "clamp_knob": "夹紧手拧旋钮",
-    "net_rail_segment": "网顶承载条",
-    "net_rail_splice": "网顶承载条拼接片",
-    "net_rail_saddle": "网顶承托座",
+    "net_rail_segment": "旧版网顶承载条（诊断件）",
+    "net_rail_splice": "旧版网顶承载条拼接片（诊断件）",
+    "net_rail_saddle": "旧版网顶承托座（诊断件）",
     "optical_rail": "红外光栅导轨",
     "optical_module_carrier": "光栅光学模块载台",
     "stg120_outer_carrier": "STG-120ML 外侧光纤头托架",
@@ -44,7 +49,17 @@ PART_NAMES_ZH = {
     "sensor_clamp_lip": "PVDF 薄膜压片",
     "reference_carriage_body": "参考线端座",
     "calibration_gauge": "过网高度标定规",
-    "net_clamp_rod": "U 槽卡网圆柱",
+    "net_clamp_clip": "全高 U 形滑入卡网夹",
+    "net_clamp_rod": "旧版卡网圆柱（兼容诊断件）",
+    "clamp_electronics_cover": "电子腔底盖",
+    "clamp_electronics_gasket": "电子腔连续压紧垫",
+    "clamp_electronics_ui_bezel": "交互面板压框",
+    "m6_detector_body": "M6 十路主体",
+    "m6_detector_shell_front": "M6 光学端前盖",
+    "m6_detector_shell_rear": "M6 线缆端后盖",
+    "m6_detector_bottom_cover": "M6 底盖",
+    "m6_detector_bottom_gasket": "M6 底盖连续垫",
+    "m6_detector_cable_gland": "M6 多孔压紧出线环",
 }
 
 
@@ -85,7 +100,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 根",
         "scad_part": "clamp_screw",
-        "notes": "装配预览中显示圆头占位；实际使用金属螺杆，不打印螺纹。",
+        "notes": "装配预览中显示扁球头占位；实际生产使用 M8×1.25 金属螺杆，不打印螺纹。首样可先用独立 PETG 临时螺杆。",
     },
     {
         "id": "m8-fixed-nut",
@@ -96,7 +111,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 枚",
         "scad_part": "clamp_body_nut",
-        "notes": "安装在 C 形夹下臂的捕获窝中，形成固定螺纹。",
+        "notes": "从 C 形夹下臂上侧六角沉孔装入，底面承受螺杆反力；不从夹体底面再开第二个六角窝。",
     },
     {
         "id": "m8-jam-nuts",
@@ -118,18 +133,18 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "1 套",
         "scad_part": "net",
-        "notes": "固定在三段网顶承载条与两侧立柱之间。",
+        "notes": "无网顶轨道。装配时先从球台中心侧把网布端部穿过两侧立柱的 3 mm y 向过道，网布端止在立柱外侧面，再从桌外侧沿 x 滑入全高 U 形卡夹；拆卸反向操作。",
     },
     {
-        "id": "net-clamp-rods",
-        "name_zh": "U 槽卡网圆柱（PETG 打印）",
-        "name_en": "printed PETG net-retention rods",
+        "id": "net-clamp-clips",
+        "name_zh": "全高 U 形滑入卡网夹（PETG 打印）",
+        "name_en": "printed PETG full-height sliding U clips",
         "kind": "卡网结构件",
         "status": "PETG 打印件 / 非采购件",
         "printable": True,
-        "quantity": "2 根（左右各 1）",
-        "scad_part": "net_clamp_rod",
-        "notes": "网布从立柱外侧塞入 U 形槽后，圆柱沿 x 推入锁住；Ø14 mm 只作干涉校核，实际打印圆柱为 Ø12 mm，直径小 2 mm。",
+        "quantity": "2 件（左右各 1）",
+        "scad_part": "net_clamp_clip",
+        "notes": "先穿网，再从桌外侧沿 x 向球台中心滑入；两片 jaw 的名义间隙 1.8 mm，夹住 1.2 mm 网布，外侧横梁在立柱外面止挡。网布张力和绳的拉力负责把卡夹压在承托面上；立柱内嵌的一处被动止挡只防止卡夹向外拔出，不承担主拉力。卡夹正侧 jaw 自带一体弹性扣舌，斜面允许装入、闭合肩阻止反向脱出；按开对应 jaw 后即可解锁反向滑出。无穿钉、横向销钉或网夹螺钉。平放打印后沿 z 立起安装。",
     },
     {
         "id": "pvdf-film",
@@ -173,7 +188,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 套（左右各 1）",
         "scad_part": "m6_ballhead",
-        "notes": "默认采购 13mm球【M8外牙】；球头保持竖直，商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss，选定下端 M8 外牙 z− 接口直接拧入浅黄色下段的一体 M8 捕获螺母。偏航、俯仰、旋转微调依靠采购球头锁紧机构；当前装配不再使用深灰色 90°连接器或深黄色上段立柱。",
+        "notes": "默认采购 13mm球头【M8外牙】；球头保持竖直，商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss。固定网柱从黄灰交界 z=16 mm 一体向上延伸到 z=372.5 mm；网布及卡夹仍只工作到 z=168.5 mm，不切 M6 球头直连孔；M6 光学总成的独立承力支撑待单独定义。偏航、俯仰、旋转微调依靠采购球头锁紧机构。",
     },
     {
         "id": "m6-ballhead-variants",
@@ -185,17 +200,6 @@ ASSEMBLY_COMPONENTS = [
         "quantity": "按两套基座",
         "scad_part": "m6_ballhead",
         "notes": "保留 1/4 内牙、1/4 外牙、3/8 外牙、M6 外牙、M8 外牙、M10 外牙选项；实际螺纹有效长度、旋钮净空、网夹孔位和防松方式按到货件确认。",
-    },
-    {
-        "id": "m3-hardware",
-        "name_zh": "M3 紧固件",
-        "name_en": "M3 fasteners",
-        "kind": "外购标准件",
-        "status": "外购 / 非打印",
-        "printable": False,
-        "quantity": "按装配",
-        "scad_part": "net_rail_splice",
-        "notes": "用于网顶拼接片；M6 光学基座是铝合金机加工件，不把 M3 孔位写入当前打印包。",
     },
     {
         "id": "table-top-rubber",
@@ -217,7 +221,51 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 件",
         "scad_part": "clamp_pressure_pad",
-        "notes": "顶面为平盘，接触台面底面；底面中央有浅 M8 圆头收纳窝，螺杆从下方顶入。它不是软垫，首样按刚性 PETG 小底盘打印；若需要可在顶面另贴薄胶皮。",
+        "notes": "顶面为平盘，接触台面底面；底面中央为内宽外窄的扁球头收纳窝，另配背护罩从底部向上扣入并胶合，防止拆下收纳时丢失。它不是软垫，首样按刚性 PETG 小底盘打印；若需要可在顶面另贴薄胶皮。",
+    },
+    {
+        "id": "table-bottom-pressure-pad-guards",
+        "name_zh": "台底压块背护罩",
+        "name_en": "underside pressure-pad back guards",
+        "kind": "防丢结构件",
+        "status": "PETG 打印件 / 装入后胶合",
+        "printable": True,
+        "quantity": "2 件（左右各 1）",
+        "scad_part": "clamp_pressure_pad_guard",
+        "notes": "从压块底部向上扣入；中心孔让 M8 杆身通过但挡住 Ø13 扁球头，四根定位柱插入压块盲孔后再点胶。它只负责收纳防丢，不承担夹紧主载荷。",
+    },
+    {
+        "id": "temporary-printed-tightening-screws",
+        "name_zh": "临时 PETG 扁球头夹紧螺杆",
+        "name_en": "temporary printed flat-ball-head clamp screws",
+        "kind": "首样临时结构件",
+        "status": "PETG 打印件 / 钢制 M8 到货后替换",
+        "printable": True,
+        "quantity": "2 件（左右各 1）",
+        "scad_part": "clamp_printed_screw",
+        "notes": "带 1.25 mm 节距的浅螺旋外形、7.45 mm 小径和顶部扁球头/浅六角驱动窝；只供无钢件时首样夹紧验证，不能作为长期承力件。",
+    },
+    {
+        "id": "clamp-electronics-installation",
+        "name_zh": "桌下夹体电子腔完整安装",
+        "name_en": "clamp electronics installation",
+        "kind": "电子装配",
+        "status": "KiCad PCB + 外购器件 + 打印壳体",
+        "printable": False,
+        "quantity": "左右各 1 套",
+        "scad_part": "clamp_electronics_full_cutaway",
+        "notes": "右侧放 ESP32 母板、1S 电池和 UI 子板；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。",
+    },
+    {
+        "id": "m6-receiver-carrier-pcb",
+        "name_zh": "M6 十路接收子板",
+        "name_en": "M6 receiver carrier PCB",
+        "kind": "电子装配",
+        "status": "KiCad PCB / 真实 3D 模型 / 首样布线审查",
+        "printable": False,
+        "quantity": "2 块（左右各 1）",
+        "scad_part": "m6_detector_mount",
+        "notes": "竖直贴 M6 壳体 +y 内壁安装，采用 80 × 32 mm 集中式接收载板；光学头仍按 M6 壳体的 20 mm 阵列排列，线束在进入载板前汇聚，板级包络来自 KiCad STL/STEP。",
     },
 ]
 
@@ -291,70 +339,123 @@ def _indexed_side_specs(
     return specs
 
 
-def _indexed_post_specs() -> list[ExportSpec]:
-    # The former dark-yellow upper post was removed from the active design.
-    # Keep this helper as an explicit empty compatibility boundary so old
-    # callers do not accidentally reintroduce a standalone upper segment into
-    # the current print package.
-    return []
+def _post_clamp_carrier_specs() -> list[ExportSpec]:
+    return _side_specs(
+        "post_clamp_carrier",
+        "post-clamp-carrier",
+        "PETG",
+        "X1C 首样斜放 rx=0°、ry=51°、rz=45°；不切断、不缩放，按清单配置支撑。",
+        "首样左右各一件；整根固定网柱从黄灰交界的 C 夹最高承托面 z=16 mm 连续向上到 z=372.5 mm，总高 356.5 mm；网布/卡夹的 3 mm 过道和接收腔仍只到网顶 z=168.5 mm，底端不插入 C 形座。下端 35×58 mm（x/y）从承托面起经 30 mm 实心连续渐变收至 28×38 mm，之后保持恒定；没有台阶、外套圈、后置延长块、两只脚、裤裆、独立滑靴，也没有立柱接缝。当前不切 M6 球头直连孔，M6 光学总成独立支撑待定义。整件从夹具体开放方向装入，固定夹只对底部共面承托；本件不再宣称旧版公母滑轨、咯噔件或 M4 滑脱件存在。X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放，实际包络约 252.5×252.5×251.6 mm，专用名义边缘余量 1.5 mm；不切断、不缩放，切片器仍需按清单配置支撑。",
+    )
 
 
 def _indexed_rail_specs() -> list[ExportSpec]:
-    specs: list[ExportSpec] = []
-    for part, stem, count, notes in (
-        (
-            "net_rail_segment",
-            "net-rail-segment",
-            3,
-            "网顶承载条单段；相邻段搭接 20 mm，并用拼接片锁紧。",
-        ),
-        (
-            "net_rail_splice",
-            "net-rail-splice",
-            2,
-            "网顶承载条接缝拼接片；M3 螺钉和螺母为标准件。",
-        ),
-    ):
-        for index in range(count):
-            definition_name = (
-                "rail_segment_index"
-                if part == "net_rail_segment"
-                else "rail_splice_index"
-            )
-            specs.append(
-                ExportSpec(
-                    filename=f"{stem}-{index}.stl",
-                    part=part,
-                    definitions=(f'PART="{part}"', f"{definition_name}={index}"),
-                    side=None,
-                    side_value=None,
-                    index=index,
-                    material="PETG",
-                    orientation="大平面朝下；长件按打印机尺寸和翘曲风险在切片器中复核。",
-                    notes=notes,
-                )
-            )
-    return specs
+    # The active design has no top net rail.  Keep the function name as a
+    # compatibility boundary for callers that imported the old helper, but do
+    # not let legacy rail geometry re-enter the printable package.
+    return []
 
 
 def build_export_specs() -> list[ExportSpec]:
     specs: list[ExportSpec] = []
+    specs.extend(_post_clamp_carrier_specs())
     specs.extend(
         _side_specs(
-            "lower_stand_segment",
-            "lower-stand-segment",
+            "clamp_body_segment",
+            "clamp-body-segment",
             "PETG",
-            "底面朝下；下段立柱与 C 形夹已经一体化，接缝方向沿 Z 轴。",
-            "首样左右各一件；包含浅黄色下段、固定 C 形夹和一体 M8 球头承座，蓝色检测器总成直接拧入此承座；桌面夹持开口、压块和螺杆区域保留，灰色夹体外侧下部沿 y 全深为实心渐变支撑，靠台侧厚 40 mm、外侧 12 mm；上下夹持舌头各向台内延长 20 mm，台下有效伸入为 82 mm，压紧件位于下舌头中点，台底压紧盘为 Ø50 mm；M8 夹紧丝杆相对原包络加长 12 mm；不再拆分深黄色上段或深灰色连接器。",
+            "底面朝下；电子腔开口朝外侧；立柱与 z=16 mm C 夹最高承托面共面，向上 30 mm 的渐变边界对照检查。",
+            "首样左右各一件；完整固定灰色 C 形夹体单独打印，包含梯形电子腔、连续盖板配合面、台面上方固定夹板、完整外侧 C 壁、旋钮两侧 7 mm 加固斜墙以及立柱的平面承托面。加固斜墙从下臂最远端延伸到原加厚承力段，并与 C 夹本体 union 为同一 STL，不是外挂或独立打印件。固定网柱从 z=16 mm 共面起步，实体连续到 z=372.5 mm，不进入 C 形座；网布通道和卡夹接收腔仍只到 z=168.5 mm。夹体不导出旧版母滑槽、下穿鞋件、裤裆或重复定位块。电子腔盖板周边保留可见贴合边，网布通道与外侧 U 形卡网夹开口仍按立柱/卡网夹的功能配合检查；图示 0.1 mm 仅用于分色显示，不能作为实体穿模。",
         )
     )
     specs.extend(
         _side_specs(
-            "net_clamp_rod",
-            "net-clamp-rod",
+            "clamp_electronics_cover",
+            "clamp-electronics-cover",
             "PETG",
-            "圆柱轴沿 Z；底端朝下；装配时从立柱外侧沿 x 推入 U 槽。",
-            "独立 PETG 卡网圆柱；实际打印 Ø12 mm。Ø14 mm 只作为 U 槽干涉校核基准；网布先塞入外侧开口，再沿 x 推入圆柱锁住。",
+            "斜底面朝下；M3 试样孔朝上；打印后先做盖板/螺柱配合检查。",
+            "桌下夹体梯形电子腔的独立可拆底盖；保持 3 mm 首样厚度，最终扣合方式和材料强度需按首样拉脱/振动记录冻结。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_electronics_gasket",
+            "clamp-electronics-gasket",
+            "TPU/柔性",
+            "平面朝下；连续环形压紧面朝上；按柔性材料单独排盘。",
+            "梯形电子腔连续压紧垫；它只保证盖板周边贴合，不把本设计宣称为 IP 防水等级；盖板应严丝合缝、无明显台阶和翘边。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_electronics_ui_bezel",
+            "clamp-electronics-ui-bezel",
+            "PETG",
+            "面板外观面朝上；窗口和按键孔向上；打印后用实际屏幕/按键复核孔位。",
+            "可拆交互面板压框，含屏幕窗口、START/MODE 按钮孔、指示灯导光孔、扬声器声孔和带硅胶帽座的 USB-C 槽；不是直接打穿连续密封盖的裸孔。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_body",
+            "m6-detector-body",
+            "PETG",
+            "长条主体平面朝下；M6 光学孔轴向按右侧基准；左右件分别打印。",
+            "M6 十路直角光电器件的 PETG 长条主体，含 10 路头部定位/通孔和前后盖导向槽；内部接收子板不与主体熔成一体。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_shell_front",
+            "m6-detector-front-cover",
+            "PETG",
+            "光学孔端面朝上；装配方向为 x- 滑入；盖板配合面打印后去毛刺。",
+            "M6 光学端整片前盖，十路光学孔、两侧导向舌和沉头螺钉孔均保留；盖板为完整件，不用剖切件替代实物。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_shell_rear",
+            "m6-detector-rear-cover",
+            "PETG",
+            "线缆端面朝上；装配方向为 x+ 滑入；后侧支撑 boss 朝外。",
+            "M6 线缆端整片后盖，含球头支撑 boss、两侧导向舌和沉头螺钉孔；支撑受力路径与线缆出口分开。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_bottom_cover",
+            "m6-detector-bottom-cover",
+            "PETG",
+            "底盖大平面朝下；出线孔朝外；螺钉沉头面朝上。",
+            "M6 壳体底盖，四周连续压紧边、螺钉孔和多芯线缆出口均在同一可拆件上；不以透明剖切预览代替打印件。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_bottom_gasket",
+            "m6-detector-bottom-gasket",
+            "TPU/柔性",
+            "薄片平面朝下；按柔性材料单独排盘；不得与 PETG 壳体同盘。",
+            "M6 底盖连续压紧垫；仅作为盖板贴合/防尘的柔性件，不能把当前设计解释为防水等级认证。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "m6_detector_cable_gland",
+            "m6-detector-cable-gland",
+            "PETG",
+            "环形端面朝下；通孔轴沿 Z；压紧件与线束测试后再冻结。",
+            "M6 多孔压紧出线环/应力释放环；用于把十路线束从底盖引出，实际装配可配密封胶圈或灌封套，但壳盖本身仍按严丝合缝配合验收。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "net_clamp_clip",
+            "net-clamp-clip",
+            "PETG",
+            "平放打印；宽面贴床；安装时把全高方向沿 z 立起，从立柱外侧沿 x 推入。",
+            "真实全高 U 形滑入卡网夹；两片 jaw 名义间隙 1.8 mm，夹住 1.2 mm 网布；先从球台中心侧穿过立柱 3 mm 过道，再从桌外侧滑入卡夹，网布端止在立柱外边。网布张力和绳的拉力负责压紧卡夹，立柱内嵌单一被动止挡只防反向拔出；正侧 jaw 的一体弹性扣舌让止挡越过并在回拉时闭合肩拦住，无穿钉、横向销钉或网夹螺钉；按开 jaw 才能解锁反向滑出。",
         )
     )
     specs.extend(
@@ -363,7 +464,25 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-pressure-pad",
             "PETG",
             "平盘顶面朝上；底面 M8 圆头收纳窝朝下；圆盘平面贴打印床。",
-            "独立台底 Ø50 mm 刚性圆盘压块；位于下舌头台下有效区段中点，顶面接触台底，底面浅窝容纳并约束 M8 圆头螺杆；可选在顶面另贴薄胶皮。",
+            "独立台底 Ø50 mm 刚性圆盘压块；位于下舌头台下有效区段中点，顶面接触台底，底面内宽外窄窝容纳 Ø13 扁球头；底部四个盲孔接收背护罩定位柱；可选在顶面另贴薄胶皮。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_pressure_pad_guard",
+            "clamp-pressure-pad-guard",
+            "PETG",
+            "环形护罩平面朝下；四根定位柱朝上插入压块底部盲孔。",
+            "独立台底压块的扁球头防丢背护罩；中心孔允许 7.45 mm 临时杆身/8 mm 钢杆通过但挡住 Ø13 扁球头，装入压块后点胶固定，不承担夹紧主载荷。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_printed_screw",
+            "clamp-printed-screw",
+            "PETG",
+            "轴线竖直；扁球头朝上；平盘压块装配后让球头落入内宽外窄窝。",
+            "无钢制 M8 到货前的临时打印夹紧螺杆；带 1.25 mm 节距浅螺旋、7.45 mm 小径和顶部扁球头/浅六角驱动窝。只用于首样低载验证，到货后必须替换为 M8×1.25 金属螺杆。",
         )
     )
     specs.extend(
@@ -375,23 +494,13 @@ def build_export_specs() -> list[ExportSpec]:
             "打印旋钮；必须装入预先对锁的两枚标准 M8 螺母，不使用 PETG 内螺纹。",
         )
     )
-    specs.extend(_indexed_rail_specs())
-    specs.extend(
-        _side_specs(
-            "net_rail_saddle",
-            "net-rail-saddle",
-            "PETG",
-            "承托平面朝上；端挡朝外。",
-            "立柱内侧网顶承托/端部限位座。",
-        )
-    )
     specs.extend(
         _side_specs(
             "sensor_mount_body",
             "sensor-mount-body",
             "PETG",
-            "安装座底面朝下；薄膜和压片不可与本体合并打印。",
-            "网顶 PVDF 安装座本体；sensor_mount 只保留为组合预览。",
+            "网顶夹座平面朝下；U 形开口沿网布上沿扣入；薄膜和压片不可与本体合并打印。",
+            "网端 PVDF 安装座本体；从网布上沿扣入，右件外端到右立柱内侧面保留 18 mm，左件镜像；本体不接触立柱，也不形成网顶轨道。",
         )
     )
     specs.extend(
@@ -400,7 +509,7 @@ def build_export_specs() -> list[ExportSpec]:
             "sensor-clamp-lip",
             "PETG/TPU 试样",
             "压片平面朝下；同一 STL 含左右两枚可拆压片。",
-            "夹持 PVDF 薄膜两侧的可拆压片。",
+            "夹持 PVDF 薄膜两侧的可拆压片；只压薄膜，不承担网架或立柱载荷。",
         )
     )
     specs.append(

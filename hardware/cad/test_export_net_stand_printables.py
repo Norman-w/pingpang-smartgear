@@ -18,13 +18,22 @@ from export_net_stand_printables import (
 
 
 EXPECTED_COUNTS = {
-    "lower_stand_segment": 2,
-    "net_clamp_rod": 2,
+    "post_clamp_carrier": 2,
+    "clamp_body_segment": 2,
+    "clamp_electronics_cover": 2,
+    "clamp_electronics_gasket": 2,
+    "clamp_electronics_ui_bezel": 2,
+    "m6_detector_body": 2,
+    "m6_detector_shell_front": 2,
+    "m6_detector_shell_rear": 2,
+    "m6_detector_bottom_cover": 2,
+    "m6_detector_bottom_gasket": 2,
+    "m6_detector_cable_gland": 2,
+    "net_clamp_clip": 2,
     "clamp_pressure_pad": 2,
+    "clamp_pressure_pad_guard": 2,
+    "clamp_printed_screw": 2,
     "clamp_knob": 2,
-    "net_rail_segment": 3,
-    "net_rail_splice": 2,
-    "net_rail_saddle": 2,
     "sensor_mount_body": 2,
     "sensor_clamp_lip": 2,
     "calibration_gauge": 1,
@@ -35,6 +44,7 @@ PREVIEW_ONLY_PARTS = {
     "left_stand",
     "right_stand",
     "post",
+    "clamp_slide_fit_section",
     "table_clamp",
     "net_rail",
     "optical_strip",
@@ -47,25 +57,42 @@ PREVIEW_ONLY_PARTS = {
 }
 
 REMOVED_ACTIVE_PARTS = {
-    "post_segment",
+    "net_rail_segment",
+    "net_rail_splice",
+    "net_rail_saddle",
+    "m6_detector_net_connector",
     "post_joint_sleeve",
     "post_joint_key",
-    "m6_detector_net_connector",
+    "lower_stand_segment",
+    "upper_stand_segment",
+    "net_clamp_rod",
 }
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 20:
-        raise AssertionError(f"expected 20 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 37:
+        raise AssertionError(f"expected 37 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
     counts = Counter(spec.part for spec in EXPORT_SPECS)
     if counts != Counter(EXPECTED_COUNTS):
         raise AssertionError(f"printable PART matrix changed: {counts}")
+    post_specs = [spec for spec in EXPORT_SPECS if spec.part == "post_clamp_carrier"]
+    if len(post_specs) != 2 or any(
+        "整根" not in spec.notes
+        or "没有立柱接缝" not in spec.notes
+        or "z=16 mm" not in spec.notes
+        or "z=168.5 mm" not in spec.notes
+        or "z=372.5 mm" not in spec.notes
+        or "总高 356.5 mm" not in spec.notes
+        or "不插入 C 形座" not in spec.notes
+        for spec in post_specs
+    ):
+        raise AssertionError("整根立柱 + 外侧载体必须是左右各一件且明确无立柱接缝")
     removed = sorted(REMOVED_ACTIVE_PARTS & set(counts))
     if removed:
-        raise AssertionError(f"removed upper/connector parts re-entered print matrix: {removed}")
+        raise AssertionError(f"legacy rail/connector parts re-entered print matrix: {removed}")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:
@@ -96,14 +123,35 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
     rod = next((item for item in components if item.get("id") == "m8-threaded-rod"), None)
     if not isinstance(rod, dict) or rod.get("name_zh") != "M8×1.25 金属螺杆" or rod.get("printable") is not False:
         raise AssertionError("M8 金属螺杆必须作为中文外购/非打印件出现在物料清单")
-    net_rod = next((item for item in components if item.get("id") == "net-clamp-rods"), None)
+    net_clip = next((item for item in components if item.get("id") == "net-clamp-clips"), None)
     if (
-        not isinstance(net_rod, dict)
-        or net_rod.get("scad_part") != "net_clamp_rod"
-        or net_rod.get("printable") is not True
-        or "Ø12" not in str(net_rod.get("notes"))
+        not isinstance(net_clip, dict)
+        or net_clip.get("scad_part") != "net_clamp_clip"
+        or net_clip.get("printable") is not True
+        or "1.8" not in str(net_clip.get("notes"))
+        or "张力" not in str(net_clip.get("notes"))
+        or "止挡" not in str(net_clip.get("notes"))
+        or "M3" in str(net_clip.get("notes"))
     ):
-        raise AssertionError("卡网圆柱必须作为 PETG 可打印件出现在物料清单")
+        raise AssertionError("全高 U 形卡网夹必须作为 PETG 可打印件出现在物料清单")
+    if any(
+        isinstance(item, dict) and item.get("id") == "net-clip-m3-hardware"
+        for item in components
+    ):
+        raise AssertionError("无穿钉卡网夹不应再列出 M3 防滑脱硬件")
+    retired_slide_components = {
+        item.get("id")
+        for item in components
+        if isinstance(item, dict)
+    } & {
+        "clamp-slide-m4-hardware",
+        "clamp-slide-detent-hardware",
+    }
+    if retired_slide_components:
+        raise AssertionError(
+            "当前共面承托版本不应把旧版滑槽 M4 或咯噔件列为装配零件: "
+            f"{sorted(retired_slide_components)}"
+        )
 
     entries = data.get("parts")
     if not isinstance(entries, list):
@@ -184,9 +232,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (20 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (37 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (20 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (37 specs, manifest not present)")
 
 
 if __name__ == "__main__":

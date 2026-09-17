@@ -52,7 +52,9 @@
 //   PART="clamp_electronics_emitter_exploded" 单侧发射电子腔爆炸装配
 //   PART="clamp_top_pad"     台面上表面胶皮装配占位（现场粘贴，不进正式打印包）
 //   PART="clamp_pressure_pad" 台底可动圆盘压块（底面 M8 圆头收纳窝）
+//   PART="clamp_pressure_pad_guard" 台底压块扁球头防丢背护罩（PETG，可胶合）
 //   PART="clamp_screw"        M8×1.25 金属螺杆装配占位（非打印件，顶端圆头）
+//   PART="clamp_printed_screw" 临时 PETG M8 螺杆（顶端扁球头，待钢件替换）
 //   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母装配占位（标准件）
 //   PART="clamp_knob"         手拧旋钮（含两枚 M8 对锁螺母捕获窝）
 //   PART="clamp_knob_nut"     旋钮内捕获的两枚 M8 对锁螺母（标准件）
@@ -140,11 +142,21 @@ $fn = 48;
 
 PART = "assembly";
 SIDE = 0;
+// The normal assembly shows the purchased steel rod.  Set this explicitly
+// for a bench preview when checking the temporary PETG replacement; keeping
+// the two variants mutually exclusive prevents a misleading overlap in the
+// exploded/section views.
+show_temporary_printed_screw = false;
 
 // 球台与传统网架接口
 table_width = 1525;
 table_depth_preview = 500;
+// 首样台面基准为 25 mm。夹体的固定开口、电子腔和 M8 夹紧件按
+// 12…40 mm 台面范围冻结；超过 40 mm 需要重新开模/复核承力壁，不能
+// 只在切片器里把下臂继续往下拉。
 table_thickness = 25;
+clamp_table_thickness_min = 12;
+clamp_table_thickness_max = 40;
 table_edge_x = table_width / 2;
 post_body_width = 28;
 post_body_depth = 38;
@@ -183,8 +195,8 @@ clamp_electronics_cavity_outboard_margin_x = 38;
 clamp_electronics_cavity_wall_y = 9;
 clamp_electronics_cavity_roof_t = 4;
 clamp_electronics_cavity_cover_t = 3;
-clamp_electronics_board_length_x = 90;
-clamp_electronics_board_width_y = 34;
+clamp_electronics_board_length_x = 86;
+clamp_electronics_board_width_y = 32;
 clamp_electronics_battery_length_x = 65;
 clamp_electronics_battery_width_y = 30;
 clamp_electronics_battery_thickness_z = 7;
@@ -215,10 +227,25 @@ clamp_electronics_gasket_clearance = 0.25;
 clamp_electronics_cover_lip_t = 1.6;
 clamp_electronics_cover_lip_h = 1.6;
 clamp_electronics_cover_lip_clearance = 0.35;
-// 盖面交互子板与面板器件的首样占位；它位于底盖外侧，不占用母板安装层。
-clamp_electronics_ui_board_length_x = 60;
+// 盖面交互子板与面板器件的首样占位；当前改为“内置式”候选：底盖嵌回
+// C 夹斜面开口，UI 板从底盖内侧进入腔体，压框沿同一斜面基准定位。
+// 板上器件高度取自 KiCad STL 包络，不能再按裸 PCB 厚度水平悬空。
+clamp_electronics_ui_board_length_x = 58;
 clamp_electronics_ui_board_width_y = 28;
+// Exact UI PCB NPTH datum from ui-panel-v0.2.kicad_pcb: H1/H2/H3/H4 are
+// 3.5 mm from the 58 x 28 mm board edges. Keep this separate from the
+// irregular four-hole pattern of the ESP32 mother board.
+clamp_electronics_ui_board_mount_hole_inset_x = 3.5;
+clamp_electronics_ui_board_mount_hole_inset_y = 3.5;
 clamp_electronics_ui_board_t = 1.6;
+clamp_electronics_ui_component_height_z = 5.84;
+// The cover is recessed by its own thickness so its lower face is flush with
+// the C-clamp underside.  The UI PCB then sits 1 mm above the cover's inner
+// face on the four printed bosses.  The UI stack is inside the cavity shell
+// envelope; its mutual clearance with the mother board and pouch cell is a
+// separate diagnostic gate and is not assumed to pass from this placement.
+clamp_electronics_ui_cover_recess_z = clamp_electronics_cavity_cover_t;
+clamp_electronics_ui_cover_clearance_z = 1;
 clamp_electronics_ui_screen_length_x = 28;
 clamp_electronics_ui_screen_width_y = 14;
 clamp_electronics_ui_button_d = 10;
@@ -226,8 +253,8 @@ clamp_electronics_ui_led_d = 4;
 clamp_electronics_ui_speaker_d = 20;
 clamp_electronics_ui_gland_d = 12;
 // 发射端放在零件较少的左侧，内置受保护 1S 电池；子板同时保留外接输入。
-clamp_electronics_emitter_board_length_x = 70;
-clamp_electronics_emitter_board_width_y = 34;
+clamp_electronics_emitter_board_length_x = 68;
+clamp_electronics_emitter_board_width_y = 32;
 clamp_electronics_emitter_board_t = 1.6;
 clamp_electronics_emitter_battery_length_x = 65;
 clamp_electronics_emitter_battery_width_y = 30;
@@ -238,9 +265,10 @@ clamp_electronics_emitter_external_gland_d = 12;
 // generator writes the four files under hardware/electronics/3d/v0.2.
 electronics_kicad_models_enabled = true;
 // KiCad STL exports use y=-board_y and include the component overhang.  The
-// main board is shifted 18.5 mm so its actual -38.04..1.105 mm model envelope
-// sits inside the +/-20 mm cavity with measurable wall clearance.  The other
-// boards have no y overhang and are centered on their physical board widths.
+// main board is shifted 18.5 mm so its exported component envelope sits inside
+// the +/-20 mm cavity with measurable wall clearance.  The other boards have
+// no y overhang and are centered on their physical board widths.  These board
+// dimensions are cavity decisions; they do not encode the optical-head pitch.
 clamp_electronics_main_board_y_shift = 18.5;
 clamp_electronics_emitter_board_y_shift =
     clamp_electronics_emitter_board_width_y / 2;
@@ -911,6 +939,10 @@ clamp_screw_d = 8;
 // 但螺距作为标准件接口的一部分固化并由参数探针/验证脚本读取。
 clamp_screw_pitch = 1.25;
 clamp_screw_bore_d = clamp_screw_d + 0.8;
+// The fixed M8 nut is loaded from the upper face of the lower arm.  This
+// keeps the hex interface visible during assembly, seats the reaction force
+// down into the arm, and avoids a loose nut/washer stack on the underside.
+clamp_body_nut_load_from_top = true;
 // 82 mm 台下有效舌长的中点：螺杆中心距台边 41 mm。
 clamp_screw_inset = 41;
 // 基准旋钮外包络为 Ø36 mm；用圆形齿凸做 18 齿圆角锯齿握持圈，谷底为 Ø30 mm。
@@ -1372,10 +1404,27 @@ clamp_pressure_pad_d = 50;
 clamp_pressure_pad_width = 50;
 clamp_pressure_pad_depth = 50;
 clamp_pressure_pad_t = 4;
-clamp_pressure_pad_screw_socket_d = clamp_screw_d + 1.2;
-clamp_pressure_pad_screw_socket_depth = 2;
-clamp_pressure_pad_screw_socket_mouth_d = 11;
+// The metal/temporary screw has an 8 mm shaft and a larger flat ball head.
+// The pad's underside cavity is wider inside than at its mouth; a separate
+// back guard is glued on from below and captures the head while the pad is
+// being stored or carried.
+clamp_pressure_pad_screw_socket_d = 13.0;
+clamp_pressure_pad_screw_socket_depth = 2.6;
+clamp_pressure_pad_screw_socket_mouth_d = clamp_screw_d + 1.0;
 clamp_pressure_pad_screw_socket_chamfer_h = 0.8;
+clamp_pressure_pad_guard_outer_d = 16;
+clamp_pressure_pad_guard_inner_d = clamp_screw_d + 0.8;
+clamp_pressure_pad_guard_t = 1.8;
+clamp_pressure_pad_guard_post_d = 3;
+clamp_pressure_pad_guard_post_h = 2.4;
+clamp_pressure_pad_guard_post_radius = 5.7;
+// Temporary printed screw: deliberately undersize the nominal M8 major
+// diameter so it can pass a real M8 nut while the steel rod is in transit.
+clamp_printed_screw_shaft_d = 7.45;
+clamp_printed_screw_thread_root_d = 6.15;
+clamp_printed_screw_head_d = 13.0;
+clamp_printed_screw_head_h = 4.2;
+clamp_printed_screw_head_flat_h = 2.8;
 post_top =
     m6_detector_raw_ballhead_base_bottom_z + m6_detector_mount_raise_z;
 // The active upright is one continuous print from the gray/yellow seat to the
@@ -1928,13 +1977,13 @@ function clamp_reinforcement_bottom_z_at(x) =
         (clamp_reinforcement_end_x - clamp_reinforcement_start_x) *
         (clamp_reinforcement_outer_bottom_z -
          clamp_reinforcement_near_table_bottom_z);
-// Review-only local reinforcement around the hand knob. The two side walls
+// Integrated local reinforcement around the hand knob. The two side walls
 // continue the existing sloped underside back to the lower arm's farthest
-// table-side end. The review knob is only slightly larger (Ø40) for grip; its
-// 20 mm axial thickness stays unchanged. The centered opening is the review
-// knob diameter plus 2 mm per side, leaving 7 mm side strips in the current
-// 58 mm depth. The screw-rod extension is derived from the maximum wall
-// height, not the knob thickness.
+// table-side end and are unioned into the fixed C-clamp body. The review knob
+// is only slightly larger (Ø40) for grip; its 20 mm axial thickness stays
+// unchanged. The centered opening is the knob diameter plus 2 mm per side,
+// leaving 7 mm side strips in the current 58 mm depth. The screw-rod
+// extension is derived from the maximum wall height, not the knob thickness.
 clamp_screw_side_reinforced_knob_d = clamp_knob_d + 4;
 clamp_screw_side_reinforced_knob_h = clamp_knob_h;
 clamp_screw_side_reinforcement_start_x = clamp_pad_x;
@@ -1984,13 +2033,13 @@ clamp_electronics_board_bottom_z =
 // claim.
 clamp_electronics_board_hole_xy = [
     [clamp_electronics_board_x_min + 13.5,
-     clamp_electronics_main_board_y_shift - 30.0],
-    [clamp_electronics_board_x_min + 49.0,
-     clamp_electronics_main_board_y_shift - 29.0],
-    [clamp_electronics_board_x_min + 78.0,
+     clamp_electronics_main_board_y_shift - 28.0],
+    [clamp_electronics_board_x_min + 45.0,
+     clamp_electronics_main_board_y_shift - 28.0],
+    [clamp_electronics_board_x_min + 75.0,
      clamp_electronics_main_board_y_shift - 3.5],
-    [clamp_electronics_board_x_min + 80.0,
-     clamp_electronics_main_board_y_shift - 30.0]
+    [clamp_electronics_board_x_min + 75.0,
+     clamp_electronics_main_board_y_shift - 28.0]
 ];
 clamp_electronics_ui_board_x_min =
     clamp_electronics_cavity_x_min +
@@ -1999,10 +2048,20 @@ clamp_electronics_ui_board_x_min =
 clamp_electronics_ui_board_x_max =
     clamp_electronics_ui_board_x_min +
     clamp_electronics_ui_board_length_x;
+// The cavity floor and the removable cover share the same x/z slope.  Keep
+// the UI service stack on that datum instead of making its PCB and faceplate
+// horizontal, which would leave one end outside the cover and the other end
+// detached from the printed bosses.  In the current internal candidate the
+// board datum is above the recessed cover's inner face, not below the body.
+clamp_electronics_cover_slope_xz =
+    (clamp_reinforcement_outer_bottom_z -
+     clamp_reinforcement_near_table_bottom_z) /
+    (clamp_reinforcement_end_x - clamp_reinforcement_start_x);
+clamp_electronics_cover_angle_y = atan(clamp_electronics_cover_slope_xz);
 clamp_electronics_ui_board_z =
-    clamp_reinforcement_bottom_z_at(clamp_electronics_cavity_x_min) -
-    clamp_electronics_cavity_cover_t -
-    clamp_electronics_ui_board_t - 3;
+    clamp_reinforcement_bottom_z_at(clamp_electronics_ui_board_x_min) +
+    clamp_electronics_ui_cover_recess_z +
+    clamp_electronics_ui_cover_clearance_z;
 clamp_electronics_ui_screen_x_min =
     clamp_electronics_ui_board_x_min +
     (clamp_electronics_ui_board_length_x -
@@ -2040,7 +2099,16 @@ clamp_screw_top_z =
     clamp_pressure_pad_bottom_z + clamp_pressure_pad_screw_socket_depth;
 clamp_knob_top_z = clamp_screw_top_z - clamp_screw_to_knob_top;
 clamp_knob_bottom_z = clamp_knob_top_z - clamp_knob_h;
-clamp_body_nut_z = clamp_lower_arm_bottom_z + clamp_nut_clearance;
+// The nut is inserted through the lower arm's upper face.  Keep the nominal
+// nut solid fully inside the arm while the pocket itself opens at the top;
+// this is the datum used by both the section view and the printed body cut.
+clamp_body_nut_z = clamp_body_nut_load_from_top
+    ? clamp_lower_arm_top_z - clamp_nut_h - clamp_nut_clearance
+    : clamp_lower_arm_bottom_z + clamp_nut_clearance;
+clamp_body_nut_top_z = clamp_body_nut_z + clamp_nut_h;
+clamp_body_nut_pocket_z = clamp_body_nut_load_from_top
+    ? clamp_lower_arm_top_z - clamp_nut_pocket_depth
+    : clamp_lower_arm_bottom_z;
 clamp_knob_nut_top_z = clamp_knob_top_z - clamp_knob_nut_top_z_clearance;
 clamp_knob_drive_nut_z = clamp_knob_nut_top_z - clamp_nut_h;
 clamp_knob_lock_nut_z =
@@ -2930,6 +2998,11 @@ assert(net_rail_saddle_overlap > 0 &&
        "each upright needs a printable rail saddle and end stop");
 assert(clamp_reach_inboard > 40 && clamp_pad_t > 0 && clamp_outer_extension > 0,
        "traditional under-table clamp needs a real inboard contact pad");
+assert(clamp_table_thickness_min > 0 &&
+           clamp_table_thickness_min <= table_thickness &&
+           table_thickness <= clamp_table_thickness_max &&
+           clamp_table_thickness_max <= 40,
+       "current no-drill C-clamp is frozen for 12…40 mm tabletops; thicker tops require a new body");
 assert(clamp_outer_extension == post_interface_transition_extra_x,
        "the fixed gray clamp outboard face must align with the broad lower post footprint");
 assert(clamp_tongue_extra_length_x > 0 &&
@@ -3070,7 +3143,7 @@ assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
            clamp_outboard_extension_actual <=
                clamp_horizontal_part_outboard_limit + 0.01 &&
            clamp_screw_x > clamp_pad_x && clamp_screw_x < table_edge_x,
-       "the C clamp must bridge the edge and keep the M8 screw below the tabletop");
+       "the C clamp must bridge the edge and keep the M8 tightening path inside the clamp");
 assert(clamp_lower_arm_bottom_z < clamp_lower_arm_top_z &&
            clamp_lower_arm_top_z < clamp_pressure_pad_bottom_z &&
            clamp_pressure_pad_top_z < -table_thickness,
@@ -3082,14 +3155,15 @@ assert(clamp_pressure_pad_d == clamp_pressure_pad_width &&
            clamp_pressure_pad_d == clamp_pressure_pad_depth &&
            clamp_pressure_pad_d > clamp_screw_d + 2 * clamp_clearance &&
            clamp_pressure_pad_t > clamp_pressure_pad_screw_socket_depth &&
-           clamp_pressure_pad_screw_socket_d > clamp_screw_d &&
+           clamp_pressure_pad_screw_socket_d > clamp_printed_screw_head_d - 0.01 &&
            clamp_pressure_pad_screw_socket_d < clamp_pressure_pad_d &&
-           clamp_pressure_pad_screw_socket_mouth_d >=
+           clamp_pressure_pad_screw_socket_mouth_d > clamp_screw_d &&
+           clamp_pressure_pad_screw_socket_mouth_d <
                clamp_pressure_pad_screw_socket_d &&
            clamp_pressure_pad_screw_socket_chamfer_h > 0 &&
            clamp_pressure_pad_screw_socket_chamfer_h <
                clamp_pressure_pad_screw_socket_depth,
-       "round pressure pad must have a flat top and a printable underside screw socket");
+       "round pressure pad must have a flat top and a widened underside head socket");
 assert(clamp_top_pad_t > 0 && clamp_top_pad_width > 0 &&
            clamp_top_pad_depth > 0 &&
            clamp_top_pad_x >= clamp_pad_x &&
@@ -3101,6 +3175,12 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
 assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
            clamp_screw_length > table_thickness,
        "first clamp uses an M8 x 1.25 vertical tightening screw");
+assert(clamp_body_nut_load_from_top &&
+           clamp_body_nut_pocket_z >= clamp_lower_arm_bottom_z - 0.01 &&
+           clamp_body_nut_pocket_z + clamp_nut_pocket_depth <=
+               clamp_lower_arm_top_z + 0.01 &&
+           clamp_body_nut_top_z <= clamp_lower_arm_top_z + 0.01,
+       "fixed M8 hex nut must load through the lower arm's upper counterbore");
 assert(clamp_pad_t == 14 && clamp_lower_arm_t == clamp_pad_t,
        "upper and lower structural clamp jaws must both be 14 mm thick");
 assert(clamp_screw_top_z > clamp_pressure_pad_bottom_z &&
@@ -3116,7 +3196,16 @@ assert(clamp_nut_af > clamp_screw_d && clamp_nut_h > 0 &&
            clamp_nut_pocket_af / cos(30) + 2 < clamp_threaded_boss_d &&
            clamp_nut_pocket_depth >= clamp_nut_h &&
            clamp_nut_pocket_depth < clamp_threaded_boss_h,
-       "M8 nut pockets must fit inside the lower boss with printable clearance");
+       "top-loaded M8 nut pocket must fit inside the lower boss with printable clearance");
+assert(clamp_pressure_pad_guard_outer_d >
+           clamp_pressure_pad_guard_inner_d &&
+           clamp_pressure_pad_guard_inner_d > clamp_printed_screw_shaft_d &&
+           clamp_pressure_pad_guard_t > 0 &&
+           clamp_pressure_pad_guard_post_h > 0 &&
+           clamp_pressure_pad_guard_post_radius +
+               clamp_pressure_pad_guard_post_d / 2 <
+                   clamp_pressure_pad_guard_outer_d / 2,
+       "bottom-up back guard must retain the oversized flat ball head without touching the shaft");
 assert(clamp_knob_nut_gap >= 0 &&
            clamp_knob_nut_stack_depth ==
                2 * clamp_nut_h + clamp_knob_nut_gap &&
@@ -3464,13 +3553,13 @@ module clamp_electronics_board_standoffs_positive() {
 }
 
 module clamp_electronics_emitter_edge_clips_positive() {
-    // The emitter board's nominal corner holes would sit under the broad face
-    // of the pouch cell. Four edge supports/retention lips therefore carry the
-    // board from the battery-free y strips instead of puncturing its envelope.
-    support_width_y = 1.4;
+    // The emitter PCB is retained by four short corner ledges.  The former
+    // full-width horizontal bars were redundant with the cover and could
+    // intrude into the pouch-cell envelope; only these small pads remain.
+    support_width_y = 2.0;
     support_y = clamp_electronics_emitter_board_width_y / 2 -
-        support_width_y / 2;
-    support_length_x = 8;
+        support_width_y / 2 - 0.4;
+    support_length_x = 5;
     for (x = [clamp_electronics_emitter_board_x_min,
               clamp_electronics_emitter_board_x_max - support_length_x]) {
         for (y_side = [-1, 1]) {
@@ -3486,34 +3575,31 @@ module clamp_electronics_emitter_edge_clips_positive() {
                     clamp_electronics_emitter_board_bottom_z - floor_z +
                         0.03
                 ]);
-            // A shallow outboard cap retains the board edge under the cover;
-            // its inner edge remains outside the 30 mm battery envelope.
-            clip_y_min = y_side > 0 ? support_y - 0.1 :
-                -support_y - 1.9;
-            translate([
-                x,
-                clip_y_min,
-                clamp_electronics_emitter_board_bottom_z +
-                    clamp_electronics_emitter_board_t - 0.08
-            ])
-                cube([support_length_x, 2.0, 1.1]);
         }
     }
 }
 
 module clamp_electronics_battery_rails_positive() {
-    // Two low rails retain the pouch battery without puncturing or squeezing
-    // its broad faces. The rail centers leave 1.5 mm to the pouch edge.
-    battery_y = clamp_electronics_battery_width_y / 2 +
+    // Replace the two long side rails with four short end stops.  The pouch
+    // cell is held laterally by the cavity walls and vertically by the cover;
+    // these stops only prevent x drift and leave the broad cell faces free.
+    stop_length_x = 5;
+    stop_width_y = 2.0;
+    stop_y = clamp_electronics_battery_width_y / 2 +
         clamp_electronics_battery_rail_clearance_y;
-    for (y_side = [-1, 1])
-        clamp_electronics_slope_rail_x(
-            clamp_electronics_battery_x_min - 2,
-            clamp_electronics_battery_x_max + 2,
-            y_side * battery_y,
-            clamp_electronics_battery_rail_t,
-            0.4,
-            clamp_electronics_battery_rail_h);
+    for (x = [clamp_electronics_battery_x_min - 1,
+              clamp_electronics_battery_x_max - stop_length_x + 1])
+        for (y_side = [-1, 1]) {
+            y = y_side > 0 ? stop_y - stop_width_y : -stop_y;
+            floor_z = clamp_reinforcement_bottom_z_at(x + stop_length_x / 2) +
+                0.4;
+            translate([x, y, floor_z])
+                cube([
+                    stop_length_x,
+                    stop_width_y,
+                    clamp_electronics_battery_rail_h
+                ]);
+        }
 }
 
 // -----------------------------------------------------------------------------
@@ -3521,6 +3607,20 @@ module clamp_electronics_battery_rails_positive() {
 // are exported by hardware/electronics/export_board_models.py.  KiCad's STL
 // convention is x=board x, y=-board y, z=board/component height, hence the
 // explicit y translations below are part of the shared mechanical datum.
+
+module clamp_electronics_ui_cover_datum_positive() {
+    // Local origin is the UI board's x/y/z minimum.  Rotating this local frame
+    // about y makes the PCB, service envelopes, bosses and faceplate parallel
+    // to the sloped underside of the C-clamp cavity.  The cover itself keeps
+    // its existing global sloped polygon and remains the removable closure.
+    translate([
+        clamp_electronics_ui_board_x_min,
+        0,
+        clamp_electronics_ui_board_z
+    ])
+        rotate([0, -clamp_electronics_cover_angle_y, 0])
+            children();
+}
 
 module clamp_electronics_main_board_positive() {
     if (electronics_kicad_models_enabled)
@@ -3575,26 +3675,19 @@ module clamp_electronics_emitter_board_positive() {
 module clamp_electronics_ui_board_positive() {
     if (electronics_kicad_models_enabled)
         color("royalblue", 0.96)
-            translate([
-                clamp_electronics_ui_board_x_min,
-                clamp_electronics_ui_board_y_shift,
-                clamp_electronics_ui_board_z
-            ])
-                import("../electronics/3d/v0.2/ui-panel-v0.2.stl",
-                       convexity = 10);
+            clamp_electronics_ui_cover_datum_positive()
+                translate([0, clamp_electronics_ui_board_y_shift, 0])
+                    import("../electronics/3d/v0.2/ui-panel-v0.2.stl",
+                           convexity = 10);
     else
         color("royalblue", 0.96)
-            translate([
-                clamp_electronics_ui_board_x_min,
-                clamp_electronics_ui_board_y_shift -
-                    clamp_electronics_ui_board_width_y,
-                clamp_electronics_ui_board_z
-            ])
-                cube([
-                    clamp_electronics_ui_board_length_x,
-                    clamp_electronics_ui_board_width_y,
-                    clamp_electronics_ui_board_t
-                ]);
+            clamp_electronics_ui_cover_datum_positive()
+                translate([0, -clamp_electronics_ui_board_width_y / 2, 0])
+                    cube([
+                        clamp_electronics_ui_board_length_x,
+                        clamp_electronics_ui_board_width_y,
+                        clamp_electronics_ui_board_t
+                    ]);
 }
 
 module clamp_electronics_battery_positive() {
@@ -3717,83 +3810,83 @@ module clamp_electronics_local_wiring_positive() {
 }
 
 module clamp_electronics_ui_bosses_positive() {
-    // UI daughter mounting points hang from the outside of the cover. They
-    // are separate from the four cover screws and leave the board removable.
-    for (x = [clamp_electronics_ui_board_x_min +
-                  clamp_electronics_board_mount_hole_inset_x,
-              clamp_electronics_ui_board_x_max -
-                  clamp_electronics_board_mount_hole_inset_x]) {
-        for (y = [-clamp_electronics_ui_board_width_y / 2 +
-                      clamp_electronics_board_mount_hole_inset_y,
-                  clamp_electronics_ui_board_width_y / 2 -
-                      clamp_electronics_board_mount_hole_inset_y]) {
-            boss_top_z = clamp_reinforcement_bottom_z_at(x) -
-                clamp_electronics_cavity_cover_t;
-            boss_bottom_z = clamp_electronics_ui_board_z +
-                clamp_electronics_ui_board_t - 0.1;
-            translate([x, y, boss_bottom_z])
-                cylinder(
-                    d = clamp_electronics_board_standoff_d,
-                    h = boss_top_z - boss_bottom_z + 0.1);
+    // UI daughter mounting points bridge the board to the inner face of the
+    // removable cover. They are separate from the four cover screws, leave
+    // the board removable, use the actual H1-H4 3.5 mm edge datum, and follow
+    // the same sloped local frame as the board instead of becoming four
+    // different-height vertical pillars.
+    // The cover is translated upward by clamp_electronics_ui_cover_recess_z.
+    // In this local frame its inner face is at -clearance and the PCB datum is
+    // z=0, so the bosses bridge only that measured 1 mm gap and cannot turn
+    // back into the former long pillars below the C-clamp.
+    boss_bottom_z = -clamp_electronics_ui_cover_clearance_z - 0.05;
+    boss_top_z = 0.05;
+    clamp_electronics_ui_cover_datum_positive() {
+        for (x = [clamp_electronics_ui_board_mount_hole_inset_x,
+                  clamp_electronics_ui_board_length_x -
+                      clamp_electronics_ui_board_mount_hole_inset_x]) {
+            for (y = [-clamp_electronics_ui_board_width_y / 2 +
+                          clamp_electronics_ui_board_mount_hole_inset_y,
+                      clamp_electronics_ui_board_width_y / 2 -
+                          clamp_electronics_ui_board_mount_hole_inset_y]) {
+                translate([x, y, boss_bottom_z])
+                    cylinder(
+                        d = clamp_electronics_board_standoff_d,
+                        h = boss_top_z - boss_bottom_z + 0.1);
+            }
         }
     }
 }
 
 module clamp_electronics_ui_panel_positive() {
-    // Removable UI daughter board on the underside of the sealed cover. The
-    // board/component solid now comes from the KiCad export; the panel parts
-    // below are the actual service envelopes that the faceplate must capture.
+    // Removable UI daughter board on the cover datum. The board/component
+    // solid now comes from the KiCad export; the panel parts below are the
+    // actual service envelopes that the faceplate must capture. Everything
+    // follows the cover slope as one serviceable stack.
     clamp_electronics_ui_board_positive();
-    color("black", 0.72)
-        translate([
-            clamp_electronics_ui_screen_x_min,
-            -clamp_electronics_ui_screen_width_y / 2,
-            clamp_electronics_ui_board_z +
-                clamp_electronics_ui_board_t + 0.2])
-            cube([
-                clamp_electronics_ui_screen_length_x,
-                clamp_electronics_ui_screen_width_y,
-                1.2]);
-    for (x = [clamp_electronics_ui_board_x_min + 8,
-              clamp_electronics_ui_board_x_max - 8])
-        color("darkgray")
-            translate([x, 0,
-                       clamp_electronics_ui_board_z +
-                           clamp_electronics_ui_board_t + 0.2])
-                cylinder(d = clamp_electronics_ui_button_d, h = 3);
-    for (y = [-8, 8])
-        color("limegreen")
+    clamp_electronics_ui_cover_datum_positive() {
+        color("black", 0.72)
             translate([
-                (clamp_electronics_ui_board_x_min +
-                 clamp_electronics_ui_board_x_max) / 2,
-                y,
-                clamp_electronics_ui_board_z +
+                clamp_electronics_ui_screen_x_min -
+                    clamp_electronics_ui_board_x_min,
+                -clamp_electronics_ui_screen_width_y / 2,
+                clamp_electronics_ui_board_t + 0.2])
+                cube([
+                    clamp_electronics_ui_screen_length_x,
+                    clamp_electronics_ui_screen_width_y,
+                    1.2]);
+        for (x = [8,
+                  clamp_electronics_ui_board_length_x - 8])
+            color("darkgray")
+                translate([x, 0,
+                           clamp_electronics_ui_board_t + 0.2])
+                    cylinder(d = clamp_electronics_ui_button_d, h = 3);
+        for (y = [-8, 8])
+            color("limegreen")
+                translate([
+                    clamp_electronics_ui_board_length_x / 2,
+                    y,
                     clamp_electronics_ui_board_t + 0.2])
-                cylinder(d = clamp_electronics_ui_led_d, h = 2.5);
-    color("darkslategray", 0.88)
-        translate([
-            clamp_electronics_ui_board_x_min +
+                    cylinder(d = clamp_electronics_ui_led_d, h = 2.5);
+        color("darkslategray", 0.88)
+            translate([
                 clamp_electronics_ui_board_length_x * 0.78,
-            0,
-            clamp_electronics_ui_board_z +
+                0,
                 clamp_electronics_ui_board_t + 0.2])
-            cylinder(d = clamp_electronics_ui_speaker_d, h = 2.2);
-    color("gold", 0.9)
-        translate([
-            clamp_electronics_ui_board_x_max - 5,
-            -clamp_electronics_ui_board_width_y / 2 + 5,
-            clamp_electronics_ui_board_z +
+                cylinder(d = clamp_electronics_ui_speaker_d, h = 2.2);
+        color("gold", 0.9)
+            translate([
+                clamp_electronics_ui_board_length_x - 5,
+                -clamp_electronics_ui_board_width_y / 2 + 5,
                 clamp_electronics_ui_board_t + 0.2])
-            cylinder(d = 6, h = 2.2);
-    // A capped panel USB-C reference is kept next to the UI board; it is not
-    // a raw open hole through the PETG cover.
-    color("black", 0.9)
-        translate([
-            clamp_electronics_ui_board_x_min + 5,
-            0,
-            clamp_electronics_ui_board_z +
-                clamp_electronics_ui_board_t + 0.2])
-            cube([8, 5, 2.2]);
+                cylinder(d = 6, h = 2.2);
+        // A capped panel USB-C reference is kept next to the UI board; it is
+        // not a raw open hole through the PETG cover.
+        color("black", 0.9)
+            translate([5, 0,
+                       clamp_electronics_ui_board_t + 0.2])
+                cube([8, 5, 2.2]);
+    }
 }
 
 module clamp_electronics_ui_bezel_positive() {
@@ -3801,80 +3894,70 @@ module clamp_electronics_ui_bezel_positive() {
     // light-pipe bores, speaker acoustic opening, and capped USB-C slot. The
     // cover below remains a continuous compression surface; this bezel is the
     // user-facing replaceable panel and is not a raw hole through the seal.
-    faceplate_x_min = clamp_electronics_ui_board_x_min -
-        clamp_electronics_faceplate_border;
-    faceplate_x_max = clamp_electronics_ui_board_x_max +
+    // It is generated in the same sloped frame as the cover-mounted UI board.
+    faceplate_x_min = -clamp_electronics_faceplate_border;
+    faceplate_x_max = clamp_electronics_ui_board_length_x +
         clamp_electronics_faceplate_border;
     faceplate_y_half = clamp_electronics_ui_board_width_y / 2 +
         clamp_electronics_faceplate_border;
-    faceplate_z = clamp_electronics_ui_board_z +
-        clamp_electronics_ui_board_t + 3.2;
-    color("black")
-        difference() {
-            translate([
-                faceplate_x_min,
-                -faceplate_y_half,
-                faceplate_z
-            ])
-                cube([
-                    faceplate_x_max - faceplate_x_min,
-                    2 * faceplate_y_half,
-                    clamp_electronics_faceplate_t
-                ]);
-            // Display window.
-            translate([
-                clamp_electronics_ui_screen_x_min -
-                    clamp_electronics_faceplate_window_clearance,
-                -clamp_electronics_ui_screen_width_y / 2 -
-                    clamp_electronics_faceplate_window_clearance,
-                faceplate_z - 0.1
-            ])
-                cube([
-                    clamp_electronics_ui_screen_length_x +
-                        2 * clamp_electronics_faceplate_window_clearance,
-                    clamp_electronics_ui_screen_width_y +
-                        2 * clamp_electronics_faceplate_window_clearance,
-                    clamp_electronics_faceplate_t + 0.2
-                ]);
-            // START and MODE buttons.
-            for (x = [clamp_electronics_ui_board_x_min + 8,
-                      clamp_electronics_ui_board_x_max - 8])
-                translate([x, 0, faceplate_z - 0.1])
-                    cylinder(
-                        d = clamp_electronics_ui_button_d + 0.6,
-                        h = clamp_electronics_faceplate_t + 0.2,
-                        $fn = 64);
-            // Status and battery light pipes.
-            for (y = [-8, 8])
+    faceplate_z = clamp_electronics_ui_board_t + 3.2;
+    clamp_electronics_ui_cover_datum_positive()
+        color("black")
+            difference() {
+                translate([faceplate_x_min, -faceplate_y_half, faceplate_z])
+                    cube([
+                        faceplate_x_max - faceplate_x_min,
+                        2 * faceplate_y_half,
+                        clamp_electronics_faceplate_t
+                    ]);
+                // Display window.
                 translate([
-                    (clamp_electronics_ui_board_x_min +
-                     clamp_electronics_ui_board_x_max) / 2,
-                    y,
+                    clamp_electronics_ui_screen_x_min -
+                        clamp_electronics_ui_board_x_min -
+                        clamp_electronics_faceplate_window_clearance,
+                    -clamp_electronics_ui_screen_width_y / 2 -
+                        clamp_electronics_faceplate_window_clearance,
+                    faceplate_z - 0.1
+                ])
+                    cube([
+                        clamp_electronics_ui_screen_length_x +
+                            2 * clamp_electronics_faceplate_window_clearance,
+                        clamp_electronics_ui_screen_width_y +
+                            2 * clamp_electronics_faceplate_window_clearance,
+                        clamp_electronics_faceplate_t + 0.2
+                    ]);
+                // START and MODE buttons.
+                for (x = [8, clamp_electronics_ui_board_length_x - 8])
+                    translate([x, 0, faceplate_z - 0.1])
+                        cylinder(
+                            d = clamp_electronics_ui_button_d + 0.6,
+                            h = clamp_electronics_faceplate_t + 0.2,
+                            $fn = 64);
+                // Status and battery light pipes.
+                for (y = [-8, 8])
+                    translate([
+                        clamp_electronics_ui_board_length_x / 2,
+                        y,
+                        faceplate_z - 0.1
+                    ])
+                        cylinder(
+                            d = clamp_electronics_ui_led_d + 0.8,
+                            h = clamp_electronics_faceplate_t + 0.2,
+                            $fn = 48);
+                // Speaker acoustic window with a thin membrane installed later.
+                translate([
+                    clamp_electronics_ui_board_length_x * 0.78,
+                    0,
                     faceplate_z - 0.1
                 ])
                     cylinder(
-                        d = clamp_electronics_ui_led_d + 0.8,
+                        d = clamp_electronics_ui_speaker_d - 4,
                         h = clamp_electronics_faceplate_t + 0.2,
-                        $fn = 48);
-            // Speaker acoustic window with a thin membrane installed later.
-            translate([
-                clamp_electronics_ui_board_x_min +
-                    clamp_electronics_ui_board_length_x * 0.78,
-                0,
-                faceplate_z - 0.1
-            ])
-                cylinder(
-                    d = clamp_electronics_ui_speaker_d - 4,
-                    h = clamp_electronics_faceplate_t + 0.2,
-                    $fn = 72);
-            // USB-C bulkhead slot and silicone cap seat.
-            translate([
-                clamp_electronics_ui_board_x_min + 5,
-                -3,
-                faceplate_z - 0.1
-            ])
-                cube([8, 6, clamp_electronics_faceplate_t + 0.2]);
-        }
+                        $fn = 72);
+                // USB-C bulkhead slot and silicone cap seat.
+                translate([5, -3, faceplate_z - 0.1])
+                    cube([8, 6, clamp_electronics_faceplate_t + 0.2]);
+            }
 }
 
 module clamp_electronics_mount_bosses_positive() {
@@ -3896,7 +3979,11 @@ module clamp_electronics_cover_positive() {
     cover_x_min = clamp_electronics_cavity_x_min - 4;
     cover_x_max = clamp_electronics_cavity_x_max + 4;
     cover_y_half = clamp_electronics_cavity_y_half + 3;
-    union() {
+    // Recess the complete closure into the C-clamp by one cover thickness.
+    // Its lower face is then flush with the sloped underside; the UI board and
+    // bezel are above that face in the cavity instead of hanging below it.
+    translate([0, 0, clamp_electronics_ui_cover_recess_z])
+        union() {
         color("black")
             difference() {
                 rotate([90, 0, 0])
@@ -4069,6 +4156,53 @@ module clamp_electronics_interference_check_positive() {
     }
 }
 
+module clamp_electronics_ui_internal_interference_check_positive() {
+    // The internal UI candidate is intentionally checked separately from the
+    // existing board/battery check.  The bottom cover may touch the opening
+    // and its bosses may touch the PCB, but the UI board/faceplate must not
+    // penetrate the structural shell, mother board, or pouch cell.  A nonempty
+    // STL from this PART is therefore a concrete collision report, not a
+    // visual overlap that can be dismissed as an exploded-view offset.
+    intersection() {
+        union() {
+            clamp_electronics_ui_panel_positive();
+            clamp_electronics_ui_bezel_positive();
+        }
+        union() {
+            clamp_electronics_structural_shell_for_clearance_positive();
+            clamp_electronics_main_board_positive();
+            clamp_electronics_battery_positive();
+        }
+    }
+}
+
+module clamp_electronics_ui_internal_collision_with_battery_positive() {
+    intersection() {
+        clamp_electronics_ui_panel_positive();
+        clamp_electronics_battery_positive();
+    }
+}
+
+module clamp_electronics_ui_internal_collision_with_main_board_positive() {
+    intersection() {
+        union() {
+            clamp_electronics_ui_panel_positive();
+            clamp_electronics_ui_bezel_positive();
+        }
+        clamp_electronics_main_board_positive();
+    }
+}
+
+module clamp_electronics_ui_internal_collision_with_shell_positive() {
+    intersection() {
+        union() {
+            clamp_electronics_ui_panel_positive();
+            clamp_electronics_ui_bezel_positive();
+        }
+        clamp_electronics_structural_shell_for_clearance_positive();
+    }
+}
+
 module m6_receiver_carrier_interference_check_positive() {
     // The receiver PCB is installed in the raw detector datum.  The empty
     // intersection is checked against both whole removable shell halves and
@@ -4210,13 +4344,14 @@ module table_clamp_body_positive() {
     // 下臂在台底下方，中间留出台面厚度和压块行程；不把任何零件嵌入台面。
     difference() {
             table_clamp_raw_positive();
-            // M8 螺杆只穿过下臂/螺母座，不能穿过球台。
+            // M8 螺杆只穿过下臂/螺母座，不能穿过球台。切孔完整穿过
+            // 14 mm 下臂，避免杆身撞上残留的 1 mm 塑料薄壁。
             translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
                 cylinder(d = clamp_screw_bore_d,
-                         h = clamp_threaded_boss_h + 2);
-            // 下臂下侧捕获固定 M8 螺母；螺杆转动而沿轴向进退，
-            // 旋钮/螺杆受力路径不依赖 PETG 螺纹。
-            translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 0.01])
+                         h = clamp_lower_arm_t + 2);
+            // 固定六角螺母从下臂上表面装入沉孔，底面承受螺杆反力；
+            // 这条 pocket 是唯一的六角定位界面，不再从底面开第二个窝。
+            translate([clamp_screw_x, 0, clamp_body_nut_pocket_z - 0.01])
                 hex_prism(clamp_nut_pocket_af, clamp_nut_pocket_depth + 0.01);
             clamp_electronics_cavity_negative();
             for (x = [clamp_electronics_cavity_x_min + 4,
@@ -4247,17 +4382,18 @@ module table_clamp_body_positive() {
     clamp_electronics_board_standoffs_positive();
     clamp_electronics_emitter_edge_clips_positive();
     clamp_electronics_battery_rails_positive();
+    // These two side walls are structural C-clamp material, not detachable
+    // overlays. Keeping them in this positive body makes the official body
+    // STL and every C-clamp fit preview print them as one piece.
+    clamp_screw_side_reinforcement_positive(-1);
+    clamp_screw_side_reinforcement_positive(1);
 }
 
 module table_clamp_body_screw_side_reinforced_positive() {
-    // Review-only local-strength candidate. The original C body, C opening,
-    // electronics cavity, and M8 load path are untouched; only the matching
-    // pair of side walls is added beside the knob.
-    union() {
-        table_clamp_body_positive();
-        clamp_screw_side_reinforcement_positive(-1);
-        clamp_screw_side_reinforcement_positive(1);
-    }
+    // Compatibility entry point for the former review part. The knob-side
+    // walls now belong to table_clamp_body_positive() itself, so this call
+    // intentionally returns the same one-piece printable C-clamp body.
+    table_clamp_body_positive();
 }
 
 module clamp_body_segment_positive() {
@@ -4265,10 +4401,11 @@ module clamp_body_segment_positive() {
     // envelope, trapezoid electronics cavity, two full-length female
     // slideways and the fixed seat beneath the upright. The body reaches its
     // outboard face so it embraces the post foot from first contact onward.
-    // table_clamp_body_positive() already owns the exact fixed-body envelope
-    // from clamp_pad_x through clamp_fixed_body_max_x.  Avoiding a second
-    // coincident clipping cube at the outboard face keeps the open receiver
-    // edge clean in exported STL while preserving that same envelope.
+    // table_clamp_body_positive() owns the exact fixed-body envelope from
+    // clamp_pad_x through clamp_fixed_body_max_x and now also owns the pair
+    // of knob-side reinforcement walls. Avoiding a second coincident clipping
+    // cube at the outboard face keeps the open receiver edge clean in the
+    // exported STL while preserving that same envelope.
     table_clamp_body_positive();
 }
 
@@ -4300,7 +4437,8 @@ module clamp_body_nut_positive() {
 
 module clamp_pressure_pad_positive() {
     // 独立可动圆盘压块：顶面是平盘，只接触台面底面；底面中央的
-    // 浅收纳窝包住 M8 圆头，避免螺杆在夹紧时从压块表面滑脱。
+    // 扩口收纳窝包住 M8 扁球头，避免螺杆在夹紧或拆卸时从压块表面滑脱。
+    // 四个浅孔给下方背护罩的扣柱定位；护罩胶合后形成真正的防丢结构。
     color("black")
         translate([clamp_screw_x, 0, clamp_pressure_pad_bottom_z])
             difference() {
@@ -4311,13 +4449,58 @@ module clamp_pressure_pad_positive() {
                     cylinder(d = clamp_pressure_pad_screw_socket_d,
                              h = clamp_pressure_pad_screw_socket_depth + 0.01,
                              $fn = 64);
-                // 下缘倒角/喇叭口，方便圆头自动落入收纳窝。
+                // 小口向内扩大的倒角：螺杆轴能通过，扁球头留在腔内。
                 translate([0, 0, -0.01])
                     cylinder(d1 = clamp_pressure_pad_screw_socket_mouth_d,
                              d2 = clamp_pressure_pad_screw_socket_d,
                              h = clamp_pressure_pad_screw_socket_chamfer_h,
                              $fn = 64);
+                for (angle = [0, 90, 180, 270])
+                    rotate([0, 0, angle])
+                        translate([
+                            clamp_pressure_pad_guard_post_radius,
+                            0,
+                            -0.01
+                        ])
+                            cylinder(
+                                d = clamp_pressure_pad_guard_post_d + 0.45,
+                                h = clamp_pressure_pad_guard_post_h + 0.1,
+                                $fn = 32);
             }
+}
+
+module clamp_pressure_pad_guard_positive() {
+    // Separate PETG back guard.  Install it from the pad underside after
+    // placing the flat ball head in the widened socket, then glue the four
+    // locating posts into the matching blind holes.  The central opening is
+    // larger than the shaft but smaller than the Ø13 mm head, so the pad can
+    // be carried without the screw falling out.
+    color("black")
+        translate([clamp_screw_x, 0,
+                   clamp_pressure_pad_bottom_z - clamp_pressure_pad_guard_t])
+            difference() {
+                cylinder(d = clamp_pressure_pad_guard_outer_d,
+                         h = clamp_pressure_pad_guard_t,
+                         $fn = 64);
+                translate([0, 0, -0.01])
+                    cylinder(d = clamp_pressure_pad_guard_inner_d,
+                             h = clamp_pressure_pad_guard_t + 0.02,
+                             $fn = 48);
+            }
+    color("black")
+        for (angle = [0, 90, 180, 270])
+            translate([
+                clamp_screw_x,
+                0,
+                clamp_pressure_pad_bottom_z -
+                    clamp_pressure_pad_guard_t - 0.05
+            ])
+                rotate([0, 0, angle])
+                    translate([clamp_pressure_pad_guard_post_radius, 0, 0])
+                        cylinder(
+                            d = clamp_pressure_pad_guard_post_d,
+                            h = clamp_pressure_pad_guard_post_h,
+                            $fn = 32);
 }
 
 module clamp_top_pad_positive() {
@@ -4342,6 +4525,64 @@ module clamp_screw_positive(
                    clamp_screw_top_z - clamp_screw_tip_radius])
             sphere(r = clamp_screw_tip_radius);
     }
+}
+
+module clamp_flat_ball_head_positive(
+    head_d = clamp_printed_screw_head_d,
+    head_h = clamp_printed_screw_head_h
+) {
+    // A flattened spherical cap gives the pressure pad a broad, captive
+    // bearing surface while the top remains flat enough for a temporary
+    // hand/tool interface.
+    head_r = head_d / 2;
+    intersection() {
+        translate([0, 0, head_h - head_r])
+            sphere(r = head_r, $fn = 32);
+        translate([-head_r, -head_r, 0])
+            cube([head_d, head_d, head_h]);
+    }
+}
+
+module clamp_printed_screw_positive() {
+    // Temporary PETG replacement for the M8 steel rod.  The shaft carries a
+    // coarse visual thread with a 7.45 mm major envelope so it can be run
+    // through a real M8 nut without relying on a brittle printed female thread.
+    // Replace this part with the specified M8×1.25 steel rod before production.
+    shaft_length = clamp_screw_length - clamp_printed_screw_head_h;
+    thread_height =
+        (clamp_printed_screw_shaft_d - clamp_printed_screw_thread_root_d) / 2;
+    thread_pitch = clamp_screw_pitch;
+    color("darkorange")
+        translate([clamp_screw_x, 0, clamp_screw_bottom_z])
+            union() {
+                cylinder(
+                    d = clamp_printed_screw_thread_root_d,
+                    h = shaft_length,
+                    $fn = 32);
+                linear_extrude(
+                    height = shaft_length,
+                    twist = 360 * shaft_length / thread_pitch,
+                    slices = ceil(shaft_length * 2),
+                    convexity = 10)
+                    translate([clamp_printed_screw_thread_root_d / 2, 0, 0])
+                        polygon(points = [
+                            [0, -thread_pitch * 0.48],
+                            [thread_height, 0],
+                            [0, thread_pitch * 0.48]
+                        ]);
+                translate([0, 0, shaft_length])
+                    difference() {
+                        clamp_flat_ball_head_positive();
+                        // A shallow hex drive recess makes the temporary part
+                        // turnable with a 6 mm key without removing its flat cap.
+                        translate([0, 0, clamp_printed_screw_head_h - 1.8])
+                            rotate([0, 0, 30])
+                                cylinder(
+                                    r = 3.2 / cos(30),
+                                    h = 1.9,
+                                    $fn = 6);
+                    }
+            }
 }
 
 module clamp_knob_grip_positive(
@@ -5194,18 +5435,22 @@ module table_clamp_positive() {
     clamp_top_pad_positive();
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
-    clamp_screw_positive();
+    clamp_pressure_pad_guard_positive();
+    if (show_temporary_printed_screw)
+        clamp_printed_screw_positive();
+    else
+        clamp_screw_positive();
     clamp_knob_positive();
     clamp_knob_nut_positive();
 }
 
 module table_clamp_screw_side_reinforced_positive() {
-    // Review-only correction requested by the user: the C-clamp remains the
-    // same, while two sloped side walls are extended back to clamp_pad_x on
-    // either side of the hand knob. The knob keeps its original 20 mm
-    // thickness and uses a slightly larger review diameter; the screw rod is
-    // lengthened by the measured maximum wall height. The pressure-pad top
-    // datum stays fixed; the knob/nut stack moves with the extended rod.
+    // Review assembly for the knob-side reinforcement: the two sloped side
+    // walls are already integrated into the C-clamp body. The knob keeps its
+    // original 20 mm thickness and uses a slightly larger review diameter;
+    // the screw rod is lengthened by the measured maximum wall height. The
+    // pressure-pad top datum stays fixed; the knob/nut stack moves with the
+    // extended rod.
     table_clamp_body_screw_side_reinforced_positive();
     post_clamp_carrier_positive();
     if (clamp_slide_interface_enabled) {
@@ -5215,6 +5460,7 @@ module table_clamp_screw_side_reinforced_positive() {
     clamp_top_pad_positive();
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
+    clamp_pressure_pad_guard_positive();
     clamp_screw_positive(
         clamp_screw_side_reinforced_screw_bottom_z,
         clamp_screw_side_reinforced_screw_length);
@@ -5347,6 +5593,10 @@ module table_clamp_section_positive() {
     }
     intersection() {
         clamp_pressure_pad_positive();
+        table_clamp_section_clip();
+    }
+    intersection() {
+        clamp_pressure_pad_guard_positive();
         table_clamp_section_clip();
     }
     intersection() {
@@ -6197,8 +6447,9 @@ module post_skp_c_clamp_fastener_holes_negative_positive() {
 module clamp_body_skp_leg_foot_c_fit_positive() {
     // Gray C-clamp candidate with the corrected integrated SKP seating
     // envelope, the two matching fastener holes, and the central detent
-    // service bore removed. The formal gray body remains unchanged until this
-    // candidate is accepted.
+    // service bore removed. The formal gray body already includes the
+    // integrated knob-side walls; this candidate additionally applies the
+    // SKP-specific seating cut and fastener/detent holes.
     color("slategray")
         difference() {
             clamp_body_segment_positive();
@@ -9314,6 +9565,10 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM table_width=", table_width));
     echo(str("NETSTAND_PARAM net_post_outboard_extension=", net_post_outboard_extension));
     echo(str("NETSTAND_PARAM table_thickness=", table_thickness));
+    echo(str("NETSTAND_PARAM clamp_table_thickness_min=",
+             clamp_table_thickness_min));
+    echo(str("NETSTAND_PARAM clamp_table_thickness_max=",
+             clamp_table_thickness_max));
     echo(str("NETSTAND_PARAM net_fixture_bottom_z=", net_fixture_bottom_z));
     echo(str("NETSTAND_PARAM net_height=", net_height));
     echo(str("NETSTAND_PARAM m6_detector_mount_raise_z=", m6_detector_mount_raise_z));
@@ -9716,6 +9971,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
     echo(str("NETSTAND_PARAM clamp_screw_pitch=", clamp_screw_pitch));
+    echo(str("NETSTAND_PARAM clamp_body_nut_load_from_top=",
+             clamp_body_nut_load_from_top ? 1 : 0));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_d=", clamp_threaded_boss_d));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_h=", clamp_threaded_boss_h));
     echo(str("NETSTAND_PARAM clamp_top_pad_x=", clamp_top_pad_x));
@@ -9740,6 +9997,9 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_knob_nut_stack_depth=", clamp_knob_nut_stack_depth));
     echo(str("NETSTAND_PARAM clamp_knob_nut_pocket_depth=", clamp_knob_nut_pocket_depth));
     echo(str("NETSTAND_PARAM clamp_body_nut_z=", clamp_body_nut_z));
+    echo(str("NETSTAND_PARAM clamp_body_nut_top_z=", clamp_body_nut_top_z));
+    echo(str("NETSTAND_PARAM clamp_body_nut_pocket_z=",
+             clamp_body_nut_pocket_z));
     echo(str("NETSTAND_PARAM clamp_knob_d=", clamp_knob_d));
     echo(str("NETSTAND_PARAM clamp_knob_grip_root_d=", clamp_knob_grip_root_d));
     echo(str("NETSTAND_PARAM clamp_knob_grip_tooth_count=",
@@ -9773,6 +10033,28 @@ module parameter_probe() {
              clamp_pressure_pad_screw_socket_mouth_d));
     echo(str("NETSTAND_PARAM clamp_pressure_pad_screw_socket_chamfer_h=",
              clamp_pressure_pad_screw_socket_chamfer_h));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_outer_d=",
+             clamp_pressure_pad_guard_outer_d));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_inner_d=",
+             clamp_pressure_pad_guard_inner_d));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_t=",
+             clamp_pressure_pad_guard_t));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_post_d=",
+             clamp_pressure_pad_guard_post_d));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_post_h=",
+             clamp_pressure_pad_guard_post_h));
+    echo(str("NETSTAND_PARAM clamp_pressure_pad_guard_post_radius=",
+             clamp_pressure_pad_guard_post_radius));
+    echo(str("NETSTAND_PARAM clamp_printed_screw_shaft_d=",
+             clamp_printed_screw_shaft_d));
+    echo(str("NETSTAND_PARAM clamp_printed_screw_thread_root_d=",
+             clamp_printed_screw_thread_root_d));
+    echo(str("NETSTAND_PARAM clamp_printed_screw_head_d=",
+             clamp_printed_screw_head_d));
+    echo(str("NETSTAND_PARAM clamp_printed_screw_head_h=",
+             clamp_printed_screw_head_h));
+    echo(str("NETSTAND_PARAM clamp_printed_screw_head_flat_h=",
+             clamp_printed_screw_head_flat_h));
     echo(str("NETSTAND_PARAM optical_locating_hole_d=", optical_locating_hole_d));
     echo(str("NETSTAND_PARAM optical_rail_width=", optical_rail_width));
     echo(str("NETSTAND_PARAM optical_module_depth=", optical_module_depth));
@@ -10200,10 +10482,17 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
 } else if (PART == "laser_micro_screw_a") { lm_adjust_screw(1);
 } else if (PART == "laser_micro_screw_b") { lm_adjust_screw(-1);
 } else if (PART == "laser_micro_nuts") {
-    for(s=[-1,1]) { lm_adjust_nut(s); lm_adjust_nut(s,true); }
+    for(s=[-1,1]) lm_adjust_nut(s);
+} else if (PART == "laser_micro_lock_a") { lm_adjust_nut(1,true);
+} else if (PART == "laser_micro_lock_b") { lm_adjust_nut(-1,true);
 } else if (PART == "laser_micro_spring") { lm_spring();
-} else if (PART == "laser_micro_cap_hardware") { lm_cap_hardware();
-} else if (PART == "laser_micro_retention") { lm_retention_hardware();
+} else if (PART == "laser_micro_cap_bolts") { lm_cap_bolts();
+} else if (PART == "laser_micro_cap_bolt_a") { lm_cap_bolt(1);
+} else if (PART == "laser_micro_cap_bolt_b") { lm_cap_bolt(-1);
+} else if (PART == "laser_micro_cap_nuts") { lm_cap_nuts();
+} else if (PART == "laser_micro_retention_screw") { lm_retention_screw();
+} else if (PART == "laser_micro_retention_nut") { lm_retention_nut();
+} else if (PART == "laser_micro_rear_pusher_screw") { lm_rear_pusher_screw();
 } else if (PART == "laser_micro_mount_hardware") { lm_mount_hardware();
 } else if (PART == "laser_micro_assembly") { laser_micro_assembly();
 } else if (PART == "laser_micro_rail") { laser_micro_rail_positive();
@@ -10212,6 +10501,8 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
 } else if (PART == "laser_micro_bottom_cover") { laser_micro_bottom_cover();
 } else if (PART == "laser_micro_bottom_gasket") { laser_micro_bottom_gasket();
 } else if (PART == "laser_micro_front_hardware") { laser_micro_front_hardware();
+} else if (PART == "laser_micro_front_bolts") { laser_micro_front_bolts();
+} else if (PART == "laser_micro_front_nuts") { laser_micro_front_nuts();
 } else if (PART == "laser_micro_array") { laser_micro_array_positive();
 } else if (PART == "laser_micro_detector") { sided(default_side) laser_micro_detector_positive();
 } else if (PART == "receiver_rail") { receiver_rail_positive();
@@ -10220,6 +10511,8 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
 } else if (PART == "receiver_bottom_cover") { laser_micro_bottom_cover();
 } else if (PART == "receiver_bottom_gasket") { laser_micro_bottom_gasket();
 } else if (PART == "receiver_front_hardware") { laser_micro_front_hardware();
+} else if (PART == "receiver_front_bolts") { laser_micro_front_bolts();
+} else if (PART == "receiver_front_nuts") { laser_micro_front_nuts();
 } else if (PART == "receiver_heads") { m6_detector_sensor_array_positive();
 } else if (PART == "receiver_pcb") { m6_receiver_carrier_board_raw_positive();
 } else if (PART == "receiver_detector") { sided(default_side) receiver_detector_positive();
@@ -10394,6 +10687,18 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) clamp_electronics_full_cutaway_positive();
 } else if (PART == "clamp_electronics_interference_check") {
     sided(default_side) clamp_electronics_interference_check_positive();
+} else if (PART == "clamp_electronics_ui_internal_interference_check") {
+    sided(default_side)
+        clamp_electronics_ui_internal_interference_check_positive();
+} else if (PART == "clamp_electronics_ui_internal_collision_battery") {
+    sided(default_side)
+        clamp_electronics_ui_internal_collision_with_battery_positive();
+} else if (PART == "clamp_electronics_ui_internal_collision_main_board") {
+    sided(default_side)
+        clamp_electronics_ui_internal_collision_with_main_board_positive();
+} else if (PART == "clamp_electronics_ui_internal_collision_shell") {
+    sided(default_side)
+        clamp_electronics_ui_internal_collision_with_shell_positive();
 } else if (PART == "m6_receiver_carrier_interference_check") {
     sided(default_side) m6_receiver_carrier_interference_check_positive();
 } else if (PART == "clamp_electronics_shell_cutaway") {
@@ -10408,8 +10713,12 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) clamp_top_pad_positive();
 } else if (PART == "clamp_pressure_pad") {
     sided(default_side) clamp_pressure_pad_positive();
+} else if (PART == "clamp_pressure_pad_guard") {
+    sided(default_side) clamp_pressure_pad_guard_positive();
 } else if (PART == "clamp_screw") {
     sided(default_side) clamp_screw_positive();
+} else if (PART == "clamp_printed_screw") {
+    sided(default_side) clamp_printed_screw_positive();
 } else if (PART == "clamp_body_nut") {
     sided(default_side) clamp_body_nut_positive();
 } else if (PART == "clamp_knob") {
