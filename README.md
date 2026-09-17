@@ -10,65 +10,52 @@
 
 [接收端配套外壳](docs/receiver-mount-v0.1.zh-CN.md)也已同步扩大，提供独立五件打印包和右侧特写；内部接收元件选择尚未确认。
 
-本仓库采用软硬件一体化方式管理，目标是把乒乓球训练中的测量、校准、识别和比赛辅助能力做成可重复搭建、可验证、可扩展的设备。
-
 ## 当前项目
 
-### 球网立柱夹持式过网高度检测设备
+当前机械主线是一套免打孔的内置式球网支架：左右夹体固定在球台边缘，网布直接装入两侧立柱，网端附近各有一个 PVDF 振动传感器；左右各十路 M6 发射/接收器件用于过网高度/事件采集，电子系统由 ESP32-S3 主控和独立 M6 接收载板组成。
 
-在球网两侧立柱边缘夹装可调高度的延长杆，在两根延长杆的同一刻度之间拉设参考线，并结合视觉识别检测乒乓球经过球网平面时的高度。
+当前阶段已经完成：
 
-首个原型的工作结果预计包括：
+- OpenSCAD 统一机械参数源、完整装配、爆炸和真实截面诊断；
+- 完整固定 C 形夹主体与整根立柱分体打印；立柱不分段，从黄灰交界 `z=16 mm` 共面起步，一体实心延伸至 `z=372.5 mm`（总高 `356.5 mm`），不向下插入 C 形座；网布/卡夹功能区仍为 `z=16…168.5 mm`，从承托面以上 `30 mm` 连续渐变后统一为 `28×38 mm`；
+- 网布可插入的连续 `3 mm` 过道和整高 U 形卡网夹；网顶不设置轨道；
+- ESP32 主控、电池、电源保护、接收/发射/UI 子板的 KiCad/Atopile 交接包；
+- 板框、安装孔、梯形腔、盒盖/boss 和电子件的统一 fit report；
+- 当前 `33` 个正式机械 STL，以及 `256 mm` 打印床 `6` 张板、`33` 件、`0` 件超尺寸的几何拼盘；整根立柱/载体采用实际三轴斜放。
 
-- 球网两侧的夹持与快速拆装；
-- 延长杆高度刻度和左右同步校准；
-- 可更换、可识别的参考线；
-- 球网平面和参考高度的标定；
-- 乒乓球过网事件、过网高度、目标高度差和识别置信度；
-- 为后续训练记录、智能球桌和比赛辅助系统提供统一数据接口。
+仍未由文件替代的工作包括：PCB 铜箔/器件生产释放和电气波形、真实网布与 M6 SKU 实测、立柱与 C 夹的打印配合及 PETG 承力、盒盖实际贴合、切片/G-code、首层和实物装配联调。
 
-当前阶段：**首样机械 CAD 与软件验证已完成；M6 实物、电气波形、装配对准和目标板联调待完成**。
+网端夹持规则：网布从球台中心侧穿过整根立柱的连续 `3 mm` 过道，端部止到立柱外表面；独立 U 形卡夹从桌外侧沿 `x+ → x−` 推入，网布张力和绳的拉力把卡夹压在承托面上，立柱内嵌的单一被动止挡只防止卡夹向外拔出，按开夹爪即可解锁。固定 C 夹主体除网/卡夹功能开口外保持实心，立柱底面与 `z=16 mm` 黄灰交界共面，一体实心延伸至 `z=372.5 mm`，不进入 C 形座；网布/卡夹只在 `z=16…168.5 mm` 功能区工作，从承托面起 `30 mm` 做 `35×58 mm → 28×38 mm` 连续实心渐变，以上保持 `28×38 mm`，不使用旧版子母滑轨、滑靴或立柱接缝。
 
-当前光学机械主线改为用户选定商品 SKU `6122579349941` 对应的左右各一套 10 路 M6 直角对射 NPN 发射/接收器阵列。每侧器件安装在
-铝合金梳齿安装条上，再通过水平 z 轴偏航转台、y 轴俯仰叉架和 x 轴滚转盘安装到网夹/立柱；
-资料中的当前“对射”条目给出 M6×0.75、20 m 和约 8/14 mm 的直角包络（同一张图的“反射”条目另为 M6×0.5）；SKU 实际型号后缀、有效螺纹长度和输出数量仍需按卖家/实物确认，设计说明见
-[`docs/m6-optical-array-design-v0.1.zh-CN.md`](docs/m6-optical-array-design-v0.1.zh-CN.md)。
+这里的“水密”仅表示盒盖、压合边和接口应严丝合缝、没有明显贯穿缝，不宣称 IP 防水等级。
 
 ## 仓库结构
 
 ```text
-docs/       需求、技术方案、测量定义与测试记录
-hardware/   夹具、延长杆、参考线、传感器安装和 CAD/BOM
+docs/       需求、技术方案、测量定义和测试记录
+hardware/   机械 CAD、电子板、BOM、打印和装配资料
 firmware/   设备控制器、传感器采集和通信固件
 vision/     球体检测、轨迹估计、过网高度计算
 software/   标定工具、调试界面和训练/比赛数据接口
 ```
 
+## 入口文档
+
+- [硬件工程说明](hardware/README.md)
+- [OpenSCAD 机械主线](hardware/cad/README.md)
+- [打印清单](hardware/cad/print-manifest.zh-CN.md)
+- [ESP32 主控与 1S 电源首样板](hardware/electronics/esp32-control-v0.1/README.zh-CN.md)
+- [统一电子系统干涉/打印自证报告](hardware/electronics/fit-report-v0.2.md)
+- [Atopile 系统接口合同](hardware/electronics/atopile/README.zh-CN.md)
+- [系统机械—电气接口合同](hardware/electronics/system-packaging-v0.2.zh-CN.md)
+- [M6 阵列设计说明](docs/m6-optical-array-design-v0.1.zh-CN.md)
+- [首样采购与装配清单](hardware/first-article-bom.zh-CN.md)
+
 ## 设计原则
 
-1. **先建立可测量的基准**：每个高度结果都要能追溯到球网平面、刻度和标定过程。
-2. **机械与识别解耦**：夹具和参考线即使脱离视觉系统，也能作为训练辅助工具使用。
-3. **先做最小闭环**：先验证“安装 → 标定 → 识别 → 输出结果”，再扩展到复杂比赛场景。
-4. **结果带置信度**：识别失败、遮挡或标定失效时，不输出看似精确的伪结果。
+1. 先建立可测量、可追溯的机械和高度基准。
+2. 机械、电子和识别链路分层，任何一层未实测时保持 `pending/unknown`。
+3. 以装配、干涉、通道数量和实物波形共同放行，不以“能编译”代替接板通过。
+4. 所有打印包必须能追溯到参数源、清单、包围盒和封闭拓扑摘要。
 
-## 文档入口
-
-- [首个原型说明](docs/net-height-device-design.zh-CN.md)
-- [技术架构与数据接口](docs/sensor-interface-v0.1.zh-CN.md)
-- [硬件工程说明](hardware/README.md)
-- [M6 5 ms 响应/最小遮挡实测方案](docs/m6-response-time-validation-v0.1.zh-CN.md)
-- [M6 十路 NPN 隔离前端参考设计](hardware/electronics/m6-npn-interface-v0.1.zh-CN.md)
-- [M6 十路边沿采集载板接口与 SmartPaddle SPI 协议](hardware/electronics/m6-capture-carrier-v0.1.zh-CN.md)
-- [M6 载板 MCU 选型与引脚预算闸门](hardware/electronics/m6-capture-carrier-mcu-selection-v0.1.zh-CN.md)
-- [STM32G031K8U6 载板候选引脚表](hardware/electronics/m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md)
-- [M6 载板首样 BOM 与画板输入](hardware/electronics/m6-capture-carrier-first-article-bom-v0.1.zh-CN.md)
-- [M6 卖家下单确认单](docs/vendor/m6-laser-opposed/SELLER-CONFIRMATION.zh-CN.md)
-- [M6 通道映射模板](docs/vendor/m6-laser-opposed/channel-map.example.json)
-- [M6 总验收包模板](docs/vendor/m6-laser-opposed/acceptance-bundle.example.json)
-- [M6 铝合金梳齿条/三轴基座加工输入](docs/m6-aluminum-machining-spec-v0.1.zh-CN.md)
-- [M6 首样加工与装配放行包](docs/m6-first-article-release-v0.1.zh-CN.md)
-- [视觉识别工程说明](vision/README.md)
-
-## 适用范围
-
-本项目当前面向训练、实验和产品研发。未经重复性、环境适应性和规则符合性验证的版本，不作为正式比赛裁判依据。
+本项目当前面向训练、实验和产品研发；未经重复性、环境适应性和规则符合性验证的版本，不作为正式比赛裁判依据。

@@ -83,8 +83,9 @@ def main() -> None:
         or shell["front_max_x_global_mm"] != 850.4
         or shell["rear_min_x_global_mm"] != 850.8
         or shell["parting_clearance_x_mm"] != 0.4
-        or shell["top_entry"]
-        != "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口的 M8 外牙直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核"
+        or "固定网柱从黄灰交界 z=16 mm 一体延伸到 z=372.5 mm"
+        not in shell["top_entry"]
+        or "底端不进入 C 形座" not in shell["top_entry"]
     ):
         raise AssertionError("split-cover contract changed")
     grooves = shell["shared_edge_grooves"]
@@ -121,7 +122,7 @@ def main() -> None:
     if (
         support["type"] != "purchased 13 mm ballhead/gimbal"
         or support["posture"]
-        != "vertical; its downward interface screws directly into the integrated light-yellow straight lower post at the post centre"
+        != "vertical purchased ballhead on the M6 rear-cover boss; its downward M8 interface is a standalone optical-support envelope and is not connected to the fixed full-height post"
         or support["boss_hole_axis"]
         != "x- from the rear cover boss toward the optical side"
         or support["boss_hole_d_mm"] != 7
@@ -132,19 +133,20 @@ def main() -> None:
         or support["ballhead_center_y_global_mm"] != 0
         or support["ballhead_center_z_global_mm"] != 272.5
         or support["mount_raise_z_mm"] != 20
-        or "球头下端 M8 外牙竖直接口朝 z-" not in support["net_interface"]
-        or "直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母" not in support["net_interface"]
-        or "球头与立柱中心同轴" not in support["net_interface"]
-        or "无横向黄色承托臂" not in support["load_path"]
-        or "无深灰色独立连接器" not in support["load_path"]
+        or "球头下端 M8 外牙接口朝 z-" not in support["net_interface"]
+        or "不进入固定网柱" not in support["net_interface"]
+        or "固定网柱从 z=16 mm 一体延伸到 z=372.5 mm" not in support["net_interface"]
+        or "无旧版横向承托臂" not in support["load_path"]
+        or "无旧版独立连接器" not in support["load_path"]
     ):
         raise AssertionError("rear-cover boss/purchased ballhead interface contract changed")
 
     direct_mount = support["direct_mount"]
     if (
-        direct_mount["material"] != "integrated light-yellow PETG lower stand"
+        direct_mount["enabled"] is not False
+        or direct_mount["material"] != "disabled; independent optical support pending"
         or direct_mount["interface_orientation"]
-        != "vertical M8 captured-nut axis coaxial with the straight lower post; no horizontal top arm"
+        != "standalone vertical M8 envelope; not connected to the fixed net post; no active top arm"
         or direct_mount["assembly_x_offset_mm"] != 84.6
         or direct_mount["assembled_ballhead_center_x_global_mm"] != 901
         or direct_mount["assembled_optical_axis_x_global_mm"] != 839.85
@@ -157,48 +159,63 @@ def main() -> None:
         or direct_mount["web_max_x_global_mm"] != 887
         or direct_mount["web_width_y_mm"] != 0
         or direct_mount["web_thickness_x_mm"] != 0
-        or direct_mount["web_min_z_global_mm"] != 223.5
-        or direct_mount["web_max_z_global_mm"] != 223.5
-        or direct_mount["socket_bottom_z_global_mm"] != 217.5
-        or direct_mount["socket_top_z_global_mm"] != 252
-        or direct_mount["socket_height_z_mm"] != 34.5
+        or direct_mount["web_min_z_global_mm"] != 372.5
+        or direct_mount["web_max_z_global_mm"] != 372.5
+        or direct_mount["socket_bottom_z_global_mm"] != 221.5
+        or direct_mount["socket_top_z_global_mm"] != 251.5
+        or direct_mount["socket_height_z_mm"] != 30
         or direct_mount["socket_outer_d_mm"] != 24
         or direct_mount["socket_tap_d_mm"] != 6.8
         or direct_mount["socket_clearance_d_mm"] != 8.6
-        or direct_mount["socket_base_overlap_z_mm"] != 6
-        or direct_mount["nut_loading_clearance_z_mm"] != 1
-        or direct_mount["captured_nut_pocket_af_mm"] != 13.7
-        or direct_mount["captured_nut_pocket_depth_z_mm"] != 7.2
-        or direct_mount["captured_nut_pocket_bottom_z_global_mm"] != 224.5
-        or direct_mount["captured_nut_pocket_center_z_global_mm"] != 228.1
-        or direct_mount["nut_loading_depth_z_mm"] != 27.5
+        or direct_mount["socket_base_overlap_z_mm"] != 0
+        or direct_mount["nut_loading_clearance_z_mm"] != 0
+        or direct_mount["captured_nut_pocket_af_mm"] != 0
+        or direct_mount["captured_nut_pocket_depth_z_mm"] != 0
+        or direct_mount["captured_nut_pocket_bottom_z_global_mm"] != 221.5
+        or direct_mount["captured_nut_pocket_center_z_global_mm"] != 221.5
+        or direct_mount["nut_loading_depth_z_mm"] != 0
         or direct_mount["ballhead_interface_bottom_z_global_mm"] != 223.5
-        or direct_mount["lower_post_top_z_global_mm"] != 223.5
+        or direct_mount["lower_post_top_z_global_mm"] != 372.5
         or direct_mount["assembly_z_raise_mm"] != 20
         or direct_mount["print_status"]
-        != "integrated into lower_stand_segment; vertical post-centred socket only; no horizontal arm or separate connector STL"
+        != "not integrated into post_clamp_carrier; fixed net post has no M8 optical hole; independent M6 support is pending and no direct-mount STL is released"
     ):
-        raise AssertionError("direct ballhead-to-light-yellow lower-stand contract changed")
+        raise AssertionError("direct ballhead-to-same-material-PETG-upper-post contract changed")
 
     net_retention = spec["net_retention_contract"]
     if net_retention != {
-        "post_top_z_global_mm": 223.5,
-        "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；俯视保留 U 形承力截面",
-        "channel_depth_x_mm": 28,
-        "cylinder_insertion_depth_x_mm": 28,
+        "fixture_bottom_z_global_mm": 16,
+        "post_top_z_global_mm": 372.5,
+        "net_top_z_global_mm": 168.5,
+        "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；俯视保留 U 形承力截面，外侧开口允许整高卡夹滑入",
+        "channel_depth_x_mm": 25,
+        "clip_receiver_depth_x_mm": 25,
         "channel_back_wall_t_x_mm": 3,
-        "channel_width_y_mm": 15.2,
+        "channel_width_y_mm": 8,
         "net_passage_width_y_mm": 3,
         "net_passage_clearance_each_side_y_mm": 0.9,
         "net_passage_x_span_mm": [881.8, 920.2],
-        "net_passage_z_span_mm": [0, 152.5],
-        "channel_z_span_mm": [0, 152.5],
-        "interference_cylinder_d_mm": 14,
-        "printed_cylinder_d_mm": 12,
-        "diameter_reduction_mm": 2,
-        "printed_part": "net_clamp_rod",
+        "net_passage_z_span_mm": [16, 168.5],
+        "channel_z_span_mm": [16, 168.5],
+        "passive_keeper": {
+            "enabled": True,
+            "role": "立柱一体内嵌止挡，仅防止卡夹向外拔出，不承担网布/绳张力主路径",
+            "z_span_mm": [88, 96],
+            "x_span_mm": [894.7, 895.7],
+            "y_span_mm": [2.4, 4.4],
+            "clip_relief_x_span_mm": [893, 897.4],
+            "clip_relief_y_span_mm": [2.25, 3.45],
+            "clip_one_way_latch": {
+                "type": "卡夹正侧 jaw 一体弹性扣舌；斜面允许装入，闭合肩只阻止向外拔出",
+                "x_span_mm": [893.4, 894.4],
+                "y_span_mm": [2.05, 3.05],
+                "z_span_mm": [88.4, 95.6],
+                "installed_clearance_to_keeper_x_mm": 0.3,
+            },
+        },
+        "printed_part": "net_clamp_clip",
         "material": "PETG",
-        "assembly": "网布先沿 x 穿过立柱主体 y 向 3 mm 过道，再从外侧塞入 U 槽；独立打印圆柱沿 x 推入并卡住；不使用采购圆柱",
+        "assembly": "网布先沿 x 穿过立柱主体 y 向 3 mm 过道，端部止在立柱外表面；整高 U 形卡夹沿 x 从桌外侧滑入，两片 jaw 夹住网布；网布张力和绳的拉力把卡夹压在承托面上，立柱内嵌单一被动止挡只防向外拔出，无穿钉，按开夹爪即可解锁",
     }:
         raise AssertionError("printed U-slot net-retention contract changed")
 
@@ -210,7 +227,7 @@ def main() -> None:
         or ballhead["sensor_stud_role"]
         != "商品固定上端 1/4-20 外牙；沿 x 接入后盖隐藏的 1/4-20 捕获螺母"
         or ballhead["net_stud_role"]
-        != "当前选定下端 M8 外牙；z- 直接进入浅黄色下段的 M8 捕获螺母"
+        != "当前选定下端 M8 外牙；z- 仅作独立光学支撑接口包络，当前不进入固定网柱"
     ):
         raise AssertionError("ballhead default variant changed")
     if ballhead["alternative_variants"] != [
@@ -223,7 +240,7 @@ def main() -> None:
     ]:
         raise AssertionError("ballhead variant list changed")
 
-    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body, direct light-yellow lower-stand ballhead mount, 10 rolled L-sensor channels at 20 mm pitch)")
+    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body, full-height fixed post with independent M6 support pending, 10 rolled L-sensor channels at 20 mm pitch)")
 
 
 if __name__ == "__main__":

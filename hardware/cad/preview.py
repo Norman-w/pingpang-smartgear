@@ -34,17 +34,21 @@ TABLE_WIDTH = 1525.0
 TABLE_THICKNESS = 25.0
 TABLE_EDGE = TABLE_WIDTH / 2
 POST_WIDTH = 28.0
+POST_DEPTH = 38.0
 NET_POST_OUTBOARD_EXTENSION = 152.5
 POST_OFFSET = 138.5
-CLAMP_OUTER_EXTENSION = 7.5
+# The fixed gray clamp ends flush with the broad lower post footprint; keep
+# this literal synchronized with the SCAD first-article datum.
+CLAMP_OUTER_EXTENSION = 3.5
 CLAMP_REACH_INBOARD = 62.0
+CLAMP_PAD_DEPTH = 58.0
 # Both structural clamp tongues extend the same additional 20 mm into the
 # tabletop; the lower pressure hardware is centered in that effective tongue.
 CLAMP_TONGUE_EXTRA_LENGTH_X = 20.0
-# The upper and lower structural clamp jaws are both 12 mm thick.  The upper
+# The upper and lower structural clamp jaws are both 14 mm thick.  The upper
 # tabletop rubber is external/glued; the lower contact part is a rigid round
 # printed pad with a shallow socket for the M8 rounded screw tip.
-CLAMP_PAD_T = 12.0
+CLAMP_PAD_T = 14.0
 CLAMP_CLEARANCE = 1.5
 POST_CENTER = TABLE_EDGE + POST_OFFSET
 CLAMP_SCREW_INSET = 41.0
@@ -72,6 +76,115 @@ CLAMP_TOP_PAD_X = -CLAMP_REACH_INBOARD + 8.0
 CLAMP_TOP_PAD_WIDTH = 96.0
 CLAMP_TOP_PAD_DEPTH = 48.0
 CLAMP_TOP_PAD_T = 2.0
+# The fixed-net upright starts on the gray/yellow C-clamp seat. The net datum
+# remains one net height; the active post ends at the purchased ballhead's
+# flat seating plane and carries its central M8 tap pilot.
+CLAMP_SLIDE_SEAT_Z = CLAMP_TOP_PAD_T + CLAMP_PAD_T
+POST_C_CLAMP_OVERLAP_DEPTH_Z = 0.0
+POST_BOTTOM = CLAMP_SLIDE_SEAT_Z
+# Historical shoe/rail parameters are retained only so old reports can still
+# parse the source; the active preview draws the direct solid taper below.
+CLAMP_SLIDE_SHOE_DROP_Z = 14.0
+CLAMP_SLIDE_POST_FOOT_ROOT_OVERLAP_Z = 0.25
+CLAMP_SLIDE_POST_FOOT_TRANSITION_SECTION_COUNT = 96
+CLAMP_SLIDE_POST_FOOT_TRANSITION_SLICE_Z = 0.4
+CLAMP_SLIDE_POST_FOOT_POST_FUSION_INSET = 0.02
+CLAMP_SLIDE_POST_FOOT_ANKLE_INBOARD_EXTENSION_X = 8.0
+CLAMP_SLIDE_POST_FOOT_ROOT_WIDTH_Y = 20.0
+# Historical clamp/post slide parameters are mirrored only for compatibility;
+# none of these legacy shoe/rail values is drawn as an active component.
+CLAMP_SLIDE_SPLIT_X_ABS = 885.5
+# Historical compatibility values only; no hexagonal shoes or mother track is
+# drawn or exported by the active design.
+CLAMP_SLIDE_SHOE_DEEPENING_X = 8.0
+CLAMP_SLIDE_RECEIVER_LENGTH_X = 81.0
+CLAMP_SLIDE_TONGUE_ATTACH_X = 35.7
+CLAMP_SLIDE_RAIL_Y_OUTER = 18.0
+CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y = 20.0
+CLAMP_SLIDE_RAIL_NECK_WIDTH_Y = 17.5
+CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z = 6.5
+CLAMP_SLIDE_RAIL_NECK_HEIGHT_Z = 5.5
+CLAMP_SLIDE_RAIL_HEIGHT_Z = (
+    CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z + CLAMP_SLIDE_RAIL_NECK_HEIGHT_Z
+)
+CLAMP_SLIDE_RAIL_CENTER_Z = 9.0 - CLAMP_SLIDE_SHOE_DROP_Z
+CLAMP_SLIDE_RAIL_FLOOR_Z = (
+    CLAMP_SLIDE_RAIL_CENTER_Z - CLAMP_SLIDE_RAIL_HEIGHT_Z / 2
+)
+CLAMP_SLIDE_POST_FOOT_SHOE_BURIED_OVERLAP_Z = 0.2
+CLAMP_SLIDE_POST_FOOT_SHOE_OVERLAP_Z = (
+    CLAMP_SLIDE_RAIL_HEIGHT_Z
+    + CLAMP_SLIDE_POST_FOOT_SHOE_BURIED_OVERLAP_Z
+)
+CLAMP_SLIDE_POST_FOOT_BOTTOM_Z = (
+    CLAMP_SLIDE_RAIL_FLOOR_Z
+    + CLAMP_SLIDE_RAIL_HEIGHT_Z
+    - CLAMP_SLIDE_POST_FOOT_SHOE_OVERLAP_Z
+)
+CLAMP_SLIDE_POST_FOOT_ANKLE_HEIGHT_Z = (
+    CLAMP_SLIDE_SEAT_Z - CLAMP_SLIDE_POST_FOOT_BOTTOM_Z
+)
+CLAMP_SLIDE_POST_FOOT_TRANSITION_START_Z = CLAMP_SLIDE_POST_FOOT_BOTTOM_Z
+CLAMP_SLIDE_POST_FOOT_TRANSITION_SIDE_START_Z = (
+    CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEIGHT_Z
+)
+CLAMP_SLIDE_POST_FOOT_TRANSITION_END_Z = CLAMP_SLIDE_SEAT_Z
+CLAMP_SLIDE_CLEARANCE = 0.35
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_TOP_Z = (
+    -CLAMP_SLIDE_CLEARANCE - 0.1
+)
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_HEIGHT_Z = 3.2
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_BOTTOM_Z = (
+    CLAMP_SLIDE_POST_FOOT_CROSS_TIE_TOP_Z
+    - CLAMP_SLIDE_POST_FOOT_CROSS_TIE_HEIGHT_Z
+)
+CLAMP_SLIDE_POST_FOOT_TOP_Z = (
+    CLAMP_SLIDE_SEAT_Z + CLAMP_SLIDE_POST_FOOT_ROOT_OVERLAP_Z
+)
+CLAMP_SLIDE_RECEIVER_FLOOR_Z = CLAMP_SLIDE_RAIL_FLOOR_Z - CLAMP_SLIDE_CLEARANCE
+CLAMP_SLIDE_RECEIVER_TOP_Z = (
+    CLAMP_SLIDE_RAIL_FLOOR_Z
+    + CLAMP_SLIDE_RAIL_HEIGHT_Z
+    + CLAMP_SLIDE_CLEARANCE
+)
+CLAMP_SLIDE_RECEIVER_NECK_HEIGHT_Z = (
+    CLAMP_SLIDE_RECEIVER_TOP_Z
+    - CLAMP_SLIDE_RECEIVER_FLOOR_Z
+    - CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z
+    - CLAMP_SLIDE_CLEARANCE
+)
+CLAMP_SLIDE_SPLIT_X = CLAMP_SLIDE_SPLIT_X_ABS - TABLE_EDGE
+CLAMP_SLIDE_TONGUE_MIN_X_ABS = 849.5 - CLAMP_SLIDE_SHOE_DEEPENING_X
+CLAMP_SLIDE_TONGUE_MIN_X = CLAMP_SLIDE_TONGUE_MIN_X_ABS - TABLE_EDGE
+CLAMP_SLIDE_TONGUE_LENGTH_X = 79.0
+CLAMP_SLIDE_POST_SEAT_CLEARANCE_X = 1.0
+CLAMP_SLIDE_POST_SEAT_END_X = (
+    POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
+)
+# These legacy coordinates are retained for report compatibility only. The
+# active side view uses the direct post transition and never draws a foot-root
+# band across the absolute x coordinate range.
+CLAMP_SLIDE_POST_FOOT_ROOT_MAX_X = POST_OFFSET + POST_WIDTH / 2 + 6.2
+CLAMP_SLIDE_POST_FOOT_ROOT_MIN_X = (
+    CLAMP_SLIDE_SPLIT_X - CLAMP_SLIDE_POST_FOOT_ANKLE_INBOARD_EXTENSION_X
+)
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_LENGTH_X = 10.0
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_BOTTOM_HALF_Y = 7.5
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_TOP_HALF_Y = 6.5
+CLAMP_SLIDE_POST_FOOT_CROSS_TIE_BRIDGE_HALF_Y = 16.0
+CLAMP_SLIDE_POST_FOOT_BRIDGE_MAX_X = (
+    CLAMP_SLIDE_POST_FOOT_ROOT_MAX_X - 0.8
+)
+CLAMP_SLIDE_POST_FOOT_BRIDGE_MIN_X = (
+    CLAMP_SLIDE_POST_FOOT_BRIDGE_MAX_X
+    - CLAMP_SLIDE_POST_FOOT_CROSS_TIE_LENGTH_X
+)
+# Historical detent coordinates are retained for compatibility; the green line
+# in the active preview is only a mechanical reference, not a detent.
+CLAMP_SLIDE_DETENT_X = (
+    CLAMP_SLIDE_POST_FOOT_BRIDGE_MIN_X
+    + CLAMP_SLIDE_POST_FOOT_CROSS_TIE_LENGTH_X / 2
+)
 CLAMP_LOWER_ARM_CLEARANCE = 10.0
 CLAMP_LOWER_ARM_TOP = -TABLE_THICKNESS - CLAMP_LOWER_ARM_CLEARANCE
 CLAMP_LOWER_ARM_BOTTOM = CLAMP_LOWER_ARM_TOP - CLAMP_PAD_T
@@ -85,6 +198,11 @@ CLAMP_SCREW_X = -CLAMP_SCREW_INSET
 CLAMP_TONGUE_REACH_INBOARD = CLAMP_REACH_INBOARD + CLAMP_TONGUE_EXTRA_LENGTH_X
 CLAMP_PAD_X = -CLAMP_TONGUE_REACH_INBOARD
 CLAMP_PAD_OUTER_X = POST_OFFSET + POST_WIDTH / 2 + CLAMP_OUTER_EXTENSION
+CLAMP_SLIDE_DETENT_BALL_OFFSET_Z = 0.95
+CLAMP_SLIDE_DETENT_BALL_CENTER_Z = (
+    CLAMP_SLIDE_POST_FOOT_CROSS_TIE_BOTTOM_Z
+    + CLAMP_SLIDE_DETENT_BALL_OFFSET_Z
+)
 CLAMP_OUTER_WALL_WIDTH = 22.0
 CLAMP_OUTER_WALL_X = CLAMP_PAD_OUTER_X - CLAMP_OUTER_WALL_WIDTH
 CLAMP_REINFORCEMENT_INBOARD_OFFSET_X = 3.0
@@ -116,12 +234,30 @@ CLAMP_REINFORCEMENT_OUTER_BOTTOM_Z = (
 CLAMP_SOLID_BRIDGE_TOP_Z = CLAMP_TOP_PAD_T + CLAMP_PAD_T
 OPTICAL_BEAM_EDGE_OVERLAP = 0.5
 OPTICAL_BEAM_AXIS_X = TABLE_EDGE + OPTICAL_BEAM_EDGE_OVERLAP
-POST_BOTTOM = CLAMP_LOWER_ARM_TOP
 NET_HEIGHT = 152.5
+# The net and the full-height U clip share the fixed C-clamp seat as their
+# lower datum.  Keep the lower/top values explicit so the preview cannot
+# silently draw the clip into the dark lower clamp body again.
+NET_FIXTURE_BOTTOM_Z = CLAMP_SLIDE_SEAT_Z
+NET_POST_TOP_Z = NET_FIXTURE_BOTTOM_Z + NET_HEIGHT
+# Kept as a source-mirroring legacy value for the parameter coverage test; the
+# active drawing deliberately has no top rail.
 NET_RAIL_HEIGHT = 10.0
 NET_SHEET_T = 1.2
 NET_PASSAGE_WIDTH_Y = 3.0
-M6_DETECTOR_MOUNT_RAISE_Z = 20.0
+# Current first-article derived result: raw shell bottom 141.5 mm, net top
+# 168.5 mm, and 2 mm clearance. The OpenSCAD source derives this value from
+# those inputs; this lightweight mirror keeps the resulting scalar explicit.
+M6_DETECTOR_MOUNT_RAISE_Z = 29.0
+# Active net retention geometry: a full-height U clip slides into the outboard
+# pocket after the fabric has passed through the 3 mm post passage.  The old
+# cylinder-named values above remain only as compatibility aliases for old
+# preview consumers and are not drawn.
+NET_CLAMP_CLIP_CLEARANCE_X = 0.2
+NET_CLAMP_CLIP_LENGTH_X = 26.1
+NET_CLAMP_CLIP_INNER_X = POST_CENTER + POST_WIDTH / 2 - 21.8
+NET_CLAMP_CLIP_OUTER_X = NET_CLAMP_CLIP_INNER_X + NET_CLAMP_CLIP_LENGTH_X
+NET_CLAMP_CLIP_CROSSBAR_T_X = 3.0
 NET_CLAMP_CHANNEL_DEPTH_X = POST_WIDTH
 NET_CLAMP_CYLINDER_INSERTION_DEPTH_X = POST_WIDTH
 NET_CLAMP_CHANNEL_BACK_WALL_T_X = 3.0
@@ -133,21 +269,25 @@ NET_CLAMP_CHANNEL_WIDTH_Y = (
     NET_CLAMP_CYLINDER_INTERFERENCE_D
     + 2 * NET_CLAMP_CHANNEL_SIDE_CLEARANCE
 )
-NET_CLAMP_CHANNEL_BOTTOM_Z = 0.0
-NET_CLAMP_CHANNEL_TOP_Z = NET_HEIGHT
+NET_CLAMP_CHANNEL_BOTTOM_Z = NET_FIXTURE_BOTTOM_Z
+NET_CLAMP_CHANNEL_TOP_Z = NET_FIXTURE_BOTTOM_Z + NET_HEIGHT
 NET_CLAMP_CHANNEL_VOID_MIN_X = (
     POST_CENTER
     + POST_WIDTH / 2
     - NET_CLAMP_CHANNEL_DEPTH_X
     + NET_CLAMP_CHANNEL_BACK_WALL_T_X
 )
-NET_CLAMP_CHANNEL_VOID_MAX_X = POST_CENTER + POST_WIDTH / 2 + 0.2
+NET_CLAMP_CHANNEL_VOID_MAX_X = POST_CENTER + POST_WIDTH / 2 + 4.5
 NET_CLAMP_CYLINDER_CENTER_X = (
     NET_CLAMP_CHANNEL_VOID_MIN_X
     + NET_CLAMP_CYLINDER_INTERFERENCE_D / 2
     + NET_CLAMP_CHANNEL_BACK_CLEARANCE
 )
 NET_CLAMP_CYLINDER_HEIGHT = NET_CLAMP_CHANNEL_TOP_Z - NET_CLAMP_CHANNEL_BOTTOM_Z
+NET_CLAMP_KEEPER_Z = NET_CLAMP_CHANNEL_BOTTOM_Z + 72.0
+NET_CLAMP_KEEPER_HEIGHT_Z = 8.0
+NET_CLAMP_KEEPER_X_MIN = NET_CLAMP_CLIP_INNER_X + 1.5
+NET_CLAMP_KEEPER_X_MAX = NET_CLAMP_CLIP_INNER_X + 2.5
 BEAM_FIRST = 10.0
 BEAM_COUNT = 10
 BEAM_PITCH = 10.0
@@ -172,6 +312,11 @@ M6_RAIL_END_MARGIN = 12.0
 M6_RAIL_LENGTH = (BEAM_COUNT - 1) * M6_SENSOR_CENTER_PITCH + 2 * M6_RAIL_END_MARGIN
 M6_ARRAY_BOTTOM = NET_HEIGHT + M6_SENSOR_FIRST_HEIGHT - M6_RAIL_END_MARGIN
 M6_ARRAY_TOP = M6_ARRAY_BOTTOM + M6_RAIL_LENGTH
+POST_TOP_MARGIN = 18.0
+# The active post top is the installed ballhead base seating plane.  With the
+# current raw ballhead base bottom (231.5 mm) and derived 29 mm lift this is
+# 260.5 mm; it is intentionally not the old full-array envelope.
+POST_TOP = 260.5
 M6_SENSOR_AXIS_X = OPTICAL_BEAM_AXIS_X
 M6_SENSOR_RAIL_X = 788.0
 M6_SENSOR_MOUNT_HOLE_X = 766.25
@@ -304,32 +449,34 @@ M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z = (
 # The raw detector dimensions remain in the same coordinate chain as the
 # SCAD. In the installed stand the complete detector and purchased ballhead
 # move together until the ballhead's z- interface is coaxial with the straight
-# net-post centre. This removes the old horizontal yellow support arm while
+# net-post centre. This removes the old horizontal support arm while
 # preserving the net-post and net-span datums.
 DETECTOR_ASSEMBLY_OFFSET_X = POST_CENTER - M6_DETECTOR_BALLHEAD_CENTER_X
-# The light-yellow lower stand carries the bought ballhead directly.  These
-# values mirror ``m6_detector_direct_mount_positive`` in the SCAD: one
-# integral M8 clearance socket with a captured standard nut at the post centre.
-# There is no horizontal seat, side-return web, separate dark-gray 90-degree
-# connector, or upper dark-yellow post in the active preview.
+# The M6 optical group is directly supported by the one-piece fixed-net post.
+# The central M8 pilot is cut in the post top; no separate bridge is drawn.
 M6_DETECTOR_DIRECT_MOUNT_ARM_WIDTH_Y = 0.0
 M6_DETECTOR_DIRECT_MOUNT_ARM_T_Z = 0.0
+M6_DETECTOR_DIRECT_MOUNT_ENABLED = True
 M6_DETECTOR_DIRECT_MOUNT_WEB_WIDTH_Y = 0.0
 M6_DETECTOR_DIRECT_MOUNT_WEB_T_X = 0.0
 M6_DETECTOR_DIRECT_MOUNT_POST_OVERLAP_X = 2.0
+# Retained as a compatibility envelope for older reports; no round boss is drawn.
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D = 24.0
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_CLEARANCE_D = 8.6
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D = 6.8
-# The ring is deliberately merged six millimetres into the straight lower
-# post. A one millimetre shoulder above the post top lets the AF13.7 nut drop
-# through the top-loading hex shaft after the part is printed.
-M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z = 6.0
-M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z = 1.0
-M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z = 0.2
-M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z = 0.5
+# The tap-pilot dimensions are mirrored for the active flat-top interface.
+M6_DETECTOR_DIRECT_MOUNT_THREAD_DEPTH_EXTRA_Z = 2.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z = 0.0
+M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z = 0.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z = 0.0
+M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z = 0.0
 M6_DETECTOR_DIRECT_MOUNT_ARM_MIN_X = POST_CENTER
 M6_DETECTOR_DIRECT_MOUNT_ARM_MAX_X = POST_CENTER
-M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z = M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z = (
+    M6_DETECTOR_BALLHEAD_CENTER_Z
+    - M6_BALLHEAD_HOUSING_LENGTH_X / 2
+    - M6_BALLHEAD_BASE_T
+)
 M6_DETECTOR_DIRECT_MOUNT_ARM_TOP_Z = M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
 M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z = M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
 M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_X = POST_CENTER - POST_WIDTH / 2
@@ -337,32 +484,23 @@ M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_X = M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_X
 M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_Z = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
 M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_Z = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z = (
-    M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
-    - M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z
+    M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
+    - M6_BALLHEAD_NET_STUD_LENGTH
+    - M6_DETECTOR_DIRECT_MOUNT_THREAD_DEPTH_EXTRA_Z
 )
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z = (
-    M6_DETECTOR_BALLHEAD_CENTER_Z
-    - M6_BALLHEAD_HOUSING_LENGTH_X / 2
-    - M6_BALLHEAD_BASE_T / 2
-    + M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z
+    M6_DETECTOR_DIRECT_MOUNT_ARM_BOTTOM_Z
 )
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_HEIGHT_Z = (
     M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z
     - M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z
 )
 M6_DETECTOR_DIRECT_MOUNT_SOCKET_CENTER_X = POST_CENTER
-M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_BOTTOM_Z = (
-    M6_DETECTOR_BALLHEAD_NET_INTERFACE_BOTTOM_Z
-    + M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z
-)
-M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_CENTER_Z = (
-    M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_BOTTOM_Z
-    + (M6_BALLHEAD_BOTTOM_NUT_H + 2 * M6_BALLHEAD_NUT_CLEARANCE) / 2
-)
-M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_DEPTH_Z = (
-    M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_Z
-    - M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_BOTTOM_Z
-)
+# Compatibility aliases now point at the blind-hole bottom and explicitly carry
+# no nut-loading volume.
+M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_BOTTOM_Z = M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_NUT_POCKET_CENTER_Z = M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z
+M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_DEPTH_Z = 0.0
 
 # Installed detector/ballhead coordinates are the raw detector coordinates plus
 # one rigid z translation. The standalone part dimensions and the 20 mm pitch
@@ -389,6 +527,11 @@ for _installed_z_name in (
 ):
     globals()[_installed_z_name] += M6_DETECTOR_MOUNT_RAISE_Z
 del _installed_z_name
+# The fixed-net post top is the full active upright datum, while the net
+# passage/clip datum remains NET_POST_TOP_Z.
+M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z = POST_TOP
+M6_DETECTOR_DIRECT_MOUNT_WEB_MIN_Z = POST_TOP
+M6_DETECTOR_DIRECT_MOUNT_WEB_MAX_Z = POST_TOP
 M6_PITCH_YOKE_T = 8.0
 M6_PITCH_YOKE_WIDTH_Y = 158.0
 M6_PITCH_FRAME_T = 6.0
@@ -468,10 +611,46 @@ M6_SENSOR_INSTALLED_HEAD_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
 M6_SENSOR_INSTALLED_THREAD_TIP_X += DETECTOR_ASSEMBLY_OFFSET_X
 M6_SENSOR_INSTALLED_CABLE_EXIT_X += DETECTOR_ASSEMBLY_OFFSET_X
 M6_DETECTOR_NUT_MIN_X += DETECTOR_ASSEMBLY_OFFSET_X
-# The active light-yellow stand is the straight lower post up to the underside
-# of the direct ballhead top seat.  The plotting ceiling remains independent so
-# the detector itself can extend above the post without creating an upper post.
-POST_TOP = M6_DETECTOR_DIRECT_MOUNT_LOWER_POST_TOP_Z
+# The active same-material PETG stand is one continuous printable upright.  The
+# net cut creates the real y-side cheeks below the net top; it is not a second
+# post parting line and it must not be rendered as one.
+# The active lower taper is measured from the C-clamp contact plane.  The
+# broad lower footprint matches the clamp's 58 mm y-depth; the upper section
+# keeps the exact 28 x 38 mm top cross-section.
+POST_INTERFACE_TRANSITION_HEIGHT_Z = 30.0
+POST_INTERFACE_TRANSITION_EXTRA_X = 3.5
+# Compatibility alias retained for older reports; the active lower y-depth is
+# the complete C-clamp contact depth below, not this legacy inset value.
+POST_INTERFACE_TRANSITION_EXTRA_Y = 10.0
+POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X = (
+    POST_WIDTH + 2 * POST_INTERFACE_TRANSITION_EXTRA_X
+)
+POST_INTERFACE_TRANSITION_BOTTOM_DEPTH_Y = CLAMP_PAD_DEPTH
+POST_INTERFACE_TRANSITION_START_Z = CLAMP_SLIDE_SEAT_Z
+POST_INTERFACE_TRANSITION_TOP_Z = (
+    POST_INTERFACE_TRANSITION_START_Z + POST_INTERFACE_TRANSITION_HEIGHT_Z
+)
+POST_INTERFACE_TRANSITION_OUTER_MIN_X = (
+    POST_OFFSET - POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2
+)
+POST_INTERFACE_TRANSITION_OUTER_MAX_X = (
+    POST_OFFSET + POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2
+)
+POST_INTERFACE_TRANSITION_OUTER_MIN_Y = (
+    -POST_INTERFACE_TRANSITION_BOTTOM_DEPTH_Y / 2
+)
+POST_INTERFACE_TRANSITION_OUTER_MAX_Y = (
+    POST_INTERFACE_TRANSITION_BOTTOM_DEPTH_Y / 2
+)
+# Kept as a direct source-mirroring datum for older reports. It is no longer a
+# parting height; the active print has no post seam.
+POST_JOINT_ABOVE_NET_CLEARANCE_Z = 18.0
+POST_SPLIT_Z = POST_TOP
+POST_JOINT_GAP = 0.0
+PREVIEW_FIT_DISPLAY_GAP = 0.1
+POST_LOWER_SEGMENT_HEIGHT = POST_TOP - POST_BOTTOM
+POST_UPPER_SEGMENT_Z = POST_TOP
+POST_UPPER_SEGMENT_HEIGHT = 0.0
 PREVIEW_TOP = max(
     POST_TOP,
     M6_DETECTOR_SHELL_BOTTOM_Z + M6_DETECTOR_SHELL_HEIGHT_Z,
@@ -480,6 +659,141 @@ PREVIEW_TOP = max(
 NET_SPAN = 2 * (POST_CENTER + POST_WIDTH / 2)
 REFERENCE_HEIGHT = 50.0
 SENSOR_X = 0.32 * NET_SPAN / 2
+
+
+def eased_taper_profile(
+    lower_min: float,
+    lower_max: float,
+    upper_min: float,
+    upper_max: float,
+    bottom_z: float,
+    top_z: float,
+    section_count: int = CLAMP_SLIDE_POST_FOOT_TRANSITION_SECTION_COUNT,
+    transition_start_z: float | None = None,
+) -> list[tuple[float, float]]:
+    """Return a faceted large-radius taper with no shoulder/step.
+
+    The smoothstep easing makes the boundary nearly tangent to the flat
+    lower shoe and the vertical upper post.  It is intentionally sampled at
+    the same section count as the OpenSCAD loft so the diagnostic drawing shows
+    the real transition rather than a single straight wedge.
+    """
+
+    def ease(t: float) -> float:
+        return t * t * (3.0 - 2.0 * t)
+
+    def lerp(start: float, end: float, t: float) -> float:
+        return start + (end - start) * t
+
+    if transition_start_z is None:
+        transition_start_z = bottom_z
+
+    def profile_ease(z: float) -> float:
+        span = top_z - transition_start_z
+        if span <= 0:
+            return 1.0
+        profile_t = max(0.0, min(1.0, (z - transition_start_z) / span))
+        return ease(profile_t)
+
+    points = [(lower_min, bottom_z), (lower_max, bottom_z)]
+    points.extend(
+        (
+            lerp(
+                lower_max,
+                upper_max,
+                profile_ease(
+                    lerp(bottom_z, top_z, index / section_count)
+                ),
+            ),
+            lerp(bottom_z, top_z, index / section_count),
+        )
+        for index in range(1, section_count + 1)
+    )
+    points.append((upper_min, top_z))
+    points.extend(
+        (
+            lerp(
+                lower_min,
+                upper_min,
+                profile_ease(
+                    lerp(bottom_z, top_z, index / section_count)
+                ),
+            ),
+            lerp(bottom_z, top_z, index / section_count),
+        )
+        for index in range(section_count - 1, 0, -1)
+    )
+    return points
+
+
+def _smoothstep(t: float) -> float:
+    t = max(0.0, min(1.0, t))
+    return t * t * (3.0 - 2.0 * t)
+
+
+def _foot_rail_width_y(z: float) -> float:
+    """Mirror the source rail's broad shoe-to-neck section."""
+
+    blend_start = CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z
+    blend = (z - blend_start) / CLAMP_SLIDE_RAIL_NECK_HEIGHT_Z
+    return CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y + (
+        CLAMP_SLIDE_RAIL_NECK_WIDTH_Y - CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y
+    ) * _smoothstep(blend)
+
+
+def _foot_outer_y(z: float) -> float:
+    rail_roof = CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEIGHT_Z
+    if z <= CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z:
+        return CLAMP_SLIDE_RAIL_Y_OUTER + CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y / 2
+    if z <= rail_roof:
+        return CLAMP_SLIDE_RAIL_Y_OUTER + _foot_rail_width_y(z) / 2
+    post_blend = (z - CLAMP_SLIDE_POST_FOOT_TRANSITION_SIDE_START_Z) / (
+        CLAMP_SLIDE_POST_FOOT_TRANSITION_END_Z
+        - CLAMP_SLIDE_POST_FOOT_TRANSITION_SIDE_START_Z
+    )
+    return (
+        CLAMP_SLIDE_RAIL_Y_OUTER + CLAMP_SLIDE_RAIL_NECK_WIDTH_Y / 2
+    ) + (
+        POST_DEPTH / 2 - CLAMP_SLIDE_POST_FOOT_POST_FUSION_INSET
+        - (CLAMP_SLIDE_RAIL_Y_OUTER + CLAMP_SLIDE_RAIL_NECK_WIDTH_Y / 2)
+    ) * _smoothstep(post_blend)
+
+
+def _foot_inner_y(z: float) -> float:
+    rail_roof = CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEIGHT_Z
+    if z <= CLAMP_SLIDE_RAIL_FLOOR_Z + CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z:
+        return CLAMP_SLIDE_RAIL_Y_OUTER - CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y / 2
+    if z <= rail_roof:
+        return CLAMP_SLIDE_RAIL_Y_OUTER - _foot_rail_width_y(z) / 2
+    post_blend = (z - CLAMP_SLIDE_POST_FOOT_TRANSITION_SIDE_START_Z) / (
+        CLAMP_SLIDE_POST_FOOT_TRANSITION_END_Z
+        - CLAMP_SLIDE_POST_FOOT_TRANSITION_SIDE_START_Z
+    )
+    return (
+        CLAMP_SLIDE_RAIL_Y_OUTER - CLAMP_SLIDE_RAIL_NECK_WIDTH_Y / 2
+    ) + (
+        NET_PASSAGE_WIDTH_Y / 2 - CLAMP_SLIDE_POST_FOOT_POST_FUSION_INSET
+        - (CLAMP_SLIDE_RAIL_Y_OUTER - CLAMP_SLIDE_RAIL_NECK_WIDTH_Y / 2)
+    ) * _smoothstep(post_blend)
+
+
+def pants_leg_profile(side: int) -> list[tuple[float, float]]:
+    """Return one real y-z leg, including the broad shoe and smooth ankle."""
+
+    z_values = [
+        CLAMP_SLIDE_POST_FOOT_BOTTOM_Z
+        + (CLAMP_SLIDE_POST_FOOT_TOP_Z - CLAMP_SLIDE_POST_FOOT_BOTTOM_Z)
+        * index
+        / CLAMP_SLIDE_POST_FOOT_TRANSITION_SECTION_COUNT
+        for index in range(CLAMP_SLIDE_POST_FOOT_TRANSITION_SECTION_COUNT + 1)
+    ]
+    if side > 0:
+        outer = [(_foot_outer_y(z), z) for z in z_values]
+        inner = [(_foot_inner_y(z), z) for z in reversed(z_values)]
+    else:
+        outer = [(-_foot_outer_y(z), z) for z in z_values]
+        inner = [(-_foot_inner_y(z), z) for z in reversed(z_values)]
+    return outer + inner
 
 
 def draw_front(ax) -> None:
@@ -496,52 +810,92 @@ def draw_front(ax) -> None:
     )
     ax.add_patch(
         Rectangle(
-            (-NET_SPAN / 2, 0),
+            (-NET_SPAN / 2, NET_FIXTURE_BOTTOM_Z),
             NET_SPAN,
-            NET_HEIGHT - NET_RAIL_HEIGHT,
+            NET_HEIGHT,
             facecolor="#dfe3e8",
             edgecolor="#777d85",
             alpha=0.35,
-            label="installed net",
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (-NET_SPAN / 2, NET_HEIGHT - NET_RAIL_HEIGHT),
-            NET_SPAN,
-            NET_RAIL_HEIGHT,
-            facecolor="#f3f4f5",
-            edgecolor="#53585f",
-            label="net top rail",
+            label="installed net z=16…168.5 mm",
         )
     )
 
-    for x, label in (
-        (-POST_CENTER, "left light-yellow lower stand"),
-        (POST_CENTER, "right light-yellow lower stand"),
+    for x, side_label in (
+        (-POST_CENTER, "left"),
+        (POST_CENTER, "right"),
     ):
         ax.add_patch(
-            Rectangle(
-                (x - POST_WIDTH / 2, POST_BOTTOM),
-                POST_WIDTH,
-                POST_TOP - POST_BOTTOM,
+            Polygon(
+                [
+                    (x - POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2,
+                     POST_BOTTOM),
+                    (x + POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2,
+                     POST_BOTTOM),
+                    (x + POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2,
+                     POST_INTERFACE_TRANSITION_START_Z),
+                    (x + POST_WIDTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+                    (x + POST_WIDTH / 2, POST_TOP),
+                    (x - POST_WIDTH / 2, POST_TOP),
+                    (x - POST_WIDTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+                    (x - POST_INTERFACE_TRANSITION_BOTTOM_WIDTH_X / 2,
+                     POST_INTERFACE_TRANSITION_START_Z),
+                ],
+                closed=True,
                 facecolor="#d4a24c",
                 edgecolor="#8d6513",
                 alpha=0.88,
-                label=label,
+                label=(
+                    f"{side_label} 固定网柱：z=16→{POST_TOP:g} mm 一体实心"
+                ),
             )
         )
 
-    for x in (-NET_CLAMP_CYLINDER_CENTER_X, NET_CLAMP_CYLINDER_CENTER_X):
+    ax.plot(
+        [POST_CENTER - 32, POST_CENTER + 32],
+        [POST_BOTTOM, POST_BOTTOM],
+        color="#2e596d",
+        linewidth=2.2,
+        label="C 形夹最高承托面 z=16 mm；网柱底端与其共面",
+    )
+    ax.annotate(
+        "黄灰交界 z=16 mm，网柱从此共面起步\n网布/卡夹到 z=168.5 mm；立柱实体继续到球头底座共面顶端 z=260.5 mm\n下端 35×58 mm，30 mm 实心渐变收至 28×38 mm",
+        xy=(POST_CENTER, POST_BOTTOM),
+        xytext=(POST_CENTER - 210, POST_BOTTOM + 30),
+        fontsize=7,
+        color="#2e596d",
+        arrowprops={"arrowstyle": "->", "color": "#2e596d", "lw": 0.9},
+    )
+
+    for side in (-1, 1):
+        clip_x = (
+            NET_CLAMP_CLIP_INNER_X
+            if side > 0
+            else -NET_CLAMP_CLIP_OUTER_X
+        )
+        crossbar_x = (
+            NET_CLAMP_CLIP_OUTER_X - NET_CLAMP_CLIP_CROSSBAR_T_X
+            if side > 0
+            else -NET_CLAMP_CLIP_OUTER_X
+        )
         ax.add_patch(
             Rectangle(
-                (x - NET_CLAMP_CYLINDER_ACTUAL_D / 2, NET_CLAMP_CHANNEL_BOTTOM_Z),
-                NET_CLAMP_CYLINDER_ACTUAL_D,
+                (clip_x, NET_CLAMP_CHANNEL_BOTTOM_Z),
+                NET_CLAMP_CLIP_LENGTH_X,
                 NET_CLAMP_CYLINDER_HEIGHT,
                 facecolor="#e2a52f",
                 edgecolor="#815b0f",
                 alpha=0.88,
-                label="PETG 打印卡网圆柱 Ø12（U 槽内）" if x < 0 else "_nolegend_",
+                label="PETG 整高 U 形卡网夹（张力承力；一体扣舌配内嵌止挡防拔）" if side < 0 else "_nolegend_",
+            )
+        )
+        ax.add_patch(
+            Rectangle(
+                (crossbar_x, NET_CLAMP_CHANNEL_BOTTOM_Z),
+                NET_CLAMP_CLIP_CROSSBAR_T_X,
+                NET_CLAMP_CYLINDER_HEIGHT,
+                facecolor="#b87916",
+                edgecolor="#815b0f",
+                alpha=0.92,
             )
         )
 
@@ -727,27 +1081,27 @@ def draw_front(ax) -> None:
     for x in (-SENSOR_X, SENSOR_X):
         ax.add_patch(
             Rectangle(
-                (x - 23, NET_HEIGHT - 1),
+                (x - 23, NET_POST_TOP_Z - 1),
                 46,
                 8,
                 facecolor="#9467bd",
                 edgecolor="#4c2b68",
-                label="PVDF net-top mounts" if x < 0 else "_nolegend_",
+                label="PVDF 网端传感器座（网顶 z=168.5）" if x < 0 else "_nolegend_",
             )
         )
 
-    reference_z = NET_HEIGHT + REFERENCE_HEIGHT
+    reference_z = NET_POST_TOP_Z + REFERENCE_HEIGHT
     ax.plot(
         [-NET_SPAN / 2, NET_SPAN / 2],
         [reference_z, reference_z],
         color="#31a354",
         linewidth=2.4,
-        label="reference line (+50 mm detent)",
+        label="reference line (+50 mm mechanical reference)",
     )
     ax.annotate(
         "net-top datum +0",
-        xy=(0, NET_HEIGHT),
-        xytext=(0, NET_HEIGHT - 30),
+        xy=(0, NET_POST_TOP_Z),
+        xytext=(0, NET_POST_TOP_Z - 30),
         ha="center",
         arrowprops={"arrowstyle": "->", "color": "#444"},
         fontsize=8,
@@ -757,13 +1111,34 @@ def draw_front(ax) -> None:
         min(POST_BOTTOM, CLAMP_REINFORCEMENT_NEAR_TABLE_BOTTOM_Z) - 12,
         PREVIEW_TOP + 20,
     )
-    ax.set_title("Integrated net stand: front intent (M6 assembly +20 mm; PETG net rod)")
+    ax.set_title("Integrated net stand: front intent (M6 assembly +20 mm; sliding U net clips)")
     ax.set_xlabel("table width / mm")
     ax.set_ylabel("z relative to table top / mm")
     ax.grid(True, alpha=0.22)
     handles, labels = ax.get_legend_handles_labels()
     unique = dict(zip(labels, handles))
     ax.legend(unique.values(), unique.keys(), loc="upper center", fontsize=7, ncol=2)
+
+
+def captured_slide_profile(
+    center_y: float,
+    floor_z: float,
+    head_width_y: float,
+    neck_width_y: float,
+    head_height_z: float,
+    neck_height_z: float,
+):
+    """Return a legacy y-z polygon for compatibility-only diagnostics."""
+
+    top_z = floor_z + head_height_z + neck_height_z
+    return [
+        (center_y - head_width_y / 2, floor_z),
+        (center_y + head_width_y / 2, floor_z),
+        (center_y + head_width_y / 2, floor_z + head_height_z),
+        (center_y + neck_width_y / 2, top_z),
+        (center_y - neck_width_y / 2, top_z),
+        (center_y - head_width_y / 2, floor_z + head_height_z),
+    ]
 
 
 def draw_side(ax) -> None:
@@ -922,7 +1297,7 @@ def draw_side(ax) -> None:
         [ballhead_interface_bottom, ballhead_base_bottom],
         color="#c7cdd2",
         linewidth=3.0,
-        label="M8 外牙 z− → 立柱捕获 M8 螺母",
+        label="采购球头下端 M8 外牙（独立光学支撑接口）",
     )
     ax.plot(
         [boss_max_x - TABLE_EDGE,
@@ -944,20 +1319,25 @@ def draw_side(ax) -> None:
             linewidth=0.7,
             alpha=0.7,
         )
-    # Direct light-yellow lower-stand support. The annular socket is centred
-    # on the straight post; the previous horizontal yellow seat/arm is gone.
-    ax.add_patch(
-        Rectangle(
-            (M6_DETECTOR_DIRECT_MOUNT_SOCKET_CENTER_X - TABLE_EDGE - M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D / 2,
-             M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z),
-            M6_DETECTOR_DIRECT_MOUNT_SOCKET_OUTER_D,
-            M6_DETECTOR_DIRECT_MOUNT_SOCKET_HEIGHT_Z,
-            facecolor="#d4a24c",
-            edgecolor="#8d6513",
-            linewidth=1.0,
-            alpha=0.75,
-            label="一体 M8 捕获螺母承座（球头与立柱同轴）",
-        )
+    # The higher M6 optical support is intentionally not drawn as a solid
+    # connection to the fixed full-height post.  A dashed marker keeps the
+    # unresolved interface visible while making the physical gap unambiguous.
+    post_top_x = POST_CENTER - TABLE_EDGE
+    optical_support_x = M6_DETECTOR_DIRECT_MOUNT_SOCKET_CENTER_X - TABLE_EDGE
+    ax.plot(
+        [post_top_x, optical_support_x],
+        [POST_TOP, M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z],
+        color="#b04a3a",
+        linewidth=1.2,
+        linestyle=(0, (4, 3)),
+        label="M6 独立支撑待定义（与固定网柱断开）",
+    )
+    ax.scatter(
+        [post_top_x, optical_support_x],
+        [POST_TOP, M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_Z],
+        color="#b04a3a",
+        s=12,
+        zorder=6,
     )
     ax.add_patch(
         Polygon(
@@ -992,7 +1372,7 @@ def draw_side(ax) -> None:
             CLAMP_PAD_OUTER_X - CLAMP_PAD_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="加长上舌头 82 mm / 12 mm 厚（不打孔）",
+            label="加长上舌头 82 mm / 14 mm 厚（不打孔）",
         )
     )
     ax.add_patch(
@@ -1031,13 +1411,47 @@ def draw_side(ax) -> None:
             label="replaceable upper protective pad",
         )
     )
+    # Current post/clamp interface in the side elevation: the orange fixed-net
+    # post starts exactly on the gray/yellow contact plane, tapers continuously
+    # for 30 mm, and then remains 28 x 38 mm for the rest of the full upright.
+    post_side_polygon = [
+        (POST_INTERFACE_TRANSITION_OUTER_MIN_X, POST_BOTTOM),
+        (POST_INTERFACE_TRANSITION_OUTER_MAX_X, POST_BOTTOM),
+        (POST_INTERFACE_TRANSITION_OUTER_MAX_X,
+         POST_INTERFACE_TRANSITION_START_Z),
+        (POST_OFFSET + POST_WIDTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+        (POST_OFFSET + POST_WIDTH / 2, POST_TOP),
+        (POST_OFFSET - POST_WIDTH / 2, POST_TOP),
+        (POST_OFFSET - POST_WIDTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+        (POST_INTERFACE_TRANSITION_OUTER_MIN_X,
+         POST_INTERFACE_TRANSITION_START_Z),
+    ]
+    ax.add_patch(
+        Polygon(
+            post_side_polygon,
+            closed=True,
+            facecolor="#d98d27",
+            edgecolor="#7d530b",
+            linewidth=1.0,
+            alpha=0.82,
+            label="整根固定网柱：z=16→260.5 一体实心渐变/恒定段",
+        )
+    )
+    ax.plot(
+        [POST_INTERFACE_TRANSITION_OUTER_MIN_X - 6,
+         POST_INTERFACE_TRANSITION_OUTER_MAX_X + 6],
+        [POST_BOTTOM, POST_BOTTOM],
+        color="#2e596d",
+        linewidth=2.2,
+        label="C 形夹最高承托面 z=16 mm；立柱底端共面",
+    )
     ax.add_patch(
         Rectangle(
             (CLAMP_LOWER_ARM_X, CLAMP_LOWER_ARM_BOTTOM),
             CLAMP_PAD_OUTER_X - CLAMP_LOWER_ARM_X,
             CLAMP_PAD_T,
             facecolor="#69727b",
-            label="加长下舌头 82 mm / 12 mm 厚 / 压紧居中",
+            label="加长下舌头 82 mm / 14 mm 厚 / 压紧居中",
         )
     )
     ax.add_patch(
@@ -1049,36 +1463,71 @@ def draw_side(ax) -> None:
             label="outer C-frame",
         )
     )
+    ax.annotate(
+        "黄灰交界 z=16 mm；底端不进入 C 形座\n网布/卡夹到 z=168.5 mm，立柱实体继续到球头底座共面顶端 z=260.5 mm\n下端 35×58 mm，30 mm 连续实心渐变至 28×38 mm",
+        xy=(POST_OFFSET, POST_INTERFACE_TRANSITION_TOP_Z),
+        xytext=(72, 45),
+        fontsize=7,
+        color="#7d530b",
+        arrowprops={"arrowstyle": "->", "color": "#7d530b", "lw": 0.9},
+    )
+    ax.plot(
+        [post_x0, CLAMP_SLIDE_POST_SEAT_END_X],
+        [CLAMP_SLIDE_SEAT_Z, CLAMP_SLIDE_SEAT_Z],
+        color="#dfe7ec",
+        linewidth=2.2,
+        solid_capstyle="butt",
+        label="固定灰色基台最高承托面 z=16 mm（立柱底端共面）",
+    )
+    ax.annotate(
+        "立柱底端停在黄灰交界\n不进入固定灰色 C 形座；底面与承托面共面",
+        xy=(POST_OFFSET, CLAMP_SLIDE_SEAT_Z),
+        xytext=(72, 30),
+        fontsize=7,
+        color="#2e596d",
+        arrowprops={"arrowstyle": "->", "color": "#2e596d", "lw": 0.9},
+    )
     ax.add_patch(
         Rectangle(
-            (post_x0, POST_BOTTOM),
-            POST_WIDTH,
-            POST_TOP - POST_BOTTOM,
-            facecolor="#d4a24c",
-            edgecolor="#8d6513",
-            alpha=0.88,
-            label="浅黄色下段立柱（含 M8 捕获螺母承座）",
+            (NET_CLAMP_CLIP_INNER_X - TABLE_EDGE, NET_CLAMP_CHANNEL_BOTTOM_Z),
+            NET_CLAMP_CLIP_LENGTH_X,
+            NET_CLAMP_CYLINDER_HEIGHT,
+            facecolor="#e2a52f",
+            edgecolor="#815b0f",
+            alpha=0.9,
+            label="PETG 整高 U 形卡网夹（外侧 x+ 滑入；张力承力）",
         )
     )
     ax.add_patch(
         Rectangle(
             (
-                NET_CLAMP_CYLINDER_CENTER_X - TABLE_EDGE
-                - NET_CLAMP_CYLINDER_ACTUAL_D / 2,
+                NET_CLAMP_CLIP_OUTER_X - TABLE_EDGE - NET_CLAMP_CLIP_CROSSBAR_T_X,
                 NET_CLAMP_CHANNEL_BOTTOM_Z,
             ),
-            NET_CLAMP_CYLINDER_ACTUAL_D,
+            NET_CLAMP_CLIP_CROSSBAR_T_X,
             NET_CLAMP_CYLINDER_HEIGHT,
-            facecolor="#e2a52f",
+            facecolor="#b87916",
             edgecolor="#815b0f",
-            alpha=0.9,
-            label="PETG 打印卡网圆柱 Ø12（外侧 x+ 插入 U 槽）",
+            alpha=0.92,
+        )
+    )
+    ax.add_patch(
+        Rectangle(
+            (NET_CLAMP_KEEPER_X_MIN - TABLE_EDGE, NET_CLAMP_KEEPER_Z),
+            NET_CLAMP_KEEPER_X_MAX - NET_CLAMP_KEEPER_X_MIN,
+            NET_CLAMP_KEEPER_HEIGHT_Z,
+            facecolor="#8f4f18",
+            edgecolor="#5e3210",
+            linewidth=1.0,
+            alpha=0.95,
+            label="立柱内嵌单一被动止挡（配卡夹一体扣舌；只防拔出；无穿钉）",
         )
     )
     ax.annotate(
-        "网布穿过立柱主体的 y 向过道：3 mm",
-        xy=(post_x0 + POST_WIDTH / 2, NET_HEIGHT / 2),
-        xytext=(post_x0 - 58, NET_HEIGHT / 2 + 18),
+        "网布穿过立柱主体的 y 向过道：3 mm\n卡夹由网布/绳张力压住，一体扣舌配内嵌止挡只防拔出",
+        xy=(post_x0 + POST_WIDTH / 2,
+            NET_FIXTURE_BOTTOM_Z + NET_HEIGHT / 2),
+        xytext=(post_x0 - 58, NET_FIXTURE_BOTTOM_Z + NET_HEIGHT / 2 + 18),
         fontsize=7,
         color="#7d5a0c",
         arrowprops={"arrowstyle": "->", "color": "#7d5a0c", "lw": 0.8},
@@ -1135,19 +1584,19 @@ def draw_side(ax) -> None:
             label="fixed M8 nut",
         )
     )
-    ax.axhline(NET_HEIGHT, color="#ffffff", linewidth=2, label="traditional net top 152.5 mm")
-    ax.axhline(NET_HEIGHT + REFERENCE_HEIGHT, color="#31a354", linewidth=2, label="reference line +50 mm")
+    ax.axhline(NET_POST_TOP_Z, color="#ffffff", linewidth=2, label="网顶 z=168.5 mm（从 z=16 起 152.5 mm）")
+    ax.axhline(NET_POST_TOP_Z + REFERENCE_HEIGHT, color="#31a354", linewidth=2, label="reference line +50 mm")
     for index in range(BEAM_COUNT):
         height = BEAM_FIRST + index * BEAM_PITCH
         ax.plot(
             [POST_OFFSET - 8, POST_OFFSET + POST_WIDTH + 4],
-            [NET_HEIGHT + height, NET_HEIGHT + height],
+            [NET_POST_TOP_Z + height, NET_POST_TOP_Z + height],
             color="#4c78a8",
             linewidth=1.0,
         )
     ax.add_patch(
         Rectangle(
-            (post_x0 - 20, NET_HEIGHT - 1),
+            (post_x0 - 20, NET_POST_TOP_Z - 1),
             12,
             8,
             facecolor="#9467bd",
@@ -1224,7 +1673,78 @@ def draw_side(ax) -> None:
     inset.set_ylabel("z", fontsize=7)
     inset.tick_params(labelsize=6)
     inset.grid(True, alpha=0.2)
-    ax.set_title("No-drill C-clamp + solid outboard bridge + 40→12 mm lower support: side intent")
+    slide_inset = ax.inset_axes([0.52, 0.12, 0.44, 0.34])
+    slide_inset.set_facecolor("#f7f9fb")
+    # y-z section of the actual interface. The gray rectangle ends at the
+    # z=16 contact plane and the orange post starts on that same plane; it
+    # then tapers for 30 mm to the nominal 38 mm post depth.
+    slide_inset.add_patch(
+        Rectangle(
+            (-CLAMP_REINFORCEMENT_DEPTH_Y / 2, 2),
+            CLAMP_REINFORCEMENT_DEPTH_Y,
+            CLAMP_SLIDE_SEAT_Z - 2,
+            facecolor="#aeb7bf",
+            edgecolor="#4d5964",
+            alpha=0.72,
+            label="固定 C 形夹接触面（z=16）",
+        )
+    )
+    slide_inset.add_patch(
+        Polygon(
+            [
+                (POST_INTERFACE_TRANSITION_OUTER_MIN_Y, POST_BOTTOM),
+                (POST_INTERFACE_TRANSITION_OUTER_MAX_Y, POST_BOTTOM),
+                (POST_INTERFACE_TRANSITION_OUTER_MAX_Y,
+                 POST_INTERFACE_TRANSITION_START_Z),
+                (POST_DEPTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+                (-POST_DEPTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+                (POST_INTERFACE_TRANSITION_OUTER_MIN_Y,
+                 POST_INTERFACE_TRANSITION_START_Z),
+            ],
+            closed=True,
+            facecolor="#d98d27",
+            edgecolor="#7d530b",
+            linewidth=1.1,
+            alpha=0.9,
+            label="从共面座 z=16 起的 30 mm 连续实心渐变",
+        )
+    )
+    slide_inset.add_patch(
+        Rectangle(
+            (-POST_DEPTH / 2, POST_INTERFACE_TRANSITION_TOP_Z),
+            POST_DEPTH,
+            10,
+            facecolor="#d4a24c",
+            edgecolor="#8d6513",
+            alpha=0.9,
+            label="z=46 后立柱 28×38 mm 恒定至 z=260.5",
+        )
+    )
+    slide_inset.plot(
+        [POST_INTERFACE_TRANSITION_OUTER_MIN_Y - 3,
+         POST_INTERFACE_TRANSITION_OUTER_MAX_Y + 3],
+        [POST_BOTTOM, POST_BOTTOM],
+        color="#2e596d",
+        linewidth=2.0,
+        label="C 形夹最高承托面 z=16 mm；立柱底端共面",
+    )
+    slide_inset.annotate(
+        "底面与黄灰交界共面\n无下插段、无干涉扣除",
+        xy=(0, CLAMP_SLIDE_SEAT_Z),
+        xytext=(12, CLAMP_SLIDE_SEAT_Z - 4),
+        fontsize=7,
+        color="#2e596d",
+        arrowprops={"arrowstyle": "->", "color": "#2e596d", "lw": 0.8},
+    )
+    slide_inset.set_xlim(-34, 34)
+    slide_inset.set_ylim(5, POST_INTERFACE_TRANSITION_TOP_Z + 10)
+    slide_inset.set_aspect("equal", adjustable="box")
+    slide_inset.set_title("真实 y-z：固定平面上的一体实心渐变", fontsize=8)
+    slide_inset.set_xlabel("y / mm（共面承托 58 mm → 上段 38 mm）", fontsize=7)
+    slide_inset.set_ylabel("z", fontsize=7)
+    slide_inset.tick_params(labelsize=6)
+    slide_inset.grid(True, alpha=0.2)
+    ax.set_title("No-drill C-clamp + coplanar net-post seat + 30 mm solid taper: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
     ax.set_ylabel("z / mm")
     ax.grid(True, alpha=0.22)

@@ -16,6 +16,39 @@ laser_micro_tail_d = 8.4;
 laser_micro_lever = 12;
 laser_micro_screw_pitch = 0.4;       // M2 standard pitch, travel per turn
 laser_micro_screw_length = 8;
+laser_micro_screw_d = 2;
+laser_micro_cap_screw_length = 14;
+laser_micro_mount_screw_length = 10;
+laser_micro_spring_wire = .4;
+laser_micro_spring_radius = 1.4;     // centreline radius; OD 3.2
+// Front anti-retraction ring that wraps the tip sphere and resists +x retraction.
+// Small profile keeps ±3° sweep clearance while still creating a stop shoulder.
+laser_micro_front_guard_outer_d = 9.0;
+laser_micro_front_guard_inner_d = laser_module_d + laser_module_clearance + 0.6; // default clearance around 6.8 mm
+laser_micro_front_guard_x = -3.2;
+laser_micro_front_guard_len = 1.5;
+laser_micro_front_guard_release = 0.75;
+// Short rear radial pusher on the opposite side from the existing retention
+// screw.  It presses the copper body inward near its rear end while the
+// carrier's rear insertion bore remains open.
+laser_micro_rear_pusher_d = 3.4;          // M3-class flat-point set screw
+laser_micro_rear_pusher_clearance = 0.3;  // boss inner edge beyond the Ø6 body
+laser_micro_rear_pusher_tap_d = 2.5;      // M3 printed-tap pilot (use insert for service)
+laser_micro_rear_pusher_length = 3.0;     // nominal M3×3; tip stops at y=-3.05
+laser_micro_rear_pusher_x = 8.0;          // rear section of the Ø6 mm body
+laser_micro_rear_pusher_axis_y = -5.9;    // outside face; screw advances +y
+laser_micro_rear_pusher_tip_setback = 0.15; // nominal 0.05 mm radial gap before hand-tightening
+laser_micro_rear_pusher_axis_z = 0;
+laser_micro_rear_pusher_boss_x = 6.0;
+laser_micro_rear_pusher_boss_len = 4.0;
+laser_micro_rear_pusher_boss_width = 2.6;
+laser_micro_rear_pusher_boss_height = 4.2;
+laser_micro_rear_pusher_drive_af = 2.0;
+laser_micro_rear_pusher_withdraw = 3.0;
+laser_micro_spring_turns = 4;
+laser_micro_spring_free_height = 4.6; // candidate; force/rate still needs measurement
+laser_micro_spring_floor = -7.6;
+laser_micro_spring_pad = -4.1;
 laser_micro_mount_y = 20;
 laser_micro_origin_x = m6_detector_body_min_x;
 // End-band cover screws avoid the cassette openings at the old first/last
@@ -53,6 +86,14 @@ assert(laser_module_length > 0 && laser_module_length <= 15,
 assert(abs(laser_micro_pitch_deg) <= laser_micro_range_deg &&
        abs(laser_micro_yaw_deg) <= laser_micro_range_deg,
        "Individual adjustment must stay within the checked +/-3 degree range");
+assert(laser_micro_rear_pusher_axis_y-laser_micro_rear_pusher_tip_setback+
+       laser_micro_rear_pusher_length <= -laser_module_d/2+1e-6,
+       "Rear pusher nominal tip must not penetrate the laser body");
+assert(laser_micro_rear_pusher_tap_d < laser_micro_rear_pusher_d,
+       "Rear pusher boss must have a threaded pilot smaller than the screw OD");
+assert((-laser_module_d/2)-(laser_micro_rear_pusher_axis_y+
+       laser_micro_rear_pusher_boss_width) >= laser_micro_rear_pusher_clearance-1e-6,
+       "Rear pusher boss must leave the specified rear insertion clearance");
 
 module lm_xcyl(d, h, x=0, y=0, z=0, facets=48) {
     translate([x,y,z]) rotate([0,90,0]) cylinder(d=d,h=h,$fn=facets);
@@ -69,16 +110,50 @@ module lm_adjust_axis(sign=1) {
 module lm_moving(pitch=laser_micro_pitch_deg,yaw=laser_micro_yaw_deg) {
     rotate([0,0,yaw]) rotate([0,pitch,0]) children();
 }
-// The screw tip is the intersection of its radial axis with the rotated tail
-// cylinder, computed exactly from distance to the cylinder's unit axis.
-function lm_tip(sign,p=laser_micro_pitch_deg,y=laser_micro_yaw_deg) =
+// A flat M2 end is a disk, not a point on the screw axis. Find the furthest
+// tail surface under that disk. The old centre-ray solution penetrated the
+// tilted tail. A coarse bracket plus bounded refinement locates rim contact;
+// at zero tilt the maximum also lies on the rim along the cylinder axis.
+function lm_tip_ray(sign,p,y,angle) =
     let(a=[cos(p)*cos(y),cos(p)*sin(y),-sin(p)],
         n=[0,sign/sqrt(2),1/sqrt(2)],
-        b=laser_micro_lever*a[0], c=n*a,
+        r=laser_micro_screw_d/2,
+        q=[laser_micro_lever+r*cos(angle),r*sin(angle)/sqrt(2),-sign*r*sin(angle)/sqrt(2)],
+        b=q*a, c=n*a,
         aa=1-c*c, bb=-2*b*c,
-        cc=laser_micro_lever*laser_micro_lever-b*b-
-           pow(laser_micro_tail_d/2,2))
+        cc=q*q-b*b-pow(laser_micro_tail_d/2,2))
     (-bb+sqrt(bb*bb-4*aa*cc))/(2*aa);
+function lm_tip_refine(s,p,y,lo,hi,n=28) = n==0 ? (lo+hi)/2 :
+    let(a=lo+(hi-lo)/3,b=hi-(hi-lo)/3)
+    lm_tip_ray(s,p,y,a)>lm_tip_ray(s,p,y,b)
+      ? lm_tip_refine(s,p,y,lo,b,n-1) : lm_tip_refine(s,p,y,a,hi,n-1);
+function lm_tip(sign,p=laser_micro_pitch_deg,y=laser_micro_yaw_deg) =
+    let(values=[for(a=[0:15:345]) lm_tip_ray(sign,p,y,a)],
+        centre=15*search(max(values),values)[0])
+    lm_tip_ray(sign,p,y,lm_tip_refine(sign,p,y,centre-15,centre+15));
+function lm_rotate(v,p,y) = [cos(y)*(cos(p)*v[0]+sin(p)*v[2])-sin(y)*v[1],
+    sin(y)*(cos(p)*v[0]+sin(p)*v[2])+cos(y)*v[1],-sin(p)*v[0]+cos(p)*v[2]];
+function lm_phase(e,a,b) = min(1,max(0,(e-a)/(b-a)));
+
+// Bench disassembly, after removing a complete cassette from the rail.
+// Captive nuts remain in their seats. A hand supports the spring-loaded tube
+// while its cap is released. Separate axial exits before lateral parking.
+function lm_cap_move(e) = [35*lm_phase(e,.44,.52),0,16*lm_phase(e,.36,.44)];
+function lm_bolt_move(e) = [0,32*lm_phase(e,.30,.36),18*lm_phase(e,.18,.30)];
+function lm_upper_liner_move(e) = [0,-24*lm_phase(e,.60,.66),11*lm_phase(e,.52,.60)];
+function lm_carrier_move(e) = [-24*lm_phase(e,.76,.84),0,18*lm_phase(e,.66,.76)];
+function lm_laser_move(e) = lm_carrier_move(e)+[20*lm_phase(e,.92,1),0,0];
+function lm_lock_withdraw(e) = .6*lm_phase(e,0,.08);
+function lm_screw_withdraw(e) = 1.2*lm_phase(e,.08,.18);
+function lm_retention_withdraw(e) = 1.2*lm_phase(e,.84,.92);
+function lm_rear_pusher_withdraw(e) = laser_micro_rear_pusher_withdraw*lm_phase(e,.84,.92);
+function lm_bench_motion(e) = [lm_cap_move(e),lm_bolt_move(e),lm_upper_liner_move(e),
+    lm_carrier_move(e),lm_laser_move(e),lm_lock_withdraw(e),lm_screw_withdraw(e),
+    lm_retention_withdraw(e),lm_spring_release(e),lm_rear_pusher_withdraw(e)];
+// Both head covers are serviced with the rail, rear housing and ballhead fixed.
+// Pull each screw clear of the cap before parking it outside its full width.
+function lm_cover_motion(e) = [[-50*lm_phase(e,.6,1),0,0],
+    [-34*lm_phase(e,0,.4),45*lm_phase(e,.4,.6),0]];
 
 module lm_hex(af=4,h=1.6,bore=2) {
     difference() {
@@ -132,7 +207,9 @@ module lm_frame_voids() {
             translate([0,0,9]) cylinder(d=laser_micro_access_d,h=80,$fn=48);
     }
     // Spring pocket has a floor at z=-7.6; it does not pierce the base.
-    translate([laser_micro_lever,0,-7.6]) cylinder(d=3.6,h=3,$fn=32);
+    // Flare the mouth for the bent spring at combined pitch/yaw; keep the
+    // lower seat centred and the load-bearing floor continuous.
+    translate([laser_micro_lever,0,laser_micro_spring_floor]) cylinder(d1=3.6,d2=5.4,h=3,$fn=48);
 }
 module lm_frame(top=false) {
     lm_half(top) difference() { lm_frame_envelope(); lm_frame_voids(); }
@@ -144,14 +221,62 @@ module lm_liner(top=false) {
         lm_xcyl(9.2,9,-4.5);
     }
 }
+module lm_front_retract_collar() {
+    // Front anti-retraction sleeve: covers the round tip and adds a rear shoulder.
+    difference() {
+        intersection() {
+            translate([laser_micro_front_guard_x,0,0]) sphere(d=laser_micro_front_guard_outer_d,$fn=64);
+            translate([laser_micro_front_guard_x,0,0])
+                cube([laser_micro_front_guard_len,28,28],center=true);
+        }
+        intersection() {
+            translate([laser_micro_front_guard_x,0,0]) sphere(d=laser_micro_front_guard_inner_d,$fn=64);
+            translate([laser_micro_front_guard_x,0,0])
+                cube([laser_micro_front_guard_len + 0.2,28,28],center=true);
+        }
+        // Rearward opening so assembly from +x is not permanently jammed.
+        translate([laser_micro_front_guard_x + laser_micro_front_guard_len/2,0,0])
+            cube([laser_micro_front_guard_len - laser_micro_front_guard_release,28,28],center=true);
+        // Keep collar clear from the rear tail and side lands.
+        translate([laser_micro_front_guard_x,0,0]) cube([0.8,28,28],center=true);
+        // Front aperture is already used by the optical bore; preserve it.
+        lm_xcyl(6,20,laser_micro_front_guard_x-10,0,-6);
+    }
+}
+module lm_rear_pusher_boss() {
+    // The boss is outside the lower-side bore wall.  Its inner edge stays
+    // 0.3 mm beyond the Ø6 mm head envelope so rear insertion remains clear.
+    translate([laser_micro_rear_pusher_boss_x,
+               laser_micro_rear_pusher_axis_y,
+               laser_micro_rear_pusher_axis_z-laser_micro_rear_pusher_boss_height/2])
+        cube([laser_micro_rear_pusher_boss_len,
+              laser_micro_rear_pusher_boss_width,
+              laser_micro_rear_pusher_boss_height]);
+}
+module lm_rear_pusher_bore() {
+    translate([laser_micro_rear_pusher_x,
+               laser_micro_rear_pusher_axis_y-.1,
+               laser_micro_rear_pusher_axis_z])
+        rotate([-90,0,0])
+            // Ø2.5 pilot is intentionally undersize for an M3 printed tap;
+            // it is not a loose clearance hole.
+            cylinder(d=laser_micro_rear_pusher_tap_d,
+                     h=laser_micro_rear_pusher_boss_width+.2,$fn=32);
+}
 module lm_carrier() {
     difference() {
         union() {
             sphere(d=laser_micro_ball_d,$fn=64);
+            lm_front_retract_collar();
             lm_xcyl(laser_micro_tail_d,15,0);
+            lm_rear_pusher_boss();
+            // A 4.4 mm wide bearing land supports the entire OD3.2 spring.
+            // Cutting a flat from the cylinder alone left only a 1.82 mm land.
+            translate([10,-2.2,laser_micro_spring_pad]) cube([5,4.4,.85]);
             // Retention grub screw uses a captured metal nut, not PETG thread.
             translate([5,3,-3]) cube([4,4.8,6]);
         }
+        lm_rear_pusher_bore();
         lm_xcyl(laser_module_d+laser_module_clearance,23,-3);
         lm_xcyl(4.5,4,-6); // front stop lip, does not obstruct the optical bore
         translate([7,2,0]) rotate([-90,0,0]) cylinder(d=2.3,h=8,$fn=28);
@@ -173,51 +298,93 @@ module lm_grub(length=8) {
         translate([0,0,length-1.4]) cylinder(d=1.05/cos(30),h=1.5,$fn=6);
     }
 }
-module lm_adjust_screw(sign=1) { lm_adjust_axis(sign) translate([0,0,lm_tip(sign)]) lm_grub(laser_micro_screw_length); }
-module lm_adjust_nut(sign=1,lock=false) { lm_adjust_axis(sign) translate([0,0,lock ? 9 : 6.55]) lm_hex(); }
-module lm_retention_hardware() {
+module lm_adjust_screw(sign=1,withdraw=0) { lm_adjust_axis(sign) translate([0,0,lm_tip(sign)+withdraw])
+    rotate([0,0,360*withdraw/laser_micro_screw_pitch]) lm_grub(laser_micro_screw_length); }
+module lm_adjust_nut(sign=1,lock=false,withdraw=0) { lm_adjust_axis(sign) translate([0,0,(lock ? 9 : 6.55)+withdraw])
+    rotate([0,0,360*withdraw/laser_micro_screw_pitch]) lm_hex(); }
+module lm_retention_screw(withdraw=0) {
+    translate([7,laser_module_d/2+withdraw,0]) rotate([-90,0,0])
+        rotate([0,0,360*withdraw/laser_micro_screw_pitch]) lm_grub(5);
+}
+module lm_retention_nut() {
     translate([7,5.55,0]) rotate([-90,0,0]) lm_hex();
-    translate([7,laser_module_d/2,0]) rotate([-90,0,0]) lm_grub(5);
 }
-module lm_cap_hardware() {
-    for(s=[-1,1]) {
-        translate([0,s*10,-6]) cylinder(d=2,h=12,$fn=24);
-        translate([0,s*10,6]) cylinder(d=3.8,h=2,$fn=32);
-        translate([0,s*10,-7.25]) lm_hex();
-    }
-}
-module lm_spring() {
-    // Purchased OD3.2 wire0.4 spring; model length follows the moving flat pad.
-    // The free length / rate must be selected after a real preload trial.
-    h=3.1-laser_micro_lever*sin(laser_micro_pitch_deg);
-    translate([laser_micro_lever,0,-7.4])
-        for(i=[0:71]) hull() {
-            for(j=[i,i+1]) translate([1.4*cos(j*15),1.4*sin(j*15),h*j/72]) sphere(d=.4,$fn=8);
+module lm_retention_hardware() { lm_retention_nut(); lm_retention_screw(); }
+module lm_rear_pusher_screw(withdraw=0) {
+    // Flat-point M3-class screw enters from the rear-side outside face and
+    // bears on the Ø6 mm body.  The hex socket is on the accessible outside
+    // face; positive withdraw moves it farther out along -y.
+    translate([laser_micro_rear_pusher_x,
+               laser_micro_rear_pusher_axis_y-laser_micro_rear_pusher_tip_setback-withdraw,
+               laser_micro_rear_pusher_axis_z])
+        rotate([-90,0,0]) difference() {
+            cylinder(d=laser_micro_rear_pusher_d,
+                     h=laser_micro_rear_pusher_length,$fn=32);
+            translate([0,0,-.01])
+                cylinder(d=laser_micro_rear_pusher_drive_af/cos(30),h=1.1,$fn=6);
         }
+}
+module lm_rear_pusher_hardware(withdraw=0) { lm_rear_pusher_screw(withdraw); }
+module lm_cap_bolt(s=1,withdraw=0) {
+        translate([0,s*10,withdraw]) rotate([0,0,360*min(withdraw,3)/laser_micro_screw_pitch]) {
+            translate([0,0,6-laser_micro_cap_screw_length]) cylinder(d=2,h=laser_micro_cap_screw_length,$fn=24);
+            translate([0,0,6]) difference() {
+                cylinder(d=3.8,h=2,$fn=32);
+                translate([0,0,.7]) cylinder(d=1.55/cos(30),h=1.4,$fn=6);
+            }
+        }
+}
+module lm_cap_bolts(withdraw=0) { for(s=[-1,1]) lm_cap_bolt(s,withdraw); }
+module lm_cap_nuts() { for(s=[-1,1]) translate([0,s*10,-7.25]) lm_hex(); }
+module lm_cap_hardware() { lm_cap_bolts(); lm_cap_nuts(); }
+// Constant wire diameter. The centreline bends between the fixed floor and
+// the rotating spring land. End turns have wire-diameter pitch; no mesh scale.
+function lm_spring_point(u,p=laser_micro_pitch_deg,y=laser_micro_yaw_deg,lift=0) =
+    let(w=laser_micro_spring_wire,
+        bottom=[laser_micro_lever,0,laser_micro_spring_floor+w/2],
+        top=lm_rotate([laser_micro_lever,0,laser_micro_spring_pad-w/2],p,y)+[0,0,lift],
+        h=top[2]-bottom[2], turns=laser_micro_spring_turns, t=u*turns,
+        z=t<1 ? w*t : t>turns-1 ? h-w*(turns-t) : w+(h-2*w)*(t-1)/(turns-2),
+        f=z/h,
+        ring=lm_rotate([laser_micro_spring_radius*cos(360*t),laser_micro_spring_radius*sin(360*t),0],p*f,y*f))
+    bottom+(top-bottom)*f+ring;
+function lm_spring_release(e) = min(lm_carrier_move(e)[2],
+    laser_micro_spring_free_height-(laser_micro_spring_pad-laser_micro_spring_floor));
+module lm_spring(lift=0) {
+    for(i=[0:laser_micro_spring_turns*32-1]) hull() {
+        for(j=[i,i+1]) translate(lm_spring_point(j/(laser_micro_spring_turns*32),
+            laser_micro_pitch_deg,laser_micro_yaw_deg,lift)) sphere(d=laser_micro_spring_wire,$fn=8);
+    }
 }
 module lm_mount_hardware() {
     for(s=[-1,1]) {
-        lm_xcyl(2.5,8,-4,s*laser_micro_mount_y);
+        lm_xcyl(2.5,laser_micro_mount_screw_length,-4,s*laser_micro_mount_y);
         lm_xcyl(4.5,2.5,-6.5,s*laser_micro_mount_y);
         translate([3,s*laser_micro_mount_y,0]) rotate([0,90,0]) lm_hex(5,2,2.5);
     }
 }
 module laser_micro_assembly(e=laser_micro_explode) {
     color("#647d96") lm_frame(false);
-    color("#86a9c4") translate([0,0,e*20]) lm_frame(true);
-    color("#46cfb2") translate([0,0,-e*5]) lm_liner(false);
-    color("#46cfb2") translate([0,0,e*14]) lm_liner(true);
+    assert(e==0 || (laser_micro_pitch_deg==0 && laser_micro_yaw_deg==0),"Return to zero before bench disassembly");
+    color("#86a9c4") translate(lm_cap_move(e)) lm_frame(true);
+    color("#46cfb2") lm_liner(false);
+    color("#46cfb2") translate(lm_upper_liner_move(e)) lm_liner(true);
     lm_moving() {
-        color("#ec934b") translate([-e*14,-e*10,e*9]) lm_carrier();
+        color("#ec934b") translate(lm_carrier_move(e)) lm_carrier();
         // Body withdraws toward +x from the carrier's rear; the small front
         // aperture is a physical stop, not a valid assembly path.
-        color("#d4b567") translate([e*10,-e*10,e*9]) lm_laser();
-        color("silver") translate([-e*14,-e*10,e*9]) lm_retention_hardware();
+        color("#d4b567") translate(lm_laser_move(e)) lm_laser();
+        color("silver") translate(lm_carrier_move(e)) { lm_retention_nut(); lm_retention_screw(lm_retention_withdraw(e)); }
+        color("silver") translate(lm_carrier_move(e))
+            lm_rear_pusher_hardware(lm_rear_pusher_withdraw(e));
     }
     color("silver") {
-        translate([0,0,e*20]) for(s=[-1,1]) { lm_adjust_screw(s); lm_adjust_nut(s); lm_adjust_nut(s,true); }
-        translate([0,0,e*20]) lm_cap_hardware();
-        lm_spring();
+        translate(lm_cap_move(e)) for(s=[-1,1]) {
+            lm_adjust_screw(s,lm_screw_withdraw(e)); lm_adjust_nut(s); lm_adjust_nut(s,true,lm_lock_withdraw(e));
+        }
+        translate([0,lm_bolt_move(e)[1],0]) lm_cap_bolts(lm_bolt_move(e)[2]);
+        lm_cap_nuts();
+        lm_spring(lm_spring_release(e));
         lm_mount_hardware();
     }
 }
@@ -331,7 +498,7 @@ module laser_micro_front_cover() {
                         cube([.5,10,7]);
                 }
                 translate([laser_micro_origin_x-5.8,laser_micro_front_screw_y-5,z-3.5])
-                    cube([5.2,10,7]);
+                    cube([5.8,10,7]); // hard stop seats on rail at x=origin
             }
         }
         for(i=[0:m6_sensor_count-1])
@@ -368,15 +535,19 @@ module laser_micro_bottom_gasket() {
             offset(delta=-m6_detector_shell_gasket_width/2) lm_complete_footprint();
         }
 }
-module laser_micro_front_hardware() {
+module laser_micro_front_bolts() {
     color("silver") for(z=laser_micro_cover_screw_z) {
         lm_xcyl(3,30,laser_micro_front_screw_entry_x,laser_micro_front_screw_y,z);
         translate([laser_micro_front_screw_entry_x,laser_micro_front_screw_y,z])
             rotate([0,90,0]) cylinder(d1=6,d2=3,h=1.7,$fn=36);
-        translate([m6_detector_body_max_x-2.7,laser_micro_front_screw_y,z])
-            rotate([0,90,0]) lm_hex(5.5,2.4,3);
     }
 }
+module laser_micro_front_nuts() {
+    color("silver") for(z=laser_micro_cover_screw_z)
+        translate([m6_detector_body_max_x-2.7,laser_micro_front_screw_y,z])
+            rotate([0,90,0]) lm_hex(5.5,2.4,3);
+}
+module laser_micro_front_hardware() { laser_micro_front_bolts(); laser_micro_front_nuts(); }
 module laser_micro_cover_containment() {
     // Parts must actually be inside the curved front cavity with 0.5 mm
     // clearance. A missing wall cannot make this test pass by itself.
@@ -464,7 +635,10 @@ module lm_service_obstacles(channel=laser_micro_service_channel,sign=laser_micro
     // All neighbours remain installed, including their hardware.
     for(i=[0:m6_sensor_count-1]) translate([0,0,(i-channel)*m6_sensor_center_pitch]) {
         lm_frame(false); lm_frame(true);
-        lm_moving() { lm_carrier(); lm_laser(); lm_retention_hardware(); }
+        lm_moving() {
+            lm_carrier(); lm_laser(); lm_retention_hardware();
+            lm_rear_pusher_hardware();
+        }
         lm_cap_hardware(); lm_mount_hardware();
         for(s=[-1,1]) {
             lm_adjust_nut(s);
@@ -483,12 +657,26 @@ module laser_micro_service_collision() {
 }
 
 module laser_micro_metadata() {
+    for(e=[0:.01:1]) {
+        echo(str("LASER_MOTION ",e," ",lm_bench_motion(e)));
+        echo(str("COVER_MOTION ",e," ",lm_cover_motion(e)));
+    }
     echo(str("LASER_PARAM module_d=",laser_module_d));
     echo(str("LASER_PARAM module_length=",laser_module_length));
     echo(str("LASER_PARAM range_deg=",laser_micro_range_deg));
     echo(str("LASER_PARAM lever=",laser_micro_lever));
     echo(str("LASER_PARAM tail_d=",laser_micro_tail_d));
     echo(str("LASER_PARAM screw_pitch=",laser_micro_screw_pitch));
+    echo(str("LASER_PARAM screw_d=",laser_micro_screw_d));
+    echo(str("LASER_PARAM screw_length=",laser_micro_screw_length));
+    echo(str("LASER_PARAM cap_screw_length=",laser_micro_cap_screw_length));
+    echo(str("LASER_PARAM mount_screw_length=",laser_micro_mount_screw_length));
+    echo(str("LASER_PARAM spring_wire=",laser_micro_spring_wire));
+    echo(str("LASER_PARAM spring_radius=",laser_micro_spring_radius));
+    echo(str("LASER_PARAM spring_turns=",laser_micro_spring_turns));
+    echo(str("LASER_PARAM spring_free_height=",laser_micro_spring_free_height));
+    echo(str("LASER_PARAM spring_floor=",laser_micro_spring_floor));
+    echo(str("LASER_PARAM spring_pad=",laser_micro_spring_pad));
     echo(str("LASER_PARAM count=",m6_sensor_count));
     echo(str("LASER_PARAM pitch=",m6_sensor_center_pitch));
     echo(str("LASER_PARAM origin_x=",laser_micro_origin_x));
@@ -509,6 +697,25 @@ module laser_micro_metadata() {
     echo(str("LASER_PARAM front_wall=",laser_micro_front_wall));
     echo(str("LASER_PARAM front_min_x=",laser_micro_front_min_x));
     echo(str("LASER_PARAM front_split_x=",m6_detector_shell_front_max_x));
+    echo(str("LASER_PARAM front_guard_outer_d=",laser_micro_front_guard_outer_d));
+    echo(str("LASER_PARAM front_guard_inner_d=",laser_micro_front_guard_inner_d));
+    echo(str("LASER_PARAM front_guard_x=",laser_micro_front_guard_x));
+    echo(str("LASER_PARAM front_guard_len=",laser_micro_front_guard_len));
+    echo(str("LASER_PARAM front_guard_release=",laser_micro_front_guard_release));
+    echo(str("LASER_PARAM rear_pusher_d=",laser_micro_rear_pusher_d));
+    echo(str("LASER_PARAM rear_pusher_clearance=",laser_micro_rear_pusher_clearance));
+    echo(str("LASER_PARAM rear_pusher_tap_d=",laser_micro_rear_pusher_tap_d));
+    echo(str("LASER_PARAM rear_pusher_length=",laser_micro_rear_pusher_length));
+    echo(str("LASER_PARAM rear_pusher_x=",laser_micro_rear_pusher_x));
+    echo(str("LASER_PARAM rear_pusher_axis_y=",laser_micro_rear_pusher_axis_y));
+    echo(str("LASER_PARAM rear_pusher_tip_setback=",laser_micro_rear_pusher_tip_setback));
+    echo(str("LASER_PARAM rear_pusher_axis_z=",laser_micro_rear_pusher_axis_z));
+    echo(str("LASER_PARAM rear_pusher_boss_x=",laser_micro_rear_pusher_boss_x));
+    echo(str("LASER_PARAM rear_pusher_boss_len=",laser_micro_rear_pusher_boss_len));
+    echo(str("LASER_PARAM rear_pusher_boss_width=",laser_micro_rear_pusher_boss_width));
+    echo(str("LASER_PARAM rear_pusher_boss_height=",laser_micro_rear_pusher_boss_height));
+    echo(str("LASER_PARAM rear_pusher_drive_af=",laser_micro_rear_pusher_drive_af));
+    echo(str("LASER_PARAM rear_pusher_withdraw=",laser_micro_rear_pusher_withdraw));
 }
 
 // Rigid solid interference probe. The TPU liner and metal threaded interfaces

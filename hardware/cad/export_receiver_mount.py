@@ -5,7 +5,7 @@ import concurrent.futures
 import hashlib
 import json
 import re
-from export_laser_micro_mount import HERE, SOURCE, LIBRARY, scad
+from export_laser_micro_mount import HERE, SOURCE, LIBRARY, scad, read_motion
 from validate_scad import find_openscad, stl_bounds
 from validate_net_stand import _stl_topology, _stl_volume
 
@@ -17,7 +17,8 @@ PARTS=[
     ('rear_cover','接收端后盖（端部固定孔）','PETG','#728394',True),
     ('bottom_cover','接收端配套加大底盖','PETG','#526f89',True),
     ('bottom_gasket','接收端底部柔性垫','TPU','#dc9850',True),
-    ('front_hardware','接收端前盖 M3×30 螺钉与螺母','钢','#b8c6cf',False),
+    ('front_bolts','接收端前盖 M3×30 螺钉','钢','#b8c6cf',False),
+    ('front_nuts','接收端前盖捕获螺母','钢','#b8c6cf',False),
     ('pcb','原 M6 接收子板（接口参考）','电路板','#338878',False),
 ]
 def main():
@@ -35,7 +36,8 @@ def main():
             bounds=dict(min=lo,max=hi,size=[y-x for x,y in zip(lo,hi)]),volume_mm3=volume,
             sha256=hashlib.sha256(path.read_bytes()).hexdigest(),watertight=closed,topology=topology)
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:parts=list(pool.map(build,PARTS))
-    manifest=dict(schema_version='receiver-mount-0.1',units='mm',parameters=params,parts=parts,
+    manifest=dict(schema_version='receiver-mount-0.2',units='mm',parameters=params,parts=parts,
+        cover_motion=read_motion(metadata,'COVER_MOTION'),
         source_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in SOURCES},
         scope='右侧接收端外壳与安装接口升级；内部接收头和电路保留原M6接口参考，选型未确认',
         physical_validation='未完成')

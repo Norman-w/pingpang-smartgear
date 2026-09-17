@@ -4,6 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {createCadCamera,resizeCadCamera,configureCadNavigation} from "./cad-navigation.js";
 import {benchStep, flatTip, motionAt} from "./laser-kinematics.js";
 
+const PREVIEW_CACHE_BUSTER = "laser-micro-v3";
 const $ = (id) => document.getElementById(id);
 const host = $("viewport");
 const scene = new THREE.Scene();
@@ -64,6 +65,7 @@ function fallbackBenchMotion(e) {
     1.2*phase(e,.08,.18),
     1.2*phase(e,.84,.92),
     Math.min(18*phase(e,.66,.76),2.8),
+    3*phase(e,.84,.92),
   ];
 }
 function motionSamples(samples, progress, fallback) {
@@ -75,13 +77,13 @@ function motionSamples(samples, progress, fallback) {
   return fallback(progress);
 }
 function partBaseOffset(id,e,bench) {
-  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring]=bench;
+  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring,rearPusher]=bench;
   if(["cap","cap_hardware","cap_bolts","lock_a","lock_b","nuts","front_bolts","front_nuts"].includes(id)) return cap;
   if(id==="carrier") return carrier;
   if(id==="laser") return laser;
   if(id==="liner_upper") return upper;
   if(id==="spring") return [0,0,spring];
-  if(id==="retention"||id==="retention_screw"||id==="retention_nut") return carrier;
+  if(id==="retention"||id==="retention_screw"||id==="retention_nut"||id==="rear_pusher_screw") return carrier;
   if(id==="cap_bolt_a") return [0,-10,0];
   if(id==="cap_bolt_b") return [0,10,0];
   if(id==="cap_nuts") return [0,0,0];
@@ -94,7 +96,7 @@ function update(){
   const p=THREE.MathUtils.degToRad(pitch),y=THREE.MathUtils.degToRad(yaw);
   const rotation=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,p,y,"ZYX"));
   const ta=flatTip(manifest.parameters,1,p,y)-manifest.parameters.tail_d/2,tb=flatTip(manifest.parameters,-1,p,y)-manifest.parameters.tail_d/2;
-  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring]=motionSamples(manifest?.bench_motion,e,fallbackBenchMotion);
+  const [cap,bolt,upper,carrier,laser,lock,screw,retention,spring,rearPusher]=motionSamples(manifest?.bench_motion,e,fallbackBenchMotion);
   for(const part of manifest.parts){
     const mesh=meshes.get(part.id);if(!mesh)continue;
     const explode=Array.isArray(part.explosion)?part.explosion.map(v=>v*e):[0,0,0];
@@ -119,6 +121,9 @@ function update(){
     }
     if(part.id==="retention"||part.id==="retention_screw"||part.id==="retention_nut") {
       mesh.position.y += retention;
+    }
+    if(part.id==="rear_pusher_screw") {
+      mesh.position.add(new THREE.Vector3(0,-(rearPusher||0),0).applyQuaternion(rotation));
     }
     if(part.id==="spring"){
       mesh.position.z += spring;
@@ -196,6 +201,7 @@ document.querySelectorAll("[data-parts]").forEach(button=>button.addEventListene
 }));
 try{
   const url=new URL("../exports/laser-micro-mount-v0.1/manifest.json",location.href);
+  url.searchParams.set("v", PREVIEW_CACHE_BUSTER);
   const response=await fetch(url,{cache:"no-store"});if(!response.ok)throw new Error(`清单 HTTP ${response.status}`);
   manifest=await response.json();
   for(const part of manifest.parts.filter(p=>p.printable)) {

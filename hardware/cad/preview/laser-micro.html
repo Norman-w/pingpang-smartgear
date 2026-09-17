@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>激光夹座 · 原位调整</title>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-  <link rel="stylesheet" href="./laser-micro.css">
+  <link rel="stylesheet" href="./laser-micro.css?v=laser-micro-v3">
 </head>
 <body>
   <header><div><small>独立微调 · 原球头负责整排粗调</small><h1>可调激光夹座</h1></div><span id="dimension">正在读取尺寸…</span></header>
@@ -17,7 +17,7 @@
       </nav>
       <div id="viewport" role="img" aria-label="可旋转的夹座三维模型"><p id="loading" role="status">正在载入夹座 STL…</p></div>
       <p id="view-caption" class="caption">拖动旋转 · 滚轮缩放</p>
-      <div class="downloads"><a id="manifest-link" href="../exports/laser-micro-mount-v0.1/manifest.json" target="_blank">尺寸与导出清单 ↗</a><a href="../../../docs/laser-micro-mount-v0.1.zh-CN.md" target="_blank">结构与装配说明 ↗</a></div>
+      <div class="downloads"><a id="manifest-link" href="../exports/laser-micro-mount-v0.1/manifest.json?v=laser-micro-v3" target="_blank">尺寸与导出清单 ↗</a><a href="../../../docs/laser-micro-mount-v0.1.zh-CN.md?v=laser-micro-v3" target="_blank">结构与装配说明 ↗</a></div>
       <details class="part-downloads"><summary>下载独立打印件</summary><div id="print-files"></div></details>
     </section>
     <aside>
@@ -41,10 +41,10 @@
         <button data-parts="carrier,liner_lower,liner_upper"><i style="--part:#46cfb2">1</i><span><b>前端球面支点</b><small>夹筒转动，光头靠近支点，衬垫由上下夹座夹住。</small></span></button>
         <button data-parts="screw_a,screw_b,nuts,lock_a,lock_b,cap_bolt_a,cap_bolt_b,cap_nuts"><i style="--part:#b8c6cf">2</i><span><b>两颗斜向微调螺钉</b><small>A / B 同向调上下，差动调左右；调好后拧紧锁母。</small></span></button>
         <button data-parts="spring,base"><i style="--part:#647d96">3</i><span><b>底部金属弹簧预紧</b><small>持续把夹筒顶向两颗螺钉，减少松旷。</small></span></button>
-        <button data-parts="laser,retention_screw,retention_nut,mount_hardware"><i style="--part:#d4b567">4</i><span><b>独立装入整排</b><small>裸头由限位顶丝固定，小夹座两侧螺钉连接承载条。</small></span></button>
+        <button data-parts="laser,retention_screw,retention_nut,rear_pusher_screw,mount_hardware"><i style="--part:#d4b567">4</i><span><b>独立装入整排</b><small>裸头由前护套、正侧限位顶丝和后段反侧短顶丝固定，小夹座两侧螺钉连接承载条。</small></span></button>
       </section>
       <p class="note">当前为尺寸可修改的首样模型。转角演示不等于实物精度；需实测裸头尺寸、弹簧预紧和锁紧后的光点漂移。</p>
     </aside>
   </main>
-  <script type="module" src="./laser-micro.js"></script>
+  <script type="module" src="./laser-micro.js?v=laser-micro-v3"></script>
 </body></html>

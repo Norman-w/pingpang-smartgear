@@ -13,7 +13,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./style.css?v=laser-micro-v1">
+  <link rel="stylesheet" href="./style.css?v=laser-micro-v2">
 </head>
 <body>
   <header class="topbar">
@@ -58,6 +58,7 @@
         <p class="control-help" id="receiver-integration-note">接收端已同步加大前盖、底盖及安装接口；内部暂留 M6 接收头参考。<a href="../../../docs/receiver-mount-v0.1.zh-CN.md" target="_blank">接收端零件与说明</a></p>
         <label class="check-row"><input id="show-skp-candidate" type="checkbox" checked><span>显示 SKP 腿脚候选（未进入正式打印清单）</span></label>
         <label class="check-row"><input id="show-skp-fit" type="checkbox" checked><span>显示灰色 C 方案让位候选</span></label>
+<label class="check-row"><input id="show-reinforced-clamp" type="checkbox" checked><span>显示改造后 C 夹五金（加长螺杆/旋钮）</span></label>
         <p class="control-help">带“占位”标记的模型来自装配清单，不进入 PETG / TPU 打印拼盘；M6 光电器件、铝合金基座和金属标准件按外购/机加工件处理。</p>
       </section>
 
@@ -183,7 +184,10 @@
             <span class="focus-preset-label">重点查看</span>
             <div id="focus-presets" class="focus-presets" role="group" aria-label="快速查看重点部位">
               <button class="tiny-button focus-preset-button active" type="button" data-focus-preset="global" aria-pressed="true" title="恢复完整装配取景">全局</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="pcb" aria-pressed="false" title="聚焦右侧 PCB 与电子腔">PCB 腔体</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="ui" aria-pressed="false" title="聚焦 UI 底盖、压框和 UI 子板">UI 底盖</button>
               <button class="tiny-button focus-preset-button" type="button" data-focus-preset="connection" aria-pressed="false" title="聚焦立柱底部与 C 夹让位连接区">立柱/C夹</button>
+              <button class="tiny-button focus-preset-button" type="button" data-focus-preset="knob" aria-pressed="false" title="聚焦旋钮与两侧一体加固墙">旋钮加固</button>
               <button class="tiny-button focus-preset-button" type="button" data-focus-preset="m6" aria-pressed="false" title="聚焦右侧 M6 十路阵列">M6 阵列</button>
               <button class="tiny-button focus-preset-button" type="button" data-focus-preset="laserArray" aria-pressed="false" title="聚焦左侧十颗可调裸激光夹座">裸激光阵列</button>
             </div>
@@ -279,6 +283,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=laser-micro-v1"></script>
+  <script type="module" src="./app.js?v=laser-micro-v2"></script>
 </body>
 </html>

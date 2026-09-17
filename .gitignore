@@ -34,6 +34,7 @@ hardware/prints/
 hardware/electronics/3d/v0.2/
 hardware/electronics/output/
 *.kicad_prl
+*.kicad_pro.lck
 
 # ESP-IDF generated project configuration
 firmware/sdkconfig

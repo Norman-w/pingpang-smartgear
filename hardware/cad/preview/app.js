@@ -19,6 +19,7 @@ const refs = {
   showElectronics: $("#show-electronics"),
   showSkpCandidate: $("#show-skp-candidate"),
   showSkpFit: $("#show-skp-fit"),
+  showReinforcedClamp: $("#show-reinforced-clamp"),
   bedPreset: $("#bed-preset"),
   bedWidth: $("#bed-width"),
   bedDepth: $("#bed-depth"),
@@ -93,8 +94,8 @@ const COLORS = {
 };
 
 const ASSEMBLY_STEPS = [
-  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 36 mm、18 齿圆角锯齿握持圈，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm。勾选候选开关时，网页叠加当前审查中的 SKP C 方案：绿色件直接采用用户最新 SKP 的整体底座，向 x- 延伸 15 mm，中央没有旧式裤裆，底部保留两个 Ø4 mm 穿孔和一个 Ø6×2 mm 咯噔圆坑；两侧外伸段末端保留 3×3 mm、45° 倒角。灰色候选由黄色/绿色外形做让位，并配套两枚 Ø4.4 mm 螺丝孔和中央定位孔；这些候选对象不属于正式 33 件 manifest。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
+  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
+  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁、旋钮两侧一体加固斜墙和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm。勾选候选开关时，网页叠加当前审查中的 SKP C 方案：绿色件直接采用用户最新 SKP 的整体底座，向 x- 延伸 15 mm，中央没有旧式裤裆，底部保留两个 Ø4 mm 穿孔和一个 Ø6×2 mm 咯噔圆坑；两侧外伸段末端保留 3×3 mm、45° 倒角。灰色候选由黄色/绿色外形做让位，并配套两枚 Ø4.4 mm 螺丝孔和中央定位孔；这些候选对象不属于正式 33 件 manifest。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
   { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查黄灰交界 z=16 mm、固定网柱底端与承托面共面、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm 共面、接触面以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
@@ -111,11 +112,19 @@ const ASSEMBLY_GROUPS = {
   reference: { label: "标定参考", color: "#fb817c", stage: 5 },
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
   electronics: { label: "线路板 / 电子腔", color: "#2bbbad", stage: 1 },
+  clamp_reinforced: { label: "C 夹加固候选", color: "#7f9099", stage: 1 },
   skp_candidate: { label: "SKP 腿脚候选", color: "#43d34d", stage: 2 },
   context: { label: "球台背景", color: "#75858b", stage: 0 },
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
+const PREVIEW_CACHE_BUSTER = "laser-micro-v2";
+
+const getVersionedUrl = (path, key = "v") => {
+  const target = new URL(path, window.location.href);
+  target.searchParams.set(key, PREVIEW_CACHE_BUSTER);
+  return target;
+};
 
 // The page legend defines +y as the table/front direction.  These directions
 // are camera positions, not object rotations, so the same presets remain valid
@@ -128,7 +137,10 @@ const VIEW_PRESETS = Object.freeze({
   left: { direction: [-1, 0, 0], up: [0, 0, 1] },
   top: { direction: [0, 0, 1], up: [0, 1, 0] },
   bottom: { direction: [0, 0, -1], up: [0, -1, 0] },
+  pcb: { direction: [0.65, -1, -0.72], up: [0, 0, 1] },
+  ui: { direction: [0.35, -1, -0.9], up: [0, 0, 1] },
   connection: { direction: [0.65, -1, -0.55], up: [0, 0, 1] },
+  knob: { direction: [0.85, -1, -0.8], up: [0, 0, 1] },
   m6: { direction: [-0.55, -1, 0.3], up: [0, 0, 1] },
   laserArray: { direction: [0.45, -1, 0.18], up: [0, 0, 1] },
 });
@@ -166,6 +178,7 @@ const state = {
     showElectronics: true,
     showSkpCandidate: true,
     showSkpFit: true,
+    showReinforcedClamp: true,
     items: [],
     loaded: false,
     loadError: null,
@@ -336,6 +349,7 @@ function explosionVector(group, side = 0) {
     // while covers, pads and knobs are exploded as service items; only the
     // one-piece post carrier travels along the real x slide direction.
     case "clamp_fixed": return [0, 0, 0];
+    case "clamp_reinforced": return [0, 0, 0];
     // The post/carrier is a true x-direction slide-in.  Do not lift it in z
     // during the exploded view: at explode=0 its bottom must remain seated on
     // the clamp-base datum, and the only separation shown is the real slide
@@ -493,8 +507,11 @@ function makeAssemblyItem(options) {
     sourceEntry: options.sourceEntry || null,
     sourcePath: options.sourcePath || null,
     stlTransform: options.stlTransform || null,
+    reviewPlacement: options.reviewPlacement || null,
     candidate: Boolean(options.candidate),
     fitCandidate: Boolean(options.fitCandidate),
+    reviewOnly: Boolean(options.reviewOnly),
+    reinforcedClamp: Boolean(options.reinforcedClamp),
     side: options.side || 0,
     object: null,
   };
@@ -506,6 +523,15 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
   const group = assemblyGroupKey(entry);
   let baseMin = bounds.min;
   let stlTransform = null;
+  let reviewPlacement = null;
+  let explosion = explosionVector(group, sideSign(entry));
+  // Match the real service order in clamp_electronics_exploded_positive():
+  // gasket, cover, and faceplate travel away from the cavity opening, rather
+  // than taking the generic clamp-hardware vector and appearing detached from
+  // the electronics stack.
+  if (entry.part === "clamp_electronics_gasket") explosion = [0, -38, 7];
+  if (entry.part === "clamp_electronics_cover") explosion = [0, -52, 14];
+  if (entry.part === "clamp_electronics_ui_bezel") explosion = [0, -58, -4];
   if (entry.part === "net_clamp_clip") {
     // The printable STL is deliberately laid flat: SCAD rotates the installed
     // x/y/z clip datum onto x/y/z print axes. Restore that transform only in
@@ -547,16 +573,273 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
     size: bounds.size,
     side: sideSign(entry),
     stlTransform,
-    explosion: explosionVector(group, sideSign(entry)),
+    reviewPlacement,
+    explosion,
   });
+}
+
+// KiCad's exported STL files keep the board in the local frame
+// x=0..length, y=-width..0, z=0..component-height.  The browser normalizes
+// every STL to a 0-based local box before loading it, so the clamp-board
+// origins below are the corresponding world AABB minima from fit-report-v0.2
+// rather than the raw positive-y SCAD translate values.  The M6 carrier is
+// deliberately kept in its real vertical orientation: its local board x
+// axis becomes world z by the same -90 degree Y rotation used by SCAD.
+const ELECTRONICS_BOARD_MODEL_ROOT = "../../../electronics/3d/v0.2/";
+// The UI daughter board is mounted to the removable cover's sloped datum.  The
+// source SCAD derives the same slope from the 40-to-14 mm tapered underside;
+// the browser applies it to the flat KiCad STL so the four H1-H4 holes stay
+// coaxial with the cover bosses.  The current review candidate recesses the
+// cover by its 3 mm thickness and puts the UI stack on the cavity side, so the
+// board origin is above the C-clamp floor rather than below the body.
+const ELECTRONICS_UI_COVER_SLOPE_XZ = 26 / (918.3 - 759.5);
+const ELECTRONICS_UI_COVER_ANGLE_Y = -Math.atan(ELECTRONICS_UI_COVER_SLOPE_XZ);
+const ELECTRONICS_UI_COVER_MOUNTED_Z = -64.3853904282116;
+const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
+  main: {
+    file: "esp32-control-v0.1.stl",
+    size: [86, 32, 5.84],
+    worldMin: [785.9, -13.5, -47.6],
+    color: "#2f80ed",
+    name: "ESP32-S3 主控板",
+    sideLabel: "右侧电子腔",
+    explosion: [0, 0, 12],
+    notes: "KiCad 导出的真实板级 3D 模型，包含主控、USB-C、连接器和板上器件包络。装配时位于右侧 C 夹梯形电子腔的安装柱上；爆炸时沿 z+ 拉出，仅用于检查板框、器件高度和维护空间。",
+  },
+  emitter: {
+    file: "emitter-power-v0.2.stl",
+    size: [68, 32, 5.84],
+    worldMin: [794.9, -16, -49.2],
+    color: "#c94b63",
+    name: "发射端电源子板",
+    sideLabel: "左侧电子腔",
+    explosion: [0, 0, 12],
+    notes: "KiCad 导出的真实发射电源子板 3D 模型，装配时位于左侧 C 夹腔体；左右镜像只改变其 x 位置，不改变板上接口方向的局部关系。爆炸时沿 z+ 拉出，便于查看电池/端子维护空间。",
+  },
+  ui: {
+    file: "ui-panel-v0.2.stl",
+    size: [58, 28, 5.84],
+    worldMin: [799.9, -14, ELECTRONICS_UI_COVER_MOUNTED_Z],
+    color: "#48a0e8",
+    name: "UI 交互子板",
+    sideLabel: "右侧 C 夹电子腔内侧",
+    stlTransform: { rotation: [0, ELECTRONICS_UI_COVER_ANGLE_Y, 0] },
+    explosion: [0, -58, -7],
+    notes: "KiCad 导出的真实 UI 子板 3D 模型。当前按嵌入式候选装配到电子腔底盖内侧，四个 H1-H4 孔距板边 3.5 mm，与底盖一体 boss 对齐；爆炸时沿 y- 拉开，便于检查盖板、压框和线路板的内部维护关系。当前诊断显示它与现有电池、主控板包络仍有冲突，位置关系确认后还需做一次电池/主板重排。",
+  },
+});
+
+function electronicsBoardSourcePath(file) {
+  const base = state.sourceManifestUrl || state.manifestUrl;
+  const isPlatterManifest = base?.pathname?.includes("/print-platter-");
+  const root = isPlatterManifest
+    ? "../../../../electronics/3d/v0.2/"
+    : ELECTRONICS_BOARD_MODEL_ROOT;
+  return new URL(`${root}${file}`, base).href;
+}
+
+function makeElectronicsBoardItem(options) {
+  const side = options.side || 0;
+  const worldMin = options.worldMin.map(number);
+  const size = options.size.map(number);
+  return makeAssemblyItem({
+    id: options.id,
+    name_zh: `${options.name}（${options.sideLabel}）`,
+    name_en: options.name_en || options.name,
+    kind: "KiCad PCB 真实 3D 模型",
+    material: "FR-4 + 板上器件（显示模型）",
+    material_group: "电子装配",
+    group: "electronics",
+    stage: options.stage ?? 1,
+    color: options.color,
+    nonPrinted: true,
+    shape: "stl",
+    sourcePath: electronicsBoardSourcePath(options.file),
+    base_min: worldMin,
+    size,
+    side,
+    stlTransform: options.stlTransform || null,
+    explosion: options.explosion,
+    notes: options.notes,
+  });
+}
+
+function makeElectronicsBoardItems(assemblyDatums) {
+  const items = [];
+  const main = ELECTRONICS_BOARD_LAYOUT.main;
+  items.push(makeElectronicsBoardItem({
+    ...main,
+    id: "electronics:esp32-main:right",
+    side: 1,
+    worldMin: main.worldMin,
+  }));
+
+  const emitter = ELECTRONICS_BOARD_LAYOUT.emitter;
+  // A negative x scale mirrors the normalized STL about the global x plane.
+  // The group origin is therefore the mirrored positive-side minimum's
+  // negative value, which is the negative-side world maximum.
+  items.push(makeElectronicsBoardItem({
+    ...emitter,
+    id: "electronics:emitter-power:left",
+    side: -1,
+    worldMin: [-emitter.worldMin[0], emitter.worldMin[1], emitter.worldMin[2]],
+    stlTransform: { mirrorX: true },
+  }));
+
+  const ui = ELECTRONICS_BOARD_LAYOUT.ui;
+  items.push(makeElectronicsBoardItem({
+    ...ui,
+    id: "electronics:ui:right",
+    side: 1,
+    worldMin: ui.worldMin,
+  }));
+
+  const receiverRawOrigin = [780, -4.9, 212.5];
+  const receiverInstalledX = receiverRawOrigin[0] + assemblyDatums.m6OffsetX;
+  const receiverInstalledZ = receiverRawOrigin[2] + assemblyDatums.m6RaiseZ;
+  const receiverSize = [5.84, 32, 80];
+  for (const side of [1, -1]) {
+    const sideLabel = side > 0 ? "右侧" : "左侧";
+    items.push(makeElectronicsBoardItem({
+      id: `electronics:m6-receiver-carrier:${sideLabel}`,
+      name: "M6 十路接收子板",
+      sideLabel: `${sideLabel} M6 壳体内`,
+      name_en: `M6 ten-channel carrier PCB (${sideLabel})`,
+      file: "m6-receiver-carrier-v0.2.stl",
+      color: "#36a269",
+      stage: 4,
+      side,
+      worldMin: [side > 0 ? receiverInstalledX : -receiverInstalledX,
+        receiverRawOrigin[1],
+        receiverInstalledZ],
+      size: receiverSize,
+      stlTransform: { rotation: [0, -Math.PI / 2, 0], mirrorX: side < 0 },
+      explosion: [0, 42, 0],
+      notes: "KiCad 导出的真实 M6 载板 3D 模型。板子在 M6 壳体 +y 内壁竖直安装，十路线束先汇聚再插接；爆炸时沿 +y 拉出，保持与壳体的实际维护方向一致。左右各一块，安装位置随完整 M6 总成的 x/z 基准同步。",
+    }));
+  }
+  return items;
 }
 
 function firstEntry(entries, predicate) {
   return entries.find(predicate) || null;
 }
 
+// Dimensions copied from the source SCAD's integrated knob-side
+// reinforcement. The wall itself is loaded from the regenerated gray C-clamp
+// STL; these values are retained only to place the revised detachable hardware
+// proxies.
+const REINFORCED_CLAMP_LAYOUT = Object.freeze({
+  tableEdgeX: 762.5,
+  wallJoinX: 759.5,
+  wallEndX: 918.3,
+  wallStartX: 680.5,
+  wallBottomAtJoinZ: -75,
+  wallBottomAtEndZ: -49,
+  wallBottomAtStartZ: -75
+    + (680.5 - 759.5) / (918.3 - 759.5) * (-49 - (-75)),
+  wallTopZ: -48.8,
+  wallDepthY: 58,
+  knobDiameter: 40,
+  knobHeight: 20,
+  knobSideClearanceY: 22,
+  wallSideWidthY: 7,
+});
+
+function makeReinforcedClampItems(entries) {
+  const layout = REINFORCED_CLAMP_LAYOUT;
+  const items = [];
+
+  for (const sideLabel of ["right", "left"]) {
+    const side = sideLabel === "right" ? 1 : -1;
+    const sideName = side > 0 ? "右侧" : "左侧";
+    const knob = firstEntry(entries, (entry) => entry.part === "clamp_knob" && entry.side === sideLabel);
+    const pressurePad = firstEntry(entries, (entry) => entry.part === "clamp_pressure_pad" && entry.side === sideLabel);
+    const knobBounds = boundsFromEntry(knob);
+    const padBounds = boundsFromEntry(pressurePad);
+    if (!knobBounds || !padBounds) continue;
+    const centerX = knobBounds.min[0] + knobBounds.size[0] / 2;
+    const rodExtension = layout.wallTopZ - layout.wallBottomAtStartZ;
+    const knobBottomZ = knobBounds.min[2] - rodExtension;
+    const knobTopZ = knobBottomZ + layout.knobHeight;
+    const rodMinZ = knobBottomZ + 4.4;
+    const rodHeight = Math.max(12, padBounds.min[2] - rodMinZ);
+
+    items.push(makeAssemblyItem({
+      id: `candidate:reinforced-clamp-rod:${sideLabel}`,
+      name_zh: `M8×1.25 加长金属螺杆（${sideName}，改造后）`,
+      name_en: `lengthened M8 × 1.25 rod (${sideLabel})`,
+      kind: "浏览器审查候选",
+      material: "金属（外购）",
+      material_group: "候选件",
+      group: "clamp",
+      stage: 1,
+      color: "#b8bec2",
+      nonPrinted: true,
+      reviewOnly: true,
+      reinforcedClamp: true,
+      shape: "threaded-stud",
+      shapeOptions: { outer_d: 8, core_d: 7, pitch: 1.25, axis: "z" },
+      base_min: [centerX - 4, -4, rodMinZ],
+      size: [8, 8, rodHeight],
+      side,
+      explosion: explosionVector("clamp", side),
+      notes: "螺杆按加固侧墙的最大增高量同步加长；上端仍顶住原压块，旋钮仍位于螺杆末端。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `candidate:reinforced-clamp-knob:${sideLabel}`,
+      name_zh: `Ø40 手拧旋钮（${sideName}，20 mm 厚，螺杆末端）`,
+      name_en: `Ø40 end handwheel (${sideLabel}, 20 mm thick)`,
+      kind: "浏览器审查候选",
+      material: "PETG（候选）",
+      material_group: "候选件",
+      group: "clamp",
+      stage: 1,
+      color: "#d19b35",
+      nonPrinted: false,
+      reviewOnly: true,
+      reinforcedClamp: true,
+      shape: "hand-knob",
+      shapeOptions: { root_d: 34, tooth_d: 5, tooth_count: 18, axis: "z" },
+      base_min: [centerX - layout.knobDiameter / 2, -layout.knobDiameter / 2, knobBottomZ],
+      size: [layout.knobDiameter, layout.knobDiameter, layout.knobHeight],
+      side,
+      explosion: explosionVector("clamp", side),
+      notes: "旋钮只将直径从原 Ø36 放大到 Ø40 便于手拧；厚度保持原 20 mm，整体下移到加长螺杆末端。",
+    }));
+    items.push(makeAssemblyItem({
+      id: `candidate:reinforced-clamp-jam-nuts:${sideLabel}`,
+      name_zh: `M8 对锁螺母组（${sideName}，旋钮末端）`,
+      name_en: `M8 jam-nut pair at handwheel end (${sideLabel})`,
+      kind: "浏览器审查候选",
+      material: "金属（外购）",
+      material_group: "候选件",
+      group: "clamp",
+      stage: 1,
+      color: "#b8bec2",
+      nonPrinted: true,
+      reviewOnly: true,
+      reinforcedClamp: true,
+      shape: "hex-stack",
+      shapeOptions: { radius: 7, axis: "z" },
+      base_min: [centerX - 6.5, -6.5, knobTopZ - 13.4],
+      size: [13, 13, 13.4],
+      side,
+      explosion: explosionVector("clamp", side),
+      notes: "沿用原来的两枚 M8 对锁螺母，只随旋钮整体移动到新螺杆末端。",
+    }));
+  }
+  return items;
+}
+
 function makeProxyAssemblyItems(entries, assemblyDatums) {
   const items = [];
+  // Include the real KiCad-exported board/component solids in the same
+  // assembly scene as the mechanical STL parts.  They remain non-printable
+  // service items and are controlled independently from the mechanical
+  // candidate switches below.
+  items.push(...makeElectronicsBoardItems(assemblyDatums));
+  items.push(...makeReinforcedClampItems(entries));
   // The printable M6 body/covers are already loaded from the current source
   // manifest.  Keep only the purchased optical hardware as browser proxies;
   // otherwise the same blue body/shell is shown once from STL and once again
@@ -629,23 +912,22 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   // The gray C-clamp fit candidate is a separate STL made by subtracting the
   // yellow/green seating envelope of the corrected integrated SKP base. It
   // also carries the two matching screw-hole clearances and the detent bore.
-  // Keep the formal gray clamp in the array as well;
-  // assemblyVisible() swaps it out when this review switch is enabled, so the
-  // page can compare the uncut and fitted versions.
+  // Its knob-side reinforcement walls are already unioned into this same
+  // gray mesh; only the detachable hardware remains separate.
   const skpFitClampAssets = [
     {
       sideLabel: "right",
       side: 1,
       name: "右侧",
-      file: "right-clamp-body-skp-leg-foot-c-fit.stl",
-      baseMin: [680.5, -29, -75],
+      file: "right-clamp-body-skp-leg-foot-c-fit-integrated.stl",
+      baseMin: [680.5, -29, -87.9345088],
     },
     {
       sideLabel: "left",
       side: -1,
       name: "左侧",
-      file: "left-clamp-body-skp-leg-foot-c-fit.stl",
-      baseMin: [-918.5, -29, -75],
+      file: "left-clamp-body-skp-leg-foot-c-fit-integrated.stl",
+      baseMin: [-918.5, -29, -87.9345088],
     },
   ];
   for (const asset of skpFitClampAssets) {
@@ -663,14 +945,14 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       fitCandidate: true,
       shape: "stl",
       sourcePath: new URL(
-        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-fit-v2`,
+        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-fit-integrated-v3`,
         state.manifestUrl,
       ).href,
       base_min: asset.baseMin,
-      size: [238, 58, 91],
+      size: [238, 58, 103.9345088],
       side: asset.side,
       explosion: [0, 0, 0],
-      notes: "灰色 C 型夹由黄色立柱承托区和绿色新 SKP 整体底座的外形做让位差集得到，并保留两枚对应螺丝孔与中央咯噔孔；保持原夹紧结构，其余区域不变。这里是可装配候选版，尚未替换正式打印件。",
+      notes: "灰色 C 型夹由黄色立柱承托区和绿色新 SKP 整体底座的外形做让位差集得到，并保留两枚对应螺丝孔与中央咯噔孔；旋钮两侧加固斜墙已并入 C 夹本体，同一 STL 一起打印，不再作为独立件。这里是可装配候选版。",
     }));
   }
 
@@ -1898,7 +2180,7 @@ function makeReceiverItems() {
   const manifest=state.receiverManifest;
   if(!manifest)return [];
   const p=manifest.parameters;
-  const base=new URL("../exports/receiver-mount-v0.1/manifest.json",window.location.href);
+  const base = getVersionedUrl("../exports/receiver-mount-v0.1/manifest.json");
   return manifest.parts.map(part=>makeAssemblyItem({
     id:`receiver:${part.id}`,name_zh:part.name_zh,material:part.material,
     kind:part.printable?"接收端首样打印件":"外购件接口参考",
@@ -1929,7 +2211,7 @@ function isLaserShell(item) {
 function makeLaserCassetteItems() {
   const manifest = state.laserManifest;
   const p = manifest.parameters;
-  const base = new URL("../exports/laser-micro-mount-v0.1/manifest.json", window.location.href);
+  const base = getVersionedUrl("../exports/laser-micro-mount-v0.1/manifest.json");
   const items = [];
   for (const part of manifest.parts) {
     const rawPart = part.scope === "array";
@@ -1971,19 +2253,40 @@ function isM6FocusItem(item) {
 
 function isSkpCandidateItem(item) {
   if (!item || item.side !== 1) return false;
+  if (item.reinforcedClamp) return true;
   if (item.candidate && item.group === "skp_candidate") return true;
   if (item.fitCandidate) return true;
+  return false;
+}
+
+function isRightPcbFocusItem(item) {
+  if (!item || item.side !== 1 || item.group !== "electronics") return false;
+  // The M6 carrier PCB is a separate vertical board; keep this preset on the
+  // right C-clamp cavity boards the user is checking here.
+  return !String(item.id || "").includes("electronics:m6");
+}
+
+function isRightUiFocusItem(item) {
+  if (!item || item.side !== 1) return false;
   const part = item.sourceEntry?.part;
-  return part === "post_clamp_carrier" || part === "clamp_body_segment";
+  return (item.group === "electronics" && String(item.id || "").includes("electronics:ui"))
+    || ["clamp_electronics_cover", "clamp_electronics_ui_bezel", "clamp_electronics_gasket"].includes(part);
 }
 
 function isRightConnectionFocusItem(item) {
   return Boolean(item && item.side === 1 && item.candidate && item.group === "skp_candidate");
 }
 
+function isRightKnobFocusItem(item) {
+  return Boolean(item && item.side === 1 && item.reinforcedClamp);
+}
+
 const FOCUS_PRESETS = Object.freeze({
   global: { cameraPreset: "iso", filter: null, distanceScale: 1.9 },
+  pcb: { cameraPreset: "pcb", filter: isRightPcbFocusItem, distanceScale: 1.55 },
+  ui: { cameraPreset: "ui", filter: isRightUiFocusItem, distanceScale: 1.45 },
   connection: { cameraPreset: "connection", filter: isRightConnectionFocusItem, distanceScale: 1.55 },
+  knob: { cameraPreset: "knob", filter: isRightKnobFocusItem, distanceScale: 1.55 },
   m6: { cameraPreset: "m6", filter: isM6FocusItem, distanceScale: 1.65 },
   laserArray: { cameraPreset: "laserArray", filter: isLaserArrayItem, distanceScale: 1.5 },
 });
@@ -2021,6 +2324,12 @@ function assemblyVisible(item) {
   if (item.context && !state.assembly.showTable) return false;
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
   if (item.group === "electronics" && !state.assembly.showElectronics) return false;
+  if (item.reinforcedClamp && !state.assembly.showReinforcedClamp) return false;
+  if (state.assembly.showReinforcedClamp && (
+    item.sourceEntry?.part === "clamp_knob"
+    || item.id?.startsWith("hardware:m8-rod:")
+    || item.id?.startsWith("hardware:m8-jam-nuts:")
+  )) return false;
   if (item.candidate && !state.assembly.showSkpCandidate) return false;
   if (item.fitCandidate && !state.assembly.showSkpFit) return false;
   if (item.sourceEntry?.part === "clamp_body_segment" && state.assembly.showSkpFit) return false;
@@ -3012,6 +3321,12 @@ function applyFocusPreset(preset) {
     state.receiverOpenShell=false;
     $("#open-receiver-shell").checked=false;
   }
+  if (preset === "pcb" || preset === "ui") {
+    state.assembly.showNonPrinted = true;
+    state.assembly.showElectronics = true;
+    refs.showNonPrinted.checked = true;
+    refs.showElectronics.checked = true;
+  }
   if (preset === "connection") {
     state.assembly.showSkpCandidate = true;
     state.assembly.showSkpFit = true;
@@ -3023,6 +3338,10 @@ function applyFocusPreset(preset) {
     state.assembly.showElectronics = true;
     refs.showNonPrinted.checked = true;
     refs.showElectronics.checked = true;
+  }
+  if (preset === "knob") {
+    state.assembly.showReinforcedClamp = true;
+    refs.showReinforcedClamp.checked = true;
   }
   setFocusPresetActive(preset);
   updateAssemblyScene();
@@ -3340,6 +3659,34 @@ function createAssemblyProxy(THREE, item) {
       y1: number(options.outer_y_offset, 0) + number(options.outer_depth_y, depth),
     });
     addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
+  } else if (item.shape === "xz-prism") {
+    // The source SCAD defines the reinforcement as an x/z polygon extruded
+    // across a y side strip. Three.js Shape uses x/y, so map the polygon's
+    // second coordinate to local y and rotate the extrusion onto -y.
+    const points = Array.isArray(options.points) ? options.points : [];
+    if (points.length >= 3) {
+      const shape = new THREE.Shape();
+      shape.moveTo(number(points[0][0]), number(points[0][1]));
+      for (const point of points.slice(1)) {
+        shape.lineTo(number(point[0]), number(point[1]));
+      }
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth: number(options.depth, depth),
+        bevelEnabled: false,
+        curveSegments: 8,
+        steps: 1,
+      });
+      geometry.rotateX(Math.PI / 2);
+      geometry.computeVertexNormals();
+      const wall = addProxyPart(THREE, group, item, geometry, place([0, 0, 0]), {
+        color: item.color || "#71828b",
+        roughness: 0.58,
+        metalness: 0.08,
+      });
+      wall.material.side = THREE.DoubleSide;
+      wall.material.needsUpdate = true;
+    }
   } else if (item.shape === "rear-back-rounded-support-boss") {
     const outer = footprintGeometry(THREE, "rear-back-rounded-footprint", width, depth, height, {
       ...options,
@@ -3519,6 +3866,35 @@ function createAssemblyProxy(THREE, item) {
         color: "#c5c9cc",
         roughness: 0.18,
         metalness: 0.92,
+      });
+    }
+  } else if (item.shape === "hand-knob") {
+    const knobD = number(options.outer_d, width);
+    const rootD = Math.min(knobD, number(options.root_d, knobD - 6));
+    const knobHeight = height;
+    const root = new THREE.CylinderGeometry(rootD / 2, rootD / 2, knobHeight, 48);
+    root.rotateX(Math.PI / 2);
+    addProxyPart(THREE, group, item, root,
+      place([width / 2, depth / 2, knobHeight / 2]), {
+        color: item.color || "#d19b35",
+        roughness: 0.42,
+        metalness: 0.08,
+      });
+    const toothD = Math.max(1, number(options.tooth_d, 5));
+    const toothCount = Math.max(8, Math.round(number(options.tooth_count, 18)));
+    const toothRadius = knobD / 2 - toothD / 2;
+    for (let index = 0; index < toothCount; index += 1) {
+      const angle = (Math.PI * 2 * index) / toothCount;
+      const tooth = new THREE.CylinderGeometry(toothD / 2, toothD / 2, knobHeight, 12);
+      tooth.rotateX(Math.PI / 2);
+      addProxyPart(THREE, group, item, tooth, place([
+        width / 2 + toothRadius * Math.cos(angle),
+        depth / 2 + toothRadius * Math.sin(angle),
+        knobHeight / 2,
+      ]), {
+        color: item.color || "#d19b35",
+        roughness: 0.42,
+        metalness: 0.08,
       });
     }
   } else if (item.shape === "detent") {
@@ -3925,7 +4301,8 @@ async function loadManifest() {
     }
     state.generatedLayout = generatedLayoutFromManifest(state.manifest);
     try {
-      const laserResponse = await fetch(new URL("../exports/laser-micro-mount-v0.1/manifest.json",window.location.href),{cache:"no-store"});
+      const laserManifestUrl = getVersionedUrl("../exports/laser-micro-mount-v0.1/manifest.json");
+      const laserResponse = await fetch(laserManifestUrl,{cache:"no-store"});
       if (!laserResponse.ok) throw new Error(`HTTP ${laserResponse.status}`);
       state.laserManifest = await laserResponse.json();
     } catch (error) {
@@ -3935,7 +4312,8 @@ async function loadManifest() {
       $("#laser-integration-note").textContent = `裸激光模型尚未导出：${error.message}。请运行 export_laser_micro_mount.py。`;
     }
     try {
-      const response=await fetch(new URL("../exports/receiver-mount-v0.1/manifest.json",window.location.href),{cache:"no-store"});
+      const receiverManifestUrl = getVersionedUrl("../exports/receiver-mount-v0.1/manifest.json");
+      const response = await fetch(receiverManifestUrl,{cache:"no-store"});
       if(!response.ok)throw new Error(`HTTP ${response.status}`);
       state.receiverManifest=await response.json();
     } catch(error) {
@@ -3962,11 +4340,13 @@ async function loadManifest() {
     state.assembly.showElectronics = true;
     state.assembly.showSkpCandidate = true;
     state.assembly.showSkpFit = true;
+    state.assembly.showReinforcedClamp = true;
     refs.fitM6.textContent = "M6 右侧近景";
     refs.fitM6.classList.remove("active");
     refs.showSkpCandidate.checked = true;
     refs.showSkpFit.checked = true;
     refs.showElectronics.checked = true;
+    refs.showReinforcedClamp.checked = true;
     refs.fitSkp.textContent = "C 方案近景";
     refs.fitSkp.classList.remove("active");
     refs.showTable.checked = true;
@@ -4006,7 +4386,7 @@ function setViewMode(mode) {
   render();
   if (mode === "laser") {
     const frame = $("#laser-detail-frame");
-    if (!frame.hasAttribute("src")) frame.src = "./laser-micro.html";
+    frame.src = `./laser-micro.html?${PREVIEW_CACHE_BUSTER}`;
     return;
   }
   if (mode === "parts") {
@@ -4154,6 +4534,11 @@ refs.showSkpCandidate?.addEventListener("change", () => {
 });
 refs.showSkpFit?.addEventListener("change", () => {
   state.assembly.showSkpFit = refs.showSkpFit.checked;
+  updateAssemblyScene();
+  renderAssemblyGuide();
+});
+refs.showReinforcedClamp?.addEventListener("change", () => {
+  state.assembly.showReinforcedClamp = refs.showReinforcedClamp.checked;
   updateAssemblyScene();
   renderAssemblyGuide();
 });

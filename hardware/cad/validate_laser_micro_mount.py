@@ -106,6 +106,26 @@ def main():
         extent=p["range_deg"]
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             poses=list(pool.map(check_pose,[(x,y) for x in (-extent,0,extent) for y in (-extent,0,extent)]))
+        def probe_intersection(name,body):
+            wrapper=Path(directory)/f"{name}.scad"
+            wrapper.write_text(f'include <{SOURCE}>\nintersection() {{ {body}; }}\n')
+            path=wrapper.with_suffix(".stl")
+            result=subprocess.run([openscad,"-o",str(path),"-D",'PART="laser_micro_metadata"',str(wrapper)],capture_output=True,text=True)
+            log=result.stdout+result.stderr
+            assert "ERROR:" not in log and "WARNING:" not in log,log
+            return _stl_volume(path) if path.exists() else 0.0
+        # The nominal pusher is deliberately just off the copper shell.  The
+        # separate boss must also leave the full Ø6 mm rear insertion path open.
+        pusher_laser_overlap=probe_intersection("rear-pusher-laser-overlap",
+            "lm_rear_pusher_screw(); lm_laser()")
+        pusher_boss_insertion_overlap=probe_intersection("rear-pusher-boss-insertion",
+            "lm_rear_pusher_boss(); lm_laser()")
+        assert abs(pusher_laser_overlap)<1e-6, (
+            f"Rear pusher nominally penetrates laser body: {pusher_laser_overlap} mm3")
+        assert abs(pusher_boss_insertion_overlap)<1e-6, (
+            f"Rear pusher boss blocks laser insertion: {pusher_boss_insertion_overlap} mm3")
+        assert p["rear_pusher_tap_d"] < p["rear_pusher_d"], (
+            "Rear pusher boss pilot must be smaller than the screw OD")
         def check_install(distance):
             wrapper=Path(directory)/f"cover-install-{distance}.scad"
             wrapper.write_text(f'include <{SOURCE}>\nintersection() {{ translate([-{distance},0,0]) laser_micro_front_cover(); '
@@ -151,6 +171,13 @@ def main():
         blocked_volume=_stl_volume(target)
         assert blocked_volume>1,"Tool-access regression probe missed the original obstruction"
     report=dict(source_hashes=manifest["source_hashes"],units="mm",parts=parts,poses=poses,
+                rear_pusher=dict(nominal_laser_overlap_mm3=pusher_laser_overlap,
+                    boss_insertion_overlap_mm3=pusher_boss_insertion_overlap,
+                    nominal_tip_y_mm=p["rear_pusher_axis_y"]-p["rear_pusher_tip_setback"]+
+                        p["rear_pusher_length"],
+                    nominal_tip_clearance_mm=(-p["module_d"]/2)-(
+                        p["rear_pusher_axis_y"]-p["rear_pusher_tip_setback"]+
+                        p["rear_pusher_length"])),
                 front_cover=dict(minimum_wall_mm=p["front_wall"],skin_sections=sections,
                     cavity_clearance_mm=.5,installation_samples=installation),
                 nominal_2mm_beam_front_aperture_margin_mm=round(optical_margin,4),

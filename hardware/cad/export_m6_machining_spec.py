@@ -3,10 +3,11 @@
 
 The OpenSCAD ``parameter_probe`` is the numerical source of truth. The active
 detector body is a printable PETG rectangle that can later be reproduced in
-CNC; the rear cover carries the 1/4-20 clearance interface for the purchased
-vertical 13 mm ballhead. The ballhead's downward M8 interface screws directly
-into an integrated captured-nut support on the light-yellow lower stand; there is no
-separate gray 90-degree connector in the active assembly.
+CNC; the rear cover carries the 1/4-20 interface for the purchased vertical
+13 mm ballhead. The fixed net post is a separate one-piece print from the
+z=16 mm C-clamp seat to the full z=372.5 mm optical-clearance datum; the net
+fabric/clip zone remains z=16..168.5 mm, and the former downward M8-to-post
+interface is disabled until an independent optical support is designed.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v1.4-20-mm-pitch-reinforced-boss-top-load-m8"
+SCHEMA_VERSION = "m6-machining-spec-v1.7-20-mm-pitch-full-height-post"
 
 
 def _r(value: float) -> float | int:
@@ -124,14 +125,28 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "units": "mm",
         "status": "当前 PETG 首样/CNC 复用输入；真实传感器、球头和网夹实测前不得视为最终放行图",
         "material": "PETG first article body and covers; future 6061-T6 CNC body option; purchased metal ballhead",
+        "fixed_net_post_contract": {
+            "seat_z_global_mm": _r(parameters["clamp_slide_seat_z"]),
+            "top_z_global_mm": _r(parameters["net_post_top_z"]),
+            "height_mm": _r(parameters["active_post_total_height"]),
+            "net_top_z_global_mm": _r(parameters["net_panel_top_z"]),
+            "net_zone_height_mm": _r(parameters["net_height"]),
+            "starts_on_c_clamp_seat": True,
+            "enters_c_clamp": False,
+            "m6_direct_mount_enabled": bool(
+                parameters["m6_detector_direct_mount_enabled"]
+            ),
+            "m6_support_status": "固定网柱不承接 M6 球头；独立光学支撑待单独定义",
+        },
         "quantity": {
             "detector_bodies": 2,
             "printed_front_covers": 2,
             "printed_rear_covers": 2,
             "printed_bottom_covers": 2,
-            "printed_net_clamp_rods": 2,
+            "printed_net_clamp_clips": 2,
             "purchased_ballheads": 2,
-            "integrated_lower_stand_ballhead_seats": 2,
+            "integrated_lower_stand_ballhead_seats": 0,
+            "independent_m6_supports_pending": 2,
         },
         "part_schedule": [
             {
@@ -284,7 +299,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "后盖从 z+ 套入主体，后盖舌片进入同一 y± 边槽的 x+ 半并以 x+ 沉头螺钉固定",
                 "底盖从 z- 贴合并以两枚沉头螺钉固定，统一线缆套管从 Ø12 mm 孔穿出",
             ],
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；球头 z- 接口的 M8 外牙直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴，检测器/球头总成沿 x 移到立柱中心，取消横向黄色承托臂，当前装配取消深黄色上段和深灰色独立连接器，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；固定网柱从黄灰交界 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区仍只到 z=168.5 mm，底端不进入 C 形座；M6 球头下端 M8 接口不与固定网柱直连，独立光学承力支撑待单独定义，取消旧版横向承托臂，当前装配不使用旧版独立上段外件和旧版独立连接器，最终尺寸待真实器件首样复核",
             "support_boss": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
@@ -356,7 +371,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         },
         "support_contract": {
             "type": "purchased 13 mm ballhead/gimbal",
-            "posture": "vertical; its downward interface screws directly into the integrated light-yellow straight lower post at the post centre",
+            "posture": "vertical purchased ballhead on the M6 rear-cover boss; its downward M8 interface is a standalone optical-support envelope and is not connected to the fixed full-height post",
             "boss_hole_axis": "x- from the rear cover boss toward the optical side",
             "boss_hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
             "boss_hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
@@ -372,11 +387,12 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 parameters["m6_detector_assembly_ballhead_center_z"]
             ),
             "mount_raise_z_mm": _r(parameters["m6_detector_mount_raise_z"]),
-            "net_interface": "球头下端 M8 外牙竖直接口朝 z-；直接拧入浅黄色直立下段顶面的一体 M8 捕获螺母，球头与立柱中心同轴",
-            "load_path": "主体/后盖 boss -> 1/4-20 外牙采购球头上端 -> 球头 -> M8 外牙下端 z- -> 浅黄色直立下段顶面一体 M8 捕获螺母 -> 桌下夹体/网架立柱（无横向黄色承托臂、无深灰色独立连接器）",
+            "net_interface": "球头下端 M8 外牙接口朝 z-，当前只保留采购球头的独立光学支撑包络；不进入固定网柱，不切盲 M8 孔；固定网柱从 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区到 z=168.5 mm",
+            "load_path": "主体/后盖 boss -> 1/4-20 外牙采购球头上端 -> 球头；固定网柱是独立的网布/网夹承托件，不承接 M6 球头弯矩；独立光学支撑待定义（无旧版横向承托臂、无旧版独立连接器）",
             "direct_mount": {
-                "material": "integrated light-yellow PETG lower stand",
-                "interface_orientation": "vertical M8 captured-nut axis coaxial with the straight lower post; no horizontal top arm",
+                "enabled": bool(parameters["m6_detector_direct_mount_enabled"]),
+                "material": "disabled; independent optical support pending",
+                "interface_orientation": "standalone vertical M8 envelope; not connected to the fixed net post; no active top arm",
                 "assembly_x_offset_mm": _r(parameters["m6_detector_mount_x_offset"]),
                 "assembly_z_raise_mm": _r(parameters["m6_detector_mount_raise_z"]),
                 "assembled_ballhead_center_x_global_mm": _r(
@@ -404,14 +420,19 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "socket_outer_d_mm": _r(parameters["m6_detector_direct_mount_socket_outer_d"]),
                 "socket_clearance_d_mm": _r(parameters["m6_detector_direct_mount_socket_clearance_d"]),
                 "socket_tap_d_mm": _r(parameters["m6_detector_direct_mount_socket_tap_d"]),
+                "blind_tap_drill_d_mm": _r(parameters["m6_detector_direct_mount_thread_tap_d"]),
+                "blind_tap_drill_depth_z_mm": _r(parameters["m6_detector_direct_mount_thread_depth_z"]),
+                "blind_tap_drill_bottom_z_global_mm": _r(parameters["m6_detector_direct_mount_thread_bottom_z"]),
+                "blind_tap_drill_top_z_global_mm": _r(parameters["m6_detector_direct_mount_thread_top_z"]),
+                "blind_tap_thread": "M8×1.25；打印后手工攻丝或 CNC 直接加工",
                 "socket_base_overlap_z_mm": _r(
                     parameters["m6_detector_direct_mount_socket_base_overlap_z"]
                 ),
                 "nut_loading_clearance_z_mm": _r(
                     parameters["m6_detector_direct_mount_nut_loading_clearance_z"]
                 ),
-                "captured_nut_pocket_af_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_af"]),
-                "captured_nut_pocket_depth_z_mm": _r(parameters["m6_ballhead_bottom_nut_pocket_depth"]),
+                "captured_nut_pocket_af_mm": 0,
+                "captured_nut_pocket_depth_z_mm": 0,
                 "captured_nut_pocket_bottom_z_global_mm": _r(
                     parameters["m6_detector_direct_mount_nut_pocket_bottom_z"]
                 ),
@@ -423,16 +444,20 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                     parameters["m6_detector_assembly_ballhead_net_interface_bottom_z"]
                 ),
                 "lower_post_top_z_global_mm": _r(parameters["m6_detector_direct_mount_lower_post_top_z"]),
-                "print_status": "integrated into lower_stand_segment; vertical post-centred socket only; no horizontal arm or separate connector STL",
+                "print_status": "not integrated into post_clamp_carrier; fixed net post has no M8 optical hole; independent M6 support is pending and no direct-mount STL is released",
             },
         },
         "net_retention_contract": {
-            "post_top_z_global_mm": _r(
-                parameters["m6_detector_direct_mount_lower_post_top_z"]
+            "fixture_bottom_z_global_mm": _r(
+                parameters["net_fixture_bottom_z"]
             ),
-            "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；俯视保留 U 形承力截面",
+            "post_top_z_global_mm": _r(
+                parameters["net_post_top_z"]
+            ),
+            "net_top_z_global_mm": _r(parameters["net_panel_top_z"]),
+            "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；俯视保留 U 形承力截面，外侧开口允许整高卡夹滑入",
             "channel_depth_x_mm": _r(parameters["net_clamp_channel_depth_x"]),
-            "cylinder_insertion_depth_x_mm": _r(
+            "clip_receiver_depth_x_mm": _r(
                 parameters["net_clamp_cylinder_insertion_depth_x"]
             ),
             "channel_back_wall_t_x_mm": _r(
@@ -455,19 +480,58 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 _r(parameters["net_clamp_channel_bottom_z"]),
                 _r(parameters["net_clamp_channel_top_z"]),
             ],
-            "interference_cylinder_d_mm": _r(
-                parameters["net_clamp_cylinder_interference_d"]
-            ),
-            "printed_cylinder_d_mm": _r(
-                parameters["net_clamp_cylinder_actual_d"]
-            ),
-            "diameter_reduction_mm": _r(
-                parameters["net_clamp_cylinder_interference_d"]
-                - parameters["net_clamp_cylinder_actual_d"]
-            ),
-            "printed_part": "net_clamp_rod",
+            "passive_keeper": {
+                "enabled": bool(parameters["net_clamp_keeper_enabled"]),
+                "role": "立柱一体内嵌止挡，仅防止卡夹向外拔出，不承担网布/绳张力主路径",
+                "z_span_mm": [
+                    _r(parameters["net_clamp_keeper_z"]),
+                    _r(
+                        parameters["net_clamp_keeper_z"]
+                        + parameters["net_clamp_keeper_height_z"]
+                    ),
+                ],
+                "x_span_mm": [
+                    _r(parameters["net_clamp_keeper_x_min"]),
+                    _r(parameters["net_clamp_keeper_x_max"]),
+                ],
+                "y_span_mm": [
+                    _r(parameters["net_clamp_keeper_y_min"]),
+                    _r(parameters["net_clamp_keeper_y_max"]),
+                ],
+                "clip_relief_x_span_mm": [
+                    _r(parameters["net_clamp_keeper_relief_min_x"]),
+                    _r(parameters["net_clamp_keeper_relief_max_x"]),
+                ],
+                "clip_relief_y_span_mm": [
+                    _r(parameters["net_clamp_keeper_relief_min_y"]),
+                    _r(parameters["net_clamp_keeper_relief_max_y"]),
+                ],
+                "clip_one_way_latch": {
+                    "type": "卡夹正侧 jaw 一体弹性扣舌；斜面允许装入，闭合肩只阻止向外拔出",
+                    "x_span_mm": [
+                        _r(parameters["net_clamp_keeper_latch_x_min"]),
+                        _r(parameters["net_clamp_keeper_latch_x_max"]),
+                    ],
+                    "y_span_mm": [
+                        _r(parameters["net_clamp_keeper_latch_y_min"]),
+                        _r(parameters["net_clamp_keeper_latch_y_max"]),
+                    ],
+                    "z_span_mm": [
+                        _r(parameters["net_clamp_keeper_latch_z"]),
+                        _r(
+                            parameters["net_clamp_keeper_latch_z"]
+                            + parameters["net_clamp_keeper_latch_height_z"]
+                        ),
+                    ],
+                    "installed_clearance_to_keeper_x_mm": _r(
+                        parameters["net_clamp_keeper_x_min"]
+                        - parameters["net_clamp_keeper_latch_x_max"]
+                    ),
+                },
+            },
+            "printed_part": "net_clamp_clip",
             "material": "PETG",
-            "assembly": "网布先沿 x 穿过立柱主体 y 向 3 mm 过道，再从外侧塞入 U 槽；独立打印圆柱沿 x 推入并卡住；不使用采购圆柱",
+            "assembly": "网布先沿 x 穿过立柱主体 y 向 3 mm 过道，端部止在立柱外表面；整高 U 形卡夹沿 x 从桌外侧滑入，两片 jaw 夹住网布；网布张力和绳的拉力把卡夹压在承托面上，立柱内嵌单一被动止挡只防向外拔出，无穿钉，按开夹爪即可解锁",
         },
         "ballhead_contract": {
             "ball_d_mm": _r(parameters["m6_ballhead_ball_d"]),
@@ -484,10 +548,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "sensor_stud_thread_pitch_mm": _r(parameters["m6_ballhead_sensor_thread_pitch"]),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
             "net_stud_length_mm": _r(parameters["m6_ballhead_net_stud_length"]),
-            "net_stud_role": "当前选定下端 M8 外牙；z- 直接进入浅黄色下段的 M8 捕获螺母",
+            "net_stud_role": "当前选定下端 M8 外牙；z- 仅作独立光学支撑接口包络，当前不进入固定网柱",
             "net_stud_thread_core_d_mm": _r(parameters["m6_ballhead_net_thread_core_d"]),
             "net_stud_thread_pitch_mm": _r(parameters["m6_ballhead_net_thread_pitch"]),
-            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧，下方 M8 竖直接口朝 z-，直接落在浅黄色直立下段顶面的一体 M8 捕获螺母并与立柱中心同轴；取消横向黄色承托臂，无侧向上返竖向耳；最终承力以球头、承座和首样实测为准",
+            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入后盖中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧；下方 M8 竖直接口朝 z- 但当前不进入固定网柱，固定网柱从 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区到 z=168.5 mm；独立光学支撑、承力路径和防转方式待定义；取消旧版横向承托臂和侧向上返竖向耳；最终承力以首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -531,20 +595,20 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "后盖加厚 boss 到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead; fixed upper 1/4-20 external stud enters the rear-cover captured nut, selected lower M8 external stud enters the lower-post captured nut; first-article washer/insert fit remains to be verified",
+                "spec": "selected 13 mm ballhead; fixed upper 1/4-20 external stud enters the rear-cover captured nut; lower M8 external stud is reserved for an independent optical support and is not connected to the fixed net post in this release",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
         ],
         "release_checks": [
             "收到真实 M6 对射器件后复核 M6x0.75 有效外丝长度、头部六角 AF、六角轴向厚度、光学中心和原配螺帽厚度",
-            "确认检测器/球头总成整体上抬 20 mm 后壳体底部越过网顶，立柱上端收止在抬高后的球头 z- 接口平面",
-            "确认网布先沿 x 穿过浅黄色下段主体 y 向 3 mm 过道，再进入外侧 U 形卡网槽；Ø14 mm 圆柱只作干涉校核，实际单独打印 Ø12 mm PETG 卡网圆柱并从外侧沿 x 推入",
+            "确认固定网柱从黄灰交界 z=16 mm 起一体延伸到 z=372.5 mm，网布/卡夹功能区仍是 z=16..168.5 mm，底端与 C 形座共面且不下插；M6 球头下端 M8 接口不作为固定网柱承力路径，独立光学支撑完成后再核对其高度",
+            "确认网布先沿 x 穿过 PETG 立柱主体 y 向 3 mm 过道，端部止在立柱外表面，再将整高 U 形 PETG 卡网夹从桌外侧沿 x 推入；网布和绳的张力负责压住卡夹，立柱内嵌单一被动止挡只防向外拔出，无穿钉，按开夹爪后反向滑出",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
             "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧 boss 均位于各自后端面的 y=0、z 中心",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "确认灰色桌下夹体保留桌面夹持开口和压块/螺杆区域，外侧下部为 y 全深 40 mm 到 8 mm 的实心渐变斜底；M8 夹紧丝杆相对原包络加长 12 mm，仍由台底压块承接",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
-            "真实网夹安装面、球网外伸和孔距实测后，核对球头 z- 接口最低端、浅黄色下段一体承座的 M8 捕获螺母窝和网架立柱/夹体承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
+            "真实网夹安装面、球网外伸和孔距实测后，核对固定网柱 z=16..372.5 mm 的一体承托路径以及 z=16..168.5 mm 的网布/卡夹功能区；独立光学支撑完成后再核对球头 z- 接口和承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
             "前盖必须先从 z+ 拆/装，后盖随后从 z+ 拆/装，底盖最后从 z- 拆/装；爆炸图保持三个盖件完整，不使用剖切",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
             "机加工件不进入 PETG 打印清单；底盖线缆孔是开放孔，不作防水承诺",

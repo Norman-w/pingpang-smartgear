@@ -23,11 +23,35 @@ PARAMETER_MAP = {
     "NET_POST_OUTBOARD_EXTENSION": "net_post_outboard_extension",
     "POST_OFFSET": "post_offset",
     "POST_WIDTH": "post_body_width",
+    "POST_INTERFACE_TRANSITION_HEIGHT_Z": "post_interface_transition_height_z",
+    "POST_INTERFACE_TRANSITION_EXTRA_X": "post_interface_transition_extra_x",
+    "POST_INTERFACE_TRANSITION_EXTRA_Y": "post_interface_transition_extra_y",
     "CLAMP_OUTER_EXTENSION": "clamp_outer_extension",
     "CLAMP_REACH_INBOARD": "clamp_reach_inboard",
     "CLAMP_TONGUE_EXTRA_LENGTH_X": "clamp_tongue_extra_length_x",
     "CLAMP_PAD_T": "clamp_pad_t",
     "CLAMP_CLEARANCE": "clamp_clearance",
+    "CLAMP_SLIDE_SPLIT_X_ABS": "clamp_slide_split_x",
+    "CLAMP_SLIDE_SHOE_DEEPENING_X": "clamp_slide_shoe_deepening_x",
+    "CLAMP_SLIDE_RECEIVER_LENGTH_X": "clamp_slide_receiver_length_x",
+    "CLAMP_SLIDE_TONGUE_ATTACH_X": "clamp_slide_tongue_attach_x",
+    "CLAMP_SLIDE_RAIL_HEAD_WIDTH_Y": "clamp_slide_rail_head_width_y",
+    "CLAMP_SLIDE_RAIL_NECK_WIDTH_Y": "clamp_slide_rail_neck_width_y",
+    "CLAMP_SLIDE_RAIL_HEAD_HEIGHT_Z": "clamp_slide_rail_head_height_z",
+    "CLAMP_SLIDE_RAIL_NECK_HEIGHT_Z": "clamp_slide_rail_neck_height_z",
+    "CLAMP_SLIDE_SHOE_DROP_Z": "clamp_slide_shoe_drop_z",
+    "CLAMP_SLIDE_RAIL_CENTER_Z": "clamp_slide_rail_center_z",
+    "CLAMP_SLIDE_CLEARANCE": "clamp_slide_clearance",
+    "CLAMP_SLIDE_POST_SEAT_CLEARANCE_X": "clamp_slide_post_seat_clearance_x",
+    "CLAMP_SLIDE_POST_FOOT_ROOT_OVERLAP_Z": "clamp_slide_post_foot_root_overlap_z",
+    "CLAMP_SLIDE_POST_FOOT_TRANSITION_SECTION_COUNT": "clamp_slide_post_foot_transition_section_count",
+    "CLAMP_SLIDE_POST_FOOT_TRANSITION_SLICE_Z": "clamp_slide_post_foot_transition_slice_z",
+    "CLAMP_SLIDE_POST_FOOT_POST_FUSION_INSET": "clamp_slide_post_foot_post_fusion_inset",
+    "CLAMP_SLIDE_POST_FOOT_ANKLE_INBOARD_EXTENSION_X": "clamp_slide_post_foot_ankle_inboard_extension_x",
+    "CLAMP_SLIDE_POST_FOOT_CROSS_TIE_LENGTH_X": "clamp_slide_post_foot_cross_tie_length_x",
+    "CLAMP_SLIDE_POST_FOOT_CROSS_TIE_BOTTOM_HALF_Y": "clamp_slide_post_foot_cross_tie_bottom_half_y",
+    "CLAMP_SLIDE_POST_FOOT_CROSS_TIE_TOP_HALF_Y": "clamp_slide_post_foot_cross_tie_top_half_y",
+    "CLAMP_SLIDE_POST_FOOT_SHOE_BURIED_OVERLAP_Z": "clamp_slide_post_foot_shoe_buried_overlap_z",
     "CLAMP_SCREW_INSET": "clamp_screw_inset",
     "CLAMP_KNOB_D": "clamp_knob_d",
     "CLAMP_KNOB_GRIP_ROOT_D": "clamp_knob_grip_root_d",
@@ -149,10 +173,13 @@ PARAMETER_MAP = {
     "M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z": "m6_detector_direct_mount_nut_loading_clearance_z",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BOTTOM_CLEARANCE_Z": "m6_detector_direct_mount_socket_bottom_clearance_z",
     "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TOP_CLEARANCE_Z": "m6_detector_direct_mount_socket_top_clearance_z",
+    "M6_DETECTOR_DIRECT_MOUNT_THREAD_DEPTH_EXTRA_Z": "m6_detector_direct_mount_thread_depth_extra_z",
+    "POST_JOINT_ABOVE_NET_CLEARANCE_Z": "post_joint_above_net_clearance_z",
+    "POST_JOINT_GAP": "post_joint_gap",
+    "PREVIEW_FIT_DISPLAY_GAP": "preview_fit_display_gap",
 }
 
 BROWSER_PARAMETER_MAP = {
-    "mountRaiseZ": "M6_DETECTOR_MOUNT_RAISE_Z",
     "netPassageWidthY": "NET_PASSAGE_WIDTH_Y",
     "sensorPitch": "M6_SENSOR_CENTER_PITCH",
     "sensorRollDeg": "M6_SENSOR_ROLL_DEG",
@@ -209,6 +236,7 @@ BROWSER_PARAMETER_MAP = {
     "directMountSocketTapD": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_TAP_D",
     "directMountSocketBaseOverlapZ": "M6_DETECTOR_DIRECT_MOUNT_SOCKET_BASE_OVERLAP_Z",
     "directMountNutLoadingClearanceZ": "M6_DETECTOR_DIRECT_MOUNT_NUT_LOADING_CLEARANCE_Z",
+    "directMountThreadDepthExtraZ": "M6_DETECTOR_DIRECT_MOUNT_THREAD_DEPTH_EXTRA_Z",
 }
 
 
@@ -271,18 +299,40 @@ def main() -> None:
             "browser preview/current M6 geometry mismatch: "
             + "; ".join(browser_mismatches)
         )
+    required_derived_geometry = (
+        "const m6RaiseZ = Math.max(",
+        "M6_PREVIEW_NET_TOP_Z + M6_PREVIEW_SHELL_CLEARANCE_Z",
+        "postTopErrorZ",
+        "installedBallheadBaseBottomZ",
+    )
+    missing_derived_geometry = [
+        text for text in required_derived_geometry if text not in app_text
+    ]
+    if missing_derived_geometry:
+        raise AssertionError(
+            f"browser preview derived M6 datum logic missing: {missing_derived_geometry}"
+        )
     required_current_copy = (
         "M6 直角十路光电阵列",
-        "显示网布、M6 光电器件、PVDF 和标准件",
+        "显示网布、M6 光电器件、线路板、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
-        "球头 z- 接口直接落在浅黄色下段最高水平面的 M8 捕获螺母",
-        "取消横向黄色承托臂",
-        "不再显示深黄色上段和深灰色独立连接器",
+        "固定网柱从黄灰交界 z=16 mm 共面起步",
+        "M6 球头下端 M8 直接进入固定网柱顶面中心孔",
+        "取消旧版横向承托臂",
+        "不再显示旧版独立上段外件和旧版独立连接器",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:
         raise AssertionError(f"browser preview current M6 copy missing: {missing_copy}")
+    required_slide_logic = (
+        'if (part.includes("clamp_body_segment")) return "clamp_fixed";',
+        'case "clamp_fixed": return [0, 0, 0];',
+        "固定夹体 / 立柱基台",
+    )
+    missing_slide_logic = [text for text in required_slide_logic if text not in app_text]
+    if missing_slide_logic:
+        raise AssertionError(f"browser preview fixed-seat slide logic missing: {missing_slide_logic}")
     stale_visible_copy = (
         "STG-120ML 两段光栅怎么装",
         "显示网布、STG 光纤头、传感器和标准件",

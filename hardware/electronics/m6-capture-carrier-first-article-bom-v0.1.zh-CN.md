@@ -1,8 +1,8 @@
 # M6 十路边沿采集载板首样 BOM 与画板输入 v0.1
 
-状态：`首样接口/BOM 输入已整理；STM32G031K8U6/UFQFPN32 有无 HAL 参考 ELF/bin，光耦型号、连接器脚距和 PCB 尚未冻结`。
+状态：`首样接口/BOM 输入已整理；STM32G031K8U6/UFQFPN32 有无 HAL 参考 ELF/bin，连接器物理节距冻结为 MX1.25（1.25 mm），准确厂家/料号、光耦型号和 PCB 铜箔仍未冻结`。
 
-本文件是给画板和首样采购使用的边界，不是已经存在的 KiCad 原理图，也不是可直接下单的最终 BOM。当前仓库没有载板 `.kicad_sch/.kicad_pcb`；在真实 M6 型号、光耦时序和 MCU 封装确认前，不能用一份手写网表冒充制造数据。
+本文件是给画板和首样采购使用的边界，不是可直接下单的最终 BOM。当前仓库已经有 `daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb/.kicad_pro` 和板级 3D 导出，但仍没有独立的最终载板原理图/铜箔生产释放；在真实 M6 型号、光耦时序和 MCU 封装确认前，不能把首样放置板冒充制造数据。
 
 关联输入：
 
@@ -16,10 +16,10 @@
 ## 1. 电气分区和承诺边界
 
 ```text
-J_SENSOR_POWER  V_SENSOR 10–30 V ── fuse/PTC ── TVS ── sensor distribution
+J_PWR  V_SENSOR 10–30 V ── fuse/PTC ── TVS ── sensor distribution
                                       │
 J_RX[0..9]  BK ── R_IN ── optocoupler LED   optocoupler transistor ── CARRIER_IN[0..9]
-J_TX[0..9]  BN/BU ── sensor power only       3V3 + R_PULL + R_GPIO ── MCU
+TX00..TX09  BN/BU ── sensor power only       3V3 + R_PULL + R_GPIO ── MCU
 
 MCU 3V3 domain ── SPI_SCK/MOSI/MISO/CS_N + IRQ_N + RESET_N ── J_HOST ── ESP32-S3
                                   │
@@ -38,9 +38,9 @@ MCU 3V3 domain ── SPI_SCK/MOSI/MISO/CS_N + IRQ_N + RESET_N ── J_HOST ─
 
 | 位号/命名 | 数量 | 引脚/信号 | 首样要求 |
 | --- | ---: | --- | --- |
-| `J_SENSOR_POWER` | 1 | `V_SENSOR`, `0V_SENSOR`, 屏蔽/PE 预留 | 带防呆、保险/PTC 后接入；首样测启动峰值与压降 |
+| `J_PWR` | 1 | `V_SENSOR`, `0V_SENSOR` | 2-pin MX1.25 载板电源口；屏蔽/PE 如需处理走独立机壳端接，不作为第三个 PCB 信号；首样测启动峰值与压降 |
 | `J_RX00…J_RX09` | 10 | `BN`, `BU`, `BK` | 每个接收器独立 3-pin；通道号永久印在丝印/线标 |
-| `J_TX00…J_TX09` | 10 | `BN`, `BU` | 每个发射器独立 2-pin；不把发射/接收插座混用 |
+| `J_TX_A/J_TX_B` | 2 | `BN`, `BU` × 5 路/接口 | 物理为两组 10-pin MX1.25；承接逻辑通道 `TX00…TX04` 与 `TX05…TX09`，不把发射/接收插座混用 |
 | `J_HOST` | 1 | `3V3`, `GND`, `SCK`, `MOSI`, `MISO`, `CS_N`, `IRQ_N`, `RESET_N` | 推荐锁定或带防呆 2×5/1×8；SPI mode 0、首样 1 MHz |
 | `J_DEBUG` | 1 | 具体按 MCU：SWD/JTAG/USB/UART | 即使量产不留，也必须为首样保留可探测焊盘 |
 | `TP_SENSOR_BK00…09` | 10 | 每路传感器侧 BK/负载节点 | 与 `TP_OPTO_LED` 同时探测，不接 MCU 地以外的错误参考 |
@@ -65,8 +65,8 @@ MCU 3V3 domain ── SPI_SCK/MOSI/MISO/CS_N + IRQ_N + RESET_N ── J_HOST ─
 | 传感器去耦 | `C_SENSOR` | 1 套 | `100 nF + 47 µF`，耐压按 `V_SENSOR` 选择 | 参考值 |
 | 载板 MCU | `U_MCU1` | 1 | `STM32G031K8U6`，UFQFPN32；必须覆盖 10 输入、SPI slave、IRQ/RESET、SWD 和看门狗 | 工程候选；待原型 |
 | MCU 去耦 | `C_MCU` | 按数据手册 | 每个电源脚就近 100 nF，另留 1–10 µF | 待 MCU 确认 |
-| 主控接口 | `J_HOST` | 1 | 8 信号/电源，锁定或防呆 | 脚距待选 |
-| 传感器接口 | `J_RX00…09`, `J_TX00…09` | 20 | RX 3-pin、TX 2-pin；线缆防呆和锁紧优先 | 脚距待选 |
+| 主控接口 | `J_HOST` | 1 | 8 信号/电源，MX1.25 1×8 锁定或防呆候选 | 厂家/料号待实物核对 |
+| 传感器接口 | `J_RX00…09`, `J_TX_A/J_TX_B` | 12 | RX 为 10 个独立 3-pin；TX 为两组 10-pin（每组承接 5 路两芯线）；线缆防呆和锁紧优先 | 物理节距冻结 MX1.25；厂家/料号待实物核对 |
 | 调试接口 | `J_DEBUG` | 1 | SWD/JTAG/USB/UART 之一或复合焊盘 | 随 MCU 冻结 |
 | 状态/产测 | `LED_STATUS`, `R_TEST` | 1 套 | 可选，不能占用 10 路输入或启动脚 | 待选 |
 

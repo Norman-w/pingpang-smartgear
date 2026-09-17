@@ -40,6 +40,7 @@ PARTS = [
     ("cap_nuts", "下夹座捕获螺母", "钢", "#b8c6cf", False, False, [0,0,0]),
     ("retention_screw", "激光头限位顶丝", "钢", "#b8c6cf", False, True, [-14,-10,9]),
     ("retention_nut", "激光头限位捕获螺母", "钢", "#b8c6cf", False, True, [-14,-10,9]),
+    ("rear_pusher_screw", "激光头后段径向防退顶丝 / M3×3", "钢（平头机米螺丝）", "#aebbc4", False, True, [-14,-10,9]),
     ("mount_hardware", "通道安装螺钉与螺母", "钢", "#b8c6cf", False, False, [0,0,0]),
     ("rail", "十路小夹座承载条", "PETG", "#526f89", True, False, [0,0,0]),
     ("front_cover", "裸激光光学前盖（端部固定孔）", "PETG", "#728394", True, False, [-24,0,0]),

@@ -1,0 +1,83 @@
+"""System-level Atopile interface contract for Pingpang SmartGear.
+
+The native KiCad projects remain the PCB/schematic source of truth.  This file
+records the connectorized board-to-board topology and channel counts in an
+Atopile project that can be validated independently.  It intentionally does
+not claim that the still-unrouted first-article PCBs are fabrication-ready.
+The physical cable connector candidate is MX1.25 (1.25 mm); the 20 mm optical
+head spacing is a separate mechanical and harness constraint, not a PCB size.
+"""
+
+interface HostLink:
+    signal v3v3
+    signal gnd
+    signal sck
+    signal mosi
+    signal miso
+    signal cs_n
+    signal irq_n
+    signal reset_n
+
+
+interface UiLink:
+    signal v3v3
+    signal gnd
+    signal i2c_sda
+    signal i2c_scl
+    signal button_start
+    signal button_mode
+    signal buzzer
+    signal speaker_bclk
+    signal speaker_ws
+    signal speaker_dout
+    signal led_status
+    signal led_battery
+
+
+interface SensorPower:
+    signal v
+    signal gnd
+
+
+interface Sensor3Wire:
+    signal v
+    signal gnd
+    signal signal_out
+
+
+interface BatteryPort:
+    signal bat_p
+    signal bat_n
+
+
+module Motherboard:
+    host = new HostLink
+    ui = new UiLink
+    pvdf = new Sensor3Wire
+    battery = new BatteryPort
+
+
+module M6ReceiverCarrier:
+    host = new HostLink
+    sensor_power = new SensorPower
+    rx = new Sensor3Wire[10]
+
+
+module EmitterPower:
+    battery = new BatteryPort
+    external_input = new SensorPower
+    tx = new SensorPower[10]
+
+
+module UiPanel:
+    mother = new UiLink
+
+
+module PingpangSmartGear:
+    mother = new Motherboard
+    receiver = new M6ReceiverCarrier
+    emitter = new EmitterPower
+    ui = new UiPanel
+
+    mother.host ~ receiver.host
+    mother.ui ~ ui.mother

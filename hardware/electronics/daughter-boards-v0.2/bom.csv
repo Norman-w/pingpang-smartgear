@@ -1,0 +1,19 @@
+board,ref,qty,value,role,status,notes
+m6-receiver-carrier-v0.2,U_OP00..U_OP09,10,opto-isolator + input resistor,十路 NPN 隔离前端,候选,按 M6 输出极性/电流和 STM32 输入阈值冻结
+m6-receiver-carrier-v0.2,J_RX00..J_RX09,10,MX1.25_LOCK_3P_RX,十路接收器三芯对插,候选,线束汇聚后插入；按线径和插拔空间核对真实 MX1.25 封装
+m6-receiver-carrier-v0.2,J_HOST,1,MX1.25_MOTHER_HOST_LOCK_8P,母板逻辑接口,候选,3V3/GND/SPI/IRQ/RESET；物理节距锁定 1.25 mm
+m6-receiver-carrier-v0.2,J_PWR,1,MX1.25_SENSOR_RAIL_LOCK_2P,接收器外部电源接口,候选,与母板逻辑线分开；物理节距锁定 1.25 mm
+m6-receiver-carrier-v0.2,U_MCU,1,STM32G031_PLACEHOLDER,十路边沿采集 MCU,候选,占位封装；最终按独立载板方案冻结
+emitter-power-v0.2,J_BAT,1,MX1.25_PROTECTED_1S_LOCK_2P,内置受保护 1S 电池接口,候选,物理节距锁定 1.25 mm；禁止裸电芯；需防呆/锁扣
+emitter-power-v0.2,J_EXT,1,MX1.25_EXT_TX_10-30V_2P_CURRENT_GATE,发射端外接后备电源,候选,MX1.25 物理接口；额定电流/端子温升仍需核对，不与电池裸并联
+emitter-power-v0.2,U_BOOST,1,TX_BOOST_CURRENT_RATED_PLACEHOLDER,发射端升压/限流,候选,按十路同时点亮电流和温升冻结
+emitter-power-v0.2,F_TX,1,PTC_OR_FUSE,发射端过流保护,候选,按内置电池/外部输入分别核算
+emitter-power-v0.2,D_TVS,1,TVS_BY_MODULE,发射端输入瞬态保护,候选,外部输入路径按 10–30 V 边界复核
+emitter-power-v0.2,J_TX_A/J_TX_B,2,MX1.25_TX_A/B_10P,十路发射器两芯线束,候选,TX00..TX04 与 TX05..TX09 各 10 芯；不使用 2.54 mm 或错误 1.27 mm 20P 模型
+ui-panel-v0.2,J_MOTHER,1,MX1.25_MOTHER_UI_LOCK_12P,母板 UI 对插,候选,物理节距锁定 1.25 mm；核对真实锁扣座
+ui-panel-v0.2,J_OLED,1,MX1.25_I2C_OLED_RESERVE_4P,0.96 英寸 OLED 预留,候选,物理节距锁定 1.25 mm；盖板透明窗/压框
+ui-panel-v0.2,SW_START/SW_MODE,2,SEALED_BUTTON,交互按钮,候选,面板帽/压框，避免盖板松旷
+ui-panel-v0.2,D_STATUS/D_BAT,2,LED_LIGHTPIPE,状态/电池指示灯,候选,导光柱传光
+ui-panel-v0.2,J_BUZ,1,MX1.25_BUZZER_LOCK_2P,蜂鸣器接口,候选,物理节距锁定 1.25 mm；盖板声学膜/防护网
+ui-panel-v0.2,J_SPK,1,MX1.25_I2S_SPEAKER_LOCK_5P,扬声器 I2S 接口,候选,物理节距锁定 1.25 mm；按峰值电流/声学窗口核对
+ui-panel-v0.2,J_USB_PANEL,1,MX1.25_USB_C_BULKHEAD_REF_7P,面板 USB-C 线束参考,候选,物理节距锁定 1.25 mm；外置硅胶帽；母板 USB-C 仍保留下载/供电

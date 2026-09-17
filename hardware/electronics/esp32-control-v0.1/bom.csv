@@ -1,0 +1,33 @@
+ref,qty,value,role,status,notes
+U1,1,ESP32-S3-WROOM-1-N16R8,主控,候选,按模块官方 land pattern 与 N16R8 OPI 限制复核
+U2,1,IP5305T-HSOP8-1EP,1S 充电/5V 升压,候选,按现有 SmartPaddle 电源架构复核 VIN/BAT/SW/VOUT/EP
+U3,1,TPS62162-QFN8-EP,3V3 降压,候选,固定 3.3V；FB 接地；PG 保留测试点
+J1,1,USB-C-POWER-DATA,USB-C 输入/下载,候选,VBUS 经过 F1；CC1/CC2 各 5k1
+J2,1,MX1.25_PROTECTED_1S_LOCK_2P,受保护 1S 电池,候选,物理节距锁定 1.25 mm；禁止裸电芯；确认极性与线束防呆
+J3,1,MX1.25_SENSOR_10-30V_IN,外部 M6 电源,首样,物理节距锁定 1.25 mm；与电池/5V 分离
+J4,1,MX1.25_M6_CARRIER_HOST_8P,STM32G031 载板,接口已落板,物理节距锁定 1.25 mm；3V3/GND/SCK/MOSI/MISO/CS/IRQ/RESET
+J5,1,MX1.25_PVDF_ADC_AUX_4P,PVDF ADC,辅助,物理节距锁定 1.25 mm；GPIO1/2；AFE 仍待设计
+J6,1,MX1.25_PVDF_CMP_AUX_DNP_2P,PVDF 比较器辅助,不装,物理节距锁定 1.25 mm；GPIO14 给载板 IRQ；避免隐式复用
+J7,1,MX1.25_UI_PANEL_LOCK_12P,UI 子板 12 芯对插,候选,物理节距锁定 1.25 mm；3V3/GND/I2C/按钮/蜂鸣器/I2S/LED；按真实锁扣座核对
+J8,1,MX1.25_M6_SENSOR_RAIL_LINK_2P,接收载板传感器电源,候选,物理节距锁定 1.25 mm；仅接 F2/PTC/TVS 后的 sensor_fused 与 GND
+F1,1,PTC 1.1A,USB 输入限流,候选,实测 USB 输入峰值和温升
+F2,1,PTC SENSOR,传感器电源保护,候选,电流按 M6 实物确认
+D2,1,TVS 33V SENSOR,传感器电源 TVS,候选,型号随外部 10–30V 瞬态记录冻结
+L1,1,2.2uH BOOST XFL4020,IP5305T 升压电感,候选,按 U2 推荐布局/饱和电流复核
+L2,1,2.2uH BUCK XFL3012,TPS62162 降压电感,候选,按 U3 推荐布局/电流复核
+R1,1,22R USB_DP,USB 串阻,候选,靠近 ESP32/USB 端审查
+R2,1,22R USB_DN,USB 串阻,候选,靠近 ESP32/USB 端审查
+R3,1,5k1 CC1,USB CC 下拉,候选,到 GND
+R4,1,5k1 CC2,USB CC 下拉,候选,到 GND
+R5,1,1M BAT_TOP,电池分压上臂,候选,GPIO9 sense
+R6,1,1M BAT_BOTTOM,电池分压下臂,候选,GPIO9 sense
+R7,1,100k BUCK_EN,降压使能上拉,候选,与 C6 形成首样启动控制
+R8,1,1k CHARGE_LED,充电指示限流,候选,LED 电流实测
+C1,1,100n BAT_SENSE,电池采样滤波,候选,靠近 ESP32 ADC
+C2,1,22u BAT,电池去耦,候选,按 IP5305T 推荐值复核
+C3,1,10u VBUS,输入去耦,候选,靠近 U2 VIN
+C4,1,22u SYS5V,升压输出去耦,候选,靠近 U2 VOUT
+C5,1,10u 3V3,3V3 输出去耦,候选,靠近 U3/ESP32
+C6,1,100n BUCK_EN,使能滤波,候选,按 EN 启动波形复核
+D1,1,GREEN STATUS,充电/电源指示,候选,LED1 路径
+SW1,1,IP5305 KEY,电源按键,候选,确认 IP5305T KEY 时序

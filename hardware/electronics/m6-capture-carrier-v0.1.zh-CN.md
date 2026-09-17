@@ -24,6 +24,10 @@ SmartPaddle ESP32-S3
 
 一个逻辑高度通道对应一只发射器和一只接收器；当前机械主线因此是 10 个光束、20 枚 M6 实物（10 发射 + 10 接收）。载板只采集 10 路接收端 BK，发射端 BN/BU 由受保护的传感器电源独立供电。
 
+### 线束汇聚与载板尺寸边界
+
+每只接收头仍是 `BN / BU / BK` 三芯，每只发射头仍是 `BN / BU` 两芯；线束在光学头侧完成整理/汇聚后，才在载板的连接器处插接。接收载板当前采用 `80 × 32 mm`、两排五路的集中式布局，发射电源板采用 `J_TX_A/J_TX_B` 两个 10 芯接口承接十路发射线束。M6 头之间的 `20 mm` 光学间距属于头部机械阵列和线束长度，不是 PCB 长度约束。所有板级线束连接器的物理节距统一按 `MX1.25`（1.25 mm）候选执行；原理图 `Conn_01xNN` 仅是逻辑符号，不代表 2.54 mm 排针。
+
 载板 MCU 的唯一职责是：对 10 路隔离后的数字输入捕获上升/下降边沿、保存本地微秒时间戳、检测 FIFO 溢出，并通过 SPI 提供带 CRC 的事件帧。它不解释 `clean_over`、不计算高度，也不把传感器连接状态伪装成健康快照。
 
 ## 2. SmartPaddle 侧连接分配
@@ -93,7 +97,7 @@ ESP32 master 的 `exchange_clock_sync()` 用请求开始的 `t1=host_sent_us`、
 - FIFO 深度、SPI 服务周期和线缆传播延迟必须以最坏 10 路同时变化、1–10 ms 参考脉冲实测；
 - 最大 16 边沿帧为 `152 bytes`，SPI 纯传输时间在 `1 MHz` 下约 `1.216 ms`、`4 MHz` 下约 `0.304 ms`；这只是总线占用预算，不能替代载板本地捕获和 FIFO 深度实测；
 - 输入电源、发射器电源和逻辑 3.3 V 分开去耦，传感器侧按 10–30 V 保护方案执行；
-- 当前工程候选为 `STM32G031K8U6 / UFQFPN32`，具体 pin map 见 [`m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md`](m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md)；候选必须至少提供 10 路边沿输入、硬件定时器、SPI 从机、非易失校准版本和掉电安全复位。DMA/定时器寄存器绑定、最小启动/链接脚本和参考 ELF/bin 已完成源码/链接级检查，但选型闸门、实物波形和最终 PCB 仍未关闭，不能生成最终 PCB。
+- 当前工程候选为 `STM32G031K8U6 / UFQFPN32`，具体 pin map 见 [`m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md`](m6-capture-carrier-stm32g031k8-pinmap-v0.1.zh-CN.md)；候选必须至少提供 10 路边沿输入、硬件定时器、SPI 从机、非易失校准版本和掉电安全复位。DMA/定时器寄存器绑定、最小启动/链接脚本和参考 ELF/bin 已完成源码/链接级检查，`daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb` 也已生成用于机械/端子/3D 包络；选型闸门、铜箔生产释放、实物波形和最终载板原理图仍未关闭。
 
 ## 5. 放行门
 
@@ -103,4 +107,4 @@ ESP32 master 的 `exchange_clock_sync()` 用请求开始的 `t1=host_sent_us`、
 4. 断开/短接/过压保护故障：载板上报边界错误，业务层输出 `unknown`；
 5. 完成 SmartPaddle `/ws` 适配后，再按 [`bring-up-v0.1.zh-CN.md`](bring-up-v0.1.zh-CN.md) 执行逐路映射、健康快照和真实球体验收。
 
-在上述证据完成前，本载板是“可制造接口和可测试协议”，不是已验证的 M6 最小脉宽或真实球速性能结论。首样连接器、测试点、隔离器件位置和画板顺序见 [`m6-capture-carrier-first-article-bom-v0.1.zh-CN.md`](m6-capture-carrier-first-article-bom-v0.1.zh-CN.md)；该输入仍不等于已有 PCB。
+在上述证据完成前，本载板是“已有 KiCad 首样板框/器件/端子包络、可制造接口和可测试协议”，不是已验证的 M6 最小脉宽或真实球速性能结论。首样连接器、测试点、隔离器件位置和画板顺序见 [`m6-capture-carrier-first-article-bom-v0.1.zh-CN.md`](m6-capture-carrier-first-article-bom-v0.1.zh-CN.md)；当前 PCB 仍不等于完成布线、ERC/DRC 关闭和可下单生产板。
