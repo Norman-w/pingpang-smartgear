@@ -4283,7 +4283,7 @@ async function loadManifest() {
   const requested = new URLSearchParams(window.location.search).get("manifest");
   state.manifestUrl = requested
     ? new URL(requested, window.location.href)
-    : new URL("../exports/net-stand-v0.1/print-platter-256/manifest.json", window.location.href);
+    : new URL("../exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json", window.location.href);
   setStatus("正在读取打印清单…", "idle");
   try {
     const response = await fetch(state.manifestUrl, { cache: "no-store" });

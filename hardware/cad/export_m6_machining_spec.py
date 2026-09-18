@@ -24,7 +24,7 @@ from validate_scad import find_openscad
 
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-machining-spec.json"
+DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load" / "m6-machining-spec.json"
 SCHEMA_VERSION = "m6-machining-spec-v1.7-20-mm-pitch-full-height-post"
 
 

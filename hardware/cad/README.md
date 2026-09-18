@@ -46,7 +46,7 @@ python3 validate_net_stand.py
 
 正式包的当前结果是 `37` 个 STL。`--clean` 会清除旧版分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.4-top-load/`](exports/desktop-clamp-one-side-x1c-v0.4-top-load/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
 
-固定 C 形主体、整根固定网柱和全高 U 形网夹是不同打印件：`clamp_body_segment`、`post_clamp_carrier`、`net_clamp_clip`。旧版 `desktop-clamp-one-side-x1c/desktop-clamp-one-side-PETG.gcode.3mf` 只有夹体、压块和旋钮，不能把它当成完整网架打印包。需要补打网夹接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，生成带 `post-clamp-carrier` 与 `net-clamp-clip` 两个对象的 X1C/PETG 3MF。
+固定 C 形主体、整根固定网柱和全高 U 形网夹是不同打印件：`clamp_body_segment`、`post_clamp_carrier`、`net_clamp_clip`。旧的三件式目录和五对象 C 形夹 3MF 已删除，不能再把它们当成完整网架打印包。需要直接补打网夹接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，使用 `exports/desktop-clamp-one-side-x1c-v0.5-net-structure/` 下左右两个 X1C/PETG 3MF；每个文件都包含 `post-clamp-carrier` 与 `net-clamp-clip` 两个对象。
 
 256 mm 打印床的几何拼盘结果记录在 [`exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json)：`6` 张板、`37` 个已排零件、`0` 个超床件。两件整根立柱采用 `rx=0°、ry=51°、rz=45°` 三轴刚体斜放，实际变换包络约 `252.5×252.5×251.6 mm`，按该件专用 `1.5 mm` 名义边缘余量排版；这个结果只证明保守包络排版和 STL 几何，不等于已经切片、配置支撑、生成 G-code 或完成实物打印。
 

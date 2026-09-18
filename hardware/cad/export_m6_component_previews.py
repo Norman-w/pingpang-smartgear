@@ -22,7 +22,7 @@ from validate_scad import find_openscad, stl_bounds
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
-DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-component-previews"
+DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load" / "m6-component-previews"
 SCHEMA_VERSION = "m6-component-previews-0.3-20-mm-pitch-petg-body-rear-face-boss"
 
 

@@ -41,7 +41,7 @@ Mother-board boss centers are taken from the four NPTH positions in `esp32-contr
 - AABB fit: conservative x/y/z envelope checks for every imported KiCad board and both internal battery packs.
 - Boolean interference: `PASS` across both clamp sides and both M6 sides.
 - OpenSCAD view compilation: `PASS` for full cutaway, physical shell cutaway, per-side exploded views, M6 integration, and M6 exploded assembly.
-- Printable package: `33/33` STL files closed and positive volume.
+- Printable package: `37/37` STL files closed and positive volume.
 
 ## PCB DRC evidence
 

@@ -86,4 +86,4 @@ python3 hardware/cad/test_m6_component_previews.py
 python3 hardware/cad/export_m6_component_previews.py --clean
 ```
 
-组件预览包位于 `hardware/cad/exports/net-stand-v0.1/m6-component-previews/`，包含左右完整的 PETG 主体、前盖、后盖和底盖 STL；采购球头、商品网夹及其螺纹不进入打印包。后盖 `Ø7.0 mm` 孔仍按 1/4-20 外牙通孔和隐藏捕获螺母窝建模，STL 不模拟螺旋牙；固定网柱顶端为无孔平顶，M6 下端支撑只保留独立待定义的接口包络。这些输出是首样/报价输入，不替代真实装配强度、球台兼容性、光学精度或 NPN 电气验收。
+组件预览包位于 `hardware/cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/m6-component-previews/`，包含左右完整的 PETG 主体、前盖、后盖和底盖 STL；采购球头、商品网夹及其螺纹不进入打印包。后盖 `Ø7.0 mm` 孔仍按 1/4-20 外牙通孔和隐藏捕获螺母窝建模，STL 不模拟螺旋牙；固定网柱顶端为无孔平顶，M6 下端支撑只保留独立待定义的接口包络。这些输出是首样/报价输入，不替代真实装配强度、球台兼容性、光学精度或 NPN 电气验收。

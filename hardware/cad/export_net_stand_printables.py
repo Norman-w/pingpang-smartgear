@@ -22,10 +22,8 @@ from validate_scad import find_openscad, stl_bounds
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
-# Keep the default output on the current 37-part source line.  The old
-# net-stand-v0.1 directory is retained only as historical generated output;
-# writing there by default made it too easy to pick up the old three-piece
-# clamp package and miss the separate post/clip parts.
+# Keep the default output on the current 37-part source line.  The removed
+# legacy directories are never valid exporter destinations.
 DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
 
 
@@ -640,7 +638,7 @@ def main() -> None:
 
     manifest = {
         "schema_version": "0.1",
-        "design": "net-stand-v0.1",
+        "design": "desktop-clamp-one-side-x1c-v0.4-top-load",
         "source": str(SOURCE.relative_to(HERE.parent.parent)),
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "units": "mm",

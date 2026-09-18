@@ -25,6 +25,6 @@
 
 ## 打印状态
 
-当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/net-stand-v0.1/manifest.json`](cad/exports/net-stand-v0.1/manifest.json) 为准：`33` 个 STL。256 mm 打印床拼盘见 [`cad/exports/net-stand-v0.1/print-platter-256/manifest.json`](cad/exports/net-stand-v0.1/print-platter-256/manifest.json)：`6` 张板、`33` 个已排版、`0` 个超尺寸件；两件整根立柱/载体使用实际三轴斜放。旧分体立柱、套筒、内芯和圆柱卡网件不再属于当前清单。
+当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json) 为准：`37` 个 STL。256 mm 打印床拼盘见 [`cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json)：`6` 张板、`37` 个已排版、`0` 个超尺寸件；两件整根立柱/载体使用实际三轴斜放。旧分体立柱、套筒、内芯和圆柱卡网件不再属于当前清单。
 
 这是 CAD 包络/封闭 STL/排版证据，不是已切片、已生成 G-code 或已完成实物打印的证明。

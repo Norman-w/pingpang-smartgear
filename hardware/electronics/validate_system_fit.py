@@ -40,12 +40,12 @@ SCHEMATICS = [
     HERE / "daughter-boards-v0.2/emitter-power-v0.2.kicad_sch",
     HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",
 ]
-PRINT_MANIFEST = ROOT / "hardware/cad/exports/net-stand-v0.1/manifest.json"
+PRINT_MANIFEST = ROOT / "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json"
 REPORT_JSON = HERE / "fit-report-v0.2.json"
 REPORT_MD = HERE / "fit-report-v0.2.md"
 MM = 1_000_000
 MX125_PITCH = 1.25
-EXPECTED_PRINTABLE_COUNT = 33
+EXPECTED_PRINTABLE_COUNT = 37
 
 
 BOARD_SPECS = {

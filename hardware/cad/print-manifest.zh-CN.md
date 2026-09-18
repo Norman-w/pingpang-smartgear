@@ -56,7 +56,7 @@ openscad -D 'PART="net_clamp_fit_section"' -D 'SIDE=1' -o net-clamp-section.png 
 
 ## X1C 3MF 的对象边界
 
-`desktop-clamp-one-side-v0.4-top-load-X1C-PETG.gcode.3mf` 是夹体首样切片包，只包含右侧 C 形夹相关的五个对象：夹体、压块、压块护罩、临时打印螺杆和旋钮。它不包含 `right-post-clamp-carrier.stl` 或 `right-net-clamp-clip.stl`，所以不能用来打印网布的推入通道、固定网柱和 U 形网夹。
+旧的 `desktop-clamp-one-side-v0.4-top-load-X1C-PETG.gcode.3mf` 五对象夹体切片包已删除；它没有网布推入通道、固定网柱和 U 形网夹，不能作为当前打印入口。当前可直接打开的 X1C/PETG 文件只有 `exports/desktop-clamp-one-side-x1c-v0.5-net-structure/` 下的左右两个补打印包。
 
 补打这两个独立件请在 `hardware/cad` 下运行：
 

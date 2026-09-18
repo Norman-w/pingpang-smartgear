@@ -1314,10 +1314,10 @@
     "release": "OPEN until all unconnected items are routed and expected zone warnings are reviewed"
   },
   "print_package": {
-    "manifest": "hardware/cad/exports/net-stand-v0.1/manifest.json",
-    "printable_stl_count": 33,
-    "closed_count": 33,
-    "positive_volume_count": 33,
+    "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json",
+    "printable_stl_count": 37,
+    "closed_count": 37,
+    "positive_volume_count": 37,
     "status": "PASS"
   },
   "interference": {

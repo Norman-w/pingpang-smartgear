@@ -574,7 +574,7 @@ def build_manifest(
         )))
     return {
         "schema_version": "0.1",
-        "design": "net-stand-v0.1",
+        "design": "desktop-clamp-one-side-x1c-v0.4-top-load",
         "generated_by": "hardware/cad/build_print_platter.py",
         "source_manifest": os.path.relpath(source_manifest_path, output_dir).replace(os.sep, "/"),
         "source_manifest_sha256": sha256_file(source_manifest_path),

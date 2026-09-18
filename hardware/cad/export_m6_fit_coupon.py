@@ -22,7 +22,7 @@ from validate_scad import find_openscad, stl_bounds
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
-DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1" / "m6-fit-coupon"
+DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load" / "m6-fit-coupon"
 SCHEMA_VERSION = "m6-fit-coupon-0.1"
 STL_NAME = "m6-sensor-test-coupon.stl"
 MANIFEST_NAME = "manifest.json"

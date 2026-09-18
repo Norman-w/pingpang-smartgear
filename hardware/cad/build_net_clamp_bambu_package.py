@@ -32,8 +32,8 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_SOURCE_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
 DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.5-net-structure"
 DEFAULT_TEMPLATE = (
-    DEFAULT_SOURCE_DIR
-    / "desktop-clamp-one-side-v0.4-top-load-X1C-PETG.gcode.3mf"
+    DEFAULT_OUTPUT_DIR
+    / "right-net-structure-X1C-PETG.gcode.3mf"
 )
 IDENTITY = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
 
