@@ -146,9 +146,9 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    # The 35×58 mm lower post footprint uses one verified diagonal post
-    # placement per PETG plate; the current deterministic layout is six plates
-    # because each 356.5 mm upright occupies its own diagonal plate.
+    # Each 356.5 mm upright occupies its own diagonal plate; the current
+    # deterministic layout packs the remaining fixed bodies and clips on four
+    # additional PETG plates and keeps TPU separate.
     if len(data["plates"]) != 6 or sum(p["part_count"] for p in data["plates"]) != 37:
         raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 6/37）")
     groups = [plate.get("material_group") for plate in data["plates"]]

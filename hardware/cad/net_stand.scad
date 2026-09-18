@@ -1000,12 +1000,13 @@ post_interface_transition_outer_min_y =
     -post_interface_transition_bottom_depth_y / 2;
 post_interface_transition_outer_max_y =
     post_interface_transition_bottom_depth_y / 2;
-// Retained as a compatibility datum; no below-seat overlap is present in the
-// active geometry.
+// The old rail experiment remains disabled.  The active lower interface is
+// the SKP C-scheme below: a single green base enters a pocket in the gray
+// clamp, while the yellow post sits on the base at the z=16 datum.
 post_lower_overlap_solid_height_z = 0;
-// The former shoe/track experiment remains in the source only as a retired
-// compatibility diagnostic. It is deliberately disabled for the current
-// printable assembly; no shoe, rail, or hidden hardware is below this seat.
+// Keep the historical rail flag false so those retired diagnostics cannot
+// cut T-slots or reintroduce a second carrier.  The C-scheme interface is
+// emitted by the formal body/carrier modules below.
 clamp_slide_interface_enabled = false;
 clamp_slide_split_x = 885.5;
 // Retired slide dimensions kept only for compatibility probes. They are not
@@ -1274,10 +1275,9 @@ post_skp_leg_foot_top_z =
 post_skp_leg_foot_terminal_chamfer_x = 3;
 post_skp_leg_foot_terminal_chamfer_z = 3;
 post_skp_leg_foot_exploded_offset_x = 75;
-// Use the existing first-article slide clearance for the gray C-clamp
-// candidate.  The extra z overlap belongs only to the subtractive tool: it
-// makes the common yellow/green interface cut unambiguous without moving the
-// visible yellow or green geometry.
+// Use the existing first-article clearance for the gray C-clamp pocket.  The
+// extra z overlap belongs only to the subtractive tool; the visible green
+// base still ends at the z=16 seating datum.
 post_skp_leg_foot_fit_clearance = clamp_slide_clearance;
 post_skp_leg_foot_fit_cutter_overlap_z = 0.5;
 
@@ -4397,16 +4397,18 @@ module table_clamp_body_screw_side_reinforced_positive() {
 }
 
 module clamp_body_segment_positive() {
-    // Printable fixed gray clamp shell. It contains the complete C-frame
-    // envelope, trapezoid electronics cavity, two full-length female
-    // slideways and the fixed seat beneath the upright. The body reaches its
-    // outboard face so it embraces the post foot from first contact onward.
-    // table_clamp_body_positive() owns the exact fixed-body envelope from
-    // clamp_pad_x through clamp_fixed_body_max_x and now also owns the pair
-    // of knob-side reinforcement walls. Avoiding a second coincident clipping
-    // cube at the outboard face keeps the open receiver edge clean in the
-    // exported STL while preserving that same envelope.
-    table_clamp_body_positive();
+    // Formal fixed gray clamp shell.  The C-scheme seating pocket is part of
+    // this same printable body: the green SKP base enters from the x+ side,
+    // the two Ø4.4 mm clearance holes pass through the upper shelf, and the
+    // central spring-ball bore is drilled from below.  There is no T-slot or
+    // separate rail part in the released geometry.
+    color("slategray")
+        difference() {
+            table_clamp_body_positive();
+            post_skp_leg_foot_c_fit_tool_positive();
+            post_skp_c_detent_bore_negative_positive();
+            post_skp_c_clamp_fastener_holes_negative_positive();
+        }
 }
 
 module table_clamp_carrier_positive(tongue_color = "darkorange") {
@@ -5423,15 +5425,12 @@ module clamp_slide_lock_hardware_positive() {
 
 module table_clamp_positive() {
     // Show the current seated assembly: the inboard shell and the complete
-    // upright are separate printable parts. The former slide/detent hardware
-    // is intentionally absent because the current load path is the direct
-    // horizontal seat plus the solid tapered post base.
+    // yellow+green upright are separate printable parts. The green base is
+    // pushed into the gray pocket; the spring-ball locates the terminal
+    // position and the two Ø4 holes remain available for retaining screws.
     clamp_body_segment_positive();
     post_clamp_carrier_positive();
-    if (clamp_slide_interface_enabled) {
-        clamp_slide_detent_hardware_positive();
-        clamp_slide_lock_hardware_positive();
-    }
+    post_skp_c_detent_hardware_positive();
     clamp_top_pad_positive();
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
@@ -5453,10 +5452,7 @@ module table_clamp_screw_side_reinforced_positive() {
     // extended rod.
     table_clamp_body_screw_side_reinforced_positive();
     post_clamp_carrier_positive();
-    if (clamp_slide_interface_enabled) {
-        clamp_slide_detent_hardware_positive();
-        clamp_slide_lock_hardware_positive();
-    }
+    post_skp_c_detent_hardware_positive();
     clamp_top_pad_positive();
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
@@ -5473,18 +5469,15 @@ module table_clamp_screw_side_reinforced_positive() {
 }
 
 module clamp_slide_fit_probe_positive() {
-    // Direct seated-interface proof. The gray C body stops at its highest
-    // horizontal support plane and the orange one-piece post starts on the
-    // same z datum. Only the two real solids are shown here.
-    section_x = post_interface_transition_outer_min_x - 4;
-    section_y = post_interface_transition_outer_min_y - 4;
-    section_z = post_bottom - 2;
+    // Compatibility entry point for the old slide name.  It now shows the
+    // formal C-scheme pocket and the matching green base, not a T-slot.
+    section_x = post_skp_leg_foot_min_x - 4;
+    section_y = post_skp_leg_foot_min_y - 4;
+    section_z = post_skp_leg_foot_bottom_z - 2;
     section_size = [
-        post_interface_transition_outer_max_x -
-            post_interface_transition_outer_min_x + 8,
-        post_interface_transition_outer_max_y -
-            post_interface_transition_outer_min_y + 8,
-        post_interface_transition_height_z + 10
+        post_skp_leg_foot_max_x - post_skp_leg_foot_min_x + 8,
+        post_skp_leg_foot_max_y - post_skp_leg_foot_min_y + 8,
+        post_skp_leg_foot_top_z - post_skp_leg_foot_bottom_z + 8
     ];
     color("slategray", 0.72)
         intersection() {
@@ -5492,8 +5485,8 @@ module clamp_slide_fit_probe_positive() {
             translate([section_x, section_y, section_z])
                 cube(section_size);
         }
-    // +0.1 mm is display-only separation. The exported geometry and fit
-    // checks keep the exact shared z=16 datum.
+    // +0.1 mm is display-only separation; the exported geometry keeps the
+    // actual green-to-gray pocket fit.
     color("darkorange", 0.92)
         intersection() {
             translate([0, preview_fit_display_gap, 0])
@@ -5504,20 +5497,14 @@ module clamp_slide_fit_probe_positive() {
 }
 
 module clamp_slide_fit_section_positive() {
-    // A real y-section through the positive rail.  The two colors are the
-    // actual inboard shell and outboard carrier, clipped at one broad
-    // interlocking slideway so the captured shoulders, lower seat and deep
-    // U-foot root remain inspectable.
-    // Focus on the actual root/entry zone.  The full 79.0 mm runner is shown
-    // in clamp_slide_fit_section; this close-up keeps the x+ opening and the
-    // sloped ankle from disappearing inside an oversized gray C-frame.
-    section_x = post_center_x - 2;
-    section_y = post_interface_transition_outer_min_y - 4;
-    section_z = post_bottom - 2;
+    // A real y-section through the central C-scheme detent.  The gray pocket,
+    // green base underside and yellow upright remain the only displayed solids.
+    section_x = post_skp_c_detent_x - 2;
+    section_y = post_skp_leg_foot_min_y - 4;
+    section_z = post_skp_leg_foot_bottom_z - 2;
     section_width = 4;
-    section_height = post_interface_transition_height_z + 10;
-    section_depth = post_interface_transition_outer_max_y -
-        post_interface_transition_outer_min_y + 8;
+    section_height = post_skp_leg_foot_top_z - post_skp_leg_foot_bottom_z + 8;
+    section_depth = post_skp_leg_foot_max_y - post_skp_leg_foot_min_y + 8;
     color("slategray", 0.32)
         intersection() {
             clamp_body_segment_positive();
@@ -5525,11 +5512,11 @@ module clamp_slide_fit_section_positive() {
                 cube([section_width, section_depth, section_height]);
         }
     // No colored void or duplicate receiver is added. The section contains
-    // only material from the fixed body and the real one-piece post.
+    // only material from the fixed body and the real one-piece carrier.
     color("darkorange", 0.92)
         intersection() {
-            // The overlay is the actual one-piece pants foot; no raw runner is
-            // drawn on top of it as a second object.
+            // The overlay is the actual one-piece yellow+green carrier; no
+            // raw runner or second shoe is drawn on top of it.
             translate([0, preview_fit_display_gap, 0])
                 post_clamp_carrier_positive();
             translate([section_x, section_y, section_z])
@@ -5538,9 +5525,9 @@ module clamp_slide_fit_section_positive() {
 }
 
 module clamp_slide_exploded_positive() {
-    // Visual-only service separation for the current two-part design. The
-    // fixed gray C body stays on the table and the complete orange post is
-    // pulled only in +x; there are no extra feet, rails or loose click parts.
+    // Visual-only service separation for the current two-part C-scheme. The
+    // fixed gray C body stays on the table and the yellow+green carrier is
+    // pulled only in +x; there are no extra rails or loose click parts.
     clamp_body_segment_positive();
     translate([preview_slide_out_offset_x, 0, 0])
         post_clamp_carrier_positive();
@@ -6445,38 +6432,26 @@ module post_skp_c_clamp_fastener_holes_negative_positive() {
 }
 
 module clamp_body_skp_leg_foot_c_fit_positive() {
-    // Gray C-clamp candidate with the corrected integrated SKP seating
-    // envelope, the two matching fastener holes, and the central detent
-    // service bore removed. The formal gray body already includes the
-    // integrated knob-side walls; this candidate additionally applies the
-    // SKP-specific seating cut and fastener/detent holes.
-    color("slategray")
-        difference() {
-            clamp_body_segment_positive();
-            post_skp_leg_foot_c_fit_tool_positive();
-            post_skp_c_detent_bore_negative_positive();
-            post_skp_c_clamp_fastener_holes_negative_positive();
-        }
+    // Compatibility preview for the now-formal C-scheme body. Keep one
+    // source of truth so the preview cannot drift from the printable clamp.
+    clamp_body_segment_positive();
 }
 
 module post_skp_leg_foot_c_clamp_fit_positive() {
-    // Assembly-only corrected C-scheme candidate. The yellow post, integrated
-    // green SKP base and silver locator hardware are shown with the matching
-    // gray pocket and two screw holes; none is added to the formal manifest.
+    // Full C-scheme assembly: gray pocket, yellow upright, green integrated
+    // base and the visible spring-ball locator. The gray and green solids are
+    // the same two printable parts used by the formal manifest.
     clamp_body_skp_leg_foot_c_fit_positive();
-    post_body_positive();
-    post_skp_leg_foot_c_positive();
+    post_clamp_carrier_positive();
     post_skp_c_detent_hardware_positive();
 }
 
 module post_skp_leg_foot_c_clamp_fit_exploded_positive() {
-    // Review-only exploded view. Keep the gray fitted C-clamp fixed and move
-    // the yellow post, green integrated SKP base, and detent stack together
-    // along the real x insertion/removal direction.
+    // Exploded view of the formal C-scheme. Keep the fitted gray C-clamp fixed
+    // and move the complete yellow+green carrier along the x insertion path.
     clamp_body_skp_leg_foot_c_fit_positive();
     translate([preview_slide_out_offset_x, 0, 0]) {
-        post_body_positive();
-        post_skp_leg_foot_c_positive();
+        post_clamp_carrier_positive();
         post_skp_c_detent_hardware_positive();
     }
 }
@@ -6487,9 +6462,7 @@ module post_skp_leg_foot_c_clamp_fit_detail_positive() {
     // the actual seating/interference relationship is legible without the
     // full-height post hiding the lower geometry.
     clamp_body_skp_leg_foot_c_fit_positive();
-    color("goldenrod")
-        post_interface_transition_positive();
-    post_skp_leg_foot_c_positive();
+    post_clamp_carrier_positive();
     post_skp_c_detent_hardware_positive();
 }
 
@@ -6600,16 +6573,15 @@ module post_segment_positive(index = 0) {
 }
 
 module post_clamp_carrier_positive() {
-    // Formal printable assembly part: the complete upright, including the
-    // solid lower transition, is one print. Its broad lower face sits on the
-    // fixed C-clamp at clamp_slide_seat_z; it does not enter the C-clamp body.
-    // The old carrier hook is retained as an empty compatibility module and
-    // adds no extra geometry.
-    color("goldenrod")
-        union() {
-            post_body_positive();
-            table_clamp_carrier_positive("goldenrod");
-        }
+    // Formal printable assembly part: the complete yellow upright and the
+    // SKP-derived green base are one print.  The green base extends 15 mm
+    // toward x- and is the portion that slides into the gray C-clamp pocket;
+    // its two holes and underside Ø6 mm pocket remain real features.  There
+    // are no T-slot runners, loose shoes, or hidden third carrier parts.
+    union() {
+        post_body_positive();
+        post_skp_leg_foot_c_positive();
+    }
 }
 
 module lower_stand_segment_positive() {
@@ -6712,32 +6684,28 @@ module post_down_extension_stage1_exploded_positive() {
 }
 
 module post_clamp_slide_interface_exploded_positive() {
-    // Focused lower-interface proof for the current direct seat. The fixed
-    // C body and the complete orange post are clipped around the shared plane;
-    // the post is then pulled only in +x for a readable service separation.
-    section_x = post_interface_transition_outer_min_x - 5;
-    section_y = post_interface_transition_outer_min_y - 5;
-    section_z = post_bottom - 2;
+    // Focused lower-interface proof for the formal C-scheme. The fixed gray
+    // body owns the fitted pocket, while the complete yellow+green carrier is
+    // shown once seated and once pulled along the real x insertion path.
+    section_x = post_skp_leg_foot_min_x - 5;
+    section_y = post_skp_leg_foot_min_y - 5;
+    section_z = post_skp_leg_foot_bottom_z - 2;
     section_box = [section_x, section_y, section_z];
     section_size = [
-        post_interface_transition_outer_max_x -
-            post_interface_transition_outer_min_x + 10,
-        post_interface_transition_outer_max_y -
-            post_interface_transition_outer_min_y + 10,
-        post_interface_transition_height_z + 12
+        post_skp_leg_foot_max_x - post_skp_leg_foot_min_x + 10,
+        post_skp_leg_foot_max_y - post_skp_leg_foot_min_y + 10,
+        post_skp_leg_foot_top_z - post_skp_leg_foot_bottom_z + 12
     ];
 
-    // Show only the actual fixed-body material in this slice. The support
-    // plane remains gray so the orange lower taper can be seen sitting on it.
+    // Show only the actual fixed-body material in this slice.
     color("slategray", 0.88)
         intersection() {
             clamp_body_segment_positive();
             translate(section_box)
                 cube(section_size);
         }
-    // Installed carrier, shown at its real datum. It is a single solid lower
-    // taper seated on the gray horizontal support; there is no second shoe or
-    // hidden rear wrapper.
+    // Installed carrier, shown at its real datum. The green base is the part
+    // that enters the gray pocket; the yellow post remains fused to it.
     color("darkorange", 0.96)
         intersection() {
             post_clamp_carrier_positive();
@@ -6752,35 +6720,36 @@ module post_clamp_slide_interface_exploded_positive() {
             translate([preview_slide_out_offset_x, preview_fit_display_gap, 0])
                 cube(section_size);
         }
-    // Hardware is intentionally omitted from this focused picture so the
-    // shared plane and the continuous taper remain unambiguous.
+    // The locator hardware is shown separately so the two structural parts
+    // remain visually unambiguous.
+    post_skp_c_detent_hardware_positive();
 }
 
 module post_clamp_seated_positive() {
-    // Final installed reference: the complete upright's flat lowest face is
-    // seated directly on the fixed C-clamp's highest horizontal support plane
-    // at the shared z=16 mm datum.
+    // Final installed reference for the C-scheme: the green base is fully
+    // pushed into the gray pocket and the yellow upright sits on its z=16 mm
+    // upper interface.  The gray body and yellow+green carrier remain two
+    // separate printable parts.
     clamp_body_segment_positive();
     post_clamp_carrier_positive();
+    post_skp_c_detent_hardware_positive();
 }
 
 module post_clamp_seated_fit_section_positive() {
-    // Focused y-section through the actual seated transition. The section
-    // contains one fixed gray support plane and one orange solid taper; there
-    // is no foot, rail, collar, or under-seat piece to confuse the datum.
-    section_x = post_center_x - 2;
-    section_y = post_interface_transition_outer_min_y - 4;
-    section_z = post_bottom - 2;
+    // Focused y-section through the actual seated C-scheme transition. The
+    // green base and gray pocket are included so the push-in relationship is
+    // visible instead of looking like a plain block-on-block seat.
+    section_x = post_skp_c_detent_x - 2;
+    section_y = post_skp_leg_foot_min_y - 4;
+    section_z = post_skp_leg_foot_bottom_z - 2;
     section_width = 4;
-    section_height = post_interface_transition_height_z + 10;
-    section_depth = post_interface_transition_outer_max_y -
-        post_interface_transition_outer_min_y + 8;
+    section_height = post_skp_leg_foot_top_z - post_skp_leg_foot_bottom_z + 10;
+    section_depth = post_skp_leg_foot_max_y - post_skp_leg_foot_min_y + 8;
     section_box = [section_x, section_y, section_z];
     section_size = [section_width, section_depth, section_height];
 
-    // Keep fixed-body material separate from the orange carrier.  The prior
-    // union painted the installed carrier gray as well, which made a valid
-    // open tunnel look like a closed block and obscured the actual entry.
+    // Keep fixed-body material separate from the carrier so the fitted pocket
+    // remains visible.
     color("slategray", 0.62)
         intersection() {
             clamp_body_segment_positive();
@@ -6797,13 +6766,11 @@ module post_clamp_seated_fit_section_positive() {
 
 module post_clamp_entry_open_section_positive() {
     // Diagnostic-only x-normal section at the outboard interface. It is made
-    // from the two real solids: gray is the fixed C body and orange is the
-    // complete upright. The thin section checks that the upright's lowest
-    // face meets the fixed support plane without a hidden rear wrapper or a
-    // sealed block behind it.
-    section_x = clamp_fixed_body_max_x - 3;
+    // from the two real solids: gray is the fitted C body and orange is the
+    // yellow+green carrier entering its pocket.
+    section_x = post_skp_leg_foot_min_x - 1;
     section_width = 2.5;
-    section_z = clamp_slide_rail_floor_z - 2;
+    section_z = post_skp_leg_foot_bottom_z - 2;
     section_box = [
         section_x,
         -clamp_pad_depth / 2 - 1,
@@ -6812,7 +6779,7 @@ module post_clamp_entry_open_section_positive() {
     section_size = [
         section_width,
         clamp_pad_depth + 2,
-        clamp_slide_seat_z - section_z + 5
+        post_skp_leg_foot_top_z - section_z + 5
     ];
 
     // Only material intersecting this thin slab is shown; no colored proxy or

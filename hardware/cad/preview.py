@@ -82,6 +82,19 @@ CLAMP_TOP_PAD_T = 2.0
 CLAMP_SLIDE_SEAT_Z = CLAMP_TOP_PAD_T + CLAMP_PAD_T
 POST_C_CLAMP_OVERLAP_DEPTH_Z = 0.0
 POST_BOTTOM = CLAMP_SLIDE_SEAT_Z
+# Formal 779f046 C-scheme interface, mirrored in the same relative x frame as
+# the side elevation (absolute SCAD x minus TABLE_EDGE). The green SKP ROOT
+# base enters the gray pocket from x+; the yellow upright starts at z=16.
+SKP_BASE_MIN_X = 97.3
+SKP_BASE_MAX_X = 156.0
+SKP_BASE_MIN_Y = -23.0
+SKP_BASE_MAX_Y = 23.0
+SKP_BASE_BOTTOM_Z = -4.0
+SKP_BASE_TOP_Z = 16.0
+SKP_BASE_MAIN_MIN_X = 112.3
+SKP_BASE_DETENT_X = 146.0
+SKP_BASE_FASTENER_X = 105.3
+SKP_BASE_FASTENER_Y = (-11.0, 11.0)
 # Historical shoe/rail parameters are retained only so old reports can still
 # parse the source; the active preview draws the direct solid taper below.
 CLAMP_SLIDE_SHOE_DROP_Z = 14.0
@@ -849,16 +862,36 @@ def draw_front(ax) -> None:
                 ),
             )
         )
+        base_min_x = SKP_BASE_MIN_X if x > 0 else -SKP_BASE_MAX_X
+        base_max_x = SKP_BASE_MAX_X if x > 0 else -SKP_BASE_MIN_X
+        ax.add_patch(
+            Polygon(
+                [
+                    (base_min_x + 3, SKP_BASE_BOTTOM_Z),
+                    (base_max_x, SKP_BASE_BOTTOM_Z),
+                    (base_max_x, SKP_BASE_BASE_TOP_Z if False else SKP_BASE_TOP_Z),
+                    (base_min_x + 3, SKP_BASE_TOP_Z),
+                    (base_min_x, SKP_BASE_TOP_Z - 3),
+                    (base_min_x, SKP_BASE_BOTTOM_Z),
+                ],
+                closed=True,
+                facecolor="#43d34d",
+                edgecolor="#267d2f",
+                linewidth=1.0,
+                alpha=0.9,
+                label=f"{side_label} 绿色 SKP 整体底座（x 向推进）",
+            )
+        )
 
     ax.plot(
         [POST_CENTER - 32, POST_CENTER + 32],
         [POST_BOTTOM, POST_BOTTOM],
         color="#2e596d",
         linewidth=2.2,
-        label="C 形夹最高承托面 z=16 mm；网柱底端与其共面",
+        label="灰色 C 夹让位腔 / 绿色底座顶面 z=16 mm",
     )
     ax.annotate(
-        "黄灰交界 z=16 mm，网柱从此共面起步\n网布/卡夹到 z=168.5 mm；立柱实体继续到球头底座共面顶端 z=260.5 mm\n下端 35×58 mm，30 mm 实心渐变收至 28×38 mm",
+        "绿色整体底座从 x+ 推入灰色 C 夹让位腔\n两枚 Ø4 穿孔配 Ø4.4 夹体孔；中央 Ø6×2 mm 底坑由 4 mm 钢球定位\n黄色立柱坐在绿色底座上，从 z=16 mm 一体延伸到 z=260.5 mm",
         xy=(POST_CENTER, POST_BOTTOM),
         xytext=(POST_CENTER - 210, POST_BOTTOM + 30),
         fontsize=7,
@@ -1411,9 +1444,47 @@ def draw_side(ax) -> None:
             label="replaceable upper protective pad",
         )
     )
-    # Current post/clamp interface in the side elevation: the orange fixed-net
-    # post starts exactly on the gray/yellow contact plane, tapers continuously
-    # for 30 mm, and then remains 28 x 38 mm for the rest of the full upright.
+    # Current 779f046 C-scheme interface in the side elevation: the gray
+    # clamp has a shallow receiving pocket and the green SKP ROOT base enters
+    # horizontally from x+. The yellow upright begins on the green top at z=16.
+    ax.add_patch(
+        Rectangle(
+            (SKP_BASE_MIN_X - 3, SKP_BASE_BOTTOM_Z),
+            (SKP_BASE_MAX_X - SKP_BASE_MIN_X) + 6,
+            SKP_BASE_TOP_Z - SKP_BASE_BOTTOM_Z,
+            facecolor="#687985",
+            edgecolor="#3f4d57",
+            linewidth=1.0,
+            alpha=0.28,
+            label="灰色 C 夹让位腔（配套 Ø4.4 孔 / 中央定位孔）",
+        )
+    )
+    post_skp_side_polygon = [
+        (SKP_BASE_MIN_X + 3, SKP_BASE_BOTTOM_Z),
+        (SKP_BASE_MAX_X, SKP_BASE_BOTTOM_Z),
+        (SKP_BASE_MAX_X, SKP_BASE_TOP_Z),
+        (SKP_BASE_MIN_X + 3, SKP_BASE_TOP_Z),
+        (SKP_BASE_MIN_X, SKP_BASE_TOP_Z - 3),
+        (SKP_BASE_MIN_X, SKP_BASE_BOTTOM_Z),
+    ]
+    ax.add_patch(
+        Polygon(
+            post_skp_side_polygon,
+            closed=True,
+            facecolor="#43d34d",
+            edgecolor="#267d2f",
+            linewidth=1.0,
+            alpha=0.92,
+            label="绿色 SKP 整体底座：x+ 推入 / 两枚 Ø4 / Ø6×2 底坑",
+        )
+    )
+    ax.scatter(
+        [SKP_BASE_DETENT_X], [SKP_BASE_BOTTOM_Z],
+        color="#d8dde2", edgecolor="#4d5964", s=18, zorder=7,
+        label="4 mm 钢球定位（只定位，不承主载）",
+    )
+    # The yellow fixed-net post starts on the green base top, tapers
+    # continuously for 30 mm, and then remains 28 x 38 mm for the rest.
     post_side_polygon = [
         (POST_INTERFACE_TRANSITION_OUTER_MIN_X, POST_BOTTOM),
         (POST_INTERFACE_TRANSITION_OUTER_MAX_X, POST_BOTTOM),
@@ -1443,7 +1514,7 @@ def draw_side(ax) -> None:
         [POST_BOTTOM, POST_BOTTOM],
         color="#2e596d",
         linewidth=2.2,
-        label="C 形夹最高承托面 z=16 mm；立柱底端共面",
+        label="绿色底座顶面 z=16 mm；黄色立柱落座",
     )
     ax.add_patch(
         Rectangle(
@@ -1464,7 +1535,7 @@ def draw_side(ax) -> None:
         )
     )
     ax.annotate(
-        "黄灰交界 z=16 mm；底端不进入 C 形座\n网布/卡夹到 z=168.5 mm，立柱实体继续到球头底座共面顶端 z=260.5 mm\n下端 35×58 mm，30 mm 连续实心渐变至 28×38 mm",
+        "绿色底座从 x+ 推入灰色让位腔；终点由 4 mm 钢球定位\n两枚 Ø4 绿件通孔与灰色 Ø4.4 孔对齐后锁紧\n黄色立柱从绿色顶面 z=16 mm 起，继续到 z=260.5 mm",
         xy=(POST_OFFSET, POST_INTERFACE_TRANSITION_TOP_Z),
         xytext=(72, 45),
         fontsize=7,
@@ -1477,10 +1548,10 @@ def draw_side(ax) -> None:
         color="#dfe7ec",
         linewidth=2.2,
         solid_capstyle="butt",
-        label="固定灰色基台最高承托面 z=16 mm（立柱底端共面）",
+        label="灰色 C 夹让位腔上缘 / 绿色底座顶面 z=16 mm",
     )
     ax.annotate(
-        "立柱底端停在黄灰交界\n不进入固定灰色 C 形座；底面与承托面共面",
+        "绿色整体底座沿 x+ 推入灰色 C 夹\n到位后两枚 M4 固定，中央钢球只负责咯噔定位",
         xy=(POST_OFFSET, CLAMP_SLIDE_SEAT_Z),
         xytext=(72, 30),
         fontsize=7,
@@ -1675,18 +1746,38 @@ def draw_side(ax) -> None:
     inset.grid(True, alpha=0.2)
     slide_inset = ax.inset_axes([0.52, 0.12, 0.44, 0.34])
     slide_inset.set_facecolor("#f7f9fb")
-    # y-z section of the actual interface. The gray rectangle ends at the
-    # z=16 contact plane and the orange post starts on that same plane; it
-    # then tapers for 30 mm to the nominal 38 mm post depth.
+    # y-z section of the actual C-scheme interface. The gray pocket is
+    # behind the green base; the 4 mm ball reaches the green underside pocket.
     slide_inset.add_patch(
         Rectangle(
-            (-CLAMP_REINFORCEMENT_DEPTH_Y / 2, 2),
-            CLAMP_REINFORCEMENT_DEPTH_Y,
-            CLAMP_SLIDE_SEAT_Z - 2,
+            (-24, SKP_BASE_BOTTOM_Z),
+            48,
+            SKP_BASE_TOP_Z - SKP_BASE_BOTTOM_Z,
             facecolor="#aeb7bf",
             edgecolor="#4d5964",
-            alpha=0.72,
-            label="固定 C 形夹接触面（z=16）",
+            alpha=0.46,
+            label="灰色 C 夹让位腔（截面）",
+        )
+    )
+    slide_inset.add_patch(
+        Polygon(
+            [
+                (-23, SKP_BASE_BOTTOM_Z), (23, SKP_BASE_BOTTOM_Z),
+                (23, 3), (17, 7), (17, SKP_BASE_TOP_Z),
+                (-17, SKP_BASE_TOP_Z), (-17, 7), (-23, 3),
+            ],
+            closed=True,
+            facecolor="#43d34d",
+            edgecolor="#267d2f",
+            linewidth=1.1,
+            alpha=0.92,
+            label="绿色整体底座（57 mm 宽，底部 Ø6×2 mm）",
+        )
+    )
+    slide_inset.add_patch(
+        Circle((0, SKP_BASE_BOTTOM_Z), 2.0, facecolor="#d8dde2",
+               edgecolor="#4d5964", zorder=7,
+               label="4 mm 钢球 / 弹簧定位",
         )
     )
     slide_inset.add_patch(
@@ -1706,7 +1797,7 @@ def draw_side(ax) -> None:
             edgecolor="#7d530b",
             linewidth=1.1,
             alpha=0.9,
-            label="从共面座 z=16 起的 30 mm 连续实心渐变",
+            label="黄色立柱从绿色顶面 z=16 起渐变 30 mm",
         )
     )
     slide_inset.add_patch(
@@ -1726,10 +1817,10 @@ def draw_side(ax) -> None:
         [POST_BOTTOM, POST_BOTTOM],
         color="#2e596d",
         linewidth=2.0,
-        label="C 形夹最高承托面 z=16 mm；立柱底端共面",
+        label="绿色底座顶面 z=16 mm；黄色立柱落座",
     )
     slide_inset.annotate(
-        "底面与黄灰交界共面\n无下插段、无干涉扣除",
+        "绿色底座进入灰色让位腔\nØ4 钢球落入 Ø6×2 mm 底坑",
         xy=(0, CLAMP_SLIDE_SEAT_Z),
         xytext=(12, CLAMP_SLIDE_SEAT_Z - 4),
         fontsize=7,
@@ -1737,14 +1828,14 @@ def draw_side(ax) -> None:
         arrowprops={"arrowstyle": "->", "color": "#2e596d", "lw": 0.8},
     )
     slide_inset.set_xlim(-34, 34)
-    slide_inset.set_ylim(5, POST_INTERFACE_TRANSITION_TOP_Z + 10)
+    slide_inset.set_ylim(SKP_BASE_BOTTOM_Z - 3, POST_INTERFACE_TRANSITION_TOP_Z + 10)
     slide_inset.set_aspect("equal", adjustable="box")
-    slide_inset.set_title("真实 y-z：固定平面上的一体实心渐变", fontsize=8)
-    slide_inset.set_xlabel("y / mm（共面承托 58 mm → 上段 38 mm）", fontsize=7)
+    slide_inset.set_title("真实 y-z：C 方案绿色底座 + 灰色让位腔", fontsize=8)
+    slide_inset.set_xlabel("y / mm（绿色底座 57 mm → 黄色上段 38 mm）", fontsize=7)
     slide_inset.set_ylabel("z", fontsize=7)
     slide_inset.tick_params(labelsize=6)
     slide_inset.grid(True, alpha=0.2)
-    ax.set_title("No-drill C-clamp + coplanar net-post seat + 30 mm solid taper: side intent")
+    ax.set_title("No-drill C-clamp + SKP C-scheme push-in base + 30 mm solid taper: side intent")
     ax.set_xlabel("relative to table edge: inboard <- / outboard -> / mm")
     ax.set_ylabel("z / mm")
     ax.grid(True, alpha=0.22)

@@ -317,10 +317,11 @@ def main() -> None:
         "显示网布、M6 光电器件、线路板、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
-        "固定网柱从黄灰交界 z=16 mm 共面起步",
+        "绿色 SKP 整体底座从 x+ 水平推入灰色腔体",
         "M6 球头下端 M8 直接进入固定网柱顶面中心孔",
+        "没有双 T 槽、独立滑轨或旧式共面落座",
         "取消旧版横向承托臂",
-        "不再显示旧版独立上段外件和旧版独立连接器",
+        "已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器",
     )
     missing_copy = [text for text in required_current_copy if text not in index_text + app_text]
     if missing_copy:
@@ -329,11 +330,15 @@ def main() -> None:
         'if (part.includes("clamp_body_segment")) return "clamp_fixed";',
         'case "clamp_fixed": return [0, 0, 0];',
         "固定夹体 / 立柱基台",
+        "固定灰色主体 / C 方案推入接口",
     )
     missing_slide_logic = [text for text in required_slide_logic if text not in app_text]
     if missing_slide_logic:
         raise AssertionError(f"browser preview fixed-seat slide logic missing: {missing_slide_logic}")
     stale_visible_copy = (
+        "固定灰色主体 / 立柱共面落座",
+        "固定网柱从黄灰交界 z=16 mm 共面起步",
+        "这些候选对象不属于正式 33 件 manifest",
         "STG-120ML 两段光栅怎么装",
         "显示网布、STG 光纤头、传感器和标准件",
         "按步骤检查网架、STG-120ML 和擦网传感器",

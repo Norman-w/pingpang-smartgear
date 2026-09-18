@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Build an explicit Bambu Studio package for the post/clip net interface.
+"""Build an explicit Bambu Studio package for the C-scheme clamp/post interface.
 
-The C-clamp body and the upright that receives the net clip are separate
-print parts.  The old one-side 3MF contained only the C-clamp hardware, so it
-could produce a perfectly solid-looking clamp while silently omitting the
-net interface.  This helper selects the two parts that make that interface,
-normalises their OpenSCAD world coordinates, and produces a one-plate Bambu
-project with both object names preserved.
+The C-clamp body, upright carrier, and net clip are separate print parts.  The
+active connection is the SKP C-scheme: a green integrated base on the upright
+slides into a clearance pocket in the fixed body, then two M4 fasteners and a
+spring-ball detent retain it.  This helper selects all three parts, normalises
+their OpenSCAD world coordinates, and produces an editable Bambu project with
+all object names preserved.
 
-The generated 3MF is sliced when a Bambu Studio executable is available.  The
-source STL files and the machine/process settings remain separate evidence;
-this script does not claim that a printed part has passed a fit test.
+The generated 3MF is an editable Bambu project.  The three parts are kept
+together as complete source objects, but they are deliberately not claimed to
+be one-plate G-code: the fixed body and the tilted carrier cannot both fit beside
+each other on one X1C plate.  Open the project in Bambu Studio and arrange the
+parts on separate plates before slicing.  The source STL files and the
+machine/process settings remain separate evidence; this script does not claim
+that a printed part has passed a fit test.
 """
 
 from __future__ import annotations
@@ -25,14 +29,22 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from build_print_platter import load_binary_stl, transform_triangles, write_binary_stl
+from build_print_platter import (
+    load_binary_stl,
+    rotation_matrix_xyz,
+    transform_bounds,
+    transform_triangles,
+    write_binary_stl,
+)
 
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_SOURCE_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
-DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.5-net-structure"
+DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.6-c-scheme"
 DEFAULT_TEMPLATE = (
-    DEFAULT_OUTPUT_DIR
+    HERE
+    / "exports"
+    / "desktop-clamp-one-side-x1c-v0.5-net-structure"
     / "right-net-structure-X1C-PETG.gcode.3mf"
 )
 IDENTITY = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
@@ -72,14 +84,12 @@ def run(command: list[str], label: str, *, cwd: Path | None = None) -> None:
         raise RuntimeError(f"{label} 失败（退出码 {result.returncode}）:\n{tail}")
 
 
-def normalise_stl(source: Path, destination: Path) -> None:
+def normalise_stl(source: Path, destination: Path, matrix=IDENTITY) -> None:
     mesh = load_binary_stl(source)
-    lo = mesh.bounds[0]
-    translated = transform_triangles(
-        mesh.triangles,
-        IDENTITY,
-        (-lo[0], -lo[1], -lo[2]),
-    )
+    rotated_bounds = transform_bounds(mesh.bounds, matrix)
+    lo = rotated_bounds[0]
+    rotated = transform_triangles(mesh.triangles, matrix, (0.0, 0.0, 0.0))
+    translated = transform_triangles(rotated, IDENTITY, (-lo[0], -lo[1], -lo[2]))
     write_binary_stl(destination, translated, f"SmartGear normalised {source.name}")
 
 
@@ -142,27 +152,41 @@ def build_side(
     bambu: Path,
     no_slice: bool,
 ) -> dict[str, object]:
-    clip_name = f"{side}-net-clamp-clip.stl"
     carrier_name = f"{side}-post-clamp-carrier.stl"
-    source_files = [source_dir / clip_name, source_dir / carrier_name]
+    body_name = f"{side}-clamp-body-segment.stl"
+    clip_name = f"{side}-net-clamp-clip.stl"
+    source_files = [
+        source_dir / body_name,
+        source_dir / carrier_name,
+        source_dir / clip_name,
+    ]
     for path in source_files:
         if not path.is_file():
             raise SystemExit(f"当前打印包缺少必要零件: {path}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    # Keep the two source meshes next to the generated project so opening the
+    # Keep all three source meshes next to the generated project so opening the
     # package never requires recovering them from an older directory.
     for path in source_files:
         shutil.copy2(path, output_dir / path.name)
 
-    project_name = f"{side}-net-structure-X1C-PETG"
-    final_path = output_dir / f"{project_name}.gcode.3mf"
+    project_name = f"{side}-c-scheme-X1C-PETG"
+    final_path = (
+        output_dir / f"{project_name}.3mf"
+        if no_slice
+        else output_dir / f"{project_name}.gcode.3mf"
+    )
     with tempfile.TemporaryDirectory(prefix=f"smartgear-{side}-") as temp_name:
         temp_dir = Path(temp_name)
         normalised = []
         for source in source_files:
             target = temp_dir / source.name
-            normalise_stl(source, target)
+            matrix = (
+                rotation_matrix_xyz(0.0, 51.0, 45.0)
+                if source.name == carrier_name
+                else IDENTITY
+            )
+            normalise_stl(source, target, matrix)
             normalised.append(target)
 
         seed = temp_dir / "seed.3mf"
@@ -171,8 +195,9 @@ def build_side(
                 str(bambu),
                 "--datadir",
                 str(temp_dir / "export-datadir"),
+                "--allow-rotations",
                 "--arrange",
-                "1",
+                "0" if no_slice else "1",
                 "--orient",
                 "0",
                 "--export-3mf",
@@ -188,26 +213,16 @@ def build_side(
         if no_slice:
             shutil.copy2(seeded, final_path)
         else:
-            run(
-                [
-                    str(bambu),
-                    "--datadir",
-                    str(temp_dir / "slice-datadir"),
-                    "--slice",
-                    "1",
-                    "--export-3mf",
-                    str(final_path),
-                    str(seeded),
-                ],
-                f"Bambu {side} 切片",
-                cwd=temp_dir,
+            raise RuntimeError(
+                "当前接口换版包包含固定夹体、C 方案黄绿立柱和网夹三件，不能诚实地作为一张 X1C 底板切片；"
+                "请省略 --slice（默认生成可编辑 3MF），在 Bambu Studio 中分盘排版后再切片。"
             )
 
-    required_names = {clip_name, carrier_name}
+    required_names = {body_name, carrier_name, clip_name}
     names = verify_3mf(final_path, required_names, require_gcode=not no_slice)
     manifest = {
         "schema_version": "0.1",
-        "package": "desktop-clamp-one-side-x1c-v0.5-net-structure",
+        "package": "desktop-clamp-one-side-x1c-v0.6-c-scheme",
         "side": side,
         "source_manifest": "../desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json",
         "source_files": [
@@ -222,13 +237,15 @@ def build_side(
         "project_objects": names,
         "sliced": not no_slice,
         "notes": [
-            "这是补打印包：固定网柱和全高 U 形滑入网夹是两个独立打印件。",
-            "C 形桌下夹体不在本 3MF 中；它是已打印/另行打印的 clamp_body_segment。",
+            "这是 C 方案接口换版包：固定 C 夹主体、带绿色整体底座的整根立柱和全高 U 形滑入网夹是三个独立打印件。",
+            "固定 C 夹主体必须与带让位腔的立柱配套换版；旧的直接共面座夹体不能继续使用。",
+            "绿色整体底座沿 x 方向推入灰色让位腔，两个 M4 穿孔锁紧，4 mm 钢珠只负责终点定位。",
+            "本 3MF 保留三件完整模型但不包含 G-code；固定夹体和斜放立柱不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",
             "当前方案没有独立圆柱 net_clamp_rod；旧名称只是兼容诊断入口。",
             "切片/导出通过不等于实物推入配合、网布夹持和承力验收。",
         ],
     }
-    (output_dir / f"{side}-net-structure-manifest.json").write_text(
+    (output_dir / f"{side}-c-scheme-manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
@@ -245,7 +262,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--no-slice",
         action="store_true",
+        default=True,
         help="只导出带 X1C/PETG 设置的 3MF 项目，不生成 G-code",
+    )
+    parser.add_argument(
+        "--slice",
+        dest="no_slice",
+        action="store_false",
+        help="已禁用：三件不能诚实地在一张 X1C 底板切片；请在 Bambu Studio 中分盘后切片",
     )
     parser.add_argument(
         "--clean",
@@ -264,13 +288,23 @@ def main() -> int:
         raise SystemExit(f"找不到源打印件 manifest: {source_dir / 'manifest.json'}")
     if not template.is_file():
         raise SystemExit(f"找不到 X1C/PETG 设置模板: {template}")
+    if not args.no_slice:
+        raise SystemExit(
+            "当前换版包包含固定夹体、C 方案黄绿立柱和网夹三件，不能作为一张 X1C 底板切片；"
+            "请直接运行本脚本生成可编辑 3MF，再在 Bambu Studio 中分盘排版。"
+        )
     if args.clean and output_dir.is_dir():
         for path in output_dir.glob("*-net-structure*"):
+            if path.is_file():
+                path.unlink()
+        for path in output_dir.glob("*-c-scheme*"):
             if path.is_file():
                 path.unlink()
         for path in output_dir.glob("*.gcode.3mf"):
             path.unlink()
         for path in output_dir.glob("*-post-clamp-carrier.stl"):
+            path.unlink()
+        for path in output_dir.glob("*-clamp-body-segment.stl"):
             path.unlink()
         for path in output_dir.glob("*-net-clamp-clip.stl"):
             path.unlink()

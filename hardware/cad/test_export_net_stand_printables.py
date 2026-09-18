@@ -81,15 +81,16 @@ def validate_export_specs() -> None:
     post_specs = [spec for spec in EXPORT_SPECS if spec.part == "post_clamp_carrier"]
     if len(post_specs) != 2 or any(
         "整根" not in spec.notes
-        or "没有立柱接缝" not in spec.notes
-        or "z=16 mm" not in spec.notes
+        or "绿色 SKP 整体底座" not in spec.notes
+        or "Ø4 mm" not in spec.notes
+        or "Ø6×2 mm" not in spec.notes
         or "z=168.5 mm" not in spec.notes
-        or "z=372.5 mm" not in spec.notes
-        or "总高 356.5 mm" not in spec.notes
-        or "不插入 C 形座" not in spec.notes
+        or "z=260.5 mm" not in spec.notes
+        or "没有 T 槽、公轨" not in spec.notes
+        or "配套 C 方案夹体" not in spec.notes
         for spec in post_specs
     ):
-        raise AssertionError("整根立柱 + 外侧载体必须是左右各一件且明确无立柱接缝")
+        raise AssertionError("整根立柱 + SKP C 方案整体底座必须明确推入让位腔、孔位和定位结构")
     removed = sorted(REMOVED_ACTIVE_PARTS & set(counts))
     if removed:
         raise AssertionError(f"legacy rail/connector parts re-entered print matrix: {removed}")
@@ -139,18 +140,21 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
         for item in components
     ):
         raise AssertionError("无穿钉卡网夹不应再列出 M3 防滑脱硬件")
-    retired_slide_components = {
+    c_scheme_components = {
         item.get("id")
         for item in components
         if isinstance(item, dict)
     } & {
-        "clamp-slide-m4-hardware",
-        "clamp-slide-detent-hardware",
+        "c-scheme-retaining-fasteners",
+        "c-scheme-detent-hardware",
     }
-    if retired_slide_components:
+    if c_scheme_components != {
+        "c-scheme-retaining-fasteners",
+        "c-scheme-detent-hardware",
+    }:
         raise AssertionError(
-            "当前共面承托版本不应把旧版滑槽 M4 或咯噔件列为装配零件: "
-            f"{sorted(retired_slide_components)}"
+            "C 方案必须在 manifest 中列出连接螺钉和钢珠弹簧定位件: "
+            f"{sorted(c_scheme_components)}"
         )
 
     entries = data.get("parts")

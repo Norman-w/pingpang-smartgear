@@ -95,10 +95,10 @@ const COLORS = {
 
 const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / 立柱共面落座", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁、旋钮两侧一体加固斜墙和立柱最高水平承托面；固定网柱从黄灰交界 z=16 mm 共面起步，网布/卡夹工作高度仍到 z=168.5 mm，实体继续到按球头底座自动计算的顶端 z=260.5 mm。勾选候选开关时，网页叠加当前审查中的 SKP C 方案：绿色件直接采用用户最新 SKP 的整体底座，向 x- 延伸 15 mm，中央没有旧式裤裆，底部保留两个 Ø4 mm 穿孔和一个 Ø6×2 mm 咯噔圆坑；两侧外伸段末端保留 3×3 mm、45° 倒角。灰色候选由黄色/绿色外形做让位，并配套两枚 Ø4.4 mm 螺丝孔和中央定位孔；这些候选对象不属于正式 33 件 manifest。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
+  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "完整固定灰色 C 形主体包含梯形电子腔、外侧 C 壁、旋钮两侧一体加固斜墙和 C 方案让位腔；绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色整根立柱坐在绿色顶面 z=16 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。固定网柱继续到按球头底座自动计算的顶端 z=260.5 mm；当前正式打印件就是这套接口，没有双 T 槽、独立滑轨或旧式共面落座。图示的 0.1 mm 只用于预览分色，不是实体间隙。" },
   { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
-  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查黄灰交界 z=16 mm、固定网柱底端与承托面共面、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm 共面、接触面以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
+  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
 ];
 
 const ASSEMBLY_GROUPS = {
@@ -113,12 +113,12 @@ const ASSEMBLY_GROUPS = {
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
   electronics: { label: "线路板 / 电子腔", color: "#2bbbad", stage: 1 },
   clamp_reinforced: { label: "C 夹加固候选", color: "#7f9099", stage: 1 },
-  skp_candidate: { label: "SKP 腿脚候选", color: "#43d34d", stage: 2 },
+  skp_candidate: { label: "C 方案接口细节（审查辅助）", color: "#43d34d", stage: 2 },
   context: { label: "球台背景", color: "#75858b", stage: 0 },
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
-const PREVIEW_CACHE_BUSTER = "laser-micro-v2";
+const PREVIEW_CACHE_BUSTER = "c-scheme-v1";
 
 const getVersionedUrl = (path, key = "v") => {
   const target = new URL(path, window.location.href);
@@ -345,15 +345,14 @@ function explosionVector(group, side = 0) {
   const outward = side || 1;
   switch (group) {
     case "clamp": return [outward * 118, 0, -74];
-    // The inboard shell owns the fixed seating shelf. Keep this datum fixed
+    // The inboard shell owns the fixed C-scheme pocket. Keep this datum fixed
     // while covers, pads and knobs are exploded as service items; only the
-    // one-piece post carrier travels along the real x slide direction.
+    // one-piece yellow/green carrier travels along the real x insertion direction.
     case "clamp_fixed": return [0, 0, 0];
     case "clamp_reinforced": return [0, 0, 0];
-    // The post/carrier is a true x-direction slide-in.  Do not lift it in z
-    // during the exploded view: at explode=0 its bottom must remain seated on
-    // the clamp-base datum, and the only separation shown is the real slide
-    // direction.
+    // The yellow/green carrier is a true x-direction push-in. Do not lift it
+    // in z during the exploded view: at explode=0 the green base is seated in
+    // the gray pocket and the only separation shown is the real insertion path.
     case "post": return [outward * 74, 0, 0];
     case "net": return [0, 0, 82];
     case "rail": return [0, 0, 82];
@@ -362,9 +361,9 @@ function explosionVector(group, side = 0) {
     case "reference": return [outward * 142, -78, 48];
     case "hardware": return [outward * 128, -32, -70];
     case "electronics": return [0, 0, 12];
-    // Keep the SKP candidate visually separate from the post in the exploded
-    // view. Its real installed position remains directly under the post when
-    // amount=0; the larger x offset is only a review aid.
+    // Keep the C-scheme interface detail visually separate from the formal carrier
+    // in the exploded view. Its installed position remains directly under the
+    // post when amount=0; the larger x offset is only a review aid.
     case "skp_candidate": return [outward * 154, 0, -12];
     default: return [0, 0, 0];
   }
@@ -933,10 +932,10 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   for (const asset of skpFitClampAssets) {
     items.push(makeAssemblyItem({
       id: `candidate:skp-fit-clamp:${asset.sideLabel}`,
-      name_zh: `灰色 C 型夹让位候选（${asset.name}）`,
-      name_en: `gray C-clamp fit candidate (${asset.sideLabel})`,
-      kind: "候选装配件",
-      material: "待定（显示/验证用）",
+      name_zh: `灰色 C 型夹接口细节（${asset.name}）`,
+      name_en: `gray C-clamp C-scheme interface detail (${asset.sideLabel})`,
+      kind: "C 方案接口审查件",
+      material: "PETG（正式接口同源审查）",
       material_group: "候选件",
       group: "clamp_fixed",
       stage: 1,
@@ -952,15 +951,13 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       size: [238, 58, 103.9345088],
       side: asset.side,
       explosion: [0, 0, 0],
-      notes: "灰色 C 型夹由黄色立柱承托区和绿色新 SKP 整体底座的外形做让位差集得到，并保留两枚对应螺丝孔与中央咯噔孔；旋钮两侧加固斜墙已并入 C 夹本体，同一 STL 一起打印，不再作为独立件。这里是可装配候选版。",
+      notes: "灰色 C 型夹由黄色立柱与绿色 SKP 整体底座外形做让位差集，保留两枚 Ø4.4 mm 夹体孔和中央定位孔；旋钮两侧加固斜墙已并入同一打印件。正式源 manifest 现在直接导出这套接口；这里仅保留旧路径下的网页审查细节。",
     }));
   }
 
-  // The SKP-derived C-scheme lower device remains outside the formal print
-  // manifest while the user reviews the fit candidate. Load the structural
-  // STL in the same coordinate frame so the assembly/explosion viewer can
-  // inspect the actual integrated candidate without changing the 33-piece
-  // printable package.
+  // The C-scheme lower-device detail is loaded only when the review switch is
+  // enabled. The formal print manifest already contains the same integrated
+  // yellow/green carrier; these legacy paths remain a visual cross-check.
   const skpCandidateAssets = [
     {
       sideLabel: "right",
@@ -980,9 +977,9 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   for (const asset of skpCandidateAssets) {
     items.push(makeAssemblyItem({
       id: `candidate:skp-leg-foot:${asset.sideLabel}`,
-      name_zh: `SKP C 方案整体底座候选（${asset.name}，含孔和末端倒角）`,
-      name_en: `SKP-derived integrated C-scheme base (${asset.sideLabel}, holed and chamfered)`,
-      kind: "候选 CAD 件",
+      name_zh: `C 方案绿色整体底座细节（${asset.name}，含孔和末端倒角）`,
+      name_en: `integrated C-scheme base detail (${asset.sideLabel}, holed and chamfered)`,
+      kind: "C 方案接口审查件",
       material: "待定（显示/验证用）",
       material_group: "候选件",
       group: "skp_candidate",
@@ -999,7 +996,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       size: [58.7, 46, 20],
       side: asset.side,
       explosion: explosionVector("skp_candidate", asset.side),
-      notes: "直接按用户最新 SKP ROOT 实现：整体底座向 x- 伸入 15 mm；两侧对称外伸仍属于同一个器件；中央没有旧式裤裆；底部保留两个 Ø4 mm 贯穿孔和一个 Ø6 mm、深 2 mm 的咯噔圆坑；两侧外伸段上缘保留 3×3 mm、45° 末端倒角。这里只用于网页装配/爆炸检查，尚未进入正式打印 manifest。",
+      notes: "按 779f046 的 SKP ROOT 实现：绿色整体底座从 x+ 推入灰色让位腔，15 mm 两侧外伸、两个 Ø4 mm 贯穿孔和一个 Ø6 mm 深 2 mm 底坑，末端保留 3×3 mm 倒角。正式打印 manifest 已包含同一 carrier；这里只用于网页接口细节/爆炸检查。",
     }));
   }
 
@@ -1034,7 +1031,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
         retainer_h: 1.2,
         retainer_center_z: 0.6,
       },
-      notes: "定位球位于绿色新 SKP 底部 Ø6 mm 圆坑下方，只负责到位触感和定位，不承担立柱的竖向或侧向承力；正式标准件尺寸仍需按实物复核。",
+      notes: "定位球位于绿色整体底座的 Ø6 mm 底坑下方，只负责到位触感和定位，不承担立柱的竖向或侧向承力；正式标准件尺寸仍需按实物复核。",
     }));
   }
 
@@ -2694,8 +2691,8 @@ function renderMode() {
     refs.modelKicker.textContent = state.uiMode === "exploded" ? "三维爆炸检查" : "三维装配检查";
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
-      ? "爆炸距离只沿真实 x 向滑入方向改变显示位置；立柱保持原 z 坐标，爆炸归零时其底端与固定 C 夹最高承托面 z=16 mm 共面，不进入 C 形座。网布/卡夹功能区到 z=168.5 mm；固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从承托面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。完整灰色 C 形主体与整根橙色固定网柱分开打印；立柱从黄灰交界 z=16 mm 起一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从承托面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；取消旧版横向承托臂，不再显示旧版独立上段外件和旧版独立连接器。";
+      ? "爆炸距离只沿真实 x 向推入方向改变显示位置；绿色底座在爆炸归零时进入固定灰色 C 夹让位腔，黄色立柱保持原 z 坐标并坐在绿色顶面 z=16 mm。两枚 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位；网布/卡夹功能区到 z=168.5 mm，固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从绿色顶面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。完整灰色 C 形主体与带绿色整体底座的整根黄色固定网柱分开打印；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱从绿色顶面 z=16 mm 一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     if (state.laserEnabled) {
       refs.modelTitle.textContent = state.assembly.focusPreset === "laserArray" ? "裸激光十路夹座 · 原球头粗调"
