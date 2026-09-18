@@ -22,7 +22,9 @@ from typing import Iterable
 
 
 HERE = Path(__file__).resolve().parent
-EXPORT_ROOT = HERE / "exports" / "net-stand-v0.1"
+# Match export_net_stand_printables.py so the documented default command reads
+# the current 37-part manifest instead of the historical 33-part directory.
+EXPORT_ROOT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
 SOURCE_MANIFEST = EXPORT_ROOT / "manifest.json"
 DEFAULT_OUTPUT = EXPORT_ROOT / "print-platter-256"
 TRIANGLE = struct.Struct("<12fH")

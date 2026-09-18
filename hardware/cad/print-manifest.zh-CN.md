@@ -54,6 +54,18 @@ openscad -D 'PART="clamp_slide_fit_section"' -D 'SIDE=1' -o clamp-slide-section.
 openscad -D 'PART="net_clamp_fit_section"' -D 'SIDE=1' -o net-clamp-section.png --render net_stand.scad
 ```
 
+## X1C 3MF 的对象边界
+
+`desktop-clamp-one-side-v0.4-top-load-X1C-PETG.gcode.3mf` 是夹体首样切片包，只包含右侧 C 形夹相关的五个对象：夹体、压块、压块护罩、临时打印螺杆和旋钮。它不包含 `right-post-clamp-carrier.stl` 或 `right-net-clamp-clip.stl`，所以不能用来打印网布的推入通道、固定网柱和 U 形网夹。
+
+补打这两个独立件请在 `hardware/cad` 下运行：
+
+```text
+python3 build_net_clamp_bambu_package.py --side both
+```
+
+输出目录为 `exports/desktop-clamp-one-side-x1c-v0.5-net-structure/`。左右两个 `*-net-structure-X1C-PETG.gcode.3mf` 各自都包含一个 `post-clamp-carrier` 和一个 `net-clamp-clip`，并且包内有 `Metadata/plate_1.gcode`。当前设计没有另一个独立圆柱 `net_clamp_rod`；旧名称只保留为兼容诊断入口。
+
 ## 装配顺序
 
 1. 先用目标球台厚度样块（本版适用 `12…40 mm`，默认 `25 mm`），安装左右 `post_clamp_carrier`、固定上夹板胶皮、`clamp_pressure_pad`、`clamp_pressure_pad_guard`、M8 金属螺杆或低载临时 `clamp_printed_screw`、下臂上侧固定螺母和旋钮内两枚预对锁螺母；确认不打孔、不碰台面、不干涉压块/螺杆工作区。背护罩四根定位柱插入压块盲孔后点胶，中心孔让杆身通过但挡住扁球头。

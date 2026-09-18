@@ -22,7 +22,11 @@ from validate_scad import find_openscad, stl_bounds
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
-DEFAULT_OUTPUT = HERE / "exports" / "net-stand-v0.1"
+# Keep the default output on the current 37-part source line.  The old
+# net-stand-v0.1 directory is retained only as historical generated output;
+# writing there by default made it too easy to pick up the old three-piece
+# clamp package and miss the separate post/clip parts.
+DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
 
 
 PART_NAMES_ZH = {
