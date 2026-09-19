@@ -4,7 +4,7 @@
 The C-clamp is split at y=0 into an operator-side half and an opponent-side
 half.  The active connection is the SKP C-scheme: a green integrated base on
 the upright slides into a clearance pocket in the fixed body, then two M4
-fasteners and a spring-ball detent retain it.  Eight transverse M5 joints clamp
+fasteners and a spring-ball detent retain it.  Nine transverse M5 joints clamp
 the two C-clamp halves.  This helper selects the four print objects, normalises
 their OpenSCAD world coordinates, and produces an editable Bambu project with
 all object names preserved.
@@ -246,7 +246,7 @@ def build_side(
         "sliced": not no_slice,
         "notes": [
             "这是 C 方案分型接口换版包：操作者侧/对手侧两件 C 夹半体、带绿色整体底座的整根立柱和全高 U 形滑入网夹是四类独立打印对象。",
-            "两件 C 夹半体在 y=0 合拢；前半圆头沉孔朝外，后半防转六角螺母窝朝外，8 个横向 M5 连接位把两半锁成一体；只有贴到电子腔空腔边界的连接位带承力 boss，实心夹臂里的连接位只保留孔位，避免外壳凸起。左下角孔向外侧移动，电子腔边界前增加连接点。",
+            "两件 C 夹半体在 y=0 合拢；前半圆头沉孔朝外，后半防转六角螺母窝朝外，9 个横向 M5 连接位把两半锁成一体；只有贴到电子腔空腔边界的连接位带承力 boss，实心夹臂里的连接位只保留孔位，避免外壳凸起。左下角孔向外侧移动，电子仓左下角再增加连接点。",
             "分型后的 C 夹必须与带让位腔的立柱配套换版；旧的完整整件夹体不能继续使用。",
             "绿色整体底座沿 x 方向推入灰色让位腔，两个 M4 穿孔锁紧，4 mm 钢珠只负责终点定位。",
             "本 3MF 保留四件完整模型但不包含 G-code；两件 C 夹半体和斜放立柱不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",

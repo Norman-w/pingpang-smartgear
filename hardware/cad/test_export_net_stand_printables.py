@@ -103,12 +103,12 @@ def validate_export_specs() -> None:
         split_specs = [spec for spec in EXPORT_SPECS if spec.part == part]
         if len(split_specs) != 2 or any(
             "y=0" not in spec.notes
-            or "8 个" not in spec.notes
+            or "9 个" not in spec.notes
             or "M5" not in spec.notes
             or "0.20 mm" not in spec.notes
             for spec in split_specs
         ):
-            raise AssertionError(f"{part} 必须明确 y=0 分型、8 处 M5 连接位与分型间隙")
+            raise AssertionError(f"{part} 必须明确 y=0 分型、9 处 M5 连接位与分型间隙")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:

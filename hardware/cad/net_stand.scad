@@ -221,6 +221,10 @@ clamp_electronics_battery_width_y = 30;
 clamp_electronics_battery_thickness_z = 7;
 clamp_electronics_battery_clearance_z = 2;
 clamp_electronics_mount_boss_d = 8;
+// Keep the side-wall M3 mounting bosses inside the sloped lower skin.  The
+// previous -1 mm root overlap was enough to make their circular feet visible
+// from the ground side of the C-clamp.
+clamp_electronics_mount_boss_floor_clearance_z = 1;
 clamp_electronics_mount_pilot_d = 3.4;
 clamp_electronics_board_t = 1.6;
 // Reserve the ESP32/module/boost top envelope, not only the bare PCB plane.
@@ -952,6 +956,11 @@ clamp_split_seam_gap_y = 0.20;
 clamp_split_boss_d = 16;
 clamp_split_boss_depth_y = 9;
 clamp_split_boss_rib_t = 4;
+// A boss is a load-path bridge into the hollow electronics bay, not a
+// cosmetic pad on the outer wall.  Require at least half of the boss diameter
+// to overlap the cavity in x; a shallow 2.3 mm edge graze at the lower
+// outboard wall would otherwise create a visible ground-side bump.
+clamp_split_boss_min_cavity_overlap_x = clamp_split_boss_d / 2;
 clamp_split_fastener_d = 5.4;
 clamp_split_fastener_head_d = 10.2;
 clamp_split_fastener_head_depth_y = 4.2;
@@ -2006,6 +2015,13 @@ clamp_split_bolt_positions = [
     [table_edge_x - clamp_reinforcement_inboard_offset_x +
          clamp_electronics_cavity_inboard_margin_x - 12,
      clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    // Lower-left corner of the electronics bay: this extra transverse joint
+    // closes the short unsupported corner of the split seam.  It sits inside
+    // the hollow-bay load path, so the cavity-edge boss filter may reinforce
+    // it without adding a cosmetic boss to the outside skin.
+    [table_edge_x - clamp_reinforcement_inboard_offset_x +
+         clamp_electronics_cavity_inboard_margin_x + 10,
+     clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
     // Outboard wall/bridge: the last two points drill the solid wall; only a
     // point whose boss footprint reaches the electronics cavity gets a barrel.
     [clamp_outer_wall_x + 3.5,
@@ -2075,8 +2091,11 @@ clamp_electronics_cavity_length_x =
 // 14 mm upper/lower solid jaws keep their drilled fastener hole but do not get
 // an external boss that can make a bump on the C-clamp skin.
 function clamp_split_boss_touches_electronics_cavity(x_center, z_center) =
-    x_center - clamp_split_boss_d / 2 < clamp_electronics_cavity_x_max &&
-    x_center + clamp_split_boss_d / 2 > clamp_electronics_cavity_x_min &&
+    min(x_center + clamp_split_boss_d / 2,
+        clamp_electronics_cavity_x_max) -
+        max(x_center - clamp_split_boss_d / 2,
+            clamp_electronics_cavity_x_min) >=
+        clamp_split_boss_min_cavity_overlap_x &&
     z_center - clamp_split_boss_d / 2 < clamp_electronics_cavity_top_z &&
     z_center + clamp_split_boss_d / 2 >
         clamp_reinforcement_bottom_z_at(x_center) +
@@ -3152,13 +3171,13 @@ assert(clamp_split_plane_y == 0 &&
            clamp_split_fastener_d > 5 &&
            clamp_split_nut_af > 8 &&
            clamp_split_nut_depth_y > 0 &&
-           len(clamp_split_bolt_positions) == 8 &&
+           len(clamp_split_bolt_positions) == 9 &&
            clamp_split_bolt_positions[3][0] -
                (clamp_split_boss_d + 4) / 2 > clamp_pad_x &&
            clamp_split_bolt_positions[5][0] +
                (clamp_split_boss_d + 4) / 2 + 1 <
                clamp_electronics_cavity_x_min,
-       "split C-clamp must use a centered y=0 seam, eight transverse M5 joints, cavity-edge boss reinforcement only, and printable nut pockets");
+       "split C-clamp must use a centered y=0 seam, nine transverse M5 joints, cavity-edge boss reinforcement only, and printable nut pockets");
 assert(clamp_screw_side_reinforcement_start_x == clamp_pad_x &&
            clamp_screw_side_reinforcement_join_x ==
                clamp_reinforcement_start_x &&
@@ -3212,6 +3231,9 @@ assert(clamp_electronics_cavity_x_min > clamp_screw_x &&
            clamp_electronics_cavity_y_half + 3 +
                clamp_electronics_mount_boss_d / 2 <
                    clamp_reinforcement_depth_y / 2 &&
+           clamp_electronics_mount_boss_floor_clearance_z > 0 &&
+           clamp_electronics_mount_boss_floor_clearance_z <
+               clamp_electronics_cavity_floor_t &&
            clamp_electronics_cavity_top_z -
                clamp_reinforcement_bottom_z_at(clamp_electronics_cavity_x_max) > 10,
        "electronics cavity must clear the M8 load path, fit the board/battery, and retain roof/side structure");
@@ -4116,13 +4138,16 @@ module clamp_electronics_mount_bosses_positive() {
     // Four M3 pilot bosses sit in the retained side walls and are outside the
     // board envelope. They are pilots, not final insert geometry, until PETG
     // pull-out testing is recorded.
+    boss_floor_clearance_z = clamp_electronics_mount_boss_floor_clearance_z;
+    boss_h = 10 - boss_floor_clearance_z;
     for (x = [clamp_electronics_cavity_x_min + 4,
               clamp_electronics_cavity_x_max - 4]) {
         for (y = [-clamp_electronics_cavity_y_half - 3,
                   clamp_electronics_cavity_y_half + 3]) {
             translate([x, y,
-                       clamp_reinforcement_bottom_z_at(x) - 1])
-                cylinder(d = clamp_electronics_mount_boss_d, h = 10);
+                       clamp_reinforcement_bottom_z_at(x) +
+                           boss_floor_clearance_z])
+                cylinder(d = clamp_electronics_mount_boss_d, h = boss_h);
         }
     }
 }
@@ -4271,7 +4296,6 @@ module clamp_electronics_full_cutaway_positive() {
     // cell, UI PCB, faceplate, bosses, and the serviceable harness route.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_board_standoffs_positive();
-    clamp_electronics_mount_bosses_positive();
     clamp_electronics_gasket_positive();
     clamp_electronics_battery_rails_positive();
     clamp_electronics_main_board_positive();
@@ -4291,7 +4315,6 @@ module clamp_electronics_structural_shell_for_clearance_positive() {
         clamp_electronics_board_standoffs_positive();
         clamp_electronics_emitter_edge_clips_positive();
         clamp_electronics_battery_rails_positive();
-        clamp_electronics_mount_bosses_positive();
     }
 }
 
@@ -4488,7 +4511,10 @@ module table_clamp_raw_positive() {
                 cylinder(d = clamp_threaded_boss_d, h = clamp_threaded_boss_h);
             clamp_solid_tapered_reinforcement_positive();
             clamp_solid_outboard_bridge_positive();
-            clamp_electronics_mount_bosses_positive();
+            // The production electronics bay has an integrated sloped floor
+            // and no removable bottom cover.  The old cover-screw bosses are
+            // kept only in the opt-in diagnostic cover/cutaway modules below;
+            // they must not enter either printable C-clamp half.
         }
 }
 
@@ -4507,15 +4533,6 @@ module table_clamp_body_positive() {
             translate([clamp_screw_x, 0, clamp_body_nut_pocket_z - 0.01])
                 hex_prism(clamp_nut_pocket_af, clamp_nut_pocket_depth + 0.01);
             clamp_electronics_cavity_negative();
-            for (x = [clamp_electronics_cavity_x_min + 4,
-                      clamp_electronics_cavity_x_max - 4]) {
-                for (y = [-clamp_electronics_cavity_y_half - 3,
-                          clamp_electronics_cavity_y_half + 3]) {
-                    translate([x, y,
-                               clamp_reinforcement_bottom_z_at(x) - 2])
-                        cylinder(d = clamp_electronics_mount_pilot_d, h = 12);
-                }
-            }
             // The C-clamp's upper contact shelf stays solid.  The 3 mm net
             // passage is cut only in the orange upright; cutting it here would
             // create the unwanted horizontal slot visible on the gray clamp.
@@ -10083,6 +10100,8 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_split_seam_gap_y=", clamp_split_seam_gap_y));
     echo(str("NETSTAND_PARAM clamp_split_boss_d=", clamp_split_boss_d));
     echo(str("NETSTAND_PARAM clamp_split_boss_depth_y=", clamp_split_boss_depth_y));
+    echo(str("NETSTAND_PARAM clamp_split_boss_min_cavity_overlap_x=",
+             clamp_split_boss_min_cavity_overlap_x));
     echo(str("NETSTAND_PARAM clamp_split_fastener_d=", clamp_split_fastener_d));
     echo(str("NETSTAND_PARAM clamp_split_fastener_head_d=", clamp_split_fastener_head_d));
     echo(str("NETSTAND_PARAM clamp_split_nut_af=", clamp_split_nut_af));
@@ -10184,6 +10203,8 @@ module parameter_probe() {
              clamp_electronics_battery_rail_t));
     echo(str("NETSTAND_PARAM clamp_electronics_battery_rail_clearance_y=",
              clamp_electronics_battery_rail_clearance_y));
+    echo(str("NETSTAND_PARAM clamp_electronics_mount_boss_floor_clearance_z=",
+             clamp_electronics_mount_boss_floor_clearance_z));
     echo(str("NETSTAND_PARAM clamp_electronics_board_t=",
              clamp_electronics_board_t));
     echo(str("NETSTAND_PARAM clamp_electronics_board_standoff_d=",

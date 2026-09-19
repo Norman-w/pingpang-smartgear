@@ -567,9 +567,11 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_split_seam_gap_y",
         "clamp_split_boss_d",
         "clamp_split_boss_depth_y",
+        "clamp_split_boss_min_cavity_overlap_x",
         "clamp_split_fastener_d",
         "clamp_split_fastener_head_d",
         "clamp_split_nut_af",
+        "clamp_electronics_mount_boss_floor_clearance_z",
         "clamp_pad_outer_x",
         "clamp_outer_wall_x",
         "clamp_horizontal_part_outboard_limit",
@@ -2277,7 +2279,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "clamp_electronics_battery_rails_positive();" not in table_clamp_body_module
         or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_raw_module
         or "clamp_solid_outboard_bridge_positive();" not in table_clamp_raw_module
-        or "clamp_electronics_mount_bosses_positive();" not in table_clamp_raw_module
+        or "clamp_electronics_mount_bosses_positive();" in table_clamp_raw_module
         or "table_clamp_body_positive();" not in clamp_body_segment_module
         or "post_skp_leg_foot_c_fit_tool_positive();" not in clamp_body_segment_module
         or "post_skp_c_detent_bore_negative_positive();" not in clamp_body_segment_module
@@ -3465,6 +3467,15 @@ def main() -> None:
                 f"cover={electronics_cover_bounds}, cavity="
                 f"({cavity_x_min}, {cavity_x_max}, +/-{cavity_y_half})"
             )
+        if not (
+            0 < parameters["clamp_electronics_mount_boss_floor_clearance_z"]
+            < parameters["clamp_electronics_cavity_floor_t"]
+        ):
+            raise RuntimeError(
+                "electronics side-wall boss roots must stay above the sloped outer skin: "
+                f"clearance={parameters['clamp_electronics_mount_boss_floor_clearance_z']}, "
+                f"floor_t={parameters['clamp_electronics_cavity_floor_t']}"
+            )
         if abs(net_bounds[5] - parameters["net_panel_top_z"]) > 0.01:
             raise RuntimeError(f"net panel top does not meet the direct cloth-top datum: {net_bounds}")
         inner_face = parameters["post_center_x"] - parameters["post_body_width"] / 2
@@ -3553,6 +3564,17 @@ def main() -> None:
             raise RuntimeError(
                 "split C-clamp halves do not leave the declared y=0 seam or full structural envelope: "
                 f"user={clamp_body_half_user_bounds}, opponent={clamp_body_half_opponent_bounds}"
+            )
+        if not (
+            0 < parameters["clamp_split_boss_min_cavity_overlap_x"]
+            <= parameters["clamp_split_boss_d"]
+            and parameters["clamp_split_boss_min_cavity_overlap_x"]
+            >= parameters["clamp_split_boss_d"] / 2 - 0.01
+        ):
+            raise RuntimeError(
+                "split C-clamp boss filter allows a shallow cavity-edge graze: "
+                f"min_overlap={parameters['clamp_split_boss_min_cavity_overlap_x']}, "
+                f"boss_d={parameters['clamp_split_boss_d']}"
             )
         if not (
             abs(top_pad_bounds[0] - parameters["clamp_top_pad_x"]) < 0.01

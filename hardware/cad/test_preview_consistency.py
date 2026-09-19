@@ -319,7 +319,7 @@ def main() -> None:
         "M6 45° L 型主体、x 向分体壳与竖直球头",
         "绿色 SKP 整体底座从 x+ 水平推入灰色腔体",
         "y=0 分为操作者侧/对手侧两半",
-        "8 个横向 M5 连接点",
+        "9 个横向 M5 连接点",
         "M6 球头下端 M8 直接进入固定网柱顶面中心孔",
         "没有双 T 槽、独立滑轨或旧式共面落座",
         "取消旧版横向承托臂",
@@ -352,6 +352,26 @@ def main() -> None:
     stale_hits = [text for text in stale_visible_copy if text in index_text + app_text]
     if stale_hits:
         raise AssertionError(f"browser preview still exposes stale current copy: {stale_hits}")
+
+    # Legacy SKP fit meshes share the formal split-C installation envelope and
+    # must remain an explicit, isolated review overlay. If they are enabled by
+    # default, WebGL renders coplanar duplicate faces and the model shimmers.
+    overlay_guards = (
+        "showSkpCandidate: false",
+        "showSkpFit: false",
+        "state.assembly.showSkpFit",
+        "sourcePart === \"clamp_body_half_user\"",
+        "sourcePart === \"clamp_body_half_opponent\"",
+        "sourcePart === \"post_clamp_carrier\"",
+        "split-c-scheme-v6",
+    )
+    missing_overlay_guards = [text for text in overlay_guards if text not in app_text]
+    if missing_overlay_guards:
+        raise AssertionError(f"preview coplanar overlay guard missing: {missing_overlay_guards}")
+    if 'id="show-skp-candidate" type="checkbox" checked' in index_text:
+        raise AssertionError("legacy SKP candidate overlay is still enabled in HTML")
+    if 'id="show-skp-fit" type="checkbox" checked' in index_text:
+        raise AssertionError("legacy SKP fit overlay is still enabled in HTML")
 
     print(f"PREVIEW_CONSISTENCY_OK ({len(PARAMETER_MAP)} direct parameters + current M6 copy)")
 
