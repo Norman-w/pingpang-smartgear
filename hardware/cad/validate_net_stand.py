@@ -324,6 +324,50 @@ def require_stl(
             )
 
 
+def validate_electronics_interference_probes(
+    openscad: str, output_dir: Path
+) -> None:
+    """Require the electronics collision PARTs to stay geometrically empty.
+
+    OpenSCAD omits an STL and exits with code 1 for an empty intersection. That
+    is the intended pass state here; a non-empty STL means a board, proxy, or
+    structural shell has positive-volume penetration.
+    """
+
+    collision_parts = (
+        "clamp_electronics_interference_check",
+        "clamp_electronics_emitter_interference_check",
+        "clamp_electronics_ui_internal_interference_check",
+        "clamp_electronics_ui_proxy_board_collision",
+    )
+    for part in collision_parts:
+        output = output_dir / f"{part}.stl"
+        result = run_openscad(openscad, output, f'PART="{part}"')
+        if "Current top level object is empty" not in result.stdout:
+            raise RuntimeError(
+                f"electronics collision probe {part} is not empty:\n{result.stdout}"
+            )
+        if output.is_file() and output.stat().st_size > 0:
+            volume_mm3 = _stl_volume(output)
+            if volume_mm3 > 0.01:
+                raise RuntimeError(
+                    f"electronics collision probe {part} has positive-volume overlap: "
+                    f"volume_mm3={volume_mm3:.3f}"
+                )
+
+    layout_output = output_dir / "clamp_electronics_ui_proxy_layout_check.stl"
+    layout_result = run_openscad(
+        openscad,
+        layout_output,
+        'PART="clamp_electronics_ui_proxy_layout_check"',
+    )
+    if "UI_PROXY_LAYOUT_OK" not in layout_result.stdout:
+        raise RuntimeError(
+            "UI proxy layout did not satisfy the faceplate clearance contract:\n"
+            f"{layout_result.stdout}"
+        )
+
+
 def validate_post_clamp_slide_path(
     openscad: str, output_dir: Path, parameters: dict[str, float]
 ) -> None:
@@ -3284,6 +3328,8 @@ def main() -> None:
                 f"PART={part}",
                 require_closed=part not in PREVIEW_ONLY_PARTS,
             )
+
+        validate_electronics_interference_probes(openscad, output_dir)
 
         # Compile both signs of each independent axis boundary on both
         # mirrored sides.  The nominal PART matrix proves that the assembly

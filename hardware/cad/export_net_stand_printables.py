@@ -281,7 +281,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "左右各 1 套",
         "scad_part": "clamp_electronics_full_cutaway",
-        "notes": "右侧放 ESP32 母板、1S 电池和 UI 子板；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。",
+        "notes": "右侧放 ESP32 母板、1S 电池和 y+ 侧壁 UI 子板/面框；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。电子腔取消 UI 底盖，侧壁窗口由可拆面框维护。",
     },
     {
         "id": "m6-receiver-carrier-pcb",
@@ -415,10 +415,11 @@ def build_export_specs() -> list[ExportSpec]:
             split_notes,
         )
     )
-    # The active electronics bay is side-accessible from x+ with an
-    # integrated floor. The former bottom cover, gasket, and UI bezel remain
-    # as source diagnostics but are intentionally absent from this printable
-    # matrix so the bay does not require a second closure assembly.
+    # The active electronics bay has an integrated floor and a y+ UI window.
+    # The side faceplate is still a preview/fit item until its screw, gasket,
+    # and service-opening dimensions are frozen; it is intentionally absent
+    # from this 37-STL first package. The retired UI bottom cover remains only
+    # as a legacy source diagnostic and is not part of the active assembly.
     specs.extend(
         _side_specs(
             "m6_detector_body",

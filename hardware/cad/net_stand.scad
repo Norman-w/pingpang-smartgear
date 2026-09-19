@@ -48,13 +48,16 @@
 //   PART="table_clamp_section" 桌板剖面/免打孔夹紧受力路径预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_electronics_gasket" 梯形电子腔连续柔性压紧垫（单独打印）
-//   PART="clamp_electronics_ui_panel" 盖面交互子板/屏幕/按钮/声学占位
-//   PART="clamp_electronics_ui_bezel" 可拆屏幕/按钮/指示灯/扬声器/USB-C 面框
+//   PART="clamp_electronics_ui_panel" y+ 侧壁交互子板/屏幕/按钮/声学占位
+//   PART="clamp_electronics_ui_bezel" y+ 可拆屏幕/按钮/指示灯/扬声器/USB-C 面框
+//   PART="clamp_electronics_ui_proxy_layout_check" y+ 面板代理件间隙诊断
+//   PART="clamp_electronics_ui_proxy_board_collision" y+ 面板代理件与真实 UI PCB 碰撞诊断
 //   PART="clamp_electronics_emitter_preview" 左侧发射电源子板/内置电池占位
 //   PART="clamp_electronics_system_preview" 左右主控/发射电源/交互装配总览
 //   PART="clamp_electronics_full_cutaway" 右侧电子腔完整剖切安装
 //   PART="clamp_electronics_exploded" 单侧主控电子腔爆炸装配
 //   PART="clamp_electronics_emitter_exploded" 单侧发射电子腔爆炸装配
+//   PART="clamp_electronics_emitter_interference_check" 左侧发射板与结构碰撞诊断
 //   PART="clamp_top_pad"     台面上表面胶皮装配占位（现场粘贴，不进正式打印包）
 //   PART="clamp_pressure_pad" 台底可动圆盘压块（底面粗牙螺杆扁球头收纳窝）
 //   PART="clamp_pressure_pad_guard" 台底压块扁球头防丢背护罩（PETG，可胶合）
@@ -250,8 +253,8 @@ clamp_electronics_gasket_clearance = 0.25;
 clamp_electronics_cover_lip_t = 1.6;
 clamp_electronics_cover_lip_h = 1.6;
 clamp_electronics_cover_lip_clearance = 0.35;
-// 盖面交互子板与面板器件的首样占位；当前改为“内置式”候选：底盖嵌回
-// C 夹斜面开口，UI 板从底盖内侧进入腔体，压框沿同一斜面基准定位。
+// UI 交互子板与面板器件的首样占位。当前方案取消 UI 底盖：UI 通过 y+
+// 侧壁窗口安装，PCB 留在侧壁厚度内，面框/屏幕/按钮朝 y+ 服务侧。
 // 板上器件高度取自 KiCad STL 包络，不能再按裸 PCB 厚度水平悬空。
 clamp_electronics_ui_board_length_x = 58;
 clamp_electronics_ui_board_width_y = 28;
@@ -262,18 +265,32 @@ clamp_electronics_ui_board_mount_hole_inset_x = 3.5;
 clamp_electronics_ui_board_mount_hole_inset_y = 3.5;
 clamp_electronics_ui_board_t = 1.6;
 clamp_electronics_ui_component_height_z = 5.84;
-// The cover is recessed by its own thickness so its lower face is flush with
-// the C-clamp underside.  The UI PCB then sits 1 mm above the cover's inner
-// face on the four printed bosses.  The UI stack is inside the cavity shell
-// envelope; its mutual clearance with the mother board and pouch cell is a
-// separate diagnostic gate and is not assumed to pass from this placement.
+// Retained only for the legacy cover PART and old reports. The active UI stack
+// no longer references this bottom-cover datum.
 clamp_electronics_ui_cover_recess_z = clamp_electronics_cavity_cover_t;
 clamp_electronics_ui_cover_clearance_z = 1;
+// Side-wall UI datum: the PCB plane sits inside the 9 mm y+ wall and its
+// component envelope reaches the wall opening; the replaceable faceplate is
+// outside the wall. The lower edge stays above the sloped integrated floor.
+clamp_electronics_ui_side_board_plane_y =
+    clamp_reinforcement_depth_y / 2 -
+        clamp_electronics_cavity_wall_y + 3.2;
+clamp_electronics_ui_side_board_z_min = -50;
+clamp_electronics_ui_side_window_border = 3;
 clamp_electronics_ui_screen_length_x = 28;
 clamp_electronics_ui_screen_width_y = 14;
 clamp_electronics_ui_button_d = 10;
 clamp_electronics_ui_led_d = 4;
-clamp_electronics_ui_speaker_d = 20;
+// The service envelopes are laid out as a real faceplate packing problem:
+// controls form a left column, the display stays central, and the audio/USB
+// openings use the right column.  Keep 0.8 mm minimum radial/edge clearance;
+// these coordinates are shared with the browser inspection view.
+clamp_electronics_ui_button_centers = [[7.5, 8], [7.5, 21]];
+clamp_electronics_ui_led_centers = [[29, 3], [29, 25]];
+clamp_electronics_ui_speaker_center = [52.2, 8];
+clamp_electronics_ui_usb_center = [52, 24];
+clamp_electronics_ui_proxy_clearance = 0.8;
+clamp_electronics_ui_speaker_d = 16;
 clamp_electronics_ui_gland_d = 12;
 // 发射端放在零件较少的左侧，内置受保护 1S 电池；子板同时保留外接输入。
 clamp_electronics_emitter_board_length_x = 68;
@@ -299,6 +316,9 @@ clamp_electronics_ui_board_y_shift = clamp_electronics_ui_board_width_y / 2;
 clamp_electronics_faceplate_t = 4;
 clamp_electronics_faceplate_border = 3;
 clamp_electronics_faceplate_window_clearance = 1.2;
+clamp_electronics_faceplate_button_clearance = 0.8;
+clamp_electronics_faceplate_led_clearance = 0.4;
+clamp_electronics_faceplate_usb_clearance = 0.8;
 post_top_margin = 18;
 
 // 网、光栅和网顶传感器
@@ -2199,6 +2219,9 @@ clamp_electronics_ui_board_x_min =
 clamp_electronics_ui_board_x_max =
     clamp_electronics_ui_board_x_min +
     clamp_electronics_ui_board_length_x;
+clamp_electronics_ui_side_board_z_max =
+    clamp_electronics_ui_side_board_z_min +
+    clamp_electronics_ui_board_width_y;
 // The cavity floor and the removable cover share the same x/z slope.  Keep
 // the UI service stack on that datum instead of making its PCB and faceplate
 // horizontal, which would leave one end outside the cover and the other end
@@ -2220,6 +2243,12 @@ clamp_electronics_ui_screen_x_min =
 clamp_electronics_ui_screen_x_max =
     clamp_electronics_ui_screen_x_min +
     clamp_electronics_ui_screen_length_x;
+clamp_electronics_ui_screen_y_min =
+    (clamp_electronics_ui_board_width_y -
+     clamp_electronics_ui_screen_width_y) / 2;
+clamp_electronics_ui_screen_y_max =
+    clamp_electronics_ui_screen_y_min +
+    clamp_electronics_ui_screen_width_y;
 clamp_electronics_emitter_board_x_min =
     clamp_electronics_cavity_x_min +
     (clamp_electronics_cavity_length_x -
@@ -2234,13 +2263,34 @@ clamp_electronics_emitter_battery_x_min =
 clamp_electronics_emitter_battery_x_max =
     clamp_electronics_emitter_battery_x_min +
     clamp_electronics_emitter_battery_length_x;
-clamp_electronics_emitter_board_floor_offset_z = 10.4;
+// The C body carries the main-board standoffs on both mirrored print sides.
+// Raise the shorter emitter board above their top by 0.57 mm so the common
+// shell remains variant-neutral without a hidden board/standoff intersection.
+clamp_electronics_emitter_board_floor_offset_z = 12.6;
 clamp_electronics_emitter_board_bottom_z =
     clamp_reinforcement_bottom_z_at(
         (clamp_electronics_emitter_board_x_min +
          clamp_electronics_emitter_board_x_max) / 2) +
     clamp_electronics_cavity_floor_t +
     clamp_electronics_emitter_board_floor_offset_z;
+
+function clamp_ui_interval_gap(value, low, high) =
+    value < low ? low - value : value > high ? value - high : 0;
+function clamp_ui_circle_clearance(first, first_d, second, second_d) =
+    sqrt(
+        pow(first[0] - second[0], 2) +
+        pow(first[1] - second[1], 2)
+    ) - (first_d + second_d) / 2;
+function clamp_ui_circle_rect_clearance(center, diameter, rect) =
+    sqrt(
+        pow(clamp_ui_interval_gap(center[0], rect[0], rect[1]), 2) +
+        pow(clamp_ui_interval_gap(center[1], rect[2], rect[3]), 2)
+    ) - diameter / 2;
+function clamp_ui_rect_clearance(first, second) =
+    max(
+        max(first[0] - second[1], second[0] - first[1]),
+        max(first[2] - second[3], second[2] - first[3])
+    );
 // 桌边外侧不再保留 C 形开口；从桌边外侧留出一个明确的小间隙后，
 // 用沿 y 全深的实心桥体连接上下夹臂。桥体底部继续沿用 40→12 mm 斜底。
 clamp_solid_bridge_start_x = table_edge_x + clamp_solid_bridge_clearance_x;
@@ -3680,25 +3730,44 @@ module clamp_electronics_cavity_negative() {
     // One continuous high-side prism removes the inset bay while the outer
     // x+ wall remains intact. The y=0 split seam is the service opening: after
     // the two halves are separated, the PCB and cell can be placed into this
-    // full-height pocket without a bottom cover or a cut through the boss wall.
-    rotate([90, 0, 0])
-        linear_extrude(
-            height = 2 * clamp_electronics_cavity_y_half,
-            center = true)
-            polygon(points = [
-                [clamp_electronics_cavity_x_min,
-                 clamp_reinforcement_bottom_z_at(
-                     clamp_electronics_cavity_x_min) +
-                     clamp_electronics_cavity_floor_t],
-                [clamp_electronics_cavity_x_max,
-                 clamp_reinforcement_bottom_z_at(
-                     clamp_electronics_cavity_x_max) +
-                     clamp_electronics_cavity_floor_t],
-                [clamp_electronics_cavity_x_max,
-                 clamp_electronics_cavity_top_z],
-                [clamp_electronics_cavity_x_min,
-                 clamp_electronics_cavity_top_z]
+    // full-height pocket without a bottom cover. A second subtraction opens
+    // only the y+ side-wall UI window; the surrounding wall remains structural
+    // and the faceplate closes that service opening from the outside.
+    union() {
+        rotate([90, 0, 0])
+            linear_extrude(
+                height = 2 * clamp_electronics_cavity_y_half,
+                center = true)
+                polygon(points = [
+                    [clamp_electronics_cavity_x_min,
+                     clamp_reinforcement_bottom_z_at(
+                         clamp_electronics_cavity_x_min) +
+                         clamp_electronics_cavity_floor_t],
+                    [clamp_electronics_cavity_x_max,
+                     clamp_reinforcement_bottom_z_at(
+                         clamp_electronics_cavity_x_max) +
+                         clamp_electronics_cavity_floor_t],
+                    [clamp_electronics_cavity_x_max,
+                     clamp_electronics_cavity_top_z],
+                    [clamp_electronics_cavity_x_min,
+                     clamp_electronics_cavity_top_z]
+                ]);
+        translate([
+            clamp_electronics_ui_board_x_min -
+                clamp_electronics_ui_side_window_border,
+            clamp_electronics_cavity_y_half - 0.1,
+            clamp_electronics_ui_side_board_z_min -
+                clamp_electronics_ui_side_window_border
+        ])
+            cube([
+                clamp_electronics_ui_board_length_x +
+                    2 * clamp_electronics_ui_side_window_border,
+                clamp_reinforcement_depth_y / 2 -
+                    clamp_electronics_cavity_y_half + 0.6,
+                clamp_electronics_ui_board_width_y +
+                    2 * clamp_electronics_ui_side_window_border
             ]);
+    }
 }
 
 module clamp_electronics_slope_rail_x(x_min, x_max, y_center,
@@ -3865,6 +3934,28 @@ module clamp_electronics_ui_cover_datum_positive() {
             children();
 }
 
+module clamp_electronics_ui_side_datum_positive() {
+    // Normalized side-panel frame: local y=0..28 is the panel height and
+    // local +z points toward the service-facing y+ side.
+    translate([
+        clamp_electronics_ui_board_x_min,
+        clamp_electronics_ui_side_board_plane_y,
+        clamp_electronics_ui_side_board_z_min +
+            clamp_electronics_ui_board_width_y
+    ])
+        rotate([-90, 0, 0])
+            children();
+}
+
+module clamp_electronics_ui_side_stl_datum_positive() {
+    // Raw KiCad UI STL uses x=0..58, y=-28..0, z=0..5.84. Normalize only
+    // that import's negative-y board coordinates before entering the same
+    // side-panel frame; proxies must use the datum above without this shift.
+    clamp_electronics_ui_side_datum_positive()
+        translate([0, clamp_electronics_ui_board_width_y, 0])
+            children();
+}
+
 module clamp_electronics_main_board_positive() {
     if (electronics_kicad_models_enabled)
         color("royalblue", 0.96)
@@ -3916,21 +4007,21 @@ module clamp_electronics_emitter_board_positive() {
 }
 
 module clamp_electronics_ui_board_positive() {
+    // Active UI board: a y+ side-wall installation. The old sloped bottom
+    // cover datum remains available only to legacy modules and is not used.
     if (electronics_kicad_models_enabled)
         color("royalblue", 0.96)
-            clamp_electronics_ui_cover_datum_positive()
-                translate([0, clamp_electronics_ui_board_y_shift, 0])
-                    import("../electronics/3d/v0.2/ui-panel-v0.2.stl",
-                           convexity = 10);
+            clamp_electronics_ui_side_stl_datum_positive()
+                import("../electronics/3d/v0.2/ui-panel-v0.2.stl",
+                       convexity = 10);
     else
         color("royalblue", 0.96)
-            clamp_electronics_ui_cover_datum_positive()
-                translate([0, -clamp_electronics_ui_board_width_y / 2, 0])
-                    cube([
-                        clamp_electronics_ui_board_length_x,
-                        clamp_electronics_ui_board_width_y,
-                        clamp_electronics_ui_board_t
-                    ]);
+            clamp_electronics_ui_side_datum_positive()
+                cube([
+                    clamp_electronics_ui_board_length_x,
+                    clamp_electronics_ui_board_width_y,
+                    clamp_electronics_ui_board_t
+                ]);
 }
 
 module clamp_electronics_battery_positive() {
@@ -4081,76 +4172,263 @@ module clamp_electronics_ui_bosses_positive() {
     }
 }
 
-module clamp_electronics_ui_panel_positive() {
-    // Removable UI daughter board on the cover datum. The board/component
-    // solid now comes from the KiCad export; the panel parts below are the
-    // actual service envelopes that the faceplate must capture. Everything
-    // follows the cover slope as one serviceable stack.
-    clamp_electronics_ui_board_positive();
-    clamp_electronics_ui_cover_datum_positive() {
-        color("black", 0.72)
+module clamp_electronics_ui_screen_proxy_positive() {
+    color("black", 0.72)
+        translate([
+            (clamp_electronics_ui_board_length_x -
+                clamp_electronics_ui_screen_length_x) / 2,
+            (clamp_electronics_ui_board_width_y -
+                clamp_electronics_ui_screen_width_y) / 2,
+            clamp_electronics_ui_component_height_z + 0.2])
+            cube([
+                clamp_electronics_ui_screen_length_x,
+                clamp_electronics_ui_screen_width_y,
+                1.2]);
+}
+
+module clamp_electronics_ui_button_proxies_positive() {
+    for (center = clamp_electronics_ui_button_centers)
+        color("darkgray")
             translate([
-                clamp_electronics_ui_screen_x_min -
-                    clamp_electronics_ui_board_x_min,
-                -clamp_electronics_ui_screen_width_y / 2,
-                clamp_electronics_ui_board_t + 0.2])
-                cube([
-                    clamp_electronics_ui_screen_length_x,
-                    clamp_electronics_ui_screen_width_y,
-                    1.2]);
-        for (x = [8,
-                  clamp_electronics_ui_board_length_x - 8])
-            color("darkgray")
-                translate([x, 0,
-                           clamp_electronics_ui_board_t + 0.2])
-                    cylinder(d = clamp_electronics_ui_button_d, h = 3);
-        for (y = [-8, 8])
-            color("limegreen")
-                translate([
-                    clamp_electronics_ui_board_length_x / 2,
-                    y,
-                    clamp_electronics_ui_board_t + 0.2])
-                    cylinder(d = clamp_electronics_ui_led_d, h = 2.5);
-        color("darkslategray", 0.88)
+                center[0], center[1],
+                clamp_electronics_ui_component_height_z + 0.2
+            ])
+                cylinder(d = clamp_electronics_ui_button_d, h = 3);
+}
+
+module clamp_electronics_ui_led_proxies_positive() {
+    for (center = clamp_electronics_ui_led_centers)
+        color("limegreen")
             translate([
-                clamp_electronics_ui_board_length_x * 0.78,
-                0,
-                clamp_electronics_ui_board_t + 0.2])
-                cylinder(d = clamp_electronics_ui_speaker_d, h = 2.2);
-        color("gold", 0.9)
-            translate([
-                clamp_electronics_ui_board_length_x - 5,
-                -clamp_electronics_ui_board_width_y / 2 + 5,
-                clamp_electronics_ui_board_t + 0.2])
-                cylinder(d = 6, h = 2.2);
-        // A capped panel USB-C reference is kept next to the UI board; it is
-        // not a raw open hole through the PETG cover.
-        color("black", 0.9)
-            translate([5, 0,
-                       clamp_electronics_ui_board_t + 0.2])
-                cube([8, 5, 2.2]);
+                center[0], center[1],
+                clamp_electronics_ui_component_height_z + 0.2
+            ])
+                cylinder(d = clamp_electronics_ui_led_d, h = 2.5);
+}
+
+module clamp_electronics_ui_speaker_proxy_positive() {
+    color("darkslategray", 0.88)
+        translate([
+            clamp_electronics_ui_speaker_center[0],
+            clamp_electronics_ui_speaker_center[1],
+            clamp_electronics_ui_component_height_z + 0.2
+        ])
+            cylinder(d = clamp_electronics_ui_speaker_d, h = 2.2);
+}
+
+module clamp_electronics_ui_usb_proxy_positive() {
+    // The gold cylinder is the bulkhead barrel behind the black faceplate
+    // slot; its rectangular cap/slot envelope is kept separate below.
+    color("gold", 0.9)
+        translate([
+            clamp_electronics_ui_usb_center[0],
+            clamp_electronics_ui_usb_center[1],
+            clamp_electronics_ui_component_height_z + 0.2
+        ])
+            cylinder(d = 6, h = 2.2);
+    color("black", 0.9)
+        translate([
+            clamp_electronics_ui_usb_center[0] - 4,
+            clamp_electronics_ui_usb_center[1] - 3,
+            clamp_electronics_ui_component_height_z + 0.2
+        ])
+            cube([8, 6, 2.2]);
+}
+
+module clamp_electronics_ui_service_proxies_positive() {
+    // All five proxy groups are in one y+ local faceplate frame. Keeping them
+    // separate from the real KiCad board lets the collision probe distinguish
+    // intentional panel-through-hole overlap from accidental proxy packing.
+    clamp_electronics_ui_side_datum_positive() {
+        clamp_electronics_ui_screen_proxy_positive();
+        clamp_electronics_ui_button_proxies_positive();
+        clamp_electronics_ui_led_proxies_positive();
+        clamp_electronics_ui_speaker_proxy_positive();
+        clamp_electronics_ui_usb_proxy_positive();
     }
 }
 
+module clamp_electronics_ui_proxy_layout_check_positive() {
+    // A faceplate is a 2D packing problem before it becomes a 3D cut.  Keep a
+    // measurable 0.8 mm service/print clearance between every independent
+    // proxy and inside the removable bezel boundary.
+    screen = [
+        (clamp_electronics_ui_board_length_x -
+            clamp_electronics_ui_screen_length_x) / 2,
+        (clamp_electronics_ui_board_length_x +
+            clamp_electronics_ui_screen_length_x) / 2,
+        (clamp_electronics_ui_board_width_y -
+            clamp_electronics_ui_screen_width_y) / 2,
+        (clamp_electronics_ui_board_width_y +
+            clamp_electronics_ui_screen_width_y) / 2
+    ];
+    screen_opening = [
+        screen[0] - clamp_electronics_faceplate_window_clearance,
+        screen[1] + clamp_electronics_faceplate_window_clearance,
+        screen[2] - clamp_electronics_faceplate_window_clearance,
+        screen[3] + clamp_electronics_faceplate_window_clearance
+    ];
+    usb = [
+        clamp_electronics_ui_usb_center[0] - 4,
+        clamp_electronics_ui_usb_center[0] + 4,
+        clamp_electronics_ui_usb_center[1] - 3,
+        clamp_electronics_ui_usb_center[1] + 3
+    ];
+    usb_opening = [
+        usb[0] - clamp_electronics_faceplate_usb_clearance,
+        usb[1] + clamp_electronics_faceplate_usb_clearance,
+        usb[2] - clamp_electronics_faceplate_usb_clearance,
+        usb[3] + clamp_electronics_faceplate_usb_clearance
+    ];
+    button_a = clamp_electronics_ui_button_centers[0];
+    button_b = clamp_electronics_ui_button_centers[1];
+    led_a = clamp_electronics_ui_led_centers[0];
+    led_b = clamp_electronics_ui_led_centers[1];
+    speaker = clamp_electronics_ui_speaker_center;
+    clearance = clamp_electronics_ui_proxy_clearance;
+    button_hole_d = clamp_electronics_ui_button_d +
+        2 * clamp_electronics_faceplate_button_clearance;
+    led_hole_d = clamp_electronics_ui_led_d +
+        2 * clamp_electronics_faceplate_led_clearance;
+    face_x_min = -clamp_electronics_faceplate_border;
+    face_x_max = clamp_electronics_ui_board_length_x +
+        clamp_electronics_faceplate_border;
+    face_y_min = -clamp_electronics_faceplate_border;
+    face_y_max = clamp_electronics_ui_board_width_y +
+        clamp_electronics_faceplate_border;
+    assert(clamp_ui_circle_rect_clearance(button_a,
+                clamp_electronics_ui_button_d, screen) >= clearance,
+           "UI button A overlaps the display envelope");
+    assert(clamp_ui_circle_rect_clearance(button_b,
+                clamp_electronics_ui_button_d, screen) >= clearance,
+           "UI button B overlaps the display envelope");
+    assert(clamp_ui_circle_rect_clearance(led_a,
+                clamp_electronics_ui_led_d, screen) >= clearance,
+           "UI LED A overlaps the display envelope");
+    assert(clamp_ui_circle_rect_clearance(led_b,
+                clamp_electronics_ui_led_d, screen) >= clearance,
+           "UI LED B overlaps the display envelope");
+    assert(clamp_ui_circle_rect_clearance(speaker,
+                clamp_electronics_ui_speaker_d, screen) >= clearance,
+           "UI speaker overlaps the display envelope");
+    assert(clamp_ui_rect_clearance(screen, usb) >= clearance,
+           "UI USB slot overlaps the display envelope");
+    // The holes are larger than the proxy bodies. Check the actual removable
+    // bezel openings as well, otherwise a visually separated proxy could
+    // still be impossible to pass through the printed faceplate.
+    assert(clamp_ui_circle_rect_clearance(button_a,
+                button_hole_d, screen_opening) >= 0.2 &&
+           clamp_ui_circle_rect_clearance(button_b,
+                button_hole_d, screen_opening) >= 0.2,
+           "UI button bores overlap the display opening");
+    assert(clamp_ui_circle_rect_clearance(led_a,
+                led_hole_d, screen_opening) >= 0.2 &&
+           clamp_ui_circle_rect_clearance(led_b,
+                led_hole_d, screen_opening) >= 0.2,
+           "UI LED bores overlap the display opening");
+    assert(clamp_ui_circle_clearance(button_a, button_hole_d,
+                button_b, button_hole_d) >= 0.2,
+           "UI button bores overlap each other");
+    assert(clamp_ui_rect_clearance(screen_opening, usb_opening) >= 0.2,
+           "UI USB opening overlaps the display opening");
+    assert(clamp_ui_circle_clearance(button_a,
+                clamp_electronics_ui_button_d,
+                button_b, clamp_electronics_ui_button_d) >= clearance,
+           "UI buttons overlap each other");
+    for (button = [button_a, button_b]) {
+        for (led = [led_a, led_b])
+            assert(clamp_ui_circle_clearance(button,
+                        clamp_electronics_ui_button_d,
+                        led, clamp_electronics_ui_led_d) >= clearance,
+                   "UI button overlaps an LED");
+        assert(clamp_ui_circle_clearance(button,
+                    clamp_electronics_ui_button_d,
+                    speaker, clamp_electronics_ui_speaker_d) >= clearance,
+               "UI button overlaps the speaker");
+        assert(clamp_ui_circle_rect_clearance(button,
+                    clamp_electronics_ui_button_d, usb) >= clearance,
+               "UI button overlaps the USB slot");
+    }
+    assert(clamp_ui_circle_clearance(led_a, clamp_electronics_ui_led_d,
+                led_b, clamp_electronics_ui_led_d) >= clearance,
+           "UI LEDs overlap each other");
+    for (led = [led_a, led_b]) {
+        assert(clamp_ui_circle_clearance(led,
+                    clamp_electronics_ui_led_d,
+                    speaker, clamp_electronics_ui_speaker_d) >= clearance,
+               "UI LED overlaps the speaker");
+        assert(clamp_ui_circle_rect_clearance(led,
+                    clamp_electronics_ui_led_d, usb) >= clearance,
+               "UI LED overlaps the USB slot");
+    }
+    assert(clamp_ui_circle_rect_clearance(speaker,
+                clamp_electronics_ui_speaker_d, usb) >= clearance,
+           "UI speaker overlaps the USB slot");
+    assert(screen[0] >= face_x_min + clearance &&
+           screen[1] <= face_x_max - clearance &&
+           screen[2] >= face_y_min + clearance &&
+           screen[3] <= face_y_max - clearance,
+           "UI display leaves the faceplate boundary");
+    assert(usb[0] >= face_x_min + clearance &&
+           usb[1] <= face_x_max - clearance &&
+           usb[2] >= face_y_min + clearance &&
+           usb[3] <= face_y_max - clearance,
+           "UI USB slot leaves the faceplate boundary");
+    for (button = [button_a, button_b])
+        assert(button[0] - clamp_electronics_ui_button_d / 2 >=
+                   face_x_min + clearance &&
+               button[0] + clamp_electronics_ui_button_d / 2 <=
+                   face_x_max - clearance &&
+               button[1] - clamp_electronics_ui_button_d / 2 >=
+                   face_y_min + clearance &&
+               button[1] + clamp_electronics_ui_button_d / 2 <=
+                   face_y_max - clearance,
+               "UI button leaves the faceplate boundary");
+    assert(speaker[0] - clamp_electronics_ui_speaker_d / 2 >=
+               face_x_min + clearance &&
+           speaker[0] + clamp_electronics_ui_speaker_d / 2 <=
+               face_x_max - clearance &&
+           speaker[1] - clamp_electronics_ui_speaker_d / 2 >=
+               face_y_min + clearance &&
+           speaker[1] + clamp_electronics_ui_speaker_d / 2 <=
+               face_y_max - clearance,
+           "UI speaker leaves the faceplate boundary");
+    echo("UI_PROXY_LAYOUT_OK");
+}
+
+module clamp_electronics_ui_proxy_board_collision_positive() {
+    intersection() {
+        clamp_electronics_ui_service_proxies_positive();
+        clamp_electronics_ui_board_positive();
+    }
+}
+
+module clamp_electronics_ui_panel_positive() {
+    // Active y+ side-wall UI daughter board. The board/component solid comes
+    // from KiCad; the panel parts below are service envelopes captured by the
+    // outside faceplate. There is no UI bottom-cover solid in this stack.
+    clamp_electronics_ui_board_positive();
+    clamp_electronics_ui_service_proxies_positive();
+}
+
 module clamp_electronics_ui_bezel_positive() {
-    // Separate printable faceplate: screen window, two button bores, two
-    // light-pipe bores, speaker acoustic opening, and capped USB-C slot. The
-    // cover below remains a continuous compression surface; this bezel is the
-    // user-facing replaceable panel and is not a raw hole through the seal.
-    // It is generated in the same sloped frame as the cover-mounted UI board.
+    // Separate printable y+ faceplate: screen window, two button bores, two
+    // light-pipe bores, speaker acoustic opening, and capped USB-C slot. It
+    // closes the side-wall window; there is no UI bottom cover or seal under
+    // this panel.
     faceplate_x_min = -clamp_electronics_faceplate_border;
     faceplate_x_max = clamp_electronics_ui_board_length_x +
         clamp_electronics_faceplate_border;
-    faceplate_y_half = clamp_electronics_ui_board_width_y / 2 +
-        clamp_electronics_faceplate_border;
-    faceplate_z = clamp_electronics_ui_board_t + 3.2;
-    clamp_electronics_ui_cover_datum_positive()
+    faceplate_y_min = -clamp_electronics_faceplate_border;
+    faceplate_z = clamp_electronics_ui_component_height_z + 0.4;
+    clamp_electronics_ui_side_datum_positive()
         color("black")
             difference() {
-                translate([faceplate_x_min, -faceplate_y_half, faceplate_z])
+                translate([faceplate_x_min, faceplate_y_min, faceplate_z])
                     cube([
                         faceplate_x_max - faceplate_x_min,
-                        2 * faceplate_y_half,
+                        clamp_electronics_ui_board_width_y +
+                            2 * clamp_electronics_faceplate_border,
                         clamp_electronics_faceplate_t
                     ]);
                 // Display window.
@@ -4158,7 +4436,7 @@ module clamp_electronics_ui_bezel_positive() {
                     clamp_electronics_ui_screen_x_min -
                         clamp_electronics_ui_board_x_min -
                         clamp_electronics_faceplate_window_clearance,
-                    -clamp_electronics_ui_screen_width_y / 2 -
+                    clamp_electronics_ui_screen_y_min -
                         clamp_electronics_faceplate_window_clearance,
                     faceplate_z - 0.1
                 ])
@@ -4170,27 +4448,25 @@ module clamp_electronics_ui_bezel_positive() {
                         clamp_electronics_faceplate_t + 0.2
                     ]);
                 // START and MODE buttons.
-                for (x = [8, clamp_electronics_ui_board_length_x - 8])
-                    translate([x, 0, faceplate_z - 0.1])
+                for (center = clamp_electronics_ui_button_centers)
+                    translate([center[0], center[1], faceplate_z - 0.1])
                         cylinder(
-                            d = clamp_electronics_ui_button_d + 0.6,
+                            d = clamp_electronics_ui_button_d +
+                                2 * clamp_electronics_faceplate_button_clearance,
                             h = clamp_electronics_faceplate_t + 0.2,
                             $fn = 64);
                 // Status and battery light pipes.
-                for (y = [-8, 8])
-                    translate([
-                        clamp_electronics_ui_board_length_x / 2,
-                        y,
-                        faceplate_z - 0.1
-                    ])
+                for (center = clamp_electronics_ui_led_centers)
+                    translate([center[0], center[1], faceplate_z - 0.1])
                         cylinder(
-                            d = clamp_electronics_ui_led_d + 0.8,
+                            d = clamp_electronics_ui_led_d +
+                                2 * clamp_electronics_faceplate_led_clearance,
                             h = clamp_electronics_faceplate_t + 0.2,
                             $fn = 48);
                 // Speaker acoustic window with a thin membrane installed later.
                 translate([
-                    clamp_electronics_ui_board_length_x * 0.78,
-                    0,
+                    clamp_electronics_ui_speaker_center[0],
+                    clamp_electronics_ui_speaker_center[1],
                     faceplate_z - 0.1
                 ])
                     cylinder(
@@ -4198,8 +4474,16 @@ module clamp_electronics_ui_bezel_positive() {
                         h = clamp_electronics_faceplate_t + 0.2,
                         $fn = 72);
                 // USB-C bulkhead slot and silicone cap seat.
-                translate([5, -3, faceplate_z - 0.1])
-                    cube([8, 6, clamp_electronics_faceplate_t + 0.2]);
+                usb_slot_w = 8 +
+                    2 * clamp_electronics_faceplate_usb_clearance;
+                usb_slot_h = 6 +
+                    2 * clamp_electronics_faceplate_usb_clearance;
+                translate([
+                    clamp_electronics_ui_usb_center[0] - usb_slot_w / 2,
+                    clamp_electronics_ui_usb_center[1] - usb_slot_h / 2,
+                           faceplate_z - 0.1])
+                    cube([usb_slot_w, usb_slot_h,
+                          clamp_electronics_faceplate_t + 0.2]);
             }
 }
 
@@ -4260,8 +4544,8 @@ module clamp_electronics_cover_positive() {
             }
         color("black")
             clamp_electronics_cover_lip_positive();
-        color("black")
-            clamp_electronics_ui_bosses_positive();
+        // No UI bosses are attached to this legacy bottom-cover diagnostic;
+        // the active UI mounts through the y+ side-wall window instead.
     }
 }
 
@@ -4360,12 +4644,12 @@ module clamp_electronics_shell_cutaway_positive() {
 }
 
 module clamp_electronics_full_cutaway_positive() {
-    // Complete right-side receiver/main-controller installation.  Every solid
-    // in this view has a physical role: shell, cover gasket, PCB model, pouch
-    // cell, UI PCB, faceplate, bosses, and the serviceable harness route.
+    // Complete right-side receiver/main-controller installation. Every solid
+    // in this view has a physical role: shell, PCB model, pouch cell, y+ UI
+    // board/faceplate, bosses, and the serviceable harness route. There is no
+    // UI bottom-cover or bottom-cover gasket in the active assembly.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_board_standoffs_positive();
-    clamp_electronics_gasket_positive();
     clamp_electronics_battery_rails_positive();
     clamp_electronics_main_board_positive();
     clamp_electronics_battery_positive();
@@ -4400,13 +4684,22 @@ module clamp_electronics_interference_check_positive() {
     }
 }
 
+module clamp_electronics_emitter_interference_check_positive() {
+    // The emitter board is used in the mirrored left clamp.  Its dedicated
+    // edge clips are intentional support contact; the common main-board
+    // standoffs must remain below it with the explicit 0.57 mm gap.
+    intersection() {
+        clamp_electronics_structural_shell_for_clearance_positive();
+        clamp_electronics_emitter_board_positive();
+    }
+}
+
 module clamp_electronics_ui_internal_interference_check_positive() {
-    // The internal UI candidate is intentionally checked separately from the
-    // existing board/battery check.  The bottom cover may touch the opening
-    // and its bosses may touch the PCB, but the UI board/faceplate must not
-    // penetrate the structural shell, mother board, or pouch cell.  A nonempty
-    // STL from this PART is therefore a concrete collision report, not a
-    // visual overlap that can be dismissed as an exploded-view offset.
+    // The y+ side UI is checked separately from the existing board/battery
+    // check. The board/faceplate must clear the structural shell, mother
+    // board, and pouch cell. A nonempty STL from this PART is a concrete
+    // collision report, not a visual overlap that can be dismissed as an
+    // exploded-view offset.
     intersection() {
         union() {
             clamp_electronics_ui_panel_positive();
@@ -4470,8 +4763,6 @@ module clamp_electronics_fit_preview_positive() {
 module clamp_electronics_emitter_preview_positive() {
     // Standalone emitter board and internal protected cell, with the same
     // actual KiCad-exported component model used by the installed section.
-    clamp_electronics_gasket_positive();
-    clamp_electronics_cover_lip_positive();
     clamp_electronics_emitter_edge_clips_positive();
     clamp_electronics_emitter_board_positive();
     clamp_electronics_battery_positive();
@@ -4482,7 +4773,6 @@ module clamp_electronics_emitter_fit_preview_positive() {
     // The mirrored left clamp owns the emitter/power PCB and its own internal
     // battery.  The section keeps the shell wall and boss geometry visible.
     clamp_electronics_shell_display_frame_positive();
-    clamp_electronics_gasket_positive();
     clamp_electronics_battery_rails_positive();
     clamp_electronics_emitter_board_positive();
     clamp_electronics_battery_positive();
@@ -4520,16 +4810,13 @@ module clamp_electronics_exploded_positive() {
     // Exploded right-side service view. The shell remains at its datum and
     // each removable item is pulled along a readable axis with no hidden
     // boolean clipping: PCB upward, the upper-shelf pouch downward from its
-    // installed position, cover/gasket toward y-, and UI board/faceplate
-    // farther toward y-.
+    // installed position, and the y+ UI board/faceplate outward.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_main_board_positive();
     translate([0, 0, -10]) clamp_electronics_battery_positive();
-    translate([0, -38, 7]) clamp_electronics_gasket_positive();
-    translate([0, -52, 14]) clamp_electronics_cover_positive();
-    translate([0, -58, -7]) clamp_electronics_ui_panel_positive();
-    translate([0, -58, -4]) clamp_electronics_ui_bezel_positive();
+    translate([0, 34, 0]) clamp_electronics_ui_panel_positive();
+    translate([0, 40, 0]) clamp_electronics_ui_bezel_positive();
 }
 
 module clamp_electronics_emitter_exploded_positive() {
@@ -4539,8 +4826,6 @@ module clamp_electronics_emitter_exploded_positive() {
     clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_emitter_board_positive();
     translate([0, 0, -10]) clamp_electronics_battery_positive();
-    translate([0, -38, 7]) clamp_electronics_gasket_positive();
-    translate([0, -52, 14]) clamp_electronics_cover_positive();
 }
 
 module clamp_electronics_system_exploded() {
@@ -11177,6 +11462,11 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) clamp_electronics_ui_panel_positive();
 } else if (PART == "clamp_electronics_ui_bezel") {
     sided(default_side) clamp_electronics_ui_bezel_positive();
+} else if (PART == "clamp_electronics_ui_proxy_layout_check") {
+    clamp_electronics_ui_proxy_layout_check_positive();
+} else if (PART == "clamp_electronics_ui_proxy_board_collision") {
+    sided(default_side)
+        clamp_electronics_ui_proxy_board_collision_positive();
 } else if (PART == "clamp_electronics_emitter_preview") {
     sided(default_side) clamp_electronics_emitter_preview_positive();
 } else if (PART == "clamp_electronics_emitter_fit_preview") {
@@ -11193,6 +11483,8 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) clamp_electronics_full_cutaway_positive();
 } else if (PART == "clamp_electronics_interference_check") {
     sided(default_side) clamp_electronics_interference_check_positive();
+} else if (PART == "clamp_electronics_emitter_interference_check") {
+    sided(default_side) clamp_electronics_emitter_interference_check_positive();
 } else if (PART == "clamp_electronics_ui_internal_interference_check") {
     sided(default_side)
         clamp_electronics_ui_internal_interference_check_positive();
