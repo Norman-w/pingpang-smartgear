@@ -2000,6 +2000,14 @@ clamp_screw_x = table_edge_x - clamp_screw_inset;
 clamp_top_pad_x = clamp_pad_x + 8;
 clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
 clamp_lower_arm_bottom_z = clamp_lower_arm_top_z - clamp_lower_arm_t;
+// The third lower-jaw joint is deliberately down/right on the tapered
+// reinforcement shoulder.  Keep it parameterized from the cavity datum so a
+// table-thickness change moves the fastener with the lower arm instead of
+// leaving a hard-coded world-z hole behind.
+clamp_split_lower_right_x =
+    table_edge_x - clamp_reinforcement_inboard_offset_x +
+    clamp_electronics_cavity_inboard_margin_x + 72.5;
+clamp_split_lower_right_z = clamp_lower_arm_bottom_z - 2;
 clamp_split_bolt_positions = [
     // Upper fixed jaw: keep the existing left/right load points and add a
     // center point so the long outer edge is clamped around the electronics
@@ -2007,14 +2015,12 @@ clamp_split_bolt_positions = [
     [clamp_pad_x + 30, clamp_top_pad_t + clamp_pad_t / 2],
     [clamp_pad_x + 96, clamp_top_pad_t + clamp_pad_t / 2],
     [clamp_pad_x + 161.5, clamp_top_pad_t + clamp_pad_t / 2],
-    // Lower inboard jaw: move the left corner point toward the outer edge;
-    // the third point sits just before the electronics cavity and leaves the
-    // cavity itself clear for the PCB/battery envelope.
+    // Lower inboard jaw: keep the first two load points at the left side;
+    // move the third point down/right onto the lower-right shoulder of the
+    // tapered reinforcement so the long lower seam is clamped near its edge.
     [clamp_pad_x + 14, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
     [clamp_pad_x + 63.5, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
-    [table_edge_x - clamp_reinforcement_inboard_offset_x +
-         clamp_electronics_cavity_inboard_margin_x - 12,
-     clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    [clamp_split_lower_right_x, clamp_split_lower_right_z],
     // Lower-left corner of the electronics bay: this extra transverse joint
     // closes the short unsupported corner of the split seam.  It sits inside
     // the hollow-bay load path, so the cavity-edge boss filter may reinforce
@@ -3174,9 +3180,14 @@ assert(clamp_split_plane_y == 0 &&
            len(clamp_split_bolt_positions) == 9 &&
            clamp_split_bolt_positions[3][0] -
                (clamp_split_boss_d + 4) / 2 > clamp_pad_x &&
-           clamp_split_bolt_positions[5][0] +
-               (clamp_split_boss_d + 4) / 2 + 1 <
-               clamp_electronics_cavity_x_min,
+           clamp_split_bolt_positions[5][0] == clamp_split_lower_right_x &&
+           clamp_split_bolt_positions[5][1] == clamp_split_lower_right_z &&
+           clamp_split_bolt_positions[5][0] > clamp_electronics_cavity_x_min &&
+           clamp_split_bolt_positions[5][0] <
+               clamp_electronics_cavity_x_max - clamp_split_boss_d / 2 &&
+           clamp_split_lower_right_z - clamp_split_boss_d / 2 >
+               clamp_reinforcement_bottom_z_at(clamp_split_lower_right_x) +
+               0.5,
        "split C-clamp must use a centered y=0 seam, nine transverse M5 joints, cavity-edge boss reinforcement only, and printable nut pockets");
 assert(clamp_screw_side_reinforcement_start_x == clamp_pad_x &&
            clamp_screw_side_reinforcement_join_x ==
