@@ -105,7 +105,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 根（左右各 1）",
         "scad_part": "clamp_printed_screw",
-        "notes": "12 mm 大径、9.6 mm 芯径、4 mm 螺距；牙顶宽约 2 mm、凹槽宽约 2 mm，采用连续粗牙带而非细线牙。顶部 15.5 mm 扁球头进入台底压块。不要与标准 M8×1.25 螺母混用。",
+        "notes": "12 mm 大径、9.6 mm 芯径、4 mm 螺距；牙根宽约 2 mm、凹槽宽约 2 mm，外侧 0.4 mm 锥尖收窄，采用连续锥形粗牙带而非平顶环带。顶部 15.5 mm 扁球头进入台底压块。不要与标准 M8×1.25 螺母混用。",
     },
     {
         "id": "printed-coarse-body-nuts",
@@ -116,7 +116,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 枚（左右各 1）",
         "scad_part": "clamp_body_nut",
-        "notes": "AF16、11.5 mm 高、与 4 mm 螺距/2 mm 牙顶粗牙螺杆配套；从下臂上侧装入 12 mm 深捕获窝，底部保留承力壁。",
+        "notes": "AF16、11.5 mm 高、与 4 mm 螺距/2 mm 牙根/0.4 mm 锥尖粗牙螺杆配套；从下臂上侧装入 12 mm 深捕获窝，底部保留承力壁。",
     },
     {
         "id": "printed-coarse-drive-nuts",
@@ -127,7 +127,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "4 枚（每侧两枚）",
         "scad_part": "clamp_knob_nut",
-        "notes": "每侧两枚、每枚 6 mm 高，先对锁后装入旋钮 AF16 捕获窝；内螺纹与 2 mm 牙顶/2 mm 凹槽粗牙配套，只与配套粗牙螺杆使用。",
+        "notes": "每侧两枚、每枚 6 mm 高，先对锁后装入旋钮 AF16 捕获窝；内螺纹与 2 mm 牙根/2 mm 凹槽/0.4 mm 锥尖粗牙配套，只与配套粗牙螺杆使用。",
     },
     {
         "id": "c-scheme-retaining-fasteners",
@@ -506,7 +506,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-printed-screw",
             "PETG",
             "轴线竖直；扁球头朝上；平盘压块装配后让球头落入内宽外窄窝；建议竖直打印并加 brim。",
-            "正式 PETG 粗牙夹紧螺杆；12 mm 大径、9.6 mm 芯径、4 mm 螺距、约 1.2 mm 牙高，牙顶/凹槽各约 2 mm，顶部 15.5 mm 扁球头带浅六角驱动窝。必须和配套 PETG 粗牙螺母成组使用，不与 M8×1.25 标准螺母混用。",
+            "正式 PETG 锥形粗牙夹紧螺杆；12 mm 大径、9.6 mm 芯径、4 mm 螺距、约 1.2 mm 牙高，牙根/凹槽各约 2 mm，外侧锥尖约 0.4 mm，顶部 15.5 mm 扁球头带浅六角驱动窝。必须和配套 PETG 锥形粗牙螺母成组使用，不与 M8×1.25 标准螺母混用。",
         )
     )
     specs.extend(
@@ -515,7 +515,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-printed-body-nut",
             "PETG",
             "六角大平面贴床；螺纹轴线沿 Z；打印后清理内螺纹起始边。",
-            "下臂捕获用 PETG 粗牙固定螺母；AF16、11.5 mm 高，与 12/9.6 mm、4 mm 螺距、2 mm 牙顶打印螺杆配套。",
+            "下臂捕获用 PETG 锥形粗牙固定螺母；AF16、11.5 mm 高，与 12/9.6 mm、4 mm 螺距、2 mm 牙根、0.4 mm 锥尖打印螺杆配套。",
         )
     )
     specs.extend(
@@ -533,7 +533,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-printed-knob-nut",
             "PETG",
             "六角大平面贴床；每个 STL 含两枚粗牙螺母，内螺纹轴线沿 Z。",
-            "旋钮内捕获的两枚 PETG 粗牙对锁螺母；每枚 6 mm 高，先对锁后装入旋钮捕获窝，牙顶/凹槽各约 2 mm。",
+            "旋钮内捕获的两枚 PETG 锥形粗牙对锁螺母；每枚 6 mm 高，先对锁后装入旋钮捕获窝，牙根/凹槽各约 2 mm，锥尖约 0.4 mm。",
         )
     )
     specs.extend(

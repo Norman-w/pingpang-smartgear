@@ -987,12 +987,13 @@ clamp_printed_thread_major_d = 12;
 clamp_printed_thread_core_d = 9.6;
 clamp_printed_thread_pitch = 4;
 clamp_printed_thread_clearance_r = 0.30;
-// FDM-friendly thread section: one half-pitch of solid crest and one
-// half-pitch of open valley.  The old linear_extrude profile used a narrow
-// tangential strip, which rendered as a hairline and left a fragile single
-// ridge after printing.  The active thread is now a swept rectangular band
-// with a 2 mm axial crest, matching the 2 mm valley.
-clamp_printed_thread_crest_width = clamp_printed_thread_pitch / 2;
+// FDM-friendly conical thread section: the tooth root occupies one half-pitch
+// and the open valley occupies the other half.  The old linear_extrude profile
+// used a narrow tangential strip, which rendered as a hairline and left a
+// fragile single ridge after printing.  The active thread now tapers from a
+// 2 mm root to a 0.4 mm printable tip instead of ending in a broad flat band.
+clamp_printed_thread_root_width = clamp_printed_thread_pitch / 2;
+clamp_printed_thread_tip_width = 0.4;
 clamp_printed_thread_segments_per_turn = 24;
 clamp_printed_thread_band_tangent_width = 1.8;
 clamp_printed_thread_lead_in = 1.25;
@@ -3391,13 +3392,16 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
 assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
            clamp_printed_thread_major_d > clamp_printed_thread_core_d &&
            clamp_printed_thread_pitch >= 3.5 &&
-           abs(2 * clamp_printed_thread_crest_width -
+           abs(2 * clamp_printed_thread_root_width -
                clamp_printed_thread_pitch) < 0.01 &&
-           clamp_printed_thread_crest_width >= 1.5 &&
+           clamp_printed_thread_root_width >= 1.5 &&
+           clamp_printed_thread_tip_width >= 0.35 &&
+           clamp_printed_thread_tip_width <
+               clamp_printed_thread_root_width &&
            clamp_printed_thread_segments_per_turn >= 20 &&
            clamp_printed_thread_band_tangent_width > 0 &&
            clamp_printed_thread_lead_in >=
-               clamp_printed_thread_crest_width / 2 &&
+               clamp_printed_thread_root_width / 2 &&
            clamp_printed_thread_clearance_r > 0 &&
            clamp_printed_thread_body_nut_h >
                2 * clamp_printed_thread_pitch &&
@@ -4823,19 +4827,34 @@ module clamp_printed_thread_band_block(
     major_d,
     z,
     angle,
-    crest_width = clamp_printed_thread_crest_width,
+    root_width = clamp_printed_thread_root_width,
+    tip_width = clamp_printed_thread_tip_width,
     tangent_width = clamp_printed_thread_band_tangent_width
 ) {
-    // A short local rectangular section is rotated and translated along the
-    // helix.  Its axial width is the real crest width; the tangential width
-    // only overlaps adjacent sections so the band remains continuous.
+    // A short local tapered section is rotated and translated along the
+    // helix.  The root is deliberately broad for FDM shear strength; the
+    // outer tip narrows to a single-line-friendly 0.4 mm instead of making a
+    // flat horizontal tooth.  The tangential width only overlaps adjacent
+    // sections so the band remains continuous.
+    root_radial_span = 0.24;
+    tip_radial_span = 0.24;
     rotate([0, 0, angle])
-        translate([(root_d + major_d) / 4, 0, z])
-            cube([
-                (major_d - root_d) / 2,
-                tangent_width,
-                crest_width
-            ], center = true);
+        hull() {
+            translate([
+                root_d / 2 + root_radial_span / 2,
+                0,
+                z
+            ])
+                cube([root_radial_span, tangent_width, root_width],
+                     center = true);
+            translate([
+                major_d / 2 - tip_radial_span / 2,
+                0,
+                z
+            ])
+                cube([tip_radial_span, tangent_width, tip_width],
+                     center = true);
+        }
 }
 
 module clamp_printed_thread_band(
@@ -4844,13 +4863,14 @@ module clamp_printed_thread_band(
     pitch = clamp_printed_thread_pitch,
     length,
     start_z = 0,
-    crest_width = clamp_printed_thread_crest_width,
+    root_width = clamp_printed_thread_root_width,
+    tip_width = clamp_printed_thread_tip_width,
     segments_per_turn = clamp_printed_thread_segments_per_turn
 ) {
     // Approximate a true helical sweep with overlapping convex sections.  A
     // 24-section turn is intentionally used instead of the old thin
-    // linear_extrude strip: every section has a 2 mm axial crest, so the
-    // printed tooth and the 4 mm-pitch valley are both substantial.
+    // linear_extrude strip: each section has a 2 mm root, a 0.4 mm tapered
+    // tip, and a 4 mm-pitch valley of the same 2 mm width.
     segment_count = max(2, ceil(length / pitch * segments_per_turn));
     for (index = [0 : segment_count - 1])
         hull() {
@@ -4859,13 +4879,15 @@ module clamp_printed_thread_band(
                 major_d,
                 start_z + length * index / segment_count,
                 360 * length * index / segment_count / pitch,
-                crest_width);
+                root_width,
+                tip_width);
             clamp_printed_thread_band_block(
                 root_d,
                 major_d,
                 start_z + length * (index + 1) / segment_count,
                 360 * length * (index + 1) / segment_count / pitch,
-                crest_width);
+                root_width,
+                tip_width);
         }
 }
 
@@ -4883,8 +4905,8 @@ module clamp_printed_thread_nut_positive(
     // Matching PETG coarse nut.  The central clearance cylinder leaves a
     // 0.30 mm radial running fit around the screw core; the second swept
     // band opens each 4 mm-pitch valley so the 12 mm crest can enter without
-    // relying on a fine M8 metal thread.  Crest and valley are both 2 mm
-    // wide in the axial section.
+    // relying on a fine M8 metal thread.  The root and valley are both 2 mm
+    // wide in the axial section, while the exposed tooth tip tapers to 0.4 mm.
     nut_core_clear_d = clamp_printed_thread_core_d +
         2 * clamp_printed_thread_clearance_r;
     nut_major_clear_d = clamp_printed_thread_major_d +
@@ -4901,7 +4923,8 @@ module clamp_printed_thread_nut_positive(
                 clamp_printed_thread_pitch,
                 thread_height,
                 0,
-                clamp_printed_thread_crest_width);
+                clamp_printed_thread_root_width,
+                clamp_printed_thread_tip_width);
     }
 }
 
@@ -5024,9 +5047,10 @@ module clamp_printed_screw_positive(
     screw_length = clamp_screw_length
 ) {
     // PETG coarse lead screw.  The swept band has a 12 mm major envelope and
-    // 9.6 mm core.  At a 4 mm pitch the solid crest and open valley are both
-    // 2 mm in the axial section, so the tooth is not a fragile hairline.  It
-    // must be used with clamp_printed_thread_nut_positive().
+    // 9.6 mm core.  At a 4 mm pitch the tooth root and open valley are both
+    // 2 mm in the axial section; the outer 0.4 mm tip tapers like a conical
+    // gear tooth instead of forming a flat ring.  It must be used with
+    // clamp_printed_thread_nut_positive().
     shaft_length = screw_length - clamp_printed_screw_head_h;
     thread_pitch = clamp_printed_thread_pitch;
     thread_lead_in = clamp_printed_thread_lead_in;
@@ -5045,7 +5069,8 @@ module clamp_printed_screw_positive(
                         thread_pitch,
                         threaded_length,
                         0,
-                        clamp_printed_thread_crest_width);
+                        clamp_printed_thread_root_width,
+                        clamp_printed_thread_tip_width);
                 translate([0, 0, shaft_length])
                     difference() {
                         clamp_flat_ball_head_positive();
@@ -10425,8 +10450,10 @@ module parameter_probe() {
              clamp_printed_thread_core_d));
     echo(str("NETSTAND_PARAM clamp_printed_thread_pitch=",
              clamp_printed_thread_pitch));
-    echo(str("NETSTAND_PARAM clamp_printed_thread_crest_width=",
-             clamp_printed_thread_crest_width));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_root_width=",
+             clamp_printed_thread_root_width));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_tip_width=",
+             clamp_printed_thread_tip_width));
     echo(str("NETSTAND_PARAM clamp_printed_thread_segments_per_turn=",
              clamp_printed_thread_segments_per_turn));
     echo(str("NETSTAND_PARAM clamp_printed_thread_lead_in=",

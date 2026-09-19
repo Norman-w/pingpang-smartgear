@@ -144,8 +144,9 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
         or rod.get("scad_part") != "clamp_printed_screw"
         or rod.get("printable") is not True
         or "4 mm 螺距" not in str(rod.get("notes"))
-        or "牙顶宽约 2 mm" not in str(rod.get("notes"))
+        or "牙根宽约 2 mm" not in str(rod.get("notes"))
         or "凹槽宽约 2 mm" not in str(rod.get("notes"))
+        or "0.4 mm 锥尖" not in str(rod.get("notes"))
         or "M8×1.25" not in str(rod.get("notes"))
     ):
         raise AssertionError("粗牙 PETG 螺杆必须作为可打印件进入中文物料清单")

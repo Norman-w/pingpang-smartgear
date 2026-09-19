@@ -13,7 +13,7 @@
 | `clamp_electronics_cover/gasket/ui_bezel` | 各 2 | 梯形腔盖、连续压合件和按钮/屏幕/指示灯/声学/USB-C 面板压框 |
 | `m6_detector_body`、前盖、后盖、底盖、底盖 gasket、cable gland | 各 2 | 左右十路 M6 发射/接收壳体；主体包络 `10 × 56 × 216 mm` |
 | `net_clamp_clip` | 2 | 整高 U 形卡网夹；平放打印，安装时沿 x 从桌外侧滑入 |
-| `clamp_pressure_pad`、`clamp_printed_screw`、`clamp_body_nut`、`clamp_knob`、`clamp_knob_nut` | 各 2 | 台底压块、12 mm/4 mm PETG 粗牙螺杆（2 mm 牙顶/2 mm 凹槽）、固定螺母、旋钮和每侧两枚对锁螺母 |
+| `clamp_pressure_pad`、`clamp_printed_screw`、`clamp_body_nut`、`clamp_knob`、`clamp_knob_nut` | 各 2 | 台底压块、12 mm/4 mm PETG 锥形粗牙螺杆（2 mm 牙根/2 mm 凹槽/0.4 mm 锥尖）、固定螺母、旋钮和每侧两枚对锁螺母 |
 | `sensor_mount_body`、`sensor_clamp_lip` | 各 2 | 网端 PVDF 座和可拆压片 |
 | `calibration_gauge` | 1 | 过网高度标定规 |
 
