@@ -23,8 +23,8 @@ from typing import Iterable
 
 HERE = Path(__file__).resolve().parent
 # Match export_net_stand_printables.py so the documented default command reads
-# the current 37-part manifest instead of the historical 33-part directory.
-EXPORT_ROOT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
+# the current split C-clamp manifest instead of a historical directory.
+EXPORT_ROOT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme"
 SOURCE_MANIFEST = EXPORT_ROOT / "manifest.json"
 DEFAULT_OUTPUT = EXPORT_ROOT / "print-platter-256"
 TRIANGLE = struct.Struct("<12fH")
@@ -574,7 +574,7 @@ def build_manifest(
         )))
     return {
         "schema_version": "0.1",
-        "design": "desktop-clamp-one-side-x1c-v0.4-top-load",
+        "design": "desktop-clamp-one-side-x1c-v0.7-split-c-scheme",
         "generated_by": "hardware/cad/build_print_platter.py",
         "source_manifest": os.path.relpath(source_manifest_path, output_dir).replace(os.sep, "/"),
         "source_manifest_sha256": sha256_file(source_manifest_path),

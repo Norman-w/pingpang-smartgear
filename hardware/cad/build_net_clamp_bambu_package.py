@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Build an explicit Bambu Studio package for the C-scheme clamp/post interface.
+"""Build an explicit Bambu Studio package for the split C-scheme clamp/post interface.
 
-The C-clamp body, upright carrier, and net clip are separate print parts.  The
-active connection is the SKP C-scheme: a green integrated base on the upright
-slides into a clearance pocket in the fixed body, then two M4 fasteners and a
-spring-ball detent retain it.  This helper selects all three parts, normalises
+The C-clamp is split at y=0 into an operator-side half and an opponent-side
+half.  The active connection is the SKP C-scheme: a green integrated base on
+the upright slides into a clearance pocket in the fixed body, then two M4
+fasteners and a spring-ball detent retain it.  Eight transverse M5 joints clamp
+the two C-clamp halves.  This helper selects the four print objects, normalises
 their OpenSCAD world coordinates, and produces an editable Bambu project with
 all object names preserved.
 
-The generated 3MF is an editable Bambu project.  The three parts are kept
+The generated 3MF is an editable Bambu project.  The four source objects are kept
 together as complete source objects, but they are deliberately not claimed to
 be one-plate G-code: the fixed body and the tilted carrier cannot both fit beside
 each other on one X1C plate.  Open the project in Bambu Studio and arrange the
@@ -39,8 +40,8 @@ from build_print_platter import (
 
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_SOURCE_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
-DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.6-c-scheme"
+DEFAULT_SOURCE_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme"
+DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf"
 DEFAULT_TEMPLATE = (
     HERE
     / "exports"
@@ -153,10 +154,12 @@ def build_side(
     no_slice: bool,
 ) -> dict[str, object]:
     carrier_name = f"{side}-post-clamp-carrier.stl"
-    body_name = f"{side}-clamp-body-segment.stl"
+    body_user_name = f"{side}-clamp-body-half-user.stl"
+    body_opponent_name = f"{side}-clamp-body-half-opponent.stl"
     clip_name = f"{side}-net-clamp-clip.stl"
     source_files = [
-        source_dir / body_name,
+        source_dir / body_user_name,
+        source_dir / body_opponent_name,
         source_dir / carrier_name,
         source_dir / clip_name,
     ]
@@ -170,7 +173,7 @@ def build_side(
     for path in source_files:
         shutil.copy2(path, output_dir / path.name)
 
-    project_name = f"{side}-c-scheme-X1C-PETG"
+    project_name = f"{side}-split-c-scheme-X1C-PETG"
     final_path = (
         output_dir / f"{project_name}.3mf"
         if no_slice
@@ -214,17 +217,22 @@ def build_side(
             shutil.copy2(seeded, final_path)
         else:
             raise RuntimeError(
-                "当前接口换版包包含固定夹体、C 方案黄绿立柱和网夹三件，不能诚实地作为一张 X1C 底板切片；"
+                "当前接口换版包包含 C 夹前后半体、C 方案黄绿立柱和网夹四件，不能诚实地作为一张 X1C 底板切片；"
                 "请省略 --slice（默认生成可编辑 3MF），在 Bambu Studio 中分盘排版后再切片。"
             )
 
-    required_names = {body_name, carrier_name, clip_name}
+    required_names = {
+        body_user_name,
+        body_opponent_name,
+        carrier_name,
+        clip_name,
+    }
     names = verify_3mf(final_path, required_names, require_gcode=not no_slice)
     manifest = {
         "schema_version": "0.1",
-        "package": "desktop-clamp-one-side-x1c-v0.6-c-scheme",
+        "package": "desktop-clamp-one-side-x1c-v0.7-split-c-scheme",
         "side": side,
-        "source_manifest": "../desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json",
+        "source_manifest": "../desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
         "source_files": [
             {
                 "file": path.name,
@@ -237,10 +245,11 @@ def build_side(
         "project_objects": names,
         "sliced": not no_slice,
         "notes": [
-            "这是 C 方案接口换版包：固定 C 夹主体、带绿色整体底座的整根立柱和全高 U 形滑入网夹是三个独立打印件。",
-            "固定 C 夹主体必须与带让位腔的立柱配套换版；旧的直接共面座夹体不能继续使用。",
+            "这是 C 方案分型接口换版包：操作者侧/对手侧两件 C 夹半体、带绿色整体底座的整根立柱和全高 U 形滑入网夹是四类独立打印对象。",
+            "两件 C 夹半体在 y=0 合拢；前半圆头沉孔朝外，后半防转六角螺母窝朝外，8 个横向 M5 连接位把两半锁成一体；只有贴到电子腔空腔边界的连接位带承力 boss，实心夹臂里的连接位只保留孔位，避免外壳凸起。左下角孔向外侧移动，电子腔边界前增加连接点。",
+            "分型后的 C 夹必须与带让位腔的立柱配套换版；旧的完整整件夹体不能继续使用。",
             "绿色整体底座沿 x 方向推入灰色让位腔，两个 M4 穿孔锁紧，4 mm 钢珠只负责终点定位。",
-            "本 3MF 保留三件完整模型但不包含 G-code；固定夹体和斜放立柱不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",
+            "本 3MF 保留四件完整模型但不包含 G-code；两件 C 夹半体和斜放立柱不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",
             "当前方案没有独立圆柱 net_clamp_rod；旧名称只是兼容诊断入口。",
             "切片/导出通过不等于实物推入配合、网布夹持和承力验收。",
         ],
@@ -283,6 +292,10 @@ def main() -> int:
     args = parse_args()
     source_dir = args.source_dir.resolve()
     output_dir = args.output_dir.resolve()
+    if args.clean and output_dir == source_dir:
+        raise SystemExit(
+            "--clean 的 3MF 输出目录不能与 STL 源目录相同；请使用独立的 -3mf 目录"
+        )
     template = args.template.resolve()
     if not (source_dir / "manifest.json").is_file():
         raise SystemExit(f"找不到源打印件 manifest: {source_dir / 'manifest.json'}")
@@ -290,7 +303,7 @@ def main() -> int:
         raise SystemExit(f"找不到 X1C/PETG 设置模板: {template}")
     if not args.no_slice:
         raise SystemExit(
-            "当前换版包包含固定夹体、C 方案黄绿立柱和网夹三件，不能作为一张 X1C 底板切片；"
+            "当前换版包包含 C 夹前后半体、C 方案黄绿立柱和网夹四件，不能作为一张 X1C 底板切片；"
             "请直接运行本脚本生成可编辑 3MF，再在 Bambu Studio 中分盘排版。"
         )
     if args.clean and output_dir.is_dir():
@@ -305,6 +318,10 @@ def main() -> int:
         for path in output_dir.glob("*-post-clamp-carrier.stl"):
             path.unlink()
         for path in output_dir.glob("*-clamp-body-segment.stl"):
+            path.unlink()
+        for path in output_dir.glob("*-clamp-body-half-user.stl"):
+            path.unlink()
+        for path in output_dir.glob("*-clamp-body-half-opponent.stl"):
             path.unlink()
         for path in output_dir.glob("*-net-clamp-clip.stl"):
             path.unlink()

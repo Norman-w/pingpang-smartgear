@@ -24,6 +24,8 @@ PARTS = (
     "post_segment",
     "post_clamp_carrier",
     "clamp_body_segment",
+    "clamp_body_half_user",
+    "clamp_body_half_opponent",
     "post_clamp_slide_exploded",
     "post_clamp_slide_interface_exploded",
     "clamp_slide_post_foot_detent_detail",
@@ -137,7 +139,11 @@ PREVIEW_ONLY_PARTS = {
 # Minkowski-expanded tools. OpenSCAD may tessellate the reflected CSG with a
 # different diagonal/facet split; center/bounds are still checked while strict
 # vertex-set equality remains for direct primitive print parts.
-MIRROR_TRIANGULATION_RELAXED_PARTS = PREVIEW_ONLY_PARTS | {"clamp_body_segment"}
+MIRROR_TRIANGULATION_RELAXED_PARTS = PREVIEW_ONLY_PARTS | {
+    "clamp_body_segment",
+    "clamp_body_half_user",
+    "clamp_body_half_opponent",
+}
 NO_DRILL_TABLE_THICKNESSES = (12, 18, 25, 30, 40)
 
 
@@ -557,6 +563,13 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_tongue_extra_length_x",
         "clamp_tongue_reach_inboard",
         "clamp_pad_x",
+        "clamp_split_plane_y",
+        "clamp_split_seam_gap_y",
+        "clamp_split_boss_d",
+        "clamp_split_boss_depth_y",
+        "clamp_split_fastener_d",
+        "clamp_split_fastener_head_d",
+        "clamp_split_nut_af",
         "clamp_pad_outer_x",
         "clamp_outer_wall_x",
         "clamp_horizontal_part_outboard_limit",
@@ -3300,6 +3313,8 @@ def main() -> None:
             "clamp_slide_fit_probe",
             "clamp_slide_fit_section",
             "clamp_body_segment",
+            "clamp_body_half_user",
+            "clamp_body_half_opponent",
             "net_clamp_fit_probe",
             "net_clamp_fit_section",
             "net_clamp_clip",
@@ -3424,6 +3439,12 @@ def main() -> None:
         post_segment_bounds = stl_bounds(output_dir / "post_segment.stl")
         post_clamp_carrier_bounds = stl_bounds(output_dir / "post_clamp_carrier.stl")
         clamp_body_segment_bounds = stl_bounds(output_dir / "clamp_body_segment.stl")
+        clamp_body_half_user_bounds = stl_bounds(
+            output_dir / "clamp_body_half_user.stl"
+        )
+        clamp_body_half_opponent_bounds = stl_bounds(
+            output_dir / "clamp_body_half_opponent.stl"
+        )
         net_clamp_clip_bounds = stl_bounds(output_dir / "net_clamp_clip.stl")
         if net_bounds[0] >= 0 or net_bounds[1] <= 0:
             raise RuntimeError(f"net is not centered across the table: {net_bounds}")
@@ -3509,6 +3530,30 @@ def main() -> None:
             and clamp_body_bounds[1] > parameters["clamp_pad_outer_x"] - 0.01
         ):
             raise RuntimeError(f"fixed clamp body does not bridge the table edge: {clamp_body_bounds}")
+        half_depth = parameters["clamp_pad_depth"] / 2
+        seam_half_gap = parameters["clamp_split_seam_gap_y"] / 2
+        if not (
+            clamp_body_half_user_bounds[2]
+            <= -half_depth + 0.01
+            and clamp_body_half_user_bounds[3]
+            <= -seam_half_gap + 0.01
+            and clamp_body_half_opponent_bounds[2]
+            >= seam_half_gap - 0.01
+            and clamp_body_half_opponent_bounds[3]
+            >= half_depth - 0.01
+            and clamp_body_half_user_bounds[0]
+            < parameters["clamp_pad_outer_x"]
+            and clamp_body_half_opponent_bounds[1]
+            > parameters["clamp_pad_outer_x"] - 0.01
+            and clamp_body_half_user_bounds[5]
+            > clamp_body_half_user_bounds[4]
+            and clamp_body_half_opponent_bounds[5]
+            > clamp_body_half_opponent_bounds[4]
+        ):
+            raise RuntimeError(
+                "split C-clamp halves do not leave the declared y=0 seam or full structural envelope: "
+                f"user={clamp_body_half_user_bounds}, opponent={clamp_body_half_opponent_bounds}"
+            )
         if not (
             abs(top_pad_bounds[0] - parameters["clamp_top_pad_x"]) < 0.01
             and abs(

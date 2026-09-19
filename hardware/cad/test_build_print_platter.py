@@ -149,8 +149,8 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     # Each 356.5 mm upright occupies its own diagonal plate; the current
     # deterministic layout packs the remaining fixed bodies and clips on four
     # additional PETG plates and keeps TPU separate.
-    if len(data["plates"]) != 6 or sum(p["part_count"] for p in data["plates"]) != 37:
-        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 6/37）")
+    if len(data["plates"]) != 6 or sum(p["part_count"] for p in data["plates"]) != 33:
+        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 6/33）")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")

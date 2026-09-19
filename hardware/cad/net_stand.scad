@@ -9,7 +9,12 @@
 //   PART="post"               单侧立柱主体
 //   PART="post_segment"       当前单段立柱诊断/打印件（由 post_segment_index 选择）
 //   PART="post_clamp_carrier" 整根立柱与桌外侧滑入载体一体打印件
-//   PART="clamp_body_segment"  桌下 C 形夹内段/电子腔与母滑槽打印件
+//   PART="clamp_body_segment"  整件 C 夹兼容诊断入口（不在正式打印矩阵）
+//   PART="clamp_body_half_user" y=0 分型的操作者侧 C 夹半体（M5 圆头沉孔）
+//   PART="clamp_body_half_opponent" y=0 分型的对手侧 C 夹半体（M5 防转螺母窝）
+//   PART="clamp_body_split_fit" 两半合拢的分型接口预览
+//   PART="clamp_body_split_exploded" 两半沿 y 爆炸的分型接口预览
+//   PART="clamp_body_split_electronics_cutaway" y- 半体电子仓大腔与 y=0 分型面装配剖切预览
 //   PART="post_segment"       兼容入口；输出同一整根立柱主体
 //   PART="lower_stand_segment" 兼容入口；输出同一整根立柱+载体
 //   PART="upper_stand_segment" 兼容入口；输出同一整根立柱主体
@@ -187,13 +192,27 @@ clamp_reinforcement_near_table_thickness_z = 40;
 clamp_reinforcement_depth_y = 58;
 clamp_solid_bridge_clearance_x = 0.2;
 clamp_lower_arm_clearance = 10;
-// 梯形下方预留首样电子腔：保留 4 mm 顶板、两侧各 9 mm 承力壁，底部
-// 以可拆盖板封闭。ESP32 主控板和受保护 1S 电池包只占用这个腔体，不把
-// 电池或 USB 充电电路塞进桌面夹持/压块的受力区。
+// 右侧外置桥体内收为整段侧向电子仓：上方保留完整的上夹板/桥体承力层，
+// 两侧各 9 mm 作为承力边，底部保留一体化 4 mm 斜底。两半分开后从 y=0
+// 分型面装入 ESP32 主控板和受保护 1S 电池包；x+ 外侧墙和 boss 保持完整，
+// 不再在下方增加独立底盖、垫圈或压框，也不把器件塞进桌面夹持/压块的受力区。
 clamp_electronics_cavity_inboard_margin_x = 18;
-clamp_electronics_cavity_outboard_margin_x = 38;
+// Leave a 24 mm outboard wall before the x+ exterior. A split boss is allowed
+// to overlap this wall only when its Ø16 mm footprint also reaches the cavity
+// boundary; points fully inside the solid wall stay flush-drilled.
+clamp_electronics_cavity_outboard_margin_x = 24;
 clamp_electronics_cavity_wall_y = 9;
-clamp_electronics_cavity_roof_t = 4;
+// Keep a 0.5 mm relief below the lowest transverse split boss (the upper
+// boss bottom is z=1 mm). The cavity therefore stops at z=0.5 while the
+// remaining bridge/upper-jaw material is the
+// structural roof; this is intentionally much higher than the former small
+// lower-pocket ceiling.
+clamp_electronics_cavity_top_clearance_z = 1.5;
+// The frozen 14 mm jaw plus 2 mm top pad gives a 15.5 mm bridge roof at the
+// current 0.5 mm cavity clearance. The assertion below keeps these datums in
+// sync if the clamp envelope is ever parameterized again.
+clamp_electronics_cavity_roof_t = 15.5;
+clamp_electronics_cavity_floor_t = 4;
 clamp_electronics_cavity_cover_t = 3;
 clamp_electronics_board_length_x = 86;
 clamp_electronics_board_width_y = 32;
@@ -922,6 +941,23 @@ clamp_outboard_extension_min = 130;
 // post expansion. The upper post remains 28 mm wide and is not moved.
 clamp_outer_extension = 3.5;
 clamp_pad_depth = 58;
+// C 形夹改为两件式 FDM 打印：竖直分型面固定在 y=0，靠近操作者的一半
+// 是 y- 半体，靠对手的一半是 y+ 半体；两半沿 y 方向合拢。分型处留出
+// 0.20 mm 总间隙，螺钉轴线与分型面垂直，避免把电子腔横向切成难以装配
+// 的斜面。只有贴着电子仓空腔面的 M5 连接点使用 PETG boss/肋把载荷导回
+// 薄壁；落在实心 14 mm 夹臂里的连接点依靠本体厚度，不再叠加外凸加强。
+// C 方案绿色底座的 x 向插入路径保持不变。
+clamp_split_plane_y = 0;
+clamp_split_seam_gap_y = 0.20;
+clamp_split_boss_d = 16;
+clamp_split_boss_depth_y = 9;
+clamp_split_boss_rib_t = 4;
+clamp_split_fastener_d = 5.4;
+clamp_split_fastener_head_d = 10.2;
+clamp_split_fastener_head_depth_y = 4.2;
+clamp_split_nut_af = 8.4;
+clamp_split_nut_depth_y = 4.8;
+clamp_split_nut_clearance = 0.25;
 // 上、下两条结构夹臂统一加厚到 14 mm；上夹板内收纳互咬宽面滑道，
 // 台面上侧胶皮由现场粘贴，
 // 台底压块是独立的刚性圆盘，不把接触层厚度混入夹体承力厚度。
@@ -1955,6 +1991,27 @@ clamp_screw_x = table_edge_x - clamp_screw_inset;
 clamp_top_pad_x = clamp_pad_x + 8;
 clamp_lower_arm_top_z = -table_thickness - clamp_lower_arm_clearance;
 clamp_lower_arm_bottom_z = clamp_lower_arm_top_z - clamp_lower_arm_t;
+clamp_split_bolt_positions = [
+    // Upper fixed jaw: keep the existing left/right load points and add a
+    // center point so the long outer edge is clamped around the electronics
+    // cavity instead of relying on the two end points alone.
+    [clamp_pad_x + 30, clamp_top_pad_t + clamp_pad_t / 2],
+    [clamp_pad_x + 96, clamp_top_pad_t + clamp_pad_t / 2],
+    [clamp_pad_x + 161.5, clamp_top_pad_t + clamp_pad_t / 2],
+    // Lower inboard jaw: move the left corner point toward the outer edge;
+    // the third point sits just before the electronics cavity and leaves the
+    // cavity itself clear for the PCB/battery envelope.
+    [clamp_pad_x + 14, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    [clamp_pad_x + 63.5, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    [table_edge_x - clamp_reinforcement_inboard_offset_x +
+         clamp_electronics_cavity_inboard_margin_x - 12,
+     clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    // Outboard wall/bridge: the last two points drill the solid wall; only a
+    // point whose boss footprint reaches the electronics cavity gets a barrel.
+    [clamp_outer_wall_x + 3.5,
+     clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    [clamp_outer_wall_x + 10.5, clamp_lower_arm_top_z + 15]
+];
 clamp_pressure_pad_top_z = -table_thickness - clamp_clearance;
 clamp_pressure_pad_bottom_z = clamp_pressure_pad_top_z - clamp_pressure_pad_t;
 clamp_pressure_pad_x = clamp_screw_x - clamp_pressure_pad_width / 2;
@@ -2010,9 +2067,28 @@ clamp_electronics_cavity_x_max =
 clamp_electronics_cavity_y_half =
     clamp_reinforcement_depth_y / 2 - clamp_electronics_cavity_wall_y;
 clamp_electronics_cavity_top_z =
-    clamp_reinforcement_top_z - clamp_electronics_cavity_roof_t;
+    clamp_top_pad_t - clamp_electronics_cavity_top_clearance_z;
 clamp_electronics_cavity_length_x =
     clamp_electronics_cavity_x_max - clamp_electronics_cavity_x_min;
+// A transverse M5 joint needs a printed barrel/rib only when its footprint
+// actually meets the hollow electronics bay.  Joints fully surrounded by the
+// 14 mm upper/lower solid jaws keep their drilled fastener hole but do not get
+// an external boss that can make a bump on the C-clamp skin.
+function clamp_split_boss_touches_electronics_cavity(x_center, z_center) =
+    x_center - clamp_split_boss_d / 2 < clamp_electronics_cavity_x_max &&
+    x_center + clamp_split_boss_d / 2 > clamp_electronics_cavity_x_min &&
+    z_center - clamp_split_boss_d / 2 < clamp_electronics_cavity_top_z &&
+    z_center + clamp_split_boss_d / 2 >
+        clamp_reinforcement_bottom_z_at(x_center) +
+        clamp_electronics_cavity_floor_t;
+// The production bay is loaded through the y=0 split seam after the two halves
+// are separated. The x+ outer wall remains structural; this datum is retained
+// only for display-only cutaways and the tapered floor remains integrated with
+// the C body, replacing the former removable bottom cover.
+clamp_electronics_bay_open_x = clamp_pad_outer_x + 1;
+clamp_electronics_bay_open_floor_z =
+    clamp_reinforcement_bottom_z_at(clamp_electronics_cavity_x_max) +
+    clamp_electronics_cavity_floor_t;
 clamp_electronics_board_x_min =
     clamp_electronics_cavity_x_min +
     (clamp_electronics_cavity_length_x - clamp_electronics_board_length_x) / 2;
@@ -2023,9 +2099,33 @@ clamp_electronics_battery_x_min =
     (clamp_electronics_cavity_length_x - clamp_electronics_battery_length_x) / 2;
 clamp_electronics_battery_x_max =
     clamp_electronics_battery_x_min + clamp_electronics_battery_length_x;
+// Keep the cavity-floor datum for clearance diagnostics and for compatibility
+// with the parameter report. The actual pouch cell is mounted on a second
+// horizontal shelf above the main PCB; leaving it on the floor would put the
+// PCB's printed standoff bosses through its broad face.
+clamp_electronics_battery_floor_z =
+    clamp_reinforcement_bottom_z_at(clamp_electronics_battery_x_min) +
+    clamp_electronics_battery_clearance_z;
+// The PCB is supported from the integrated sloped floor. Its z datum is
+// deliberately independent of the enlarged roof, so raising the cavity does
+// not leave the board floating at the old roof-clearance height.
+clamp_electronics_board_floor_offset_z = 12;
 clamp_electronics_board_bottom_z =
-    clamp_electronics_cavity_top_z -
-    clamp_electronics_board_top_clearance_z;
+    clamp_reinforcement_bottom_z_at(
+        (clamp_electronics_board_x_min +
+         clamp_electronics_board_x_max) / 2) +
+    clamp_electronics_cavity_floor_t +
+    clamp_electronics_board_floor_offset_z;
+// The pouch cell is stacked above the tallest main-board component envelope,
+// with the existing battery clearance as an insulating/service gap. This
+// keeps the floor-mounted PCB standoffs below the battery instead of piercing
+// it, while the cavity roof still leaves a large vertical service margin.
+clamp_electronics_battery_stack_floor_z =
+    clamp_electronics_board_bottom_z +
+    clamp_electronics_board_t +
+    clamp_electronics_component_height_z +
+    clamp_electronics_component_clearance_z +
+    clamp_electronics_battery_clearance_z;
 // Exact NPTH positions from esp32-control-v0.1.kicad_pcb, transformed from
 // KiCad board coordinates (y=0..34) into the OpenSCAD assembly datum.  Using
 // four individual pairs keeps every printed boss coaxial with a real hole;
@@ -2083,10 +2183,13 @@ clamp_electronics_emitter_battery_x_min =
 clamp_electronics_emitter_battery_x_max =
     clamp_electronics_emitter_battery_x_min +
     clamp_electronics_emitter_battery_length_x;
+clamp_electronics_emitter_board_floor_offset_z = 10.4;
 clamp_electronics_emitter_board_bottom_z =
-    clamp_electronics_cavity_top_z -
-    clamp_electronics_board_top_clearance_z -
-    clamp_electronics_emitter_board_t;
+    clamp_reinforcement_bottom_z_at(
+        (clamp_electronics_emitter_board_x_min +
+         clamp_electronics_emitter_board_x_max) / 2) +
+    clamp_electronics_cavity_floor_t +
+    clamp_electronics_emitter_board_floor_offset_z;
 // 桌边外侧不再保留 C 形开口；从桌边外侧留出一个明确的小间隙后，
 // 用沿 y 全深的实心桥体连接上下夹臂。桥体底部继续沿用 40→12 mm 斜底。
 clamp_solid_bridge_start_x = table_edge_x + clamp_solid_bridge_clearance_x;
@@ -3041,6 +3144,21 @@ assert(clamp_reinforcement_inboard_offset_x > 0 &&
            clamp_reinforcement_outer_bottom_z <
                clamp_reinforcement_top_z,
        "solid tapered under-clamp reinforcement/bridge must be full-depth, clear of the pad, and 40-to-12 mm");
+assert(clamp_split_plane_y == 0 &&
+           clamp_split_seam_gap_y > 0 &&
+           clamp_split_seam_gap_y < 0.5 &&
+           clamp_split_boss_d > clamp_split_fastener_head_d &&
+           clamp_split_boss_depth_y > clamp_split_fastener_head_depth_y &&
+           clamp_split_fastener_d > 5 &&
+           clamp_split_nut_af > 8 &&
+           clamp_split_nut_depth_y > 0 &&
+           len(clamp_split_bolt_positions) == 8 &&
+           clamp_split_bolt_positions[3][0] -
+               (clamp_split_boss_d + 4) / 2 > clamp_pad_x &&
+           clamp_split_bolt_positions[5][0] +
+               (clamp_split_boss_d + 4) / 2 + 1 <
+               clamp_electronics_cavity_x_min,
+       "split C-clamp must use a centered y=0 seam, eight transverse M5 joints, cavity-edge boss reinforcement only, and printable nut pockets");
 assert(clamp_screw_side_reinforcement_start_x == clamp_pad_x &&
            clamp_screw_side_reinforcement_join_x ==
                clamp_reinforcement_start_x &&
@@ -3072,8 +3190,25 @@ assert(clamp_electronics_cavity_x_min > clamp_screw_x &&
            clamp_electronics_cavity_length_x > clamp_electronics_board_length_x &&
            clamp_electronics_cavity_y_half > clamp_electronics_board_width_y / 2 &&
            clamp_electronics_cavity_y_half > clamp_electronics_battery_width_y / 2 &&
-           clamp_electronics_cavity_top_z < clamp_reinforcement_top_z &&
-           clamp_electronics_cavity_roof_t >= 4 &&
+           clamp_electronics_cavity_top_z > clamp_reinforcement_top_z &&
+           clamp_electronics_cavity_top_z < clamp_top_pad_t &&
+           abs(clamp_electronics_cavity_top_z +
+               clamp_electronics_cavity_top_clearance_z -
+               clamp_top_pad_t) < 0.001 &&
+           abs(clamp_solid_bridge_top_z -
+               clamp_electronics_cavity_top_z -
+               clamp_electronics_cavity_roof_t) < 0.001 &&
+           clamp_electronics_cavity_roof_t >= 12 &&
+           clamp_electronics_cavity_floor_t >= 4 &&
+           clamp_reinforcement_bottom_z_at(clamp_electronics_cavity_x_max) +
+               clamp_electronics_cavity_floor_t <
+                   clamp_electronics_cavity_top_z &&
+           clamp_electronics_cavity_top_z -
+               (clamp_reinforcement_bottom_z_at(
+                   clamp_electronics_cavity_x_max) +
+                clamp_electronics_cavity_floor_t) >
+               clamp_electronics_board_top_clearance_z +
+               clamp_electronics_board_t &&
            clamp_electronics_cavity_y_half + 3 +
                clamp_electronics_mount_boss_d / 2 <
                    clamp_reinforcement_depth_y / 2 &&
@@ -3082,16 +3217,26 @@ assert(clamp_electronics_cavity_x_min > clamp_screw_x &&
        "electronics cavity must clear the M8 load path, fit the board/battery, and retain roof/side structure");
 assert(clamp_electronics_battery_x_min > clamp_electronics_cavity_x_min &&
            clamp_electronics_battery_x_max < clamp_electronics_cavity_x_max &&
+           clamp_electronics_battery_stack_floor_z >
+               clamp_electronics_board_bottom_z +
+                   clamp_electronics_board_t +
+                   clamp_electronics_component_height_z +
+                   clamp_electronics_component_clearance_z &&
+           clamp_electronics_battery_stack_floor_z +
+               clamp_electronics_battery_thickness_z + 1 <
+               clamp_electronics_cavity_top_z &&
            clamp_electronics_board_x_min > clamp_electronics_cavity_x_min &&
            clamp_electronics_board_x_max < clamp_electronics_cavity_x_max,
-       "electronics envelopes must remain inside the tapered cavity");
+       "electronics envelopes must remain inside the cavity and the battery must clear PCB standoffs");
 assert(clamp_electronics_board_bottom_z >
-           clamp_reinforcement_bottom_z_at(clamp_electronics_board_x_min) &&
+           clamp_reinforcement_bottom_z_at(clamp_electronics_board_x_min) +
+               clamp_electronics_cavity_floor_t &&
            clamp_electronics_board_bottom_z >
-               clamp_reinforcement_bottom_z_at(clamp_electronics_board_x_max) &&
-           abs(clamp_electronics_cavity_top_z -
+               clamp_reinforcement_bottom_z_at(clamp_electronics_board_x_max) +
+                   clamp_electronics_cavity_floor_t &&
+           clamp_electronics_cavity_top_z -
                clamp_electronics_board_bottom_z -
-               clamp_electronics_board_top_clearance_z) < 0.001 &&
+               clamp_electronics_board_top_clearance_z > 0 &&
            clamp_electronics_board_top_clearance_z >=
                clamp_electronics_component_height_z +
                clamp_electronics_component_clearance_z &&
@@ -3105,6 +3250,9 @@ assert(clamp_electronics_board_bottom_z >
                2 * clamp_electronics_cavity_y_half &&
            clamp_electronics_emitter_board_width_y -
                clamp_electronics_emitter_battery_width_y >= 2 &&
+           clamp_electronics_cavity_top_z -
+               clamp_electronics_emitter_board_bottom_z -
+               clamp_electronics_board_top_clearance_z > 0 &&
            clamp_electronics_battery_rail_clearance_y > 0 &&
            clamp_electronics_battery_width_y / 2 +
                clamp_electronics_battery_rail_clearance_y +
@@ -3438,8 +3586,10 @@ module clamp_screw_side_reinforcement_positive(y_side) {
 }
 
 module clamp_electronics_cavity_negative() {
-    // Open from the sloped underside. The cut stops 4 mm below the lower-arm
-    // top, so the cavity has a real roof; the y limits leave 9 mm side walls.
+    // One continuous high-side prism removes the inset bay while the outer
+    // x+ wall remains intact. The y=0 split seam is the service opening: after
+    // the two halves are separated, the PCB and cell can be placed into this
+    // full-height pocket without a bottom cover or a cut through the boss wall.
     rotate([90, 0, 0])
         linear_extrude(
             height = 2 * clamp_electronics_cavity_y_half,
@@ -3447,10 +3597,12 @@ module clamp_electronics_cavity_negative() {
             polygon(points = [
                 [clamp_electronics_cavity_x_min,
                  clamp_reinforcement_bottom_z_at(
-                     clamp_electronics_cavity_x_min) - 2],
+                     clamp_electronics_cavity_x_min) +
+                     clamp_electronics_cavity_floor_t],
                 [clamp_electronics_cavity_x_max,
                  clamp_reinforcement_bottom_z_at(
-                     clamp_electronics_cavity_x_max) - 2],
+                     clamp_electronics_cavity_x_max) +
+                     clamp_electronics_cavity_floor_t],
                 [clamp_electronics_cavity_x_max,
                  clamp_electronics_cavity_top_z],
                 [clamp_electronics_cavity_x_min,
@@ -3580,9 +3732,10 @@ module clamp_electronics_emitter_edge_clips_positive() {
 }
 
 module clamp_electronics_battery_rails_positive() {
-    // Replace the two long side rails with four short end stops.  The pouch
-    // cell is held laterally by the cavity walls and vertically by the cover;
-    // these stops only prevent x drift and leave the broad cell faces free.
+    // Replace the two long side rails with four short end stops. The pouch
+    // cell is now on the shelf above the main-board component envelope; the
+    // stops are raised with it and only prevent x drift, leaving both broad
+    // cell faces free of printed bosses.
     stop_length_x = 5;
     stop_width_y = 2.0;
     stop_y = clamp_electronics_battery_width_y / 2 +
@@ -3591,8 +3744,7 @@ module clamp_electronics_battery_rails_positive() {
               clamp_electronics_battery_x_max - stop_length_x + 1])
         for (y_side = [-1, 1]) {
             y = y_side > 0 ? stop_y - stop_width_y : -stop_y;
-            floor_z = clamp_reinforcement_bottom_z_at(x + stop_length_x / 2) +
-                0.4;
+            floor_z = clamp_electronics_battery_stack_floor_z;
             translate([x, y, floor_z])
                 cube([
                     stop_length_x,
@@ -3691,16 +3843,16 @@ module clamp_electronics_ui_board_positive() {
 }
 
 module clamp_electronics_battery_positive() {
-    // The pouch is a bought protected cell.  The printed rails touch only its
-    // edge band; no boss or screw pierces the broad face.
+    // The pouch is a bought protected cell. It sits horizontally on the
+    // second shelf above the main PCB component envelope, so the floor-mounted
+    // PCB bosses cannot press through its broad face. The printed end stops
+    // touch only the edge band; the battery itself remains inside the cavity
+    // with a large roof margin.
     color("orange", 0.82)
         translate([
             clamp_electronics_battery_x_min,
             -clamp_electronics_battery_width_y / 2,
-            clamp_reinforcement_bottom_z_at(
-                (clamp_electronics_battery_x_min +
-                 clamp_electronics_battery_x_max) / 2) +
-                clamp_electronics_battery_clearance_z
+            clamp_electronics_battery_stack_floor_z
         ])
             cube([
                 clamp_electronics_battery_length_x,
@@ -4273,10 +4425,11 @@ module clamp_electronics_m6_integration_preview_positive(is_emitter = false, sho
 }
 
 module clamp_electronics_exploded_positive() {
-    // Exploded right-side service view.  The shell remains at its datum and
+    // Exploded right-side service view. The shell remains at its datum and
     // each removable item is pulled along a readable axis with no hidden
-    // boolean clipping: PCB upward, pouch downward, cover/gasket toward y-,
-    // UI board/faceplate farther toward y-.
+    // boolean clipping: PCB upward, the upper-shelf pouch downward from its
+    // installed position, cover/gasket toward y-, and UI board/faceplate
+    // farther toward y-.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_main_board_positive();
@@ -4409,6 +4562,166 @@ module clamp_body_segment_positive() {
             post_skp_c_detent_bore_negative_positive();
             post_skp_c_clamp_fastener_holes_negative_positive();
         }
+}
+
+module clamp_split_half_clip_positive(y_side) {
+    // Cut the finished C body, including the C-scheme pocket, on a single
+    // vertical plane.  The two faces stop 0.10 mm short of y=0 so a printed
+    // burr cannot hold the halves apart; the transverse bosses below carry
+    // the joint after the M5 screws are tightened.
+    half_depth = clamp_pad_depth / 2;
+    seam_half_gap = clamp_split_seam_gap_y / 2;
+    y_min = y_side < 0
+        ? -half_depth - 1
+        : clamp_split_plane_y + seam_half_gap;
+    y_max = y_side < 0
+        ? clamp_split_plane_y - seam_half_gap
+        : half_depth + 1;
+    intersection() {
+        clamp_body_segment_positive();
+        translate([-1000, y_min, -1000])
+            cube([3000, y_max - y_min, 2000]);
+    }
+}
+
+module clamp_split_boss_reinforcement_positive(x_center, z_center, y_side) {
+    // A cavity-edge joint gets a short printed barrel plus two low ribs.  The
+    // caller filters out joints surrounded by solid 14 mm jaws; those joints
+    // retain only their drilled M5 clearance/counterbore and cannot bulge the
+    // outside skin.
+    half_depth = clamp_pad_depth / 2;
+    seam_half_gap = clamp_split_seam_gap_y / 2;
+    boss_center_y = y_side * (seam_half_gap +
+        clamp_split_boss_depth_y / 2);
+    translate([x_center, boss_center_y, z_center])
+        rotate([90, 0, 0])
+            cylinder(
+                d = clamp_split_boss_d,
+                h = clamp_split_boss_depth_y,
+                center = true,
+                $fn = 64);
+    // Horizontal/vertical webs are small enough to clear the electronics
+    // cavity and large enough to show a positive load path in a section view.
+    translate([x_center, boss_center_y, z_center])
+        cube([
+            clamp_split_boss_d + 4,
+            clamp_split_boss_depth_y,
+            clamp_split_boss_rib_t
+        ], center = true);
+    translate([x_center, boss_center_y, z_center])
+        cube([
+            clamp_split_boss_rib_t,
+            clamp_split_boss_depth_y,
+            clamp_pad_t - 2
+        ], center = true);
+}
+
+module clamp_split_fastener_voids_negative_positive(y_side) {
+    half_depth = clamp_pad_depth / 2;
+    // One continuous clearance bore per position.  The extra millimetre at
+    // each end guarantees that the bore also clears the barrel boss.
+    for (position = clamp_split_bolt_positions) {
+        x_center = position[0];
+        z_center = position[1];
+        bore_center_y = y_side * (clamp_pad_depth / 4 +
+            clamp_split_seam_gap_y / 4);
+        translate([x_center, bore_center_y, z_center])
+            rotate([90, 0, 0])
+                cylinder(
+                    d = clamp_split_fastener_d,
+                    h = half_depth + 2,
+                    center = true,
+                    $fn = 48);
+        if (y_side < 0) {
+            // User/front half: socket-head counterbore is entered from the
+            // outside y- face.  The rear/opponent half captures the M5 nut.
+            translate([
+                x_center,
+                -half_depth + clamp_split_fastener_head_depth_y / 2,
+                z_center
+            ])
+                rotate([90, 0, 0])
+                    cylinder(
+                        d = clamp_split_fastener_head_d,
+                        h = clamp_split_fastener_head_depth_y + 0.02,
+                        center = true,
+                        $fn = 64);
+        } else {
+            // Opponent/rear half: a captive hex pocket opens to y+ and keeps
+            // the nut from spinning while the screw is tightened from y-.
+            translate([
+                x_center,
+                half_depth - clamp_split_nut_depth_y / 2,
+                z_center
+            ])
+                rotate([90, 0, 0])
+                    rotate([0, 0, 30])
+                        cylinder(
+                            r = (clamp_split_nut_af +
+                                2 * clamp_split_nut_clearance) /
+                                (2 * cos(30)),
+                            h = clamp_split_nut_depth_y + 0.02,
+                            center = true,
+                            $fn = 6);
+        }
+    }
+}
+
+module clamp_body_split_half_positive(y_side) {
+    assert(y_side == -1 || y_side == 1,
+           "split half must use y_side=-1 (user) or +1 (opponent)");
+    difference() {
+        union() {
+            clamp_split_half_clip_positive(y_side);
+            for (position = clamp_split_bolt_positions)
+                if (clamp_split_boss_touches_electronics_cavity(
+                        position[0], position[1]))
+                    clamp_split_boss_reinforcement_positive(
+                        position[0], position[1], y_side);
+        }
+        clamp_split_fastener_voids_negative_positive(y_side);
+    }
+}
+
+module clamp_body_split_pair_positive(exploded = false) {
+    // Preview only: keep the source coordinates, then pull the user half in
+    // y- and the opponent half in y+ to expose the C-scheme pocket and the
+    // electronics seam.  The printable halves themselves remain unshifted.
+    explode = exploded ? 28 : 0;
+    translate([0, -explode, 0])
+        color("slategray") clamp_body_split_half_positive(-1);
+    translate([0, explode, 0])
+        color("lightslategray") clamp_body_split_half_positive(1);
+}
+
+module clamp_body_split_electronics_cutaway_positive() {
+    // Display-only cutaway of the actual user-side printable half. The
+    // production cavity is already cut by clamp_electronics_cavity_negative;
+    // this display window removes only the y- wall over the cavity span so the
+    // large internal bay and y=0 split-seam loading path are visible. Stop at
+    // the cavity boundary: cutting farther into x+ would expose the transverse
+    // M5 bosses as if they were detached protrusions. The exported half always
+    // retains the x+ outer wall, 9 mm side walls and full upper bridge roof.
+    window_floor_z = clamp_reinforcement_near_table_bottom_z - 2;
+    window_top_z = clamp_electronics_cavity_top_z + 1;
+    window_x_max = clamp_electronics_cavity_x_max + 0.5;
+    difference() {
+        color("slategray") clamp_body_split_half_positive(-1);
+        translate([
+            clamp_electronics_cavity_x_min - 2,
+            -clamp_pad_depth / 2 - 1,
+            window_floor_z
+        ])
+            cube([
+                window_x_max - clamp_electronics_cavity_x_min + 2,
+                clamp_pad_depth / 2 - clamp_electronics_cavity_y_half + 2,
+                window_top_z - window_floor_z
+            ]);
+    }
+    // Use the same installed board and pouch datum as the complete cavity
+    // preview so the opening demonstrates the real available service volume.
+    clamp_electronics_main_board_positive();
+    clamp_electronics_battery_positive();
 }
 
 module table_clamp_carrier_positive(tongue_color = "darkorange") {
@@ -5914,58 +6227,38 @@ module post_interface_transition_positive() {
 }
 
 module post_continuous_envelope_positive() {
-    // One watertight polyhedron carries the complete fixed-net upright without
-    // coincident Boolean seams: a broad 35 x 58 mm footprint starts on the
-    // gray/yellow C-clamp seat, tapers continuously for 30 mm, and then keeps
-    // the nominal 28 x 38 mm section to the full active post_top datum.
-    // There is no lower insertion ring, shoe, collar, or hidden post segment.
-    polyhedron(
-        points = [
-            // broad C-clamp contact footprint, z = post_bottom = seat z
-            [post_interface_transition_outer_min_x,
-             post_interface_transition_outer_min_y, post_bottom],
-            [post_interface_transition_outer_max_x,
-             post_interface_transition_outer_min_y, post_bottom],
-            [post_interface_transition_outer_max_x,
-             post_interface_transition_outer_max_y, post_bottom],
-            [post_interface_transition_outer_min_x,
-             post_interface_transition_outer_max_y, post_bottom],
-            // nominal upper footprint, z = start + 30 mm
-            [post_center_x - post_body_width / 2,
-             -post_body_depth / 2, post_interface_transition_top_z],
-            [post_center_x + post_body_width / 2,
-             -post_body_depth / 2, post_interface_transition_top_z],
-            [post_center_x + post_body_width / 2,
-             post_body_depth / 2, post_interface_transition_top_z],
-            [post_center_x - post_body_width / 2,
-             post_body_depth / 2, post_interface_transition_top_z],
-            // flat top, same upper footprint
-            [post_center_x - post_body_width / 2,
-             -post_body_depth / 2, active_post_top_z],
-            [post_center_x + post_body_width / 2,
-             -post_body_depth / 2, active_post_top_z],
-            [post_center_x + post_body_width / 2,
-             post_body_depth / 2, active_post_top_z],
-            [post_center_x - post_body_width / 2,
-             post_body_depth / 2, active_post_top_z]
-        ],
-        faces = [
-            // OpenSCAD's polyhedron winding is ordered for outward normals.
-            // Keep the broad seat, taper and constant upper rings in one shell
-            // so WebGL FrontSide rendering cannot make the post look incomplete.
-            [0, 1, 2, 3],
-            [0, 1, 5, 4],
-            [1, 2, 6, 5],
-            [2, 3, 7, 6],
-            [3, 0, 4, 7],
-            [4, 5, 9, 8],
-            [5, 6, 10, 9],
-            [6, 7, 11, 10],
-            [7, 4, 8, 11],
-            [8, 11, 10, 9]
-        ],
-        convexity = 10
-    );
+    // Keep the broad 35 x 58 mm footprint, its 30 mm taper and the constant
+    // 28 x 38 mm upper section as OpenSCAD-native solids.  A previous hand
+    // written polyhedron rendered with an apparent sliver in WebGL and was
+    // sensitive to face winding in CGAL.  linear_extrude creates the same
+    // four-sided frustum while keeping the generated STL closed.
+    union() {
+        translate([post_center_x, 0, post_bottom])
+            linear_extrude(
+                height = post_interface_transition_height_z,
+                center = false,
+                scale = [
+                    post_body_width /
+                        post_interface_transition_bottom_width_x,
+                    post_body_depth /
+                        post_interface_transition_bottom_depth_y
+                ],
+                convexity = 10)
+                square([
+                    post_interface_transition_bottom_width_x,
+                    post_interface_transition_bottom_depth_y
+                ], center = true);
+        translate([
+            post_center_x - post_body_width / 2,
+            -post_body_depth / 2,
+            post_interface_transition_top_z
+        ])
+            cube([
+                post_body_width,
+                post_body_depth,
+                active_post_top_z - post_interface_transition_top_z
+            ]);
+    }
 }
 
 module post_body_positive() {
@@ -9786,6 +10079,13 @@ module parameter_probe() {
              clamp_tongue_reach_inboard));
     echo(str("NETSTAND_PARAM clamp_pad_x=", clamp_pad_x));
     echo(str("NETSTAND_PARAM clamp_pad_depth=", clamp_pad_depth));
+    echo(str("NETSTAND_PARAM clamp_split_plane_y=", clamp_split_plane_y));
+    echo(str("NETSTAND_PARAM clamp_split_seam_gap_y=", clamp_split_seam_gap_y));
+    echo(str("NETSTAND_PARAM clamp_split_boss_d=", clamp_split_boss_d));
+    echo(str("NETSTAND_PARAM clamp_split_boss_depth_y=", clamp_split_boss_depth_y));
+    echo(str("NETSTAND_PARAM clamp_split_fastener_d=", clamp_split_fastener_d));
+    echo(str("NETSTAND_PARAM clamp_split_fastener_head_d=", clamp_split_fastener_head_d));
+    echo(str("NETSTAND_PARAM clamp_split_nut_af=", clamp_split_nut_af));
     echo(str("NETSTAND_PARAM clamp_pad_t=", clamp_pad_t));
     echo(str("NETSTAND_PARAM clamp_horizontal_part_outboard_limit=",
              clamp_horizontal_part_outboard_limit));
@@ -9854,6 +10154,12 @@ module parameter_probe() {
              clamp_electronics_cavity_top_z));
     echo(str("NETSTAND_PARAM clamp_electronics_cavity_roof_t=",
              clamp_electronics_cavity_roof_t));
+    echo(str("NETSTAND_PARAM clamp_electronics_cavity_floor_t=",
+             clamp_electronics_cavity_floor_t));
+    echo(str("NETSTAND_PARAM clamp_electronics_bay_open_x=",
+             clamp_electronics_bay_open_x));
+    echo(str("NETSTAND_PARAM clamp_electronics_bay_open_floor_z=",
+             clamp_electronics_bay_open_floor_z));
     echo(str("NETSTAND_PARAM clamp_electronics_cavity_cover_t=",
              clamp_electronics_cavity_cover_t));
     echo(str("NETSTAND_PARAM clamp_electronics_cavity_length_x=",
@@ -9870,6 +10176,10 @@ module parameter_probe() {
              clamp_electronics_battery_thickness_z));
     echo(str("NETSTAND_PARAM clamp_electronics_battery_clearance_z=",
              clamp_electronics_battery_clearance_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_battery_floor_z=",
+             clamp_electronics_battery_floor_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_battery_stack_floor_z=",
+             clamp_electronics_battery_stack_floor_z));
     echo(str("NETSTAND_PARAM clamp_electronics_battery_rail_t=",
              clamp_electronics_battery_rail_t));
     echo(str("NETSTAND_PARAM clamp_electronics_battery_rail_clearance_y=",
@@ -10518,6 +10828,16 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) lower_stand_segment_positive();
 } else if (PART == "clamp_body_segment") {
     sided(default_side) clamp_body_segment_positive();
+} else if (PART == "clamp_body_half_user") {
+    sided(default_side) clamp_body_split_half_positive(-1);
+} else if (PART == "clamp_body_half_opponent") {
+    sided(default_side) clamp_body_split_half_positive(1);
+} else if (PART == "clamp_body_split_fit") {
+    sided(default_side) clamp_body_split_pair_positive(false);
+} else if (PART == "clamp_body_split_exploded") {
+    sided(default_side) clamp_body_split_pair_positive(true);
+} else if (PART == "clamp_body_split_electronics_cutaway") {
+    sided(default_side) clamp_body_split_electronics_cutaway_positive();
 } else if (PART == "upper_stand_segment") {
     sided(default_side) upper_stand_segment_positive();
 } else if (PART == "post_joint_sleeve") {

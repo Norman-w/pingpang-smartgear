@@ -22,16 +22,17 @@ from validate_scad import find_openscad, stl_bounds
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / "net_stand.scad"
-# Keep the default output on the current 37-part source line.  The removed
-# legacy directories are never valid exporter destinations.
-DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load"
+# The split C-clamp is the current printable source line.  Older output
+# directories remain historical evidence and are never silently reused.
+DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme"
 
 
 PART_NAMES_ZH = {
     "post_segment": "整根立柱（兼容诊断名）",
     "post_clamp_carrier": "整根立柱 + SKP C 方案整体底座",
     "lower_stand_segment": "整根立柱（兼容诊断名）",
-    "clamp_body_segment": "完整桌下 C 形夹固定体 + 立柱接触承托面",
+    "clamp_body_half_user": "C 形夹操作者侧半体（y-）",
+    "clamp_body_half_opponent": "C 形夹对手侧半体（y+）",
     "upper_stand_segment": "整根立柱（兼容诊断名）",
     "post_joint_sleeve": "旧版立柱接缝诊断件",
     "post_joint_key": "旧版立柱接缝诊断件",
@@ -136,6 +137,17 @@ ASSEMBLY_COMPONENTS = [
         "quantity": "4 套（每侧 2 套）",
         "scad_part": "post_skp_c_fasteners",
         "notes": "绿色整体底座沿 x 方向推入灰色 C 夹让位腔后，用两枚 M4 穿过灰色上夹板的 Ø4.4 mm 孔与绿色底座的 Ø4 mm 孔锁紧；螺钉承担防退出和接口夹紧，不把钢珠当作承力件。",
+    },
+    {
+        "id": "c-clamp-split-fasteners",
+        "name_zh": "C 形夹分型面 M5 螺钉与六角螺母",
+        "name_en": "C-clamp split-plane M5 fasteners",
+        "kind": "结构连接标准件",
+        "status": "外购 / 非打印件",
+        "printable": False,
+        "quantity": "每只 C 夹 8 个连接位；左右共 16 个连接位（M5 螺钉/螺母各 16 枚）",
+        "scad_part": "clamp_body_split_fasteners",
+        "notes": "y=0 竖直分型面采用 8 处横向 M5：操作者侧半体做圆头沉孔，对手侧半体做防转六角螺母窝；只有贴到电子腔空腔边界的连接位增加 boss 柱和十字肋，完全位于实体夹臂里的连接位只保留孔位，避免外壳凸起。左下角连接孔已向外侧移动，为中间电子腔让出空间；先装后侧六角螺母，再从 y- 侧拧入螺钉。",
     },
     {
         "id": "c-scheme-detent-hardware",
@@ -383,42 +395,39 @@ def _indexed_rail_specs() -> list[ExportSpec]:
 def build_export_specs() -> list[ExportSpec]:
     specs: list[ExportSpec] = []
     specs.extend(_post_clamp_carrier_specs())
+    split_notes = (
+        "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。"
+        "两半各有 8 个横向 M5 连接位；只有连接位的 Ø16 mm 足迹真正贴到电子腔空腔边界时，"
+        "才打印 boss 柱和十字加强肋。完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、"
+        "沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，"
+        "电子腔边界前再补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧"
+        "为 M5 圆头沉孔，对手侧为防转六角螺母窝，分型总间隙 0.20 mm。电子腔在中间"
+        "打开后可从分型面布线/装板；绿色 C 方案底座的 x+ 推入让位腔、两枚 Ø4.4 mm"
+        "连接孔和中央钢珠定位孔保持不变。两个半体必须与新版 post_clamp_carrier 配套，"
+        "旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。"
+    )
     specs.extend(
         _side_specs(
-            "clamp_body_segment",
-            "clamp-body-segment",
+            "clamp_body_half_user",
+            "clamp-body-half-user",
             "PETG",
-            "底面朝下；电子腔开口朝外侧；C 方案让位腔入口朝 x+，安装时让绿色整体底座从外侧推入到底。",
-            "首样左右各一件；完整固定灰色 C 形夹体单独打印，包含梯形电子腔、连续盖板配合面、台面上方固定夹板、完整外侧 C 壁、旋钮两侧 7 mm 加固斜墙，以及绿色整体底座的让位腔、两枚 Ø4.4 mm 连接孔和中央钢珠定位孔。让位腔由固定夹体本身切出，不是外挂导轨；必须与新版 post_clamp_carrier 配套打印。电子腔盖板周边保留可见贴合边，网布通道与外侧 U 形卡网夹开口仍按立柱/卡网夹的功能配合检查；图示 0.1 mm 仅用于分色显示，不能作为实体穿模。",
+            "大平面朝下；y- 分型面朝内；M5 圆头沉孔从外侧可达；底面朝下打印后去除分型毛刺。",
+            split_notes,
         )
     )
     specs.extend(
         _side_specs(
-            "clamp_electronics_cover",
-            "clamp-electronics-cover",
+            "clamp_body_half_opponent",
+            "clamp-body-half-opponent",
             "PETG",
-            "斜底面朝下；M3 试样孔朝上；打印后先做盖板/螺柱配合检查。",
-            "桌下夹体梯形电子腔的独立可拆底盖；保持 3 mm 首样厚度，最终扣合方式和材料强度需按首样拉脱/振动记录冻结。",
+            "大平面朝下；y+ 分型面朝内；M5 六角螺母窝从外侧装入；底面朝下打印后去除分型毛刺。",
+            split_notes,
         )
     )
-    specs.extend(
-        _side_specs(
-            "clamp_electronics_gasket",
-            "clamp-electronics-gasket",
-            "TPU/柔性",
-            "平面朝下；连续环形压紧面朝上；按柔性材料单独排盘。",
-            "梯形电子腔连续压紧垫；它只保证盖板周边贴合，不把本设计宣称为 IP 防水等级；盖板应严丝合缝、无明显台阶和翘边。",
-        )
-    )
-    specs.extend(
-        _side_specs(
-            "clamp_electronics_ui_bezel",
-            "clamp-electronics-ui-bezel",
-            "PETG",
-            "面板外观面朝上；窗口和按键孔向上；打印后用实际屏幕/按键复核孔位。",
-            "可拆交互面板压框，含屏幕窗口、START/MODE 按钮孔、指示灯导光孔、扬声器声孔和带硅胶帽座的 USB-C 槽；不是直接打穿连续密封盖的裸孔。",
-        )
-    )
+    # The active electronics bay is side-accessible from x+ with an
+    # integrated floor. The former bottom cover, gasket, and UI bezel remain
+    # as source diagnostics but are intentionally absent from this printable
+    # matrix so the bay does not require a second closure assembly.
     specs.extend(
         _side_specs(
             "m6_detector_body",
@@ -660,11 +669,11 @@ def main() -> None:
 
     manifest = {
         "schema_version": "0.1",
-        "design": "desktop-clamp-one-side-x1c-v0.4-top-load",
+        "design": "desktop-clamp-one-side-x1c-v0.7-split-c-scheme",
         "source": str(SOURCE.relative_to(HERE.parent.parent)),
         "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         "units": "mm",
-        "install_model": "整体替换式球网支架；两侧传统桌下 C 形夹，免打孔。",
+        "install_model": "整体替换式球网支架；两侧传统桌下 C 形夹，免打孔；每只 C 夹由 y=0 分型的前后半体组成。",
         "print_process": "FDM 首样；材料、喷嘴、层高、支撑和壁厚仍需按实物/切片器复核。",
         "material_groups": ["PETG", "TPU/柔性"],
         "material_policy": "不同 material_group 不进入同一张打印拼盘；TPU/硅胶优先件单独排入柔性材料盘。",

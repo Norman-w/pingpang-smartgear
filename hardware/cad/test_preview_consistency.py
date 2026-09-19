@@ -318,6 +318,8 @@ def main() -> None:
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
         "绿色 SKP 整体底座从 x+ 水平推入灰色腔体",
+        "y=0 分为操作者侧/对手侧两半",
+        "8 个横向 M5 连接点",
         "M6 球头下端 M8 直接进入固定网柱顶面中心孔",
         "没有双 T 槽、独立滑轨或旧式共面落座",
         "取消旧版横向承托臂",
@@ -328,6 +330,9 @@ def main() -> None:
         raise AssertionError(f"browser preview current M6 copy missing: {missing_copy}")
     required_slide_logic = (
         'if (part.includes("clamp_body_segment")) return "clamp_fixed";',
+        'if (part.includes("clamp_body_half_")) return "clamp_split";',
+        'if (entry.part === "clamp_body_half_user") explosion = [0, -86, 0];',
+        'if (entry.part === "clamp_body_half_opponent") explosion = [0, 86, 0];',
         'case "clamp_fixed": return [0, 0, 0];',
         "固定夹体 / 立柱基台",
         "固定灰色主体 / C 方案推入接口",

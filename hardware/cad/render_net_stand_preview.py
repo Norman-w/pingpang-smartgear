@@ -115,6 +115,27 @@ def main() -> None:
     )
     render(
         openscad,
+        "clamp_body_split_fit",
+        args.output_dir / "net-stand-clamp-split-fit.png",
+        1200,
+        850,
+    )
+    render(
+        openscad,
+        "clamp_body_split_exploded",
+        args.output_dir / "net-stand-clamp-split-exploded.png",
+        1200,
+        850,
+    )
+    render(
+        openscad,
+        "clamp_body_split_electronics_cutaway",
+        args.output_dir / "net-stand-clamp-split-electronics-cutaway.png",
+        1200,
+        900,
+    )
+    render(
+        openscad,
         "post_clamp_slide_exploded",
         args.output_dir / "net-stand-post-clamp-slide-exploded-right.png",
         1500,

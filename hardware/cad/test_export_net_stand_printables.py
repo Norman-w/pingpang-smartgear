@@ -19,10 +19,8 @@ from export_net_stand_printables import (
 
 EXPECTED_COUNTS = {
     "post_clamp_carrier": 2,
-    "clamp_body_segment": 2,
-    "clamp_electronics_cover": 2,
-    "clamp_electronics_gasket": 2,
-    "clamp_electronics_ui_bezel": 2,
+    "clamp_body_half_user": 2,
+    "clamp_body_half_opponent": 2,
     "m6_detector_body": 2,
     "m6_detector_shell_front": 2,
     "m6_detector_shell_rear": 2,
@@ -66,12 +64,13 @@ REMOVED_ACTIVE_PARTS = {
     "lower_stand_segment",
     "upper_stand_segment",
     "net_clamp_rod",
+    "clamp_body_segment",
 }
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 37:
-        raise AssertionError(f"expected 37 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 33:
+        raise AssertionError(f"expected 33 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -93,7 +92,23 @@ def validate_export_specs() -> None:
         raise AssertionError("整根立柱 + SKP C 方案整体底座必须明确推入让位腔、孔位和定位结构")
     removed = sorted(REMOVED_ACTIVE_PARTS & set(counts))
     if removed:
-        raise AssertionError(f"legacy rail/connector parts re-entered print matrix: {removed}")
+        raise AssertionError(f"legacy/整件 C 夹零件 re-entered print matrix: {removed}")
+    split_parts = {
+        "clamp_body_half_user",
+        "clamp_body_half_opponent",
+    }
+    if set(counts) & {"clamp_body_segment"}:
+        raise AssertionError("完整 C 形夹体不能重新进入正式打印矩阵")
+    for part in split_parts:
+        split_specs = [spec for spec in EXPORT_SPECS if spec.part == part]
+        if len(split_specs) != 2 or any(
+            "y=0" not in spec.notes
+            or "8 个" not in spec.notes
+            or "M5" not in spec.notes
+            or "0.20 mm" not in spec.notes
+            for spec in split_specs
+        ):
+            raise AssertionError(f"{part} 必须明确 y=0 分型、8 处 M5 连接位与分型间隙")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:
@@ -236,9 +251,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (37 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (33 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (37 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (33 specs, manifest not present)")
 
 
 if __name__ == "__main__":
