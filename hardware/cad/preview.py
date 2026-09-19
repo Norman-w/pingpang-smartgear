@@ -1622,7 +1622,7 @@ def draw_side(ax) -> None:
         [CLAMP_SCREW_BOTTOM, CLAMP_PRESSURE_PAD_TOP],
         color="#444",
         linewidth=CLAMP_PRINTED_SCREW_D / 2,
-        label="PETG 粗牙螺杆（12 mm 大径 / 4 mm 螺距）",
+        label="PETG 粗牙螺杆（12 mm 大径 / 4 mm 螺距 / 2 mm 牙顶）",
     )
     ax.add_patch(
         Rectangle(

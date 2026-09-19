@@ -46,7 +46,7 @@ python3 test_build_print_platter.py --default
 python3 validate_net_stand.py
 ```
 
-正式包的当前结果是 `37` 个 STL，包含 12 mm 大径/4 mm 螺距的 PETG 粗牙螺杆、固定螺母和旋钮对锁螺母。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
+正式包的当前结果是 `37` 个 STL，包含 12 mm 大径/4 mm 螺距、2 mm 牙顶与 2 mm 凹槽的 PETG 粗牙螺杆、固定螺母和旋钮对锁螺母；牙根采用连续粗牙带，适合 FDM 扭矩，不再是细线牙。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
 
 分型后的两个 C 夹半体、整根黄绿连接件和全高 U 形网夹是不同打印对象：`clamp_body_half_user`、`clamp_body_half_opponent`、`post_clamp_carrier`、`net_clamp_clip`。旧的整件夹体目录已作废，不能把旧夹体和 C 方案立柱混用。需要直接换打接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，使用 `exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf/` 下左右两个可编辑 X1C/PETG 3MF；每个文件包含前后两个夹体半件、黄绿连接件和 U 形网夹四个对象。
 

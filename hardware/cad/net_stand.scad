@@ -987,6 +987,15 @@ clamp_printed_thread_major_d = 12;
 clamp_printed_thread_core_d = 9.6;
 clamp_printed_thread_pitch = 4;
 clamp_printed_thread_clearance_r = 0.30;
+// FDM-friendly thread section: one half-pitch of solid crest and one
+// half-pitch of open valley.  The old linear_extrude profile used a narrow
+// tangential strip, which rendered as a hairline and left a fragile single
+// ridge after printing.  The active thread is now a swept rectangular band
+// with a 2 mm axial crest, matching the 2 mm valley.
+clamp_printed_thread_crest_width = clamp_printed_thread_pitch / 2;
+clamp_printed_thread_segments_per_turn = 24;
+clamp_printed_thread_band_tangent_width = 1.8;
+clamp_printed_thread_lead_in = 1.25;
 clamp_printed_thread_nut_af = 16;
 clamp_printed_thread_body_nut_h = 11.5;
 clamp_printed_thread_drive_nut_h = 6;
@@ -3382,6 +3391,13 @@ assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
 assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
            clamp_printed_thread_major_d > clamp_printed_thread_core_d &&
            clamp_printed_thread_pitch >= 3.5 &&
+           abs(2 * clamp_printed_thread_crest_width -
+               clamp_printed_thread_pitch) < 0.01 &&
+           clamp_printed_thread_crest_width >= 1.5 &&
+           clamp_printed_thread_segments_per_turn >= 20 &&
+           clamp_printed_thread_band_tangent_width > 0 &&
+           clamp_printed_thread_lead_in >=
+               clamp_printed_thread_crest_width / 2 &&
            clamp_printed_thread_clearance_r > 0 &&
            clamp_printed_thread_body_nut_h >
                2 * clamp_printed_thread_pitch &&
@@ -3403,7 +3419,7 @@ assert(clamp_screw_top_z > clamp_pressure_pad_bottom_z &&
                clamp_pressure_pad_screw_socket_depth + 0.01 &&
            clamp_screw_top_z < -table_thickness &&
            clamp_screw_tip_radius > 0,
-       "rounded M8 screw tip must seat in the pad underside socket below the tabletop");
+       "rounded coarse printed screw tip must seat in the pad underside socket below the tabletop");
 assert(clamp_nut_af > clamp_screw_d &&
            clamp_nut_af == clamp_printed_thread_nut_af &&
            clamp_nut_h == clamp_printed_thread_body_nut_h &&
@@ -4802,6 +4818,57 @@ module hex_prism(across_flats, height) {
         cylinder(r = across_flats / (2 * cos(30)), h = height, $fn = 6);
 }
 
+module clamp_printed_thread_band_block(
+    root_d,
+    major_d,
+    z,
+    angle,
+    crest_width = clamp_printed_thread_crest_width,
+    tangent_width = clamp_printed_thread_band_tangent_width
+) {
+    // A short local rectangular section is rotated and translated along the
+    // helix.  Its axial width is the real crest width; the tangential width
+    // only overlaps adjacent sections so the band remains continuous.
+    rotate([0, 0, angle])
+        translate([(root_d + major_d) / 4, 0, z])
+            cube([
+                (major_d - root_d) / 2,
+                tangent_width,
+                crest_width
+            ], center = true);
+}
+
+module clamp_printed_thread_band(
+    root_d,
+    major_d,
+    pitch = clamp_printed_thread_pitch,
+    length,
+    start_z = 0,
+    crest_width = clamp_printed_thread_crest_width,
+    segments_per_turn = clamp_printed_thread_segments_per_turn
+) {
+    // Approximate a true helical sweep with overlapping convex sections.  A
+    // 24-section turn is intentionally used instead of the old thin
+    // linear_extrude strip: every section has a 2 mm axial crest, so the
+    // printed tooth and the 4 mm-pitch valley are both substantial.
+    segment_count = max(2, ceil(length / pitch * segments_per_turn));
+    for (index = [0 : segment_count - 1])
+        hull() {
+            clamp_printed_thread_band_block(
+                root_d,
+                major_d,
+                start_z + length * index / segment_count,
+                360 * length * index / segment_count / pitch,
+                crest_width);
+            clamp_printed_thread_band_block(
+                root_d,
+                major_d,
+                start_z + length * (index + 1) / segment_count,
+                360 * length * (index + 1) / segment_count / pitch,
+                crest_width);
+        }
+}
+
 module m8_nut_positive() {
     difference() {
         hex_prism(clamp_nut_af, clamp_nut_h);
@@ -4814,33 +4881,27 @@ module clamp_printed_thread_nut_positive(
     height = clamp_nut_h
 ) {
     // Matching PETG coarse nut.  The central clearance cylinder leaves a
-    // 0.30 mm radial running fit around the screw core; the second helical
-    // subtraction opens each 4 mm-pitch valley so the 12 mm crest can enter
-    // without relying on a fine M8 metal thread.
+    // 0.30 mm radial running fit around the screw core; the second swept
+    // band opens each 4 mm-pitch valley so the 12 mm crest can enter without
+    // relying on a fine M8 metal thread.  Crest and valley are both 2 mm
+    // wide in the axial section.
     nut_core_clear_d = clamp_printed_thread_core_d +
         2 * clamp_printed_thread_clearance_r;
     nut_major_clear_d = clamp_printed_thread_major_d +
         2 * clamp_printed_thread_clearance_r;
-    groove_depth = (nut_major_clear_d - nut_core_clear_d) / 2;
-    thread_pitch = clamp_printed_thread_pitch;
     thread_height = height + 2;
     difference() {
         hex_prism(clamp_nut_af, height);
         translate([0, 0, -1])
             cylinder(d = nut_core_clear_d, h = thread_height);
         translate([0, 0, -1])
-            linear_extrude(
-                height = thread_height,
-                twist = 360 * thread_height / thread_pitch,
-                slices = ceil(thread_height / thread_pitch * 32),
-                convexity = 10)
-                translate([nut_core_clear_d / 2, 0, 0])
-                    polygon(points = [
-                        [0, -thread_pitch * 0.42],
-                        [groove_depth, -thread_pitch * 0.18],
-                        [groove_depth, thread_pitch * 0.18],
-                        [0, thread_pitch * 0.42]
-                    ]);
+            clamp_printed_thread_band(
+                nut_core_clear_d,
+                nut_major_clear_d,
+                clamp_printed_thread_pitch,
+                thread_height,
+                0,
+                clamp_printed_thread_crest_width);
     }
 }
 
@@ -4962,15 +5023,13 @@ module clamp_printed_screw_positive(
     screw_bottom_z = clamp_screw_bottom_z,
     screw_length = clamp_screw_length
 ) {
-    // PETG coarse lead screw.  The visible 4 mm-pitch trapezoid has a 12 mm
-    // major envelope and 9.6 mm core, so each ridge is tall enough to survive
-    // FDM printing and visibly differs from the former 1.25 mm steel-thread
-    // placeholder. It must be used with clamp_printed_thread_nut_positive().
+    // PETG coarse lead screw.  The swept band has a 12 mm major envelope and
+    // 9.6 mm core.  At a 4 mm pitch the solid crest and open valley are both
+    // 2 mm in the axial section, so the tooth is not a fragile hairline.  It
+    // must be used with clamp_printed_thread_nut_positive().
     shaft_length = screw_length - clamp_printed_screw_head_h;
-    thread_height =
-        (clamp_printed_screw_shaft_d - clamp_printed_screw_thread_root_d) / 2;
     thread_pitch = clamp_printed_thread_pitch;
-    thread_lead_in = 0.75;
+    thread_lead_in = clamp_printed_thread_lead_in;
     threaded_length = shaft_length - 2 * thread_lead_in;
     color("darkorange")
         translate([clamp_screw_x, 0, screw_bottom_z])
@@ -4980,21 +5039,13 @@ module clamp_printed_screw_positive(
                     h = shaft_length,
                     $fn = 32);
                 translate([0, 0, thread_lead_in])
-                    linear_extrude(
-                        height = threaded_length,
-                        twist = 360 * threaded_length / thread_pitch,
-                        slices = ceil(threaded_length / thread_pitch * 32),
-                        convexity = 10)
-                        translate([
-                            clamp_printed_screw_thread_root_d / 2,
-                            0
-                        ])
-                            polygon(points = [
-                                [0, -thread_pitch * 0.42],
-                                [thread_height, -thread_pitch * 0.18],
-                                [thread_height, thread_pitch * 0.18],
-                                [0, thread_pitch * 0.42]
-                            ]);
+                    clamp_printed_thread_band(
+                        clamp_printed_screw_thread_root_d,
+                        clamp_printed_screw_shaft_d,
+                        thread_pitch,
+                        threaded_length,
+                        0,
+                        clamp_printed_thread_crest_width);
                 translate([0, 0, shaft_length])
                     difference() {
                         clamp_flat_ball_head_positive();
@@ -10374,6 +10425,12 @@ module parameter_probe() {
              clamp_printed_thread_core_d));
     echo(str("NETSTAND_PARAM clamp_printed_thread_pitch=",
              clamp_printed_thread_pitch));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_crest_width=",
+             clamp_printed_thread_crest_width));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_segments_per_turn=",
+             clamp_printed_thread_segments_per_turn));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_lead_in=",
+             clamp_printed_thread_lead_in));
     echo(str("NETSTAND_PARAM clamp_printed_thread_clearance_r=",
              clamp_printed_thread_clearance_r));
     echo(str("NETSTAND_PARAM clamp_printed_thread_nut_af=",
