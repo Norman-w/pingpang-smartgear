@@ -46,11 +46,11 @@ python3 test_build_print_platter.py --default
 python3 validate_net_stand.py
 ```
 
-正式包的当前结果是 `33` 个 STL。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
+正式包的当前结果是 `37` 个 STL，包含 12 mm 大径/4 mm 螺距的 PETG 粗牙螺杆、固定螺母和旋钮对锁螺母。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
 
 分型后的两个 C 夹半体、整根黄绿连接件和全高 U 形网夹是不同打印对象：`clamp_body_half_user`、`clamp_body_half_opponent`、`post_clamp_carrier`、`net_clamp_clip`。旧的整件夹体目录已作废，不能把旧夹体和 C 方案立柱混用。需要直接换打接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，使用 `exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf/` 下左右两个可编辑 X1C/PETG 3MF；每个文件包含前后两个夹体半件、黄绿连接件和 U 形网夹四个对象。
 
-256 mm 打印床的几何拼盘结果记录在 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：当前脚本目标为 `6` 张板、`33` 个已排零件、`0` 个超床件。两件黄绿连接件采用 `rx=0°、ry=51°、rz=45°` 三轴刚体斜放；这个结果只证明保守包络排版和 STL 几何，不等于已经切片、配置支撑、生成 G-code 或完成实物打印。
+256 mm 打印床的几何拼盘结果记录在 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：当前脚本目标为 `6` 张板、`37` 个已排零件、`0` 个超床件。两件黄绿连接件采用 `rx=0°、ry=51°、rz=45°` 三轴刚体斜放；这个结果只证明保守包络排版和 STL 几何，不等于已经切片、配置支撑、生成 G-code 或完成实物打印。
 
 建议在导出后对全部 STL 做封闭拓扑复核：
 

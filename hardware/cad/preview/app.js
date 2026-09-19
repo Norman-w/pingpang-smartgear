@@ -94,7 +94,7 @@ const COLORS = {
 };
 
 const ASSEMBLY_STEPS = [
-  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、加长 M8 螺杆和旋钮固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，M8 压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
+  { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、12 mm 大径/4 mm 螺距 PETG 粗牙螺杆和配套打印螺母固定在球台边缘；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，粗牙压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
   { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入 PCB；主控板由底部柱支撑，电池放在主控板器件层上方的第二层托位，避开底部柱体，不再压穿电池；x+ 外侧墙和 boss 保持完整，不再装独立下盖、垫圈或压框；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色整根立柱坐在绿色顶面 z=16 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。固定网柱继续到按球头底座自动计算的顶端 z=260.5 mm；当前正式打印件就是这套接口，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
   { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
@@ -119,7 +119,7 @@ const ASSEMBLY_GROUPS = {
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
-const PREVIEW_CACHE_BUSTER = "split-c-scheme-v8";
+const PREVIEW_CACHE_BUSTER = "split-c-scheme-v9";
 
 const getVersionedUrl = (path, key = "v") => {
   const target = new URL(path, window.location.href);
@@ -640,7 +640,7 @@ const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
     sideLabel: "右侧 C 夹电子腔内侧",
     stlTransform: { rotation: [0, ELECTRONICS_UI_COVER_ANGLE_Y, 0] },
     explosion: [0, -58, -7],
-    notes: "KiCad 导出的真实 UI 子板 3D 模型。它仍是旧下盖方案的源文件诊断对象，不进入当前 33 件正式打印矩阵；当前主方案从 y=0 分型面放入 PCB/电池，不再依赖这个底盖和压框。",
+    notes: "KiCad 导出的真实 UI 子板 3D 模型。它仍是旧下盖方案的源文件诊断对象，不进入当前 37 件正式打印矩阵；当前主方案从 y=0 分型面放入 PCB/电池，不再依赖这个底盖和压框。",
   },
 });
 
@@ -782,10 +782,10 @@ function makeReinforcedClampItems(entries) {
 
     items.push(makeAssemblyItem({
       id: `candidate:reinforced-clamp-rod:${sideLabel}`,
-      name_zh: `M8×1.25 加长金属螺杆（${sideName}，改造后）`,
-      name_en: `lengthened M8 × 1.25 rod (${sideLabel})`,
+      name_zh: `PETG 粗牙加长螺杆（${sideName}，辅助包络）`,
+      name_en: `lengthened PETG coarse-thread rod (${sideLabel})`,
       kind: "浏览器审查候选",
-      material: "金属（外购）",
+      material: "PETG（打印）",
       material_group: "候选件",
       group: "clamp",
       stage: 1,
@@ -794,12 +794,12 @@ function makeReinforcedClampItems(entries) {
       reviewOnly: true,
       reinforcedClamp: true,
       shape: "threaded-stud",
-      shapeOptions: { outer_d: 8, core_d: 7, pitch: 1.25, axis: "z" },
+      shapeOptions: { outer_d: 12, core_d: 9.6, pitch: 4, axis: "z" },
       base_min: [centerX - 4, -4, rodMinZ],
       size: [8, 8, rodHeight],
       side,
       explosion: explosionVector("clamp", side),
-      notes: "螺杆按加固侧墙的最大增高量同步加长；上端仍顶住原压块，旋钮仍位于螺杆末端。",
+      notes: "辅助包络按粗牙打印螺杆的 12 mm 大径、9.6 mm 芯径和 4 mm 螺距显示；上端仍顶住压块，旋钮位于螺杆末端。",
     }));
     items.push(makeAssemblyItem({
       id: `candidate:reinforced-clamp-knob:${sideLabel}`,
@@ -824,10 +824,10 @@ function makeReinforcedClampItems(entries) {
     }));
     items.push(makeAssemblyItem({
       id: `candidate:reinforced-clamp-jam-nuts:${sideLabel}`,
-      name_zh: `M8 对锁螺母组（${sideName}，旋钮末端）`,
-      name_en: `M8 jam-nut pair at handwheel end (${sideLabel})`,
+      name_zh: `PETG 粗牙对锁螺母组（${sideName}，旋钮末端）`,
+      name_en: `PETG coarse-thread jam-nut pair at handwheel end (${sideLabel})`,
       kind: "浏览器审查候选",
-      material: "金属（外购）",
+      material: "PETG（打印）",
       material_group: "候选件",
       group: "clamp",
       stage: 1,
@@ -836,12 +836,12 @@ function makeReinforcedClampItems(entries) {
       reviewOnly: true,
       reinforcedClamp: true,
       shape: "hex-stack",
-      shapeOptions: { radius: 7, axis: "z" },
+      shapeOptions: { radius: 9.24, axis: "z" },
       base_min: [centerX - 6.5, -6.5, knobTopZ - 13.4],
       size: [13, 13, 13.4],
       side,
       explosion: explosionVector("clamp", side),
-      notes: "沿用原来的两枚 M8 对锁螺母，只随旋钮整体移动到新螺杆末端。",
+      notes: "两枚 AF16 粗牙打印螺母先对锁，再随旋钮整体安装到粗牙螺杆末端。",
     }));
   }
   return items;
@@ -854,7 +854,10 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   // service items and are controlled independently from the mechanical
   // candidate switches below.
   items.push(...makeElectronicsBoardItems(assemblyDatums));
-  items.push(...makeReinforcedClampItems(entries));
+  // The current source manifest contains the actual coarse PETG screw, body
+  // nut, drive-nut pair, and handwheel STLs. Do not add the retired metal/M8
+  // proxy set here: duplicate envelopes were the source of visible z-fighting
+  // and made the browser disagree with the printable package.
   // The printable M6 body/covers are already loaded from the current source
   // manifest.  Keep only the purchased optical hardware as browser proxies;
   // otherwise the same blue body/shell is shown once from STL and once again
@@ -2081,63 +2084,6 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     }
   }
 
-  for (const sideLabel of ["left", "right"]) {
-    const side = sideLabel === "left" ? -1 : 1;
-    const knob = firstEntry(entries, (entry) => entry.part === "clamp_knob" && entry.side === sideLabel);
-    const pressurePad = firstEntry(entries, (entry) => entry.part === "clamp_pressure_pad" && entry.side === sideLabel);
-    const knobBounds = boundsFromEntry(knob);
-    const padBounds = boundsFromEntry(pressurePad);
-    if (!knobBounds || !padBounds) continue;
-    const centerX = knobBounds.min[0] + knobBounds.size[0] / 2;
-    const rodMinZ = knobBounds.min[2] + 4.4;
-    const rodHeight = Math.max(12, padBounds.min[2] - rodMinZ);
-    items.push(makeAssemblyItem({
-      id: `hardware:m8-rod:${sideLabel}`,
-      name_zh: `M8×1.25 金属螺杆（${sideLabel === "left" ? "左" : "右"}）`,
-      name_en: "M8 × 1.25 metal threaded rod",
-      kind: "外购标准件",
-      material: "金属",
-      group: "hardware",
-      shape: "cylinder",
-      shapeOptions: { radius: 4, axis: "z" },
-      base_min: [centerX - 4, -4, rodMinZ],
-      size: [8, 8, rodHeight],
-      side,
-      explosion: explosionVector("hardware", side),
-      notes: "真实 M8×1.25 螺杆，不打印螺纹；圆头顶住独立台底压块。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `hardware:m8-body-nut:${sideLabel}`,
-      name_zh: `M8 六角螺母（下臂固定，${sideLabel === "left" ? "左" : "右"}）`,
-      name_en: "M8 fixed nut",
-      kind: "外购标准件",
-      material: "金属",
-      group: "hardware",
-      shape: "hex",
-      shapeOptions: { radius: 7, axis: "z" },
-      base_min: [centerX - 6.5, -6.5, padBounds.min[2] - 19],
-      size: [13, 13, 6.5],
-      side,
-      explosion: explosionVector("hardware", side),
-      notes: "固定在下臂捕获窝中的螺母，形成唯一固定螺纹。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `hardware:m8-jam-nuts:${sideLabel}`,
-      name_zh: `M8 对锁螺母组（旋钮内，${sideLabel === "left" ? "左" : "右"}）`,
-      name_en: "M8 jam-nut pair",
-      kind: "外购标准件",
-      material: "金属",
-      group: "hardware",
-      shape: "hex-stack",
-      shapeOptions: { radius: 7, axis: "z" },
-      base_min: [centerX - 6.5, -6.5, knobBounds.max[2] - 13],
-      size: [13, 13, 13.4],
-      side,
-      explosion: explosionVector("hardware", side),
-      notes: "两枚标准 M8 螺母预先对锁后装入打印旋钮，不使用 PETG 内螺纹。",
-    }));
-  }
-
   const carriageEntries = entries.filter((entry) => entry.part === "reference_carriage_body");
   for (const entry of carriageEntries) {
     const bounds = boundsFromEntry(entry);
@@ -2291,7 +2237,10 @@ function isRightConnectionFocusItem(item) {
 }
 
 function isRightKnobFocusItem(item) {
-  return Boolean(item && item.side === 1 && item.reinforcedClamp);
+  if (!item || item.side !== 1) return false;
+  if (item.reinforcedClamp) return true;
+  return ["clamp_printed_screw", "clamp_body_nut", "clamp_knob_nut", "clamp_knob"]
+    .includes(item.sourceEntry?.part);
 }
 
 const FOCUS_PRESETS = Object.freeze({
@@ -2338,11 +2287,13 @@ function assemblyVisible(item) {
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
   if (item.group === "electronics" && !state.assembly.showElectronics) return false;
   if (item.reinforcedClamp && !state.assembly.showReinforcedClamp) return false;
-  if (state.assembly.showReinforcedClamp && (
-    item.sourceEntry?.part === "clamp_knob"
-    || item.id?.startsWith("hardware:m8-rod:")
-    || item.id?.startsWith("hardware:m8-jam-nuts:")
-  )) return false;
+  const coarseClampParts = new Set([
+    "clamp_printed_screw",
+    "clamp_body_nut",
+    "clamp_knob_nut",
+    "clamp_knob",
+  ]);
+  if (!state.assembly.showReinforcedClamp && coarseClampParts.has(item.sourceEntry?.part)) return false;
   if (item.candidate && !state.assembly.showSkpCandidate) return false;
   if (item.fitCandidate && !state.assembly.showSkpFit) return false;
   // The v0.2 SKP review meshes use the same installed envelope as the current

@@ -343,7 +343,7 @@ def main() -> None:
     stale_visible_copy = (
         "固定灰色主体 / 立柱共面落座",
         "固定网柱从黄灰交界 z=16 mm 共面起步",
-        "这些候选对象不属于正式 33 件 manifest",
+        "这些候选对象不属于正式 37 件 manifest",
         "STG-120ML 两段光栅怎么装",
         "显示网布、STG 光纤头、传感器和标准件",
         "按步骤检查网架、STG-120ML 和擦网传感器",
@@ -363,7 +363,7 @@ def main() -> None:
         "sourcePart === \"clamp_body_half_user\"",
         "sourcePart === \"clamp_body_half_opponent\"",
         "sourcePart === \"post_clamp_carrier\"",
-        "split-c-scheme-v8",
+        "split-c-scheme-v9",
     )
     missing_overlay_guards = [text for text in overlay_guards if text not in app_text]
     if missing_overlay_guards:

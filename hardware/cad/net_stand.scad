@@ -56,13 +56,13 @@
 //   PART="clamp_electronics_exploded" 单侧主控电子腔爆炸装配
 //   PART="clamp_electronics_emitter_exploded" 单侧发射电子腔爆炸装配
 //   PART="clamp_top_pad"     台面上表面胶皮装配占位（现场粘贴，不进正式打印包）
-//   PART="clamp_pressure_pad" 台底可动圆盘压块（底面 M8 圆头收纳窝）
+//   PART="clamp_pressure_pad" 台底可动圆盘压块（底面粗牙螺杆扁球头收纳窝）
 //   PART="clamp_pressure_pad_guard" 台底压块扁球头防丢背护罩（PETG，可胶合）
 //   PART="clamp_screw"        M8×1.25 金属螺杆装配占位（非打印件，顶端圆头）
-//   PART="clamp_printed_screw" 临时 PETG M8 螺杆（顶端扁球头，待钢件替换）
-//   PART="clamp_body_nut"     固定在下臂螺母座中的 M8 螺母装配占位（标准件）
-//   PART="clamp_knob"         手拧旋钮（含两枚 M8 对锁螺母捕获窝）
-//   PART="clamp_knob_nut"     旋钮内捕获的两枚 M8 对锁螺母（标准件）
+//   PART="clamp_printed_screw" PETG 粗牙扁球头夹紧螺杆
+//   PART="clamp_body_nut"     下臂内的 PETG 粗牙固定螺母
+//   PART="clamp_knob"         手拧旋钮（含两枚粗牙对锁螺母捕获窝）
+//   PART="clamp_knob_nut"     旋钮内捕获的两枚 PETG 粗牙对锁螺母
 //   PART="net"                球网/网布装配占位（非打印件）
 //   PART="net_rail"           旧版网顶承载条兼容预览（当前装配不使用）
 //   PART="net_rail_segment"   旧版网顶承载条单段诊断件（当前不打印）
@@ -128,7 +128,7 @@
 // 整根单独打印并坐在固定 C 夹主体上；不再使用旧版独立 90°连接器或旧版独立上段外件。薄壳只作定位/保护，M6 独立支撑
 // 的承力界面须在真实接口冻结后用固定件验证。M6 器件、球头、PVDF 薄膜、网布、金属螺杆和夹持软垫均为外购/装配边界；
 // 主体、壳体和底盖可作为 PETG 首样打印件。
-// M8 螺杆和螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
+// 粗牙打印螺杆和配套螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
 // 保留为历史诊断件，不再作为当前装配主线。
 // 前后盖沿 x 分成两件，均从 z+ 套入主体；底盖向下独立安装。沉头螺钉只是
 // 盖件到主体的固定件；当前已冻结的承力路径是“传感器六角/螺杆 -> PETG/CNC 主体 ->
@@ -147,16 +147,16 @@ $fn = 48;
 
 PART = "assembly";
 SIDE = 0;
-// The normal assembly shows the purchased steel rod.  Set this explicitly
-// for a bench preview when checking the temporary PETG replacement; keeping
+// The active first-print assembly shows the coarse PETG screw. Set false only
+// when checking the retired M8 steel-rod envelope for compatibility; keeping
 // the two variants mutually exclusive prevents a misleading overlap in the
 // exploded/section views.
-show_temporary_printed_screw = false;
+show_temporary_printed_screw = true;
 
 // 球台与传统网架接口
 table_width = 1525;
 table_depth_preview = 500;
-// 首样台面基准为 25 mm。夹体的固定开口、电子腔和 M8 夹紧件按
+// 首样台面基准为 25 mm。夹体的固定开口、电子腔和粗牙 PETG 夹紧件按
 // 12…40 mm 台面范围冻结；超过 40 mm 需要重新开模/复核承力壁，不能
 // 只在切片器里把下臂继续往下拉。
 table_thickness = 25;
@@ -980,11 +980,20 @@ post_interface_transition_bottom_width_x =
 post_interface_transition_bottom_depth_y = clamp_pad_depth;
 clamp_clearance = 1.5;
 clamp_screw_d = 8;
-// 首样采用真实 M8×1.25 金属螺杆；螺纹牙型不在 PETG 几何中建模，
-// 但螺距作为标准件接口的一部分固化并由参数探针/验证脚本读取。
+// 保留 M8×1.25 作为旧版金属件的兼容参数；当前打印方案不再依赖钢制细牙。
+// PETG 螺杆使用独立的 12 mm 粗牙牙型，和配套打印螺母成组使用。
 clamp_screw_pitch = 1.25;
-clamp_screw_bore_d = clamp_screw_d + 0.8;
-// The fixed M8 nut is loaded from the upper face of the lower arm.  This
+clamp_printed_thread_major_d = 12;
+clamp_printed_thread_core_d = 9.6;
+clamp_printed_thread_pitch = 4;
+clamp_printed_thread_clearance_r = 0.30;
+clamp_printed_thread_nut_af = 16;
+clamp_printed_thread_body_nut_h = 11.5;
+clamp_printed_thread_drive_nut_h = 6;
+// The active 12 mm coarse crest must pass through the lower-arm and knob
+// through-bore; the old 8.8 mm M8 clearance would print a solid obstruction.
+clamp_screw_bore_d = clamp_printed_thread_major_d + 0.8;
+// The fixed coarse nut is loaded from the upper face of the lower arm.  This
 // keeps the hex interface visible during assembly, seats the reaction force
 // down into the arm, and avoids a loose nut/washer stack on the underside.
 clamp_body_nut_load_from_top = true;
@@ -998,25 +1007,29 @@ clamp_knob_grip_tooth_count = 18;
 clamp_knob_grip_tooth_d = 5;
 clamp_knob_grip_tooth_pitch_r =
     clamp_knob_d / 2 - clamp_knob_grip_tooth_d / 2;
-// 两枚预先对锁的标准 M8 螺母把旋钮和螺杆刚性耦合；单枚旋钮螺母与
-// 固定下臂螺母同时啮合会形成不明确的双螺纹约束，首样不采用那种路径。
+// 两枚预先对锁的粗牙打印螺母把旋钮和打印螺杆刚性耦合；单枚旋钮螺母与
+// 固定下臂螺母同时啮合会形成不明确的双螺纹约束，仍保留双螺母路径。
 clamp_knob_h = 20;
-// 加厚下部承力段后，为标准 M8 丝杆和旋钮保留更长的操作/装配空间；上端
-// 仍只顶在台底压块下方，实际标准件长度以首样台面厚度和旋钮净空复核。
+// 加厚下部承力段后，为粗牙打印螺杆和旋钮保留更长的操作/装配空间；上端
+// 仍只顶在台底压块下方，实际长度以首样台面厚度和旋钮净空复核。
 clamp_screw_to_knob_top_base = 32;
 clamp_screw_extra_length_z = 12;
 clamp_screw_to_knob_top =
     clamp_screw_to_knob_top_base + clamp_screw_extra_length_z;
 clamp_screw_capture_extension = 2;
-clamp_nut_af = 13;
-clamp_nut_h = 6.5;
+// Keep direct numeric mirrors for the lightweight Python preview reader; the
+// assertions below require these to stay synchronized with the coarse-thread
+// source parameters above.
+clamp_nut_af = 16;
+clamp_nut_h = 11.5;
 clamp_nut_clearance = 0.35;
 clamp_nut_pocket_af = clamp_nut_af + 2 * clamp_nut_clearance;
 clamp_nut_pocket_depth = clamp_nut_h + clamp_nut_clearance;
-clamp_knob_nut_gap = 0.4;
+clamp_knob_nut_h = clamp_printed_thread_drive_nut_h;
+clamp_knob_nut_gap = 0.6;
 clamp_knob_nut_top_z_clearance = clamp_nut_clearance / 2;
 clamp_knob_nut_stack_depth =
-    2 * clamp_nut_h + clamp_knob_nut_gap;
+    2 * clamp_knob_nut_h + clamp_knob_nut_gap;
 clamp_knob_nut_pocket_depth =
     clamp_knob_nut_stack_depth + 2 * clamp_nut_clearance;
 clamp_outer_wall_width = 22;
@@ -1442,34 +1455,35 @@ clamp_slide_post_foot_transition_start_z =
 clamp_slide_post_foot_transition_side_start_z =
     clamp_slide_rail_floor_z + clamp_slide_rail_height_z;
 clamp_slide_post_foot_transition_end_z = post_bottom;
-// 台底压块是独立的刚性小圆盘：上表面为平面，底面中央收纳 M8 圆头。
+// 台底压块是独立的刚性小圆盘：上表面为平面，底面中央收纳粗牙螺杆扁球头。
 // 上方台面接触面不再作为打印件，现场在固定上夹板下表面粘贴胶皮即可。
 clamp_pressure_pad_d = 50;
 // 保留宽/深别名给旧版预览和参数读取器；实际外形以圆盘直径为准。
 clamp_pressure_pad_width = 50;
 clamp_pressure_pad_depth = 50;
 clamp_pressure_pad_t = 4;
-// The metal/temporary screw has an 8 mm shaft and a larger flat ball head.
-// The pad's underside cavity is wider inside than at its mouth; a separate
-// back guard is glued on from below and captures the head while the pad is
-// being stored or carried.
-clamp_pressure_pad_screw_socket_d = 13.0;
+// The printed coarse screw has a 12 mm major diameter and a larger flat ball
+// head. The pad's underside cavity is wider inside than at its mouth; a
+// separate back guard is glued on from below and captures the head while the
+// pad is being stored or carried.
+clamp_pressure_pad_screw_socket_d = 16.5;
 clamp_pressure_pad_screw_socket_depth = 2.6;
-clamp_pressure_pad_screw_socket_mouth_d = clamp_screw_d + 1.0;
+clamp_pressure_pad_screw_socket_mouth_d = 13.0;
 clamp_pressure_pad_screw_socket_chamfer_h = 0.8;
-clamp_pressure_pad_guard_outer_d = 16;
-clamp_pressure_pad_guard_inner_d = clamp_screw_d + 0.8;
+clamp_pressure_pad_guard_outer_d = 18;
+clamp_pressure_pad_guard_inner_d = clamp_printed_thread_major_d + 0.8;
 clamp_pressure_pad_guard_t = 1.8;
 clamp_pressure_pad_guard_post_d = 3;
 clamp_pressure_pad_guard_post_h = 2.4;
 clamp_pressure_pad_guard_post_radius = 5.7;
-// Temporary printed screw: deliberately undersize the nominal M8 major
-// diameter so it can pass a real M8 nut while the steel rod is in transit.
-clamp_printed_screw_shaft_d = 7.45;
-clamp_printed_screw_thread_root_d = 6.15;
-clamp_printed_screw_head_d = 13.0;
-clamp_printed_screw_head_h = 4.2;
-clamp_printed_screw_head_flat_h = 2.8;
+// Compatibility aliases retained for the export/parameter readers. These
+// now describe the active coarse printed screw rather than a temporary M8
+// visual placeholder.
+clamp_printed_screw_shaft_d = clamp_printed_thread_major_d;
+clamp_printed_screw_thread_root_d = clamp_printed_thread_core_d;
+clamp_printed_screw_head_d = 15.5;
+clamp_printed_screw_head_h = 5.0;
+clamp_printed_screw_head_flat_h = 3.4;
 post_top =
     m6_detector_raw_ballhead_base_bottom_z + m6_detector_mount_raise_z;
 // The active upright is one continuous print from the gray/yellow seat to the
@@ -2240,9 +2254,9 @@ clamp_body_nut_pocket_z = clamp_body_nut_load_from_top
     ? clamp_lower_arm_top_z - clamp_nut_pocket_depth
     : clamp_lower_arm_bottom_z;
 clamp_knob_nut_top_z = clamp_knob_top_z - clamp_knob_nut_top_z_clearance;
-clamp_knob_drive_nut_z = clamp_knob_nut_top_z - clamp_nut_h;
+clamp_knob_drive_nut_z = clamp_knob_nut_top_z - clamp_knob_nut_h;
 clamp_knob_lock_nut_z =
-    clamp_knob_drive_nut_z - clamp_knob_nut_gap - clamp_nut_h;
+    clamp_knob_drive_nut_z - clamp_knob_nut_gap - clamp_knob_nut_h;
 clamp_knob_nut_bottom_z = clamp_knob_lock_nut_z;
 // Backward-compatible alias for older parameter readers: the old single-nut
 // value now names the upper/drive nut in the jam-nut stack.
@@ -3349,6 +3363,8 @@ assert(clamp_pressure_pad_d == clamp_pressure_pad_width &&
            clamp_pressure_pad_screw_socket_d > clamp_printed_screw_head_d - 0.01 &&
            clamp_pressure_pad_screw_socket_d < clamp_pressure_pad_d &&
            clamp_pressure_pad_screw_socket_mouth_d > clamp_screw_d &&
+           clamp_pressure_pad_screw_socket_mouth_d >
+               clamp_printed_thread_core_d &&
            clamp_pressure_pad_screw_socket_mouth_d <
                clamp_pressure_pad_screw_socket_d &&
            clamp_pressure_pad_screw_socket_chamfer_h > 0 &&
@@ -3364,14 +3380,21 @@ assert(clamp_top_pad_t > 0 && clamp_top_pad_width > 0 &&
 assert(clamp_outer_wall_width == clamp_pad_outer_x - clamp_outer_wall_x,
        "outer wall width must connect the post to the outer clamp edge");
 assert(clamp_screw_d == 8 && clamp_screw_pitch == 1.25 &&
+           clamp_printed_thread_major_d > clamp_printed_thread_core_d &&
+           clamp_printed_thread_pitch >= 3.5 &&
+           clamp_printed_thread_clearance_r > 0 &&
+           clamp_printed_thread_body_nut_h >
+               2 * clamp_printed_thread_pitch &&
+           clamp_printed_thread_drive_nut_h >=
+               clamp_printed_thread_pitch &&
            clamp_screw_length > table_thickness,
-       "first clamp uses an M8 x 1.25 vertical tightening screw");
+       "active clamp uses a coarse PETG screw; M8 x 1.25 remains legacy compatibility only");
 assert(clamp_body_nut_load_from_top &&
            clamp_body_nut_pocket_z >= clamp_lower_arm_bottom_z - 0.01 &&
            clamp_body_nut_pocket_z + clamp_nut_pocket_depth <=
                clamp_lower_arm_top_z + 0.01 &&
            clamp_body_nut_top_z <= clamp_lower_arm_top_z + 0.01,
-       "fixed M8 hex nut must load through the lower arm's upper counterbore");
+       "printed coarse hex nut must load through the lower arm's upper counterbore");
 assert(clamp_pad_t == 14 && clamp_lower_arm_t == clamp_pad_t,
        "upper and lower structural clamp jaws must both be 14 mm thick");
 assert(clamp_screw_top_z > clamp_pressure_pad_bottom_z &&
@@ -3381,13 +3404,17 @@ assert(clamp_screw_top_z > clamp_pressure_pad_bottom_z &&
            clamp_screw_top_z < -table_thickness &&
            clamp_screw_tip_radius > 0,
        "rounded M8 screw tip must seat in the pad underside socket below the tabletop");
-assert(clamp_nut_af > clamp_screw_d && clamp_nut_h > 0 &&
+assert(clamp_nut_af > clamp_screw_d &&
+           clamp_nut_af == clamp_printed_thread_nut_af &&
+           clamp_nut_h == clamp_printed_thread_body_nut_h &&
+           clamp_nut_h > 2 * clamp_printed_thread_pitch &&
+           clamp_nut_h > 0 &&
            clamp_nut_clearance > 0 &&
            clamp_nut_pocket_af > clamp_nut_af &&
            clamp_nut_pocket_af / cos(30) + 2 < clamp_threaded_boss_d &&
            clamp_nut_pocket_depth >= clamp_nut_h &&
            clamp_nut_pocket_depth < clamp_threaded_boss_h,
-       "top-loaded M8 nut pocket must fit inside the lower boss with printable clearance");
+       "top-loaded coarse nut pocket must fit inside the lower boss with printable clearance");
 assert(clamp_pressure_pad_guard_outer_d >
            clamp_pressure_pad_guard_inner_d &&
            clamp_pressure_pad_guard_inner_d > clamp_printed_screw_shaft_d &&
@@ -3399,23 +3426,24 @@ assert(clamp_pressure_pad_guard_outer_d >
        "bottom-up back guard must retain the oversized flat ball head without touching the shaft");
 assert(clamp_knob_nut_gap >= 0 &&
            clamp_knob_nut_stack_depth ==
-               2 * clamp_nut_h + clamp_knob_nut_gap &&
+               2 * clamp_knob_nut_h + clamp_knob_nut_gap &&
            clamp_knob_nut_pocket_depth > clamp_knob_nut_stack_depth &&
            clamp_knob_nut_pocket_depth < clamp_knob_h &&
            clamp_knob_nut_top_z <= clamp_knob_top_z &&
            clamp_knob_nut_bottom_z >= clamp_knob_bottom_z &&
            clamp_knob_drive_nut_z > clamp_knob_lock_nut_z,
-       "two M8 jam nuts must fit as a captured, printable knob stack");
+       "two coarse printed nuts must fit as a captured, printable knob stack");
 assert(clamp_screw_to_knob_top > clamp_knob_nut_pocket_depth &&
            clamp_screw_capture_extension > 0 &&
            clamp_screw_top_z > clamp_knob_nut_top_z &&
            clamp_screw_bottom_z < clamp_knob_nut_bottom_z &&
            clamp_screw_bottom_z > clamp_knob_bottom_z &&
            clamp_knob_bottom_z < clamp_knob_top_z,
-       "M8 rod must pass through the jam-nut stack and leave a usable handwheel");
+       "coarse printed rod must pass through the jam-nut stack and leave a usable handwheel");
 assert(clamp_knob_d > clamp_screw_bore_d &&
+           clamp_screw_bore_d > clamp_printed_thread_major_d &&
            clamp_knob_h > clamp_knob_nut_pocket_depth,
-       "printed clamp knob must leave an M8 bore and captured jam-nut wall");
+       "printed clamp knob must leave the rod bore and captured coarse-nut wall");
 assert(clamp_knob_grip_root_d > clamp_screw_bore_d &&
            clamp_knob_grip_root_d < clamp_knob_d &&
            clamp_knob_grip_tooth_count >= 12 &&
@@ -4544,7 +4572,7 @@ module table_clamp_body_positive() {
     // 下臂在台底下方，中间留出台面厚度和压块行程；不把任何零件嵌入台面。
     difference() {
             table_clamp_raw_positive();
-            // M8 螺杆只穿过下臂/螺母座，不能穿过球台。切孔完整穿过
+            // 粗牙螺杆只穿过下臂/螺母座，不能穿过球台。切孔完整穿过
             // 14 mm 下臂，避免杆身撞上残留的 1 mm 塑料薄壁。
             translate([clamp_screw_x, 0, clamp_lower_arm_bottom_z - 1])
                 cylinder(d = clamp_screw_bore_d,
@@ -4782,15 +4810,49 @@ module m8_nut_positive() {
     }
 }
 
+module clamp_printed_thread_nut_positive(
+    height = clamp_nut_h
+) {
+    // Matching PETG coarse nut.  The central clearance cylinder leaves a
+    // 0.30 mm radial running fit around the screw core; the second helical
+    // subtraction opens each 4 mm-pitch valley so the 12 mm crest can enter
+    // without relying on a fine M8 metal thread.
+    nut_core_clear_d = clamp_printed_thread_core_d +
+        2 * clamp_printed_thread_clearance_r;
+    nut_major_clear_d = clamp_printed_thread_major_d +
+        2 * clamp_printed_thread_clearance_r;
+    groove_depth = (nut_major_clear_d - nut_core_clear_d) / 2;
+    thread_pitch = clamp_printed_thread_pitch;
+    thread_height = height + 2;
+    difference() {
+        hex_prism(clamp_nut_af, height);
+        translate([0, 0, -1])
+            cylinder(d = nut_core_clear_d, h = thread_height);
+        translate([0, 0, -1])
+            linear_extrude(
+                height = thread_height,
+                twist = 360 * thread_height / thread_pitch,
+                slices = ceil(thread_height / thread_pitch * 32),
+                convexity = 10)
+                translate([nut_core_clear_d / 2, 0, 0])
+                    polygon(points = [
+                        [0, -thread_pitch * 0.42],
+                        [groove_depth, -thread_pitch * 0.18],
+                        [groove_depth, thread_pitch * 0.18],
+                        [0, thread_pitch * 0.42]
+                    ]);
+    }
+}
+
 module clamp_body_nut_positive() {
-    color("gold")
+    color("darkorange")
         translate([clamp_screw_x, 0, clamp_body_nut_z])
-            m8_nut_positive();
+            clamp_printed_thread_nut_positive(clamp_nut_h);
 }
 
 module clamp_pressure_pad_positive() {
     // 独立可动圆盘压块：顶面是平盘，只接触台面底面；底面中央的
-    // 扩口收纳窝包住 M8 扁球头，避免螺杆在夹紧或拆卸时从压块表面滑脱。
+    // 扩口收纳窝包住粗牙螺杆扁球头，避免螺杆在夹紧或拆卸时从压块表面滑脱。
     // 四个浅孔给下方背护罩的扣柱定位；护罩胶合后形成真正的防丢结构。
     color("black")
         translate([clamp_screw_x, 0, clamp_pressure_pad_bottom_z])
@@ -4868,8 +4930,8 @@ module clamp_screw_positive(
     screw_bottom_z = clamp_screw_bottom_z,
     screw_length = clamp_screw_length
 ) {
-    // 这是金属外购螺杆的几何占位。首样不打印螺纹，使用真实 M8×1.25
-    // 螺杆承受夹紧载荷；圆头只用于检查与台底压块的接触位置。
+    // 这是金属外购螺杆的几何兼容占位。当前打印方案使用
+    // clamp_printed_screw_positive()；本模块仅保留给旧版钢件预览。
     color("silver") {
         translate([clamp_screw_x, 0, screw_bottom_z])
             cylinder(d = clamp_screw_d,
@@ -4896,33 +4958,43 @@ module clamp_flat_ball_head_positive(
     }
 }
 
-module clamp_printed_screw_positive() {
-    // Temporary PETG replacement for the M8 steel rod.  The shaft carries a
-    // coarse visual thread with a 7.45 mm major envelope so it can be run
-    // through a real M8 nut without relying on a brittle printed female thread.
-    // Replace this part with the specified M8×1.25 steel rod before production.
-    shaft_length = clamp_screw_length - clamp_printed_screw_head_h;
+module clamp_printed_screw_positive(
+    screw_bottom_z = clamp_screw_bottom_z,
+    screw_length = clamp_screw_length
+) {
+    // PETG coarse lead screw.  The visible 4 mm-pitch trapezoid has a 12 mm
+    // major envelope and 9.6 mm core, so each ridge is tall enough to survive
+    // FDM printing and visibly differs from the former 1.25 mm steel-thread
+    // placeholder. It must be used with clamp_printed_thread_nut_positive().
+    shaft_length = screw_length - clamp_printed_screw_head_h;
     thread_height =
         (clamp_printed_screw_shaft_d - clamp_printed_screw_thread_root_d) / 2;
-    thread_pitch = clamp_screw_pitch;
+    thread_pitch = clamp_printed_thread_pitch;
+    thread_lead_in = 0.75;
+    threaded_length = shaft_length - 2 * thread_lead_in;
     color("darkorange")
-        translate([clamp_screw_x, 0, clamp_screw_bottom_z])
+        translate([clamp_screw_x, 0, screw_bottom_z])
             union() {
                 cylinder(
                     d = clamp_printed_screw_thread_root_d,
                     h = shaft_length,
                     $fn = 32);
-                linear_extrude(
-                    height = shaft_length,
-                    twist = 360 * shaft_length / thread_pitch,
-                    slices = ceil(shaft_length * 2),
-                    convexity = 10)
-                    translate([clamp_printed_screw_thread_root_d / 2, 0, 0])
-                        polygon(points = [
-                            [0, -thread_pitch * 0.48],
-                            [thread_height, 0],
-                            [0, thread_pitch * 0.48]
-                        ]);
+                translate([0, 0, thread_lead_in])
+                    linear_extrude(
+                        height = threaded_length,
+                        twist = 360 * threaded_length / thread_pitch,
+                        slices = ceil(threaded_length / thread_pitch * 32),
+                        convexity = 10)
+                        translate([
+                            clamp_printed_screw_thread_root_d / 2,
+                            0
+                        ])
+                            polygon(points = [
+                                [0, -thread_pitch * 0.42],
+                                [thread_height, -thread_pitch * 0.18],
+                                [thread_height, thread_pitch * 0.18],
+                                [0, thread_pitch * 0.42]
+                            ]);
                 translate([0, 0, shaft_length])
                     difference() {
                         clamp_flat_ball_head_positive();
@@ -4945,7 +5017,7 @@ module clamp_knob_grip_positive(
 ) {
     // A round root plus overlapping round lobes gives a printable, rounded
     // saw-tooth grip. The optional review diameter changes only the hand
-    // envelope; the axial thickness and M8 drive interface stay unchanged.
+    // envelope; the axial thickness and printed coarse-thread drive interface stay unchanged.
     knob_root_diameter =
         clamp_knob_grip_root_d + knob_diameter - clamp_knob_d;
     knob_tooth_pitch_r =
@@ -4977,9 +5049,10 @@ module clamp_knob_positive(
             translate([clamp_screw_x, 0,
                        knob_top_z - knob_height - 1])
                 cylinder(d = clamp_screw_bore_d, h = knob_height + 2);
-            // Two M8 nuts are pre-tightened against each other on the rod and
-            // captured as one hex stack. This gives the handwheel a positive
-            // drive interface; the lower-arm nut is the only stationary thread.
+            // Two coarse nuts are pre-tightened against each other on the rod
+            // and captured as one hex stack. This gives the handwheel a
+            // positive drive interface; the lower-arm nut is the only
+            // stationary thread.
             translate([clamp_screw_x, 0,
                        knob_top_z - clamp_knob_nut_pocket_depth])
                 hex_prism(clamp_nut_pocket_af,
@@ -4988,19 +5061,18 @@ module clamp_knob_positive(
 }
 
 module clamp_knob_nut_positive(knob_top_z = clamp_knob_top_z) {
-    // Install these two standard nuts on the M8 rod and tighten them against
-    // each other before inserting the stack into the printed knob. The
-    // resulting jam pair rotates with the rod and does not create a second
-    // independently constrained thread.
+    // Print two coarse nuts as a captured jam pair and tighten them against
+    // each other before inserting the stack into the handwheel. The pair
+    // rotates with the printed rod and avoids any fine M8 steel thread.
     knob_nut_top_z = knob_top_z - clamp_knob_nut_top_z_clearance;
-    knob_drive_nut_z = knob_nut_top_z - clamp_nut_h;
+    knob_drive_nut_z = knob_nut_top_z - clamp_knob_nut_h;
     knob_lock_nut_z =
-        knob_drive_nut_z - clamp_knob_nut_gap - clamp_nut_h;
+        knob_drive_nut_z - clamp_knob_nut_gap - clamp_knob_nut_h;
     color("gold") {
         translate([clamp_screw_x, 0, knob_drive_nut_z])
-            m8_nut_positive();
+            clamp_printed_thread_nut_positive(clamp_knob_nut_h);
         translate([clamp_screw_x, 0, knob_lock_nut_z])
-            m8_nut_positive();
+            clamp_printed_thread_nut_positive(clamp_knob_nut_h);
     }
 }
 
@@ -5808,9 +5880,14 @@ module table_clamp_screw_side_reinforced_positive() {
     clamp_body_nut_positive();
     clamp_pressure_pad_positive();
     clamp_pressure_pad_guard_positive();
-    clamp_screw_positive(
-        clamp_screw_side_reinforced_screw_bottom_z,
-        clamp_screw_side_reinforced_screw_length);
+    if (show_temporary_printed_screw)
+        clamp_printed_screw_positive(
+            clamp_screw_side_reinforced_screw_bottom_z,
+            clamp_screw_side_reinforced_screw_length);
+    else
+        clamp_screw_positive(
+            clamp_screw_side_reinforced_screw_bottom_z,
+            clamp_screw_side_reinforced_screw_length);
     clamp_knob_positive(
         clamp_screw_side_reinforced_knob_h,
         clamp_screw_side_reinforced_knob_d,
@@ -10289,7 +10366,22 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_lower_arm_x=", clamp_lower_arm_x));
     echo(str("NETSTAND_PARAM clamp_screw_x=", clamp_screw_x));
     echo(str("NETSTAND_PARAM clamp_screw_d=", clamp_screw_d));
+    echo(str("NETSTAND_PARAM clamp_screw_bore_d=", clamp_screw_bore_d));
     echo(str("NETSTAND_PARAM clamp_screw_pitch=", clamp_screw_pitch));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_major_d=",
+             clamp_printed_thread_major_d));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_core_d=",
+             clamp_printed_thread_core_d));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_pitch=",
+             clamp_printed_thread_pitch));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_clearance_r=",
+             clamp_printed_thread_clearance_r));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_nut_af=",
+             clamp_printed_thread_nut_af));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_body_nut_h=",
+             clamp_printed_thread_body_nut_h));
+    echo(str("NETSTAND_PARAM clamp_printed_thread_drive_nut_h=",
+             clamp_printed_thread_drive_nut_h));
     echo(str("NETSTAND_PARAM clamp_body_nut_load_from_top=",
              clamp_body_nut_load_from_top ? 1 : 0));
     echo(str("NETSTAND_PARAM clamp_threaded_boss_d=", clamp_threaded_boss_d));
@@ -10313,6 +10405,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM clamp_nut_pocket_af=", clamp_nut_pocket_af));
     echo(str("NETSTAND_PARAM clamp_nut_pocket_depth=", clamp_nut_pocket_depth));
     echo(str("NETSTAND_PARAM clamp_knob_nut_gap=", clamp_knob_nut_gap));
+    echo(str("NETSTAND_PARAM clamp_knob_nut_h=", clamp_knob_nut_h));
     echo(str("NETSTAND_PARAM clamp_knob_nut_stack_depth=", clamp_knob_nut_stack_depth));
     echo(str("NETSTAND_PARAM clamp_knob_nut_pocket_depth=", clamp_knob_nut_pocket_depth));
     echo(str("NETSTAND_PARAM clamp_body_nut_z=", clamp_body_nut_z));

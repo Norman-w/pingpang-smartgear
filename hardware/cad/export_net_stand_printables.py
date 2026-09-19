@@ -39,8 +39,10 @@ PART_NAMES_ZH = {
     "clamp_top_pad": "台面保护软垫",
     "clamp_pressure_pad": "台底可动压块",
     "clamp_pressure_pad_guard": "台底压块扁球头防丢背护罩",
-    "clamp_printed_screw": "临时 PETG 扁球头夹紧螺杆",
+    "clamp_printed_screw": "PETG 粗牙扁球头夹紧螺杆",
+    "clamp_body_nut": "PETG 粗牙固定螺母",
     "clamp_knob": "夹紧手拧旋钮",
+    "clamp_knob_nut": "PETG 粗牙旋钮对锁螺母",
     "net_rail_segment": "旧版网顶承载条（诊断件）",
     "net_rail_splice": "旧版网顶承载条拼接片（诊断件）",
     "net_rail_saddle": "旧版网顶承托座（诊断件）",
@@ -95,37 +97,37 @@ def part_name_zh(part: str, side: str | None = None, index: int | None = None) -
 
 ASSEMBLY_COMPONENTS = [
     {
-        "id": "m8-threaded-rod",
-        "name_zh": "M8×1.25 金属螺杆",
-        "name_en": "M8 × 1.25 threaded rod",
-        "kind": "外购标准件",
-        "status": "外购 / 非打印",
-        "printable": False,
-        "quantity": "2 根",
-        "scad_part": "clamp_screw",
-        "notes": "装配预览中显示扁球头占位；实际生产使用 M8×1.25 金属螺杆，不打印螺纹。首样可先用独立 PETG 临时螺杆。",
+        "id": "printed-coarse-thread-rods",
+        "name_zh": "PETG 粗牙夹紧螺杆",
+        "name_en": "PETG coarse-pitch clamp screws",
+        "kind": "打印结构件",
+        "status": "PETG 打印件 / 配套打印螺母",
+        "printable": True,
+        "quantity": "2 根（左右各 1）",
+        "scad_part": "clamp_printed_screw",
+        "notes": "12 mm 大径、9.6 mm 芯径、4 mm 螺距、梯形粗牙；顶部 15.5 mm 扁球头进入台底压块。不要与标准 M8×1.25 螺母混用。",
     },
     {
-        "id": "m8-fixed-nut",
-        "name_zh": "M8 六角螺母（下臂固定）",
-        "name_en": "M8 fixed nut",
-        "kind": "外购标准件",
-        "status": "外购 / 非打印",
-        "printable": False,
-        "quantity": "2 枚",
+        "id": "printed-coarse-body-nuts",
+        "name_zh": "PETG 粗牙固定螺母",
+        "name_en": "PETG coarse fixed nuts",
+        "kind": "打印结构件",
+        "status": "PETG 打印件 / 下臂捕获",
+        "printable": True,
+        "quantity": "2 枚（左右各 1）",
         "scad_part": "clamp_body_nut",
-        "notes": "从 C 形夹下臂上侧六角沉孔装入，底面承受螺杆反力；不从夹体底面再开第二个六角窝。",
+        "notes": "AF16、11.5 mm 高、与 4 mm 螺距螺杆配套；从下臂上侧装入 12 mm 深捕获窝，底部保留承力壁。",
     },
     {
-        "id": "m8-jam-nuts",
-        "name_zh": "M8 六角螺母（旋钮对锁）",
-        "name_en": "M8 jam-nut pair",
-        "kind": "外购标准件",
-        "status": "外购 / 非打印",
-        "printable": False,
-        "quantity": "4 枚",
+        "id": "printed-coarse-drive-nuts",
+        "name_zh": "PETG 粗牙旋钮对锁螺母",
+        "name_en": "PETG coarse drive-nut pairs",
+        "kind": "打印结构件",
+        "status": "PETG 打印件 / 旋钮内捕获",
+        "printable": True,
+        "quantity": "4 枚（每侧两枚）",
         "scad_part": "clamp_knob_nut",
-        "notes": "每侧两枚预先对锁，装入打印旋钮的六角捕获窝。",
+        "notes": "每侧两枚、每枚 6 mm 高，先对锁后装入旋钮 AF16 捕获窝；只与配套粗牙螺杆使用。",
     },
     {
         "id": "c-scheme-retaining-fasteners",
@@ -268,18 +270,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 件（左右各 1）",
         "scad_part": "clamp_pressure_pad_guard",
-        "notes": "从压块底部向上扣入；中心孔让 M8 杆身通过但挡住 Ø13 扁球头，四根定位柱插入压块盲孔后再点胶。它只负责收纳防丢，不承担夹紧主载荷。",
-    },
-    {
-        "id": "temporary-printed-tightening-screws",
-        "name_zh": "临时 PETG 扁球头夹紧螺杆",
-        "name_en": "temporary printed flat-ball-head clamp screws",
-        "kind": "首样临时结构件",
-        "status": "PETG 打印件 / 钢制 M8 到货后替换",
-        "printable": True,
-        "quantity": "2 件（左右各 1）",
-        "scad_part": "clamp_printed_screw",
-        "notes": "带 1.25 mm 节距的浅螺旋外形、7.45 mm 小径和顶部扁球头/浅六角驱动窝；只供无钢件时首样夹紧验证，不能作为长期承力件。",
+        "notes": "从压块底部向上扣入；中心孔让 12 mm 粗牙杆身通过但挡住 Ø15.5 扁球头，四根定位柱插入压块盲孔后再点胶。它只负责收纳防丢，不承担夹紧主载荷。",
     },
     {
         "id": "clamp-electronics-installation",
@@ -496,8 +487,8 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp_pressure_pad",
             "clamp-pressure-pad",
             "PETG",
-            "平盘顶面朝上；底面 M8 圆头收纳窝朝下；圆盘平面贴打印床。",
-            "独立台底 Ø50 mm 刚性圆盘压块；位于下舌头台下有效区段中点，顶面接触台底，底面内宽外窄窝容纳 Ø13 扁球头；底部四个盲孔接收背护罩定位柱；可选在顶面另贴薄胶皮。",
+            "平盘顶面朝上；底面粗牙螺杆扁球头收纳窝朝下；圆盘平面贴打印床。",
+            "独立台底 Ø50 mm 刚性圆盘压块；位于下舌头台下有效区段中点，顶面接触台底，底面内宽外窄窝容纳 Ø15.5 扁球头；底部四个盲孔接收背护罩定位柱；可选在顶面另贴薄胶皮。",
         )
     )
     specs.extend(
@@ -506,7 +497,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-pressure-pad-guard",
             "PETG",
             "环形护罩平面朝下；四根定位柱朝上插入压块底部盲孔。",
-            "独立台底压块的扁球头防丢背护罩；中心孔允许 7.45 mm 临时杆身/8 mm 钢杆通过但挡住 Ø13 扁球头，装入压块后点胶固定，不承担夹紧主载荷。",
+            "独立台底压块的扁球头防丢背护罩；中心孔允许 12 mm 粗牙杆身通过但挡住 Ø15.5 扁球头，装入压块后点胶固定，不承担夹紧主载荷。",
         )
     )
     specs.extend(
@@ -514,8 +505,17 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp_printed_screw",
             "clamp-printed-screw",
             "PETG",
-            "轴线竖直；扁球头朝上；平盘压块装配后让球头落入内宽外窄窝。",
-            "无钢制 M8 到货前的临时打印夹紧螺杆；带 1.25 mm 节距浅螺旋、7.45 mm 小径和顶部扁球头/浅六角驱动窝。只用于首样低载验证，到货后必须替换为 M8×1.25 金属螺杆。",
+            "轴线竖直；扁球头朝上；平盘压块装配后让球头落入内宽外窄窝；建议竖直打印并加 brim。",
+            "正式 PETG 粗牙夹紧螺杆；12 mm 大径、9.6 mm 芯径、4 mm 螺距、约 1.2 mm 牙高，顶部 15.5 mm 扁球头带浅六角驱动窝。必须和配套 PETG 粗牙螺母成组使用，不与 M8×1.25 标准螺母混用。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_body_nut",
+            "clamp-printed-body-nut",
+            "PETG",
+            "六角大平面贴床；螺纹轴线沿 Z；打印后清理内螺纹起始边。",
+            "下臂捕获用 PETG 粗牙固定螺母；AF16、11.5 mm 高，与 12/9.6 mm、4 mm 螺距打印螺杆配套。",
         )
     )
     specs.extend(
@@ -524,7 +524,16 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-knob",
             "PETG",
             "旋钮平面朝下；六角螺母捕获窝朝上。",
-            "打印旋钮；必须装入预先对锁的两枚标准 M8 螺母，不使用 PETG 内螺纹。",
+            "打印旋钮；必须装入预先对锁的两枚 PETG 粗牙螺母，不使用标准 M8 细牙螺母。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_knob_nut",
+            "clamp-printed-knob-nut",
+            "PETG",
+            "六角大平面贴床；每个 STL 含两枚粗牙螺母，内螺纹轴线沿 Z。",
+            "旋钮内捕获的两枚 PETG 粗牙对锁螺母；每枚 6 mm 高，先对锁后装入旋钮捕获窝。",
         )
     )
     specs.extend(

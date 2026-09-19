@@ -47,12 +47,13 @@ CLAMP_PAD_DEPTH = 58.0
 CLAMP_TONGUE_EXTRA_LENGTH_X = 20.0
 # The upper and lower structural clamp jaws are both 14 mm thick.  The upper
 # tabletop rubber is external/glued; the lower contact part is a rigid round
-# printed pad with a shallow socket for the M8 rounded screw tip.
+# printed pad with a shallow socket for the coarse printed screw's flat ball tip.
 CLAMP_PAD_T = 14.0
 CLAMP_CLEARANCE = 1.5
 POST_CENTER = TABLE_EDGE + POST_OFFSET
 CLAMP_SCREW_INSET = 41.0
-CLAMP_SCREW_D = 8.0
+CLAMP_SCREW_D = 8.0  # legacy M8 envelope retained for the parameter mirror
+CLAMP_PRINTED_SCREW_D = 12.0
 CLAMP_SCREW_CAPTURE_EXTENSION = 2.0
 # The knob keeps the same Ø36 mm envelope while using a rounded 18-lobe
 # hand-grip ring: Ø30 mm root valleys and Ø5 mm circular lobes.
@@ -67,11 +68,15 @@ CLAMP_KNOB_H = 20.0
 CLAMP_SCREW_TO_KNOB_TOP_BASE = 32.0
 CLAMP_SCREW_EXTRA_LENGTH_Z = 12.0
 CLAMP_SCREW_TO_KNOB_TOP = CLAMP_SCREW_TO_KNOB_TOP_BASE + CLAMP_SCREW_EXTRA_LENGTH_Z
-CLAMP_NUT_AF = 13.0
-CLAMP_NUT_H = 6.5
+CLAMP_NUT_AF = 16.0
+CLAMP_BODY_NUT_H = 11.5
+CLAMP_DRIVE_NUT_H = 6.0
+# Compatibility name used by the static preview parameter mirror; the active
+# body nut uses the same 11.5 mm height.
+CLAMP_NUT_H = 11.5
 CLAMP_NUT_CLEARANCE = 0.35
-CLAMP_KNOB_NUT_GAP = 0.4
-CLAMP_KNOB_NUT_STACK = 2 * CLAMP_NUT_H + CLAMP_KNOB_NUT_GAP
+CLAMP_KNOB_NUT_GAP = 0.6
+CLAMP_KNOB_NUT_STACK = 2 * CLAMP_DRIVE_NUT_H + CLAMP_KNOB_NUT_GAP
 CLAMP_TOP_PAD_X = -CLAMP_REACH_INBOARD + 8.0
 CLAMP_TOP_PAD_WIDTH = 96.0
 CLAMP_TOP_PAD_DEPTH = 48.0
@@ -230,9 +235,9 @@ CLAMP_SCREW_TOP = CLAMP_PRESSURE_PAD_BOTTOM + CLAMP_PRESSURE_PAD_SOCKET_DEPTH
 CLAMP_KNOB_TOP = CLAMP_SCREW_TOP - CLAMP_SCREW_TO_KNOB_TOP
 CLAMP_KNOB_BOTTOM = CLAMP_KNOB_TOP - CLAMP_KNOB_H
 CLAMP_KNOB_NUT_TOP = CLAMP_KNOB_TOP - CLAMP_NUT_CLEARANCE / 2
-CLAMP_KNOB_DRIVE_NUT_Z = CLAMP_KNOB_NUT_TOP - CLAMP_NUT_H
+CLAMP_KNOB_DRIVE_NUT_Z = CLAMP_KNOB_NUT_TOP - CLAMP_DRIVE_NUT_H
 CLAMP_KNOB_LOCK_NUT_Z = (
-    CLAMP_KNOB_DRIVE_NUT_Z - CLAMP_KNOB_NUT_GAP - CLAMP_NUT_H
+    CLAMP_KNOB_DRIVE_NUT_Z - CLAMP_KNOB_NUT_GAP - CLAMP_DRIVE_NUT_H
 )
 CLAMP_SCREW_BOTTOM = CLAMP_KNOB_LOCK_NUT_Z - CLAMP_SCREW_CAPTURE_EXTENSION
 CLAMP_BODY_NUT_Z = CLAMP_LOWER_ARM_BOTTOM + CLAMP_NUT_CLEARANCE
@@ -1616,8 +1621,8 @@ def draw_side(ax) -> None:
         [CLAMP_SCREW_X, CLAMP_SCREW_X],
         [CLAMP_SCREW_BOTTOM, CLAMP_PRESSURE_PAD_TOP],
         color="#444",
-        linewidth=CLAMP_SCREW_D / 2,
-        label="加长 M8 丝杆（仍位于台面下方）",
+        linewidth=CLAMP_PRINTED_SCREW_D / 2,
+        label="PETG 粗牙螺杆（12 mm 大径 / 4 mm 螺距）",
     )
     ax.add_patch(
         Rectangle(
@@ -1649,10 +1654,10 @@ def draw_side(ax) -> None:
         Rectangle(
             (CLAMP_SCREW_X - CLAMP_NUT_AF / 2, CLAMP_BODY_NUT_Z),
             CLAMP_NUT_AF,
-            CLAMP_NUT_H,
+            CLAMP_BODY_NUT_H,
             facecolor="#d4a72c",
             edgecolor="#6e5515",
-            label="fixed M8 nut",
+            label="固定 PETG 粗牙螺母（AF16）",
         )
     )
     ax.axhline(NET_POST_TOP_Z, color="#ffffff", linewidth=2, label="网顶 z=168.5 mm（从 z=16 起 152.5 mm）")

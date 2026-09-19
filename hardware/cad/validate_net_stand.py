@@ -428,12 +428,12 @@ def validate_no_drill_thickness(
     require_stl(
         run_openscad(openscad, printed_screw, 'PART="clamp_printed_screw"', *definitions),
         printed_screw,
-        f"temporary printed clamp screw table_thickness={table_thickness}",
+        f"coarse printed clamp screw table_thickness={table_thickness}",
     )
     require_stl(
         run_openscad(openscad, body_nut, 'PART="clamp_body_nut"', *definitions),
         body_nut,
-        f"fixed M8 nut table_thickness={table_thickness}",
+        f"fixed coarse PETG nut table_thickness={table_thickness}",
     )
     require_stl(
         run_openscad(openscad, knob, 'PART="clamp_knob"', *definitions),
@@ -443,7 +443,7 @@ def validate_no_drill_thickness(
     require_stl(
         run_openscad(openscad, knob_nut, 'PART="clamp_knob_nut"', *definitions),
         knob_nut,
-        f"captured knob M8 nut table_thickness={table_thickness}",
+        f"captured coarse PETG nuts table_thickness={table_thickness}",
     )
     top_pad_bounds = stl_bounds(top_pad)
     pad_bounds = stl_bounds(pad)
@@ -581,6 +581,14 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_screw_x",
         "clamp_screw_d",
         "clamp_screw_pitch",
+        "clamp_screw_bore_d",
+        "clamp_printed_thread_major_d",
+        "clamp_printed_thread_core_d",
+        "clamp_printed_thread_pitch",
+        "clamp_printed_thread_clearance_r",
+        "clamp_printed_thread_nut_af",
+        "clamp_printed_thread_body_nut_h",
+        "clamp_printed_thread_drive_nut_h",
         "clamp_table_thickness_min",
         "clamp_table_thickness_max",
         "clamp_threaded_boss_d",
@@ -602,6 +610,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_nut_pocket_af",
         "clamp_nut_pocket_depth",
         "clamp_knob_nut_gap",
+        "clamp_knob_nut_h",
         "clamp_knob_nut_stack_depth",
         "clamp_knob_nut_pocket_depth",
         "clamp_body_nut_z",
@@ -1723,6 +1732,20 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and
         parameters["clamp_screw_d"] == 8
         and parameters["clamp_screw_pitch"] == 1.25
+        and parameters["clamp_screw_bore_d"]
+        > parameters["clamp_printed_thread_major_d"]
+        and parameters["clamp_printed_thread_major_d"]
+        > parameters["clamp_printed_thread_core_d"] > 0
+        and parameters["clamp_printed_thread_pitch"] >= 3.5
+        and 0 < parameters["clamp_printed_thread_clearance_r"] <= 0.4
+        and parameters["clamp_printed_thread_major_d"]
+        == parameters["clamp_printed_screw_shaft_d"]
+        and parameters["clamp_printed_thread_core_d"]
+        == parameters["clamp_printed_screw_thread_root_d"]
+        and parameters["clamp_printed_thread_body_nut_h"]
+        > 2 * parameters["clamp_printed_thread_pitch"]
+        and parameters["clamp_printed_thread_drive_nut_h"]
+        >= parameters["clamp_printed_thread_pitch"]
         and parameters["clamp_table_thickness_min"]
         <= parameters["table_thickness"]
         <= parameters["clamp_table_thickness_max"]
@@ -1764,6 +1787,8 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
         > parameters["clamp_screw_d"]
         and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
+        > parameters["clamp_printed_thread_core_d"]
+        and parameters["clamp_pressure_pad_screw_socket_mouth_d"]
         < parameters["clamp_pressure_pad_screw_socket_d"]
         and 0 < parameters["clamp_pressure_pad_screw_socket_chamfer_h"]
         < parameters["clamp_pressure_pad_screw_socket_depth"]
@@ -1772,9 +1797,13 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_pressure_pad_guard_inner_d"]
         > parameters["clamp_printed_screw_shaft_d"]
     ):
-        raise RuntimeError(f"M8x1.25 clamp pressure path is inconsistent: {parameters}")
+        raise RuntimeError(f"coarse printed clamp pressure path is inconsistent: {parameters}")
     if not (
         parameters["clamp_nut_af"] > parameters["clamp_screw_d"]
+        and parameters["clamp_nut_af"]
+        == parameters["clamp_printed_thread_nut_af"]
+        and parameters["clamp_nut_h"]
+        == parameters["clamp_printed_thread_body_nut_h"]
         and parameters["clamp_nut_pocket_af"] > parameters["clamp_nut_af"]
         and parameters["clamp_nut_pocket_af"] / math.cos(math.radians(30)) + 2
         < parameters["clamp_threaded_boss_d"]
@@ -1790,7 +1819,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         <= parameters["clamp_lower_arm_top_z"] + 0.01
         and parameters["clamp_knob_nut_gap"] >= 0
         and parameters["clamp_knob_nut_stack_depth"]
-        == 2 * parameters["clamp_nut_h"] + parameters["clamp_knob_nut_gap"]
+        == 2 * parameters["clamp_knob_nut_h"] + parameters["clamp_knob_nut_gap"]
         and parameters["clamp_knob_nut_pocket_depth"]
         > parameters["clamp_knob_nut_stack_depth"]
         and parameters["clamp_knob_nut_pocket_depth"]
@@ -1801,7 +1830,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         and parameters["clamp_screw_top_z"] > parameters["clamp_knob_nut_top_z"]
         and parameters["clamp_screw_bottom_z"] < parameters["clamp_knob_nut_bottom_z"]
     ):
-        raise RuntimeError(f"M8 nut capture dimensions are inconsistent: {parameters}")
+        raise RuntimeError(f"coarse printed nut capture dimensions are inconsistent: {parameters}")
     if not (
         parameters["clamp_knob_grip_root_d"] > parameters["clamp_screw_d"] + 0.8
         and parameters["clamp_knob_grip_root_d"] < parameters["clamp_knob_d"]
@@ -3662,7 +3691,7 @@ def main() -> None:
             and body_nut_bounds[5] <= parameters["clamp_lower_arm_top_z"] + 0.01
         ):
             raise RuntimeError(
-                "pressure pad, M8 tip or nut capture breaks the no-drill clamp path: "
+                "pressure pad, coarse printed screw tip or nut capture breaks the no-drill clamp path: "
                 f"pad={pressure_pad_bounds}, screw={screw_bounds}, "
                 f"body_nut={body_nut_bounds}, knob={knob_bounds}, knob_nut={knob_nut_bounds}"
             )

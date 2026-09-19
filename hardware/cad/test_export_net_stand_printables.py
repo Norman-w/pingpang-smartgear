@@ -31,7 +31,9 @@ EXPECTED_COUNTS = {
     "clamp_pressure_pad": 2,
     "clamp_pressure_pad_guard": 2,
     "clamp_printed_screw": 2,
+    "clamp_body_nut": 2,
     "clamp_knob": 2,
+    "clamp_knob_nut": 2,
     "sensor_mount_body": 2,
     "sensor_clamp_lip": 2,
     "calibration_gauge": 1,
@@ -69,8 +71,8 @@ REMOVED_ACTIVE_PARTS = {
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 33:
-        raise AssertionError(f"expected 33 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 37:
+        raise AssertionError(f"expected 37 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -136,9 +138,26 @@ def _manifest_entries(path: Path) -> dict[str, dict[str, object]]:
     components = data.get("assembly_components")
     if not isinstance(components, list) or not components:
         raise AssertionError("manifest 缺少装配物料清单")
-    rod = next((item for item in components if item.get("id") == "m8-threaded-rod"), None)
-    if not isinstance(rod, dict) or rod.get("name_zh") != "M8×1.25 金属螺杆" or rod.get("printable") is not False:
-        raise AssertionError("M8 金属螺杆必须作为中文外购/非打印件出现在物料清单")
+    rod = next((item for item in components if item.get("id") == "printed-coarse-thread-rods"), None)
+    if (
+        not isinstance(rod, dict)
+        or rod.get("scad_part") != "clamp_printed_screw"
+        or rod.get("printable") is not True
+        or "4 mm 螺距" not in str(rod.get("notes"))
+        or "M8×1.25" not in str(rod.get("notes"))
+    ):
+        raise AssertionError("粗牙 PETG 螺杆必须作为可打印件进入中文物料清单")
+    body_nut = next((item for item in components if item.get("id") == "printed-coarse-body-nuts"), None)
+    drive_nuts = next((item for item in components if item.get("id") == "printed-coarse-drive-nuts"), None)
+    if (
+        not isinstance(body_nut, dict)
+        or body_nut.get("scad_part") != "clamp_body_nut"
+        or body_nut.get("printable") is not True
+        or not isinstance(drive_nuts, dict)
+        or drive_nuts.get("scad_part") != "clamp_knob_nut"
+        or drive_nuts.get("printable") is not True
+    ):
+        raise AssertionError("粗牙 PETG 固定螺母和旋钮对锁螺母必须进入中文物料清单")
     net_clip = next((item for item in components if item.get("id") == "net-clamp-clips"), None)
     if (
         not isinstance(net_clip, dict)
@@ -251,9 +270,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (33 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (37 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (33 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (37 specs, manifest not present)")
 
 
 if __name__ == "__main__":
