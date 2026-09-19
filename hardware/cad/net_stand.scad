@@ -2008,6 +2008,10 @@ clamp_split_lower_right_x =
     table_edge_x - clamp_reinforcement_inboard_offset_x +
     clamp_electronics_cavity_inboard_margin_x + 72.5;
 clamp_split_lower_right_z = clamp_lower_arm_bottom_z - 2;
+clamp_split_lower_left_x =
+    table_edge_x - clamp_reinforcement_inboard_offset_x +
+    clamp_electronics_cavity_inboard_margin_x + 10;
+clamp_split_lower_left_z = clamp_lower_arm_bottom_z - 2;
 clamp_split_bolt_positions = [
     // Upper fixed jaw: keep the existing left/right load points and add a
     // center point so the long outer edge is clamped around the electronics
@@ -2021,13 +2025,11 @@ clamp_split_bolt_positions = [
     [clamp_pad_x + 14, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
     [clamp_pad_x + 63.5, clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
     [clamp_split_lower_right_x, clamp_split_lower_right_z],
-    // Lower-left corner of the electronics bay: this extra transverse joint
-    // closes the short unsupported corner of the split seam.  It sits inside
-    // the hollow-bay load path, so the cavity-edge boss filter may reinforce
-    // it without adding a cosmetic boss to the outside skin.
-    [table_edge_x - clamp_reinforcement_inboard_offset_x +
-         clamp_electronics_cavity_inboard_margin_x + 10,
-     clamp_lower_arm_bottom_z + clamp_lower_arm_t / 2],
+    // Spatial third point in the lower row: put the electronics-bay
+    // lower-left joint on the same lower shoulder as the moved right-hand
+    // joint so the two bottom points close the seam without adding a second
+    // hole through the thin jaw.
+    [clamp_split_lower_left_x, clamp_split_lower_left_z],
     // Outboard wall/bridge: the last two points drill the solid wall; only a
     // point whose boss footprint reaches the electronics cavity gets a barrel.
     [clamp_outer_wall_x + 3.5,
@@ -3187,6 +3189,14 @@ assert(clamp_split_plane_y == 0 &&
                clamp_electronics_cavity_x_max - clamp_split_boss_d / 2 &&
            clamp_split_lower_right_z - clamp_split_boss_d / 2 >
                clamp_reinforcement_bottom_z_at(clamp_split_lower_right_x) +
+               0.5 &&
+           clamp_split_bolt_positions[6][0] == clamp_split_lower_left_x &&
+           clamp_split_bolt_positions[6][1] == clamp_split_lower_left_z &&
+           clamp_split_bolt_positions[6][0] > clamp_electronics_cavity_x_min &&
+           clamp_split_bolt_positions[6][0] <
+               clamp_electronics_cavity_x_max - clamp_split_boss_d / 2 &&
+           clamp_split_lower_left_z - clamp_split_boss_d / 2 >
+               clamp_reinforcement_bottom_z_at(clamp_split_lower_left_x) +
                0.5,
        "split C-clamp must use a centered y=0 seam, nine transverse M5 joints, cavity-edge boss reinforcement only, and printable nut pockets");
 assert(clamp_screw_side_reinforcement_start_x == clamp_pad_x &&

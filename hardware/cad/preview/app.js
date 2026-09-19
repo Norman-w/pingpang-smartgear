@@ -119,7 +119,7 @@ const ASSEMBLY_GROUPS = {
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
-const PREVIEW_CACHE_BUSTER = "split-c-scheme-v7";
+const PREVIEW_CACHE_BUSTER = "split-c-scheme-v8";
 
 const getVersionedUrl = (path, key = "v") => {
   const target = new URL(path, window.location.href);

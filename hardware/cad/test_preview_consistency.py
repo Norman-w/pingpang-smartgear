@@ -363,7 +363,7 @@ def main() -> None:
         "sourcePart === \"clamp_body_half_user\"",
         "sourcePart === \"clamp_body_half_opponent\"",
         "sourcePart === \"post_clamp_carrier\"",
-        "split-c-scheme-v7",
+        "split-c-scheme-v8",
     )
     missing_overlay_guards = [text for text in overlay_guards if text not in app_text]
     if missing_overlay_guards:
