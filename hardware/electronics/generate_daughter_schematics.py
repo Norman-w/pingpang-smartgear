@@ -296,6 +296,7 @@ def ui_schematic() -> None:
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x04"),
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x05"),
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x07"),
+        ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x16"),
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x12"),
         ("Device", "Device.kicad_sym", "LED"),
         ("Device", "Device.kicad_sym", "Buzzer"),
@@ -314,7 +315,7 @@ def ui_schematic() -> None:
         ),
         placed_symbol(
             "Connector_Generic:Conn_01x04", definitions["Connector_Generic:Conn_01x04"], "J_OLED",
-            "OLED I2C RESERVE MX1.25 4P", "Connector_JST:JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal",
+            "OLED I2C FPC CABLE MX1.25 4P", "Connector_JST:JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal",
             110, 55, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
@@ -329,27 +330,27 @@ def ui_schematic() -> None:
         ),
         placed_symbol(
             "Switch:SW_Push", definitions["Switch:SW_Push"], "SW_START",
-            "SEALED START BUTTON", "Button_Switch_SMD:SW_SPST_TL3301N160QG",
+            "PCB DIRECT START SMD 3.9x3x2", "Button_Switch_SMD:SW_SPST_TS-1088-xR020",
             176, 65, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
             "Switch:SW_Push", definitions["Switch:SW_Push"], "SW_MODE",
-            "SEALED MODE BUTTON", "Button_Switch_SMD:SW_SPST_TL3301N160QG",
+            "PCB DIRECT MODE SMD 3.9x3x2", "Button_Switch_SMD:SW_SPST_TS-1088-xR020",
             176, 105, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
             "Device:LED", definitions["Device:LED"], "D_STATUS",
-            "STATUS LIGHT PIPE", "LED_SMD:LED_0603_1608Metric",
+            "STATUS DIRECT LED 0603 GREEN", "LED_SMD:LED_0603_1608Metric",
             176, 145, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
             "Device:LED", definitions["Device:LED"], "D_BAT",
-            "BATTERY LIGHT PIPE", "LED_SMD:LED_0603_1608Metric",
+            "BATTERY DIRECT LED 0603 YELLOW", "LED_SMD:LED_0603_1608Metric",
             176, 165, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
-            "Connector_Generic:Conn_01x07", definitions["Connector_Generic:Conn_01x07"], "J_USB_PANEL",
-            "USB-C BULKHEAD MX1.25 7P / SILICONE CAP", "Connector_JST:JST_GH_SM07B-GHS-TB_1x07-1MP_P1.25mm_Horizontal",
+            "Connector_Generic:Conn_01x16", definitions["Connector_Generic:Conn_01x16"], "J_USB_PANEL",
+            "USB-C VERTICAL 16P DIRECT / SILICONE CAP", "Connector_USB:USB_C_Receptacle_G-Switch_GT-USB-7051x",
             245, 110, project_uuid, "ui-panel-v0.2",
         ),
     ]
@@ -373,8 +374,8 @@ def ui_schematic() -> None:
     notes = [
         note("PINGPANG / SEALED UI PANEL / OLED + BUTTONS + AUDIO + USB-C", 14, 12, 1.8),
         note("The 12-pin mother-board cable carries power, I2C, two buttons, buzzer, I2S speaker and two status LEDs", 14, 20),
-        note("Faceplate has a display window, two button bores, two light pipes, acoustic membrane opening and capped USB-C slot", 14, 27),
-        note("Use a panel bulkhead/short harness so the sealed cover has no raw board-edge connector exposed", 14, 215),
+        note("Faceplate has a display window, two direct PCB button bores, two direct LED bores, acoustic membrane opening and capped USB-C slot", 14, 27),
+        note("The screen remains cable-connected; buttons, LEDs and USB-C are mounted on the UI PCB and share the faceplate datum", 14, 215),
     ]
     schematic(
         HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",

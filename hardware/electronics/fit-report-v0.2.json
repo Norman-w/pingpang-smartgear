@@ -1,19 +1,19 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-03T09:49:01.936579+00:00",
+  "generated_at": "2026-09-20T09:36:24.097713+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
       "x": [
         777.5,
-        880.3
+        894.3
       ],
       "y": [
         -20.0,
         20.0
       ],
-      "top_z": -39.0,
-      "length_x": 102.79999999999995
+      "top_z": 0.5,
+      "length_x": 116.79999999999995
     },
     "main_board": {
       "local_bounds": {
@@ -35,14 +35,14 @@
       },
       "world_bounds": {
         "min": [
-          785.9,
+          792.9,
           -13.5,
-          -47.6
+          -46.4912
         ],
         "max": [
-          871.9,
+          878.9,
           18.5,
-          -41.76
+          -40.6512
         ],
         "size": [
           86.0,
@@ -51,19 +51,19 @@
         ]
       },
       "translation": [
-        785.9,
+        792.9,
         18.5,
-        -47.6
+        -46.4912
       ],
       "margins_to_cavity": {
-        "x_min": 8.4,
-        "x_max": 8.4,
+        "x_min": 15.4,
+        "x_max": 15.4,
         "y_min": 6.5,
         "y_max": 1.5,
-        "z_min": 27.4,
-        "z_max": 2.76
+        "z_min": 28.5088,
+        "z_max": 41.1512
       },
-      "floor_clearance": 8.997,
+      "floor_clearance": 8.9597,
       "status": "PASS"
     },
     "emitter_board": {
@@ -86,14 +86,14 @@
       },
       "world_bounds": {
         "min": [
-          794.9,
+          801.9,
           -16.0,
-          -49.2
+          -45.8912
         ],
         "max": [
-          862.9,
+          869.9,
           16.0,
-          -43.36
+          -40.0512
         ],
         "size": [
           68.0,
@@ -102,66 +102,69 @@
         ]
       },
       "translation": [
-        794.9,
+        801.9,
         16.0,
-        -49.2
+        -45.8912
       ],
       "margins_to_cavity": {
-        "x_min": 17.4,
-        "x_max": 17.4,
+        "x_min": 24.4,
+        "x_max": 24.4,
         "y_min": 4.0,
         "y_max": 4.0,
-        "z_min": 25.8,
-        "z_max": 4.36
+        "z_min": 29.1088,
+        "z_max": 40.5512
       },
-      "floor_clearance": 8.8705,
+      "floor_clearance": 11.0332,
       "status": "PASS"
     },
     "ui_board": {
       "local_bounds": {
         "min": [
           0.0,
-          -28.0,
+          -28.6,
           0.0
         ],
         "max": [
           58.0,
           -0.0,
-          5.84
+          7.395
         ],
         "size": [
           58.0,
-          28.0,
-          5.84
+          28.6,
+          7.395
         ]
       },
       "world_bounds": {
         "min": [
-          799.9,
-          -14.0,
-          -79.6529
+          806.9,
+          23.2,
+          -50.6
         ],
         "max": [
-          857.9,
-          14.0,
-          -73.8129
+          864.9,
+          30.595,
+          -22.0
         ],
         "size": [
           58.0,
-          28.0,
-          5.84
+          7.395,
+          28.6
         ]
       },
-      "translation": [
-        799.9,
-        14.0,
-        -79.6529
-      ],
-      "xy_margins_to_cavity_datum": {
-        "x_min": 22.4,
-        "x_max": 22.4,
-        "y_min": 6.0,
-        "y_max": 6.0
+      "side_datum": {
+        "board_x_min": 806.9,
+        "board_plane_y": 23.2,
+        "board_z_min": -50.0,
+        "y_reflection": true
+      },
+      "margins_to_side_window": {
+        "x_min": 29.4,
+        "x_max": 29.4,
+        "inner_wall": 3.2,
+        "outer_faceplate_gap": 0.4,
+        "z_min": 2.4,
+        "z_max": 3.0
       },
       "status": "PASS"
     },
@@ -174,14 +177,14 @@
       ],
       "world_bounds": {
         "min": [
-          796.4,
+          803.4,
           -15.0,
-          -61.6373
+          -60.4912
         ],
         "max": [
-          861.4,
+          868.4,
           15.0,
-          -54.6373
+          -53.4912
         ],
         "size": [
           65.0,
@@ -190,12 +193,12 @@
         ]
       },
       "margins_to_cavity": {
-        "x_min": 18.9,
-        "x_max": 18.9,
+        "x_min": 25.9,
+        "x_max": 25.9,
         "y_min": 5.0,
         "y_max": 5.0,
-        "z_min": 13.3627,
-        "z_max": 15.6373,
+        "z_min": 14.5088,
+        "z_max": 53.9912,
         "floor": 2.0
       },
       "rail_side_clearance": 2.5,
@@ -204,19 +207,19 @@
     "mother_board_bosses": {
       "hole_centers_xy_mm": [
         [
-          799.4,
+          806.4,
           -9.5
         ],
         [
-          830.9,
+          837.9,
           -9.5
         ],
         [
-          860.9,
+          867.9,
           15.0
         ],
         [
-          860.9,
+          867.9,
           -9.5
         ]
       ],
@@ -279,6 +282,142 @@
       "status": "PASS"
     },
     "all_pass": true
+  },
+  "ui_interface": {
+    "status": "PASS",
+    "pcb_to_faceplate_centers": {
+      "SW_START": {
+        "pcb_center_mm": [
+          10.0,
+          8.0
+        ],
+        "faceplate_center_mm": [
+          10.0,
+          8.0
+        ],
+        "max_error_mm": 0.0,
+        "status": "PASS"
+      },
+      "SW_MODE": {
+        "pcb_center_mm": [
+          10.0,
+          20.0
+        ],
+        "faceplate_center_mm": [
+          10.0,
+          20.0
+        ],
+        "max_error_mm": 0.0,
+        "status": "PASS"
+      },
+      "D_STATUS": {
+        "pcb_center_mm": [
+          29.0,
+          3.0
+        ],
+        "faceplate_center_mm": [
+          29.0,
+          3.0
+        ],
+        "max_error_mm": 0.0,
+        "status": "PASS"
+      },
+      "D_BAT": {
+        "pcb_center_mm": [
+          32.0,
+          25.0
+        ],
+        "faceplate_center_mm": [
+          32.0,
+          25.0
+        ],
+        "max_error_mm": 0.0,
+        "status": "PASS"
+      },
+      "J_USB_PANEL": {
+        "pcb_center_mm": [
+          47.0,
+          26.0
+        ],
+        "faceplate_center_mm": [
+          47.0,
+          26.0
+        ],
+        "max_error_mm": 0.0,
+        "status": "PASS"
+      }
+    },
+    "mounting_holes": {
+      "actual_local_mm": [
+        [
+          3.5,
+          3.5
+        ],
+        [
+          3.5,
+          24.5
+        ],
+        [
+          54.5,
+          3.5
+        ],
+        [
+          54.5,
+          24.5
+        ]
+      ],
+      "expected_local_mm": [
+        [
+          3.5,
+          3.5
+        ],
+        [
+          3.5,
+          24.5
+        ],
+        [
+          54.5,
+          3.5
+        ],
+        [
+          54.5,
+          24.5
+        ]
+      ],
+      "status": "PASS"
+    },
+    "faceplate": {
+      "board_size_mm": [
+        58.0,
+        28.0
+      ],
+      "screen_opening_mm": [
+        27.4,
+        16.4
+      ],
+      "button_pocket_d_mm": 4.9,
+      "button_plunger_d_mm": 1.6,
+      "led_bore_d_mm": 2.2,
+      "speaker_opening_d_mm": 12.0,
+      "usb_opening_mm": [
+        9.6,
+        6.6
+      ],
+      "board_to_faceplate_gap_mm": 0.4,
+      "opening_clearances_mm": {
+        "screen_to_faceplate_edge_mm": 8.8,
+        "usb_to_screen_mm": 0.5,
+        "buttons_to_screen_mm": 3.2
+      },
+      "status": "PASS"
+    },
+    "usb_c": {
+      "orientation_deg": 0.0,
+      "mating_axis": "PCB normal -> y+ panel",
+      "model": "usb-c-vertical-proxy.step",
+      "status": "PASS",
+      "physical_vendor_step": "OPEN until the purchased vertical receptacle SKU is frozen"
+    }
   },
   "boards": [
     {
@@ -353,7 +492,7 @@
         "stl": "hardware/electronics/3d/v0.2/esp32-control-v0.1.stl",
         "step": "hardware/electronics/3d/v0.2/esp32-control-v0.1.step",
         "stl_bytes": 6182324,
-        "step_bytes": 5483317,
+        "step_bytes": 5482802,
         "stl_bounds": {
           "min": [
             0.0,
@@ -572,24 +711,24 @@
         "U_OP09"
       ],
       "connector_pad_counts": {
-        "J_RX09": 5,
-        "J_HOST": 10,
-        "J_RX08": 5,
-        "J_RX05": 5,
         "J_RX00": 5,
-        "J_RX03": 5,
+        "J_RX05": 5,
         "J_RX04": 5,
-        "J_RX06": 5,
-        "J_PWR": 4,
-        "J_RX01": 5,
         "J_RX07": 5,
-        "J_RX02": 5
+        "J_RX01": 5,
+        "J_PWR": 4,
+        "J_RX09": 5,
+        "J_RX08": 5,
+        "J_HOST": 10,
+        "J_RX06": 5,
+        "J_RX02": 5,
+        "J_RX03": 5
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/m6-receiver-carrier-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/m6-receiver-carrier-v0.2.step",
         "stl_bytes": 2463224,
-        "step_bytes": 1378191,
+        "step_bytes": 1378417,
         "stl_bounds": {
           "min": [
             0.0,
@@ -864,15 +1003,15 @@
       ],
       "connector_pad_counts": {
         "J_TX_A": 12,
-        "J_TX_B": 12,
+        "J_BAT": 4,
         "J_EXT": 4,
-        "J_BAT": 4
+        "J_TX_B": 12
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/emitter-power-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/emitter-power-v0.2.step",
         "stl_bytes": 1542304,
-        "step_bytes": 1251867,
+        "step_bytes": 1251787,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1008,10 +1147,10 @@
       ],
       "copper_layer_count": 2,
       "footprints": 13,
-      "models": 7,
-      "nets": 18,
+      "models": 9,
+      "nets": 20,
       "tracks": 0,
-      "unconnected": 21,
+      "unconnected": 32,
       "references": [
         "D_BAT",
         "D_STATUS",
@@ -1028,34 +1167,34 @@
         "SW_START"
       ],
       "connector_pad_counts": {
-        "J_USB_PANEL": 9,
-        "J_MOTHER": 14,
-        "SW_MODE": 2,
-        "J_OLED": 6,
-        "J_BUZ": 4,
+        "SW_START": 2,
         "J_SPK": 7,
-        "SW_START": 2
+        "J_OLED": 6,
+        "J_MOTHER": 14,
+        "J_BUZ": 4,
+        "SW_MODE": 2,
+        "J_USB_PANEL": 22
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/ui-panel-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/ui-panel-v0.2.step",
-        "stl_bytes": 1586832,
-        "step_bytes": 2336732,
+        "stl_bytes": 1699164,
+        "step_bytes": 2066521,
         "stl_bounds": {
           "min": [
             0.0,
-            -28.0,
+            -28.6,
             0.0
           ],
           "max": [
             58.0,
             -0.0,
-            5.84
+            7.395
           ],
           "size": [
             58.0,
-            28.0,
-            5.84
+            28.6,
+            7.395
           ]
         }
       },
@@ -1093,7 +1232,7 @@
             ]
           },
           "J_OLED": {
-            "value": "MX1.25_I2C_OLED_RESERVE_4P",
+            "value": "MX1.25_I2C_OLED_FPC_4P",
             "signal_pad_count": 4,
             "pitch_mm": [
               1.25,
@@ -1116,21 +1255,6 @@
             "models": [
               "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM05B-GHS-TB_1x05-1MP_P1.25mm_Horizontal.step"
             ]
-          },
-          "J_USB_PANEL": {
-            "value": "MX1.25_USB_C_BULKHEAD_REF_7P",
-            "signal_pad_count": 7,
-            "pitch_mm": [
-              1.25,
-              1.25,
-              1.25,
-              1.25,
-              1.25,
-              1.25
-            ],
-            "models": [
-              "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM07B-GHS-TB_1x07-1MP_P1.25mm_Horizontal.step"
-            ]
           }
         }
       },
@@ -1140,9 +1264,8 @@
         "references": {
           "J_BUZ": "BUZZER MX1.25 LOCK 2P",
           "J_MOTHER": "MOTHER UI MX1.25 LOCK 12P",
-          "J_OLED": "OLED I2C RESERVE MX1.25 4P",
-          "J_SPK": "I2S SPEAKER MX1.25 LOCK 5P",
-          "J_USB_PANEL": "USB-C BULKHEAD MX1.25 7P / SILICONE CAP"
+          "J_OLED": "OLED I2C FPC CABLE MX1.25 4P",
+          "J_SPK": "I2S SPEAKER MX1.25 LOCK 5P"
         }
       },
       "connector_net_contract": {
@@ -1178,15 +1301,141 @@
             "3": "ui_spk_dout",
             "4": "3v3",
             "5": "gnd"
+          }
+        }
+      },
+      "ui_direct_part_contract": {
+        "status": "PASS",
+        "parts": {
+          "SW_START": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
+            ],
+            "center_mm": [
+              10.0,
+              8.0
+            ],
+            "pad_nets": {
+              "1": [
+                "ui_btn_start"
+              ],
+              "2": [
+                "gnd"
+              ]
+            }
+          },
+          "SW_MODE": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
+            ],
+            "center_mm": [
+              10.0,
+              20.0
+            ],
+            "pad_nets": {
+              "1": [
+                "ui_btn_mode"
+              ],
+              "2": [
+                "gnd"
+              ]
+            }
+          },
+          "D_STATUS": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
+            ],
+            "center_mm": [
+              29.0,
+              3.0
+            ],
+            "pad_nets": {
+              "1": [
+                "ui_led_status"
+              ],
+              "2": [
+                "gnd"
+              ]
+            }
+          },
+          "D_BAT": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
+            ],
+            "center_mm": [
+              32.0,
+              25.0
+            ],
+            "pad_nets": {
+              "1": [
+                "ui_led_battery"
+              ],
+              "2": [
+                "gnd"
+              ]
+            }
           },
           "J_USB_PANEL": {
-            "1": "usb_vbus",
-            "2": "gnd",
-            "3": "usb_dp",
-            "4": "usb_dn",
-            "5": "cc1",
-            "6": "cc2",
-            "7": "gnd"
+            "models": [
+              "${KIPRJMOD}/../3d/v0.2/usb-c-vertical-proxy.step"
+            ],
+            "center_mm": [
+              47.0,
+              26.0
+            ],
+            "pad_nets": {
+              "A1": [
+                "gnd"
+              ],
+              "A12": [
+                "gnd"
+              ],
+              "A4": [
+                "usb_vbus"
+              ],
+              "A5": [
+                "cc1"
+              ],
+              "A6": [
+                "usb_dp"
+              ],
+              "A7": [
+                "usb_dn"
+              ],
+              "A8": [
+                "usb_sbu2"
+              ],
+              "A9": [
+                "usb_vbus"
+              ],
+              "B1": [
+                "gnd"
+              ],
+              "B12": [
+                "gnd"
+              ],
+              "B4": [
+                "usb_vbus"
+              ],
+              "B5": [
+                "cc2"
+              ],
+              "B6": [
+                "usb_dp"
+              ],
+              "B7": [
+                "usb_dn"
+              ],
+              "B8": [
+                "usb_sbu1"
+              ],
+              "B9": [
+                "usb_vbus"
+              ],
+              "SH": [
+                "gnd"
+              ]
+            }
           }
         }
       }
@@ -1219,9 +1468,9 @@
       {
         "path": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",
         "pdf_export": "PASS",
-        "erc_violations": 79,
-        "erc_errors": 49,
-        "erc_warnings": 30
+        "erc_violations": 86,
+        "erc_errors": 58,
+        "erc_warnings": 28
       }
     ],
     "native_pcb_count": 4,
@@ -1247,7 +1496,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[17:48:34] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[17:35:13] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 210,
     "erc_errors": 119,
@@ -1300,24 +1549,26 @@
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb",
-        "violations": 0,
-        "severity_counts": {},
-        "errors": 0,
+        "violations": 18,
+        "severity_counts": {
+          "error": 18
+        },
+        "errors": 18,
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
-        "unconnected": 15,
-        "status": "PASS"
+        "unconnected": 21,
+        "status": "FAIL"
       }
     ],
-    "status": "PASS",
+    "status": "FAIL",
     "release": "OPEN until all unconnected items are routed and expected zone warnings are reviewed"
   },
   "print_package": {
-    "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json",
-    "printable_stl_count": 37,
-    "closed_count": 37,
-    "positive_volume_count": 37,
+    "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
+    "printable_stl_count": 39,
+    "closed_count": 39,
+    "positive_volume_count": 39,
     "status": "PASS"
   },
   "interference": {
@@ -1364,13 +1615,13 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 7373207,
+        "bytes": 8465047,
         "manifold_reported": true
       },
       {
         "part": "clamp_electronics_shell_cutaway",
         "definitions": [],
-        "bytes": 236466,
+        "bytes": 77878,
         "manifold_reported": true
       },
       {
@@ -1378,7 +1629,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 7056674,
+        "bytes": 7942600,
         "manifold_reported": true
       },
       {
@@ -1386,13 +1637,13 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 1788657,
+        "bytes": 1500854,
         "manifold_reported": true
       },
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 36891530,
+        "bytes": 37489655,
         "manifold_reported": true
       },
       {
@@ -1400,7 +1651,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 24282056,
+        "bytes": 25088090,
         "manifold_reported": true
       },
       {
@@ -1408,7 +1659,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 24589715,
+        "bytes": 25399281,
         "manifold_reported": true
       },
       {

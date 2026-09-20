@@ -35,6 +35,9 @@ const D = Object.freeze({
   boardXMax: 878.9,
   boardYMin: -13.5,
   boardBottomZ: -46.4912,
+  boardMountScrewHeadD: 5.0,
+  boardMountScrewHeadH: 1.4,
+  boardMountScrewHeadZ: 2.3,
   batteryXMin: 803.4,
   batteryXMax: 868.4,
   batteryYMin: -15,
@@ -51,15 +54,27 @@ const D = Object.freeze({
   uiBoardLength: 58,
   uiBoardWidth: 28,
   uiBoardT: 1.6,
-  screenLength: 28,
+  uiMountBossD: 7,
+  uiMountBossYFront: 23.2,
+  uiMountBossYBack: 19.8,
+  uiMountXInset: 3.5,
+  uiMountYInset: 3.5,
+  screenLength: 25,
   screenWidth: 14,
-  buttonDiameter: 10,
-  ledDiameter: 4,
+  buttonDiameter: 4.2,
+  buttonPlungerDiameter: 1.6,
+  buttonTopZ: 2.0,
+  // The vertical USB-C proxy reaches 7.395 mm above the PCB top; the printed
+  // faceplate starts 0.4 mm beyond that actual board/component envelope.
+  faceplateInnerZ: 7.795,
+  faceplateOuterZ: 11.795,
+  ledDiameter: 1.6,
+  ledBoreDiameter: 2.2,
   speakerDiameter: 16,
-  buttonCenters: [[8, 9], [8, 20]],
-  ledCenters: [[29, 4], [29, 24]],
+  buttonCenters: [[10, 8], [10, 20]],
+  ledCenters: [[29, 3], [32, 25]],
   speakerCenter: [52.2, 8],
-  usbCenter: [52, 24],
+  usbCenter: [47, 26],
 });
 
 const refs = {
@@ -144,7 +159,10 @@ function floorAt(x) {
 }
 
 function sideVisible(side) {
-  return state.side === "both" || state.side === side;
+  // Keep the electronics page single-sided.  The two mirrored assemblies are
+  // large enough that placing them in one canvas makes a cavity/PCB easy to
+  // misidentify; switch between the dedicated right and left views instead.
+  return state.side === side;
 }
 
 function createMaterial(color, opacity = 1, options = {}) {
@@ -284,20 +302,23 @@ function addShellItem(file, sideName, half, basePosition) {
   });
 }
 
-function addCavityReference() {
+function addCavityReference(sideName) {
   const width = D.cavityXMax - D.cavityXMin;
   const height = D.cavityTopZ - floorAt((D.cavityXMin + D.cavityXMax) / 2);
-  const center = [(D.cavityXMin + D.cavityXMax) / 2, -D.cavityYHalf, floorAt((D.cavityXMin + D.cavityXMax) / 2) + height / 2];
-  const item = makeItem("reference:cavity", "电子腔有效边界（参考）", "cavity", [0, 0, 0], [0, 0, 0], {
+  const mirrored = sideName === "left";
+  const center = [mirrored ? -(D.cavityXMin + D.cavityXMax) / 2 : (D.cavityXMin + D.cavityXMax) / 2, 0, floorAt((D.cavityXMin + D.cavityXMax) / 2) + height / 2];
+  const item = makeItem(`reference:cavity:${sideName}`, `${sideName === "right" ? "右侧" : "左侧"} 电子腔有效边界（参考）`, "cavity", [0, 0, 0], [0, 0, 0], {
+    side: mirrored ? -1 : 1,
     role: "cavity",
-    detail: "按当前 SCAD 的 116.8 × 40 mm 腔体范围绘制。底面实际为斜面，这个线框用于快速观察包络。",
-    visibleWhen: () => state.showCavity && sideVisible("right"),
+    detail: `按当前 SCAD 的 116.8 × 40 mm ${sideName === "right" ? "右侧" : "左侧"}腔体范围绘制。底面实际为斜面，这个线框用于快速观察包络。左右结构不在同一画布叠加。`,
+    visibleWhen: () => state.showCavity && sideVisible(sideName),
   });
   const geometry = new THREE.BoxGeometry(width, D.cavityYHalf * 2, height);
   const edges = new THREE.EdgesGeometry(geometry);
   const material = new THREE.LineBasicMaterial({ color: COLORS.cavity, transparent: true, opacity: 0.72 });
   const lines = new THREE.LineSegments(edges, material);
   lines.position.set(center[0], center[1], center[2]);
+  if (mirrored) lines.scale.x = -1;
   lines.userData.previewId = item.id;
   item.object.add(lines);
   item.meshes.push(lines);
@@ -352,7 +373,7 @@ function addBattery(sideName) {
 async function addUiStack() {
   const item = await addStlItem({
     id: "electronics:ui-stack:right",
-    name: "UI 交互板与 y+ 侧面板（真实板 + 安装包络）",
+    name: "UI 子板 + y+ 屏幕/按键/指示灯面板",
     category: "ui",
     file: "ui-panel-v0.2.stl",
     basePosition: [D.uiBoardXMin, D.uiSideBoardPlaneY, D.uiSideZMin + D.uiBoardWidth],
@@ -360,37 +381,93 @@ async function addUiStack() {
     side: 1,
     role: "ui",
     explosion: [0, 34, 0],
-    detail: "UI 板使用 KiCad STL；面框、屏幕、按钮、LED、扬声器和 USB-C 全部布置在 y+ 侧壁，代理件之间按 0.8 mm 最小间隙排布，取消底部 UI 盖板。侧面面框当前是检修/安装包络，螺钉与密封尺寸冻结后再进入正式打印清单。",
+    detail: "这块较小的 PCB 是 UI 子板，不是光学发射/接收板。KiCad 板模型现在包含真实的 PCB 直装 3.9×3×2 mm START/MODE 贴片按键、0603 单色状态/电量 LED 和 16 针立式 USB-C 插座；面框用一体 plunger 接触微型按键，LED 用直通小孔，USB-C 沿 PCB 法向从 y+ 面板插拔，屏幕保留为排线连接的独立件。PCB 的四个 M2.5 孔由侧壁支柱承接，面框用同一组螺钉从 y+ 侧夹紧，取消底部 UI 盖板。USB-C 当前使用仓库内 STEP 机械包络代理，具体厂家料号待首样冻结。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
+  // STLLoader normalizes the raw KiCad y=-28..0 range to 0..28. Reflect it
+  // back into the shared side datum before the -90° X rotation: KiCad y=8
+  // must land at the faceplate's local y=8, not at y=20.
+  const boardMesh = item.meshes[0];
+  boardMesh.scale.y = -1;
+  boardMesh.position.y = D.uiBoardWidth;
   // Rotate the KiCad board so its 58 x 28 face becomes an x/z panel on the
   // positive-Y wall. The normalized STL is top-anchored in z; board/component
   // material ends at the side opening and the service face projects to y+.
   item.object.rotation.x = -Math.PI / 2;
-  addBox(item, [64, 34, 4], [-3, -3, 6.2], COLORS.faceplate, { opacity: 0.36, side: THREE.DoubleSide });
-  addBox(item, [D.screenLength, D.screenWidth, 1.1], [15, 7, 6.5], COLORS.screen, { opacity: 0.94, roughness: 0.3, metalness: 0.12 });
+  addBox(item, [64, 34, 4], [-3, -3, D.faceplateInnerZ], COLORS.faceplate, { opacity: 0.52, side: THREE.DoubleSide });
+  addBox(item, [D.screenLength, D.screenWidth, 1.1], [(D.uiBoardLength - D.screenLength) / 2, (D.uiBoardWidth - D.screenWidth) / 2, D.faceplateInnerZ + 0.1], COLORS.screen, { opacity: 0.94, roughness: 0.3, metalness: 0.12 });
+  for (const [x, y] of D.buttonCenters) {
+    addBox(item, [D.buttonPlungerDiameter, D.buttonPlungerDiameter, D.faceplateInnerZ - D.buttonTopZ], [x, y, D.buttonTopZ + (D.faceplateInnerZ - D.buttonTopZ) / 2], COLORS.fastener, { opacity: 0.72 });
+    addBox(item, [D.buttonDiameter, 3.4, 0.7], [x, y, D.faceplateOuterZ - 0.35], COLORS.fastener, { opacity: 0.78 });
+  }
+  for (const [x, y] of D.ledCenters) {
+    addBox(item, [D.ledBoreDiameter, D.ledBoreDiameter, D.faceplateInnerZ], [x, y, D.faceplateInnerZ / 2], COLORS.led, { opacity: 0.18 });
+  }
   const outwardCylinder = [-Math.PI / 2, 0, 0];
-  for (const [x, y] of D.buttonCenters) addCylinder(item, D.buttonDiameter, 4.2, [x, y, 6.5], COLORS.button, { opacity: 0.96, roughness: 0.3, rotation: outwardCylinder });
-  for (const [x, y] of D.ledCenters) addCylinder(item, D.ledDiameter, 3.0, [x, y, 6.5], COLORS.led, { opacity: 0.92, roughness: 0.25, rotation: outwardCylinder });
-  addCylinder(item, D.speakerDiameter, 2.8, [D.speakerCenter[0], D.speakerCenter[1], 6.5], COLORS.speaker, { opacity: 0.88, roughness: 0.5, rotation: outwardCylinder });
-  addBox(item, [8, 6, 2.8], [D.usbCenter[0] - 4, D.usbCenter[1] - 3, 6.5], COLORS.usb, { opacity: 0.92, roughness: 0.34, metalness: 0.18 });
+  addCylinder(item, D.speakerDiameter, 2.8, [D.speakerCenter[0], D.speakerCenter[1], D.faceplateInnerZ + 0.2], COLORS.speaker, { opacity: 0.88, roughness: 0.5, rotation: outwardCylinder });
   return item;
 }
 
 function addBosses(sideName) {
   const mirrored = sideName === "left";
   const sign = mirrored ? -1 : 1;
-  const item = makeItem(`reference:mounting:${sideName}`, `${sideName === "right" ? "右侧主控" : "左侧发射"} 支柱与电池止挡`, "fastener", [0, 0, 0], [0, 0, 0], {
+  const item = makeItem(`reference:mounting:${sideName}`, `${sideName === "right" ? "右侧主控" : "左侧发射"} 支柱、螺钉与电池止挡`, "fastener", [0, 0, 0], [0, 0, 0], {
     side: sign,
     role: "bosses",
-    detail: "显示当前结构中的 PCB 支柱、发射板边缘夹块和电池端部止挡；它们是几何参考，不是额外外凸加强柱。",
+    detail: "右侧显示主控板四个竖直支柱和 M2.5 固定螺钉、y+ UI 侧向支柱；左侧显示发射板四个边缘夹块。两侧还各显示电池端部止挡；这些是实际安装基准，不是额外外凸加强柱。",
     visibleWhen: () => sideVisible(sideName) && state.showBosses,
   });
-  const boardHoles = [[806.4, -9.5], [837.9, -9.5], [867.9, 15], [867.9, -9.5]];
-  for (const [x, y] of boardHoles) {
-    const px = mirrored ? -x : x;
-    const floor = floorAt(x) + 0.8;
-    addCylinder(item, 6, D.boardBottomZ - floor, [px, y, floor + (D.boardBottomZ - floor) / 2], COLORS.fastener, { opacity: 0.76, segments: 24 });
+  if (sideName === "right") {
+    const boardHoles = [[806.4, -9.5], [837.9, -9.5], [867.9, 15], [867.9, -9.5]];
+    for (const [x, y] of boardHoles) {
+      const floor = floorAt(x) + 0.8;
+      // Three.js cylinders are Y-axis aligned by default.  The printed main-
+      // board standoffs are Z-axis posts, so rotate this reference geometry
+      // before placing it; otherwise the preview falsely shows horizontal rods
+      // and makes the PCB look unsupported.
+      addCylinder(item, 6, D.boardBottomZ - floor, [x, y, floor + (D.boardBottomZ - floor) / 2], COLORS.fastener, {
+        opacity: 0.76,
+        segments: 24,
+        rotation: [Math.PI / 2, 0, 0],
+      });
+      // Hardware reference only: a short M2.5 screw passes through the board
+      // hole into the blind pilot in the printed post.  Screws are not part of
+      // the PETG print STL, but showing their heads makes the retained joint
+      // unambiguous in the cavity view.
+      addCylinder(item, D.boardMountScrewHeadD, D.boardMountScrewHeadH, [x, y, D.boardBottomZ + D.boardMountScrewHeadZ], COLORS.fastener, {
+        opacity: 0.96,
+        segments: 32,
+        rotation: [Math.PI / 2, 0, 0],
+      });
+    }
+  } else {
+    // The emitter PCB is retained by four short edge clips, not by the
+    // right-side ESP32 standoff pattern.  Showing the correct clips keeps the
+    // left-only view from looking like a second copy of the main-board mount.
+    const supportLength = 5;
+    const supportWidth = 2;
+    const supportYs = [-15.6, 13.6];
+    for (const x of [D.emitterBoardXMin, D.emitterBoardXMax - supportLength]) {
+      const floor = floorAt(x + supportLength / 2) + 0.8;
+      const px = -(x + supportLength);
+      for (const y of supportYs) {
+        addBox(item, [supportLength, supportWidth, D.emitterBoardBottomZ - floor], [px, y, floor], COLORS.fastener, { opacity: 0.78 });
+      }
+    }
+  }
+  if (sideName === "right") {
+    const uiXs = [D.uiBoardXMin + D.uiMountXInset, D.uiBoardXMin + D.uiBoardLength - D.uiMountXInset];
+    const uiZs = [D.uiSideZMin + D.uiBoardWidth - D.uiMountYInset, D.uiSideZMin + D.uiMountYInset];
+    const uiDepth = D.uiMountYFront - D.uiMountYBack;
+    for (const x of uiXs) {
+      for (const z of uiZs) {
+        addCylinder(item, D.uiMountBossD, uiDepth, [x, (D.uiMountYFront + D.uiMountYBack) / 2, z], COLORS.fastener, {
+          opacity: 0.88,
+          segments: 32,
+          rotation: [Math.PI / 2, 0, 0],
+        });
+      }
+    }
   }
   const stops = [803.4, 863.4];
   for (const x of stops) {
@@ -441,7 +518,7 @@ function updateVisibility() {
   }
   const visible = state.items.filter((item) => item.object.visible).length;
   refs.objectCount.textContent = String(visible);
-  const sideText = state.side === "right" ? "右侧主控电子腔" : state.side === "left" ? "左侧发射电子腔" : "双侧电子腔对照";
+  const sideText = state.side === "right" ? "右侧主控电子腔" : "左侧发射电子腔";
   refs.title.textContent = `${sideText} · ${state.explode ? `维护展开 ${Math.round(state.explode * 100)}%` : "开放腔体"}`;
 }
 
@@ -486,6 +563,10 @@ function setCameraView(view = state.view, focus = state.focus) {
   const box = focusBounds(focus);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
+  if (![center.x, center.y, center.z, size.x, size.y, size.z].every(Number.isFinite)) {
+    center.set((D.cavityXMin + D.cavityXMax) / 2, 0, -35);
+    size.set(D.cavityXMax - D.cavityXMin, D.cavityYHalf * 2, 80);
+  }
   const radius = Math.max(size.length() * 0.56, 60);
   const directions = {
     iso: new THREE.Vector3(1.18, -1.35, 0.92),
@@ -500,7 +581,11 @@ function setCameraView(view = state.view, focus = state.focus) {
   state.camera.far = Math.max(3000, radius * 10);
   state.camera.updateProjectionMatrix();
   state.controls.target.copy(center);
+  state.camera.lookAt(center);
+  state.camera.updateMatrixWorld(true);
   state.controls.update();
+  state.camera.lookAt(center);
+  state.camera.updateMatrixWorld(true);
   document.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
 }
 
@@ -551,7 +636,14 @@ function bindControls() {
     setCameraView(state.view, state.focus);
   }));
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => { state.focus = null; setCameraView(button.dataset.view); }));
-  document.querySelectorAll("[data-focus]").forEach((button) => button.addEventListener("click", () => { state.focus = button.dataset.focus; setCameraView(state.view, state.focus); }));
+  document.querySelectorAll("[data-focus]").forEach((button) => button.addEventListener("click", () => {
+    state.focus = button.dataset.focus;
+    // The UI hardware faces y+.  Jumping to the y+ camera when the user asks
+    // for the UI focus prevents the default y- isometric view from showing
+    // only the back edge of the small daughter board.
+    const focusView = state.focus === "ui" ? "side" : state.view;
+    setCameraView(focusView, state.focus);
+  }));
   refs.explode.addEventListener("input", () => { state.explode = number(refs.explode.value) / 100; refs.explodeOutput.textContent = String(Math.round(state.explode * 100)); updateVisibility(); });
   refs.shellOpacity.addEventListener("input", () => { state.shellOpacity = number(refs.shellOpacity.value) / 100; refs.shellOpacityOutput.textContent = String(Math.round(state.shellOpacity * 100)); updateVisibility(); });
   const checks = {
@@ -584,6 +676,7 @@ function setupThree() {
   state.root = new THREE.Group();
   state.scene.add(state.root);
   state.scene.add(new THREE.HemisphereLight("#d7ffff", "#142029", 2.0));
+  state.scene.add(new THREE.AmbientLight("#ffffff", 0.8));
   const key = new THREE.DirectionalLight("#ffffff", 2.8); key.position.set(200, -250, 360); state.scene.add(key);
   const fill = new THREE.DirectionalLight("#7ab7ff", 1.35); fill.position.set(-260, 160, 180); state.scene.add(fill);
   const rim = new THREE.DirectionalLight("#f6bd67", 0.8); rim.position.set(0, 260, -160); state.scene.add(rim);
@@ -601,7 +694,8 @@ async function buildScene() {
   state.manifest = await response.json();
   refs.manifestLink.href = MANIFEST_URL.href;
   refs.manifestLink.textContent = `当前源 manifest · ${String(state.manifest.source_sha256 || "").slice(0, 12)} ↗`;
-  addCavityReference();
+  addCavityReference("right");
+  addCavityReference("left");
   const shellJobs = [];
   for (const sideName of ["right", "left"]) {
     for (const half of ["user", "opponent"]) {
@@ -625,6 +719,10 @@ async function buildScene() {
   refs.caption.textContent = "当前正式壳体 STL + 当前 KiCad 板级 STL 已载入；颜色件是安装包络参考。网页检查通过后仍需切片、实物装配、绝缘与受力验证。";
   updateVisibility();
   setCameraView("iso");
+  // Render once immediately after the async STL loads.  The animation loop
+  // continues afterwards, but this removes a blank first frame on browsers
+  // that delay requestAnimationFrame while the tab is being restored.
+  state.renderer.render(state.scene, state.camera);
 }
 
 function reportError(error) {

@@ -7,7 +7,7 @@
 本轮依据的 SketchUp 草图只作为形状关系参考，不作为实际尺寸源：左侧是固定灰色 C 形夹主体，右侧是整根立柱和绿色整体底座。当前正式接口采用 `779f046` 中的 C 方案：灰色 C 夹外侧切出让位腔，绿色底座沿 x 方向推入，黄色立柱在 `z=16 mm` 与绿色底座相接；底座保留两枚 `Ø4 mm` 通孔、中央 `Ø6×2 mm` 底坑和两侧 `15 mm` 外伸。主体继续到 `z=260.5 mm`，网布/卡夹功能区仍只到 `z=168.5 mm`。正式尺寸仍以本文件的首样参数和验证约束为准。
 
 夹体现在采用沿 `y=0` 分型的两半打印，立柱和绿色底座仍合为一件：`clamp_body_half_user` 是操作者侧 y- 半体，`clamp_body_half_opponent` 是对手侧 y+ 半体，整根黄绿连接件为 `post_clamp_carrier`。两半用 9 套横向 M5 螺钉连接；左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各有一个连接点，前半圆头沉孔朝外，后半六角螺母窝朝外。只有贴着电子仓空腔面的连接点增加 boss 柱和十字肋，实心夹臂里的连接点只保留通孔/沉孔，避免外壳凸起。电子腔从分型面打开后可装板、走线。安装时仍把绿色底座从 C 夹 x+ 开放端推入让位腔，两个 M4 螺钉穿过灰色 `Ø4.4 mm` 孔和绿色 `Ø4 mm` 孔，底部钢珠进入 `Ø6×2 mm` 浅坑定位。黄色立柱在 `z=16 mm` 与绿色底座相接，主体连续到 `z=260.5 mm`；网布/卡夹功能区仍只到 `z=168.5 mm`。这里没有 T 槽、公轨、第二个滑靴或旧的直接共面座；分型总间隙 `0.20 mm` 是打印装配余量，不是强度或防水承诺。
-电子腔本体采用“右侧桥体大面积内缩、内部形成整段电子仓”的真实负空间：全腔约 `117×40 mm`，两侧保留 `9 mm` 承力壁，上方保留约 `15.5 mm` 上部承力层，底部保留一体化 `4 mm` 斜底；两半分开后从 `y=0` 分型面装入 PCB/电池，主控板由底部 standoff 支撑，电池改放在主控板器件层上方的第二层托位，避免柱体压穿电池，`x+` 外侧墙和 M5 boss 保持完整。正式 STL 不再需要下方底盖、垫圈或额外压框。`net-stand-clamp-split-electronics-cutaway.png` 是诊断剖视图，会把 y- 外壁打开来显示真实大腔和分型面装配路径；窗口不代表正式打印件少了 x+ 外墙或承力结构。
+电子腔本体采用“右侧桥体大面积内缩、内部形成整段电子仓”的真实负空间：全腔约 `117×40 mm`，两侧保留 `9 mm` 承力壁，上方保留约 `15.5 mm` 上部承力层，底部保留一体化 `4 mm` 斜底；两半分开后从 `y=0` 分型面装入 PCB/电池，主控板由四个底部 standoff 承托，并用四颗 M2.5 短螺钉从板面穿过 NPTH 孔拧入支柱盲孔，电池改放在主控板器件层上方的第二层托位，避免柱体压穿电池，`x+` 外侧墙和 M5 boss 保持完整。正式 STL 不包含外购螺钉，但支柱和盲孔属于打印件本体；网页预览会显示螺钉头作为安装参考。正式打印包包含左右各一件 y+ 交互面板压框，底盖和连续垫仍不进入正式包。`net-stand-clamp-split-electronics-cutaway.png` 是诊断剖视图，会把 y- 外壁打开来显示真实大腔和分型面装配路径；窗口不代表正式打印件少了 x+ 外墙或承力结构。
 
 这里的“水密”只表示盒盖、压合边和接口在 CAD 中严丝合缝、没有明显贯穿缝；不宣称 IP 等级，也不替代实物淋水/装配检查。
 
@@ -23,7 +23,7 @@
 - `post_segment` / `lower_stand_segment` / `upper_stand_segment`：仅为旧调用兼容入口，不属于正式打印矩阵；
 - `clamp_body_half_user` / `clamp_body_half_opponent`：沿 `y=0` 分型的操作者侧/对手侧 C 形夹半体；每半含整段大面积电子仓、完整 x+ 外侧 C 壁、绿色底座让位腔的一半、9 个横向 M5 连接点（只有碰到电子仓空腔面的点加 printed boss/rib，其余只保留通孔和沉孔）、前侧圆头沉孔或后侧防转六角螺母窝；左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加一个连接点；两半合拢后仍保留两枚 `Ø4.4 mm` C 方案连接孔和中央钢珠定位孔；
 - `clamp_body_split_fit` / `clamp_body_split_exploded`：分型合拢和拆开的预览入口，不是打印件；
-- 电子腔底盖、连续垫和旧 UI 压框保留为源文件诊断入口，不进入当前正式打印矩阵；分开两半后从 y=0 分型面装入电子件，底部使用一体化斜底；
+- 电子腔底盖和连续垫保留为源文件诊断入口，不进入当前正式打印矩阵；y+ 交互面板压框是左右各一件的正式打印件，带屏幕窗、按键浅凹面/1.6 mm plunger、0603 LED 直孔、扬声器窗、USB-C 槽和四个 M2.5 固定孔；分开两半后从 y=0 分型面装入电子件，底部使用一体化斜底；
 - `m6_detector_body` / `m6_detector_shell_front` / `m6_detector_shell_rear` / `m6_detector_bottom_cover`：M6 光学壳体四件；
 - `net_clamp_clip`：实际安装姿态的整高 U 形卡网夹；`net_clamp_clip_printable`：平放打印姿态；
 - `sensor_mount_body` / `sensor_clamp_lip` / `pvdf_film`：网端 PVDF 安装件；
@@ -46,11 +46,11 @@ python3 test_build_print_platter.py --default
 python3 validate_net_stand.py
 ```
 
-正式包的当前结果是 `37` 个 STL，包含 12 mm 大径/4 mm 螺距、2 mm 牙根与 2 mm 凹槽、0.4 mm 锥尖的 PETG 锥形粗牙螺杆、固定螺母和旋钮对锁螺母；牙根采用连续实体带，适合 FDM 扭矩，不再是细线牙或平顶环带。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
+正式包的当前结果是 `39` 个 STL，包含左右 y+ 交互面板压框，以及 12 mm 大径/4 mm 螺距、2 mm 牙根与 2 mm 凹槽、0.4 mm 锥尖的 PETG 锥形粗牙螺杆、固定螺母和旋钮对锁螺母；牙根采用连续实体带，适合 FDM 扭矩，不再是细线牙或平顶环带。`--clean` 会清除旧版整件 C 夹、分体立柱、外挂套筒、内芯和圆柱卡网件，避免历史文件静默混入。默认输出目录是 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/)，每个 STL 的来源、左右侧、材料、包围盒和封闭拓扑摘要记录在其中的 `manifest.json`。
 
-分型后的两个 C 夹半体、整根黄绿连接件和全高 U 形网夹是不同打印对象：`clamp_body_half_user`、`clamp_body_half_opponent`、`post_clamp_carrier`、`net_clamp_clip`。旧的整件夹体目录已作废，不能把旧夹体和 C 方案立柱混用。需要直接换打接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，使用 `exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf/` 下左右两个可编辑 X1C/PETG 3MF；每个文件包含前后两个夹体半件、黄绿连接件和 U 形网夹四个对象。
+分型后的两个 C 夹半体、整根黄绿连接件、y+ 交互面板和全高 U 形网夹是不同打印对象：`clamp_body_half_user`、`clamp_body_half_opponent`、`post_clamp_carrier`、`clamp_electronics_ui_bezel`、`net_clamp_clip`。旧的整件夹体目录已作废，不能把旧夹体和 C 方案立柱混用。需要直接换打接口时运行 `python3 build_net_clamp_bambu_package.py --side both`，使用 `exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf/` 下左右两个可编辑 X1C/PETG 3MF；每个文件包含前后两个夹体半件、黄绿连接件、y+ 面板和 U 形网夹五个对象。
 
-256 mm 打印床的几何拼盘结果记录在 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：当前脚本目标为 `6` 张板、`37` 个已排零件、`0` 个超床件。两件黄绿连接件采用 `rx=0°、ry=51°、rz=45°` 三轴刚体斜放；这个结果只证明保守包络排版和 STL 几何，不等于已经切片、配置支撑、生成 G-code 或完成实物打印。
+256 mm 打印床的几何拼盘结果记录在 [`exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：当前脚本目标为 `6` 张板、`39` 个已排零件、`0` 个超床件。两件黄绿连接件采用 `rx=0°、ry=51°、rz=45°` 三轴刚体斜放；这个结果只证明保守包络排版和 STL 几何，不等于已经切片、配置支撑、生成 G-code 或完成实物打印。
 
 建议在导出后对全部 STL 做封闭拓扑复核：
 

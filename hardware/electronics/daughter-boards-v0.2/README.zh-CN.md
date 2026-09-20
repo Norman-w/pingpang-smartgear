@@ -8,7 +8,7 @@
 | --- | ---: | --- | --- |
 | `m6-receiver-carrier-v0.2.kicad_pcb` | `80 × 32 mm` | 右侧接收端十路光耦/采集载板占位 | `J_RX00…J_RX09` 每路三芯，`J_HOST` 8 芯，`J_PWR` 2 芯，均为 MX1.25 候选 |
 | `emitter-power-v0.2.kicad_pcb` | `68 × 32 mm` | 左侧发射端内置电源与升压占位 | `J_BAT/J_EXT` 2 芯，`J_TX_A/J_TX_B` 各 10 芯，均为 MX1.25 候选 |
-| `ui-panel-v0.2.kicad_pcb` | `58 × 28 mm` | 盖面交互器件和面板线束 | `J_MOTHER` 12 芯、OLED 4 芯、扬声器 5 芯、蜂鸣器 2 芯、USB-C 面板 7 芯，均为 MX1.25 候选 |
+| `ui-panel-v0.2.kicad_pcb` | `58 × 28 mm` | 盖面交互器件和面板线束 | `J_MOTHER` 12 芯、OLED 排线 4 芯、扬声器 5 芯、蜂鸣器 2 芯；START/MODE 贴片按键、2 个 0603 单色 LED、16 针 USB-C 为板上真实器件 |
 
 三块子板均有对应原生 KiCad 原理图：[`m6-receiver-carrier-v0.2.kicad_sch`](m6-receiver-carrier-v0.2.kicad_sch)、[`emitter-power-v0.2.kicad_sch`](emitter-power-v0.2.kicad_sch)、[`ui-panel-v0.2.kicad_sch`](ui-panel-v0.2.kicad_sch)，审查 PDF 在 [`../output/pdf/`](../output/pdf/)；它们把 10 路 M6、内置电池/外接后备电源、UI/按钮/屏/音频/USB-C 的接口关系画成可打开的 KiCad 文件。
 
@@ -23,7 +23,7 @@
 - M6 接收端：每路 `BN / BU / BK` 三芯线仍按 `J_RX00…J_RX09` 独立编号；线束汇聚后在紧凑接收板上插接，接收板排列不代表光学头的物理间距。
 - 本目录的接口候选统一锁定为 `MX1.25` 节距；JST-GH 模型只是当前仓库可用的 1.25 mm 锁扣外观代理，准确 MX1.25 厂家/料号、线径和额定电流仍需首样冻结，不使用 2.54 mm 物理连接器。
 - `J_EXT` 是可插拔螺钉/压接端子形式的外部后备输入，不能与电池裸并联；最终反接、保险/TVS 和升压电流按实物模块冻结。
-- UI 面板所有器件通过对插线束连接；按钮、屏窗、导光柱、扬声器和蜂鸣器由盖板压框/声学膜定位，USB-C 采用面板 bulkhead + 硅胶帽参考。
+- UI 子板的母板、OLED、扬声器和蜂鸣器仍使用锁扣线束；START/MODE 使用库存 3.9×3.0×2.0 mm 两脚 SMD 按键，状态/电量使用 0603 单色 LED，USB-C 使用 16 针立式插座直接焊在 UI PCB 上，并与 y+ 面框开口共用坐标。面框在按键位置做浅凹面和一体 1.6 mm plunger，直接顶到贴片按键；LED 对准 2.2 mm 直孔；屏幕保留为排线连接的独立件，不把屏幕玻璃强行固定到 PCB，USB-C 端口配硅胶帽。立式 USB-C 的当前 3D 包络是仓库内 `3d/v0.2/usb-c-vertical-proxy.step`，具体厂家/料号仍需首样冻结。
 
 ## 重生成与检查
 

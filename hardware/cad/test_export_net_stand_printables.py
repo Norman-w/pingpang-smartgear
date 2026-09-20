@@ -21,6 +21,7 @@ EXPECTED_COUNTS = {
     "post_clamp_carrier": 2,
     "clamp_body_half_user": 2,
     "clamp_body_half_opponent": 2,
+    "clamp_electronics_ui_bezel": 2,
     "m6_detector_body": 2,
     "m6_detector_shell_front": 2,
     "m6_detector_shell_rear": 2,
@@ -71,8 +72,8 @@ REMOVED_ACTIVE_PARTS = {
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 37:
-        raise AssertionError(f"expected 37 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 39:
+        raise AssertionError(f"expected 39 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -273,9 +274,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (37 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (39 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (37 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (39 specs, manifest not present)")
 
 
 if __name__ == "__main__":

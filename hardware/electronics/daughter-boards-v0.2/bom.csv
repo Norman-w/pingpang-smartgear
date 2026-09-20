@@ -11,9 +11,9 @@ emitter-power-v0.2,F_TX,1,PTC_OR_FUSE,发射端过流保护,候选,按内置电�
 emitter-power-v0.2,D_TVS,1,TVS_BY_MODULE,发射端输入瞬态保护,候选,外部输入路径按 10–30 V 边界复核
 emitter-power-v0.2,J_TX_A/J_TX_B,2,MX1.25_TX_A/B_10P,十路发射器两芯线束,候选,TX00..TX04 与 TX05..TX09 各 10 芯；不使用 2.54 mm 或错误 1.27 mm 20P 模型
 ui-panel-v0.2,J_MOTHER,1,MX1.25_MOTHER_UI_LOCK_12P,母板 UI 对插,候选,物理节距锁定 1.25 mm；核对真实锁扣座
-ui-panel-v0.2,J_OLED,1,MX1.25_I2C_OLED_RESERVE_4P,0.96 英寸 OLED 预留,候选,物理节距锁定 1.25 mm；盖板透明窗/压框
-ui-panel-v0.2,SW_START/SW_MODE,2,SEALED_BUTTON,交互按钮,候选,面板帽/压框，避免盖板松旷
-ui-panel-v0.2,D_STATUS/D_BAT,2,LED_LIGHTPIPE,状态/电池指示灯,候选,导光柱传光
+ui-panel-v0.2,J_OLED,1,MX1.25_I2C_OLED_FPC_4P,0.96 英寸 OLED 排线接口,候选,屏幕独立安装；物理节距锁定 1.25 mm；盖板透明窗/压框
+ui-panel-v0.2,SW_START/SW_MODE,2,SW_SPST_TS-1088-xR020,PCB 直装 START/MODE 贴片按键,候选,3.9×3.0×2.0 mm 两脚 SMD；面框内置 1.6 mm plunger 直接顶按键
+ui-panel-v0.2,D_STATUS/D_BAT,2,LED_0603_1608Metric_GREEN/YELLOW,PCB 直装状态/电池 0603 LED,候选,单色 0603 顶发光；面框开 2.2 mm 直孔；不引入 WS2812/RGB 新走线
 ui-panel-v0.2,J_BUZ,1,MX1.25_BUZZER_LOCK_2P,蜂鸣器接口,候选,物理节距锁定 1.25 mm；盖板声学膜/防护网
 ui-panel-v0.2,J_SPK,1,MX1.25_I2S_SPEAKER_LOCK_5P,扬声器 I2S 接口,候选,物理节距锁定 1.25 mm；按峰值电流/声学窗口核对
-ui-panel-v0.2,J_USB_PANEL,1,MX1.25_USB_C_BULKHEAD_REF_7P,面板 USB-C 线束参考,候选,物理节距锁定 1.25 mm；外置硅胶帽；母板 USB-C 仍保留下载/供电
+ui-panel-v0.2,J_USB_PANEL,1,USB_C_Receptacle_G-Switch_GT-USB-7051x,PCB 直装立式 USB-C 插座,候选,16 针立式封装；端口法向穿过 y+ 面框并配硅胶帽；当前机械模型为 usb-c-vertical-proxy.stl，待首样冻结具体厂家料号

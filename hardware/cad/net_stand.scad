@@ -48,7 +48,7 @@
 //   PART="table_clamp_section" 桌板剖面/免打孔夹紧受力路径预览
 //   PART="table_clamp_body"   单侧固定 C 形夹体
 //   PART="clamp_electronics_gasket" 梯形电子腔连续柔性压紧垫（单独打印）
-//   PART="clamp_electronics_ui_panel" y+ 侧壁交互子板/屏幕/按钮/声学占位
+//   PART="clamp_electronics_ui_panel" y+ 侧壁交互子板/屏幕/按钮/声学件
 //   PART="clamp_electronics_ui_bezel" y+ 可拆屏幕/按钮/指示灯/扬声器/USB-C 面框
 //   PART="clamp_electronics_ui_proxy_layout_check" y+ 面板代理件间隙诊断
 //   PART="clamp_electronics_ui_proxy_board_collision" y+ 面板代理件与真实 UI PCB 碰撞诊断
@@ -243,6 +243,11 @@ clamp_electronics_board_mount_hole_inset_x = 4.5;
 clamp_electronics_board_mount_hole_inset_y = 4.5;
 clamp_electronics_board_standoff_d = 6;
 clamp_electronics_board_standoff_floor_clearance_z = 0.8;
+// The KiCad NPTH holes are Ø2.8 mm M2.5 locations.  Use a printed blind
+// pilot below each board so a short M2.5 self-tapping screw can retain the
+// board without putting a nut or screw tip into the cavity floor.
+clamp_electronics_board_mount_pilot_d = 2.3;
+clamp_electronics_board_mount_pilot_depth_z = 8;
 clamp_electronics_battery_rail_t = 2;
 clamp_electronics_battery_rail_h = 8;
 clamp_electronics_battery_rail_clearance_y = 1.5;
@@ -265,6 +270,10 @@ clamp_electronics_ui_board_mount_hole_inset_x = 3.5;
 clamp_electronics_ui_board_mount_hole_inset_y = 3.5;
 clamp_electronics_ui_board_t = 1.6;
 clamp_electronics_ui_component_height_z = 5.84;
+// The vertical USB-C receptacle rises above the older connector set: the
+// exported board model reaches 7.395 mm above the PCB top.  Keep this service
+// envelope separate from the generic board-model height used by the proxies.
+clamp_electronics_ui_service_height_z = 7.795;
 // Retained only for the legacy cover PART and old reports. The active UI stack
 // no longer references this bottom-cover datum.
 clamp_electronics_ui_cover_recess_z = clamp_electronics_cavity_cover_t;
@@ -277,18 +286,36 @@ clamp_electronics_ui_side_board_plane_y =
         clamp_electronics_cavity_wall_y + 3.2;
 clamp_electronics_ui_side_board_z_min = -50;
 clamp_electronics_ui_side_window_border = 3;
-clamp_electronics_ui_screen_length_x = 28;
+// The UI board is an M2.5 NPTH board (Ø2.8 mm drills).  Its four side-wall
+// bosses are added after the y+ window cut so each boss roots into the
+// remaining wall and ends at the PCB back face.  The removable faceplate
+// passes the same M2.5 screws through the board into these pilots.
+clamp_electronics_ui_mount_boss_d = 7;
+clamp_electronics_ui_mount_pilot_d = 2.3;
+clamp_electronics_ui_mount_root_overlap_y = 0.2;
+clamp_electronics_ui_mount_screw_clearance_d = 3.4;
+clamp_electronics_ui_mount_head_d = 5.5;
+clamp_electronics_ui_mount_head_depth = 1.8;
+clamp_electronics_ui_screen_length_x = 25;
 clamp_electronics_ui_screen_width_y = 14;
-clamp_electronics_ui_button_d = 10;
-clamp_electronics_ui_led_d = 4;
+// The stocked panel switch is the 3.9 x 3.0 x 2.0 mm, two-pad SMD tactile
+// shown in the user's reference.  The faceplate uses a shallow 4.9 mm
+// service pocket and an integrated 1.6 mm plunger that lands on the tiny
+// actuator; it is not an oversized open hole around a 6 mm THT part.
+clamp_electronics_ui_button_d = 4.2;
+clamp_electronics_ui_button_plunger_d = 1.6;
+clamp_electronics_ui_button_top_z = 2.0;
+clamp_electronics_ui_button_pocket_depth_z = 3.2;
+clamp_electronics_ui_led_d = 1.6;
+clamp_electronics_ui_led_bore_d = 2.2;
 // The service envelopes are laid out as a real faceplate packing problem:
 // controls form a left column, the display stays central, and the audio/USB
 // openings use the right column.  Keep 0.8 mm minimum radial/edge clearance;
 // these coordinates are shared with the browser inspection view.
-clamp_electronics_ui_button_centers = [[7.5, 8], [7.5, 21]];
-clamp_electronics_ui_led_centers = [[29, 3], [29, 25]];
+clamp_electronics_ui_button_centers = [[10, 8], [10, 20]];
+clamp_electronics_ui_led_centers = [[29, 3], [32, 25]];
 clamp_electronics_ui_speaker_center = [52.2, 8];
-clamp_electronics_ui_usb_center = [52, 24];
+clamp_electronics_ui_usb_center = [47, 26];
 clamp_electronics_ui_proxy_clearance = 0.8;
 clamp_electronics_ui_speaker_d = 16;
 clamp_electronics_ui_gland_d = 12;
@@ -316,8 +343,8 @@ clamp_electronics_ui_board_y_shift = clamp_electronics_ui_board_width_y / 2;
 clamp_electronics_faceplate_t = 4;
 clamp_electronics_faceplate_border = 3;
 clamp_electronics_faceplate_window_clearance = 1.2;
-clamp_electronics_faceplate_button_clearance = 0.8;
-clamp_electronics_faceplate_led_clearance = 0.4;
+clamp_electronics_faceplate_button_clearance = 0.35;
+clamp_electronics_faceplate_led_clearance = 0.3;
 clamp_electronics_faceplate_usb_clearance = 0.8;
 post_top_margin = 18;
 
@@ -3852,15 +3879,28 @@ module clamp_electronics_board_standoffs_positive() {
     // Four board standoffs are added after the cavity subtraction: they live
     // inside the hollow volume, while the surrounding tapered wall remains a
     // single solid. The two x planes also stay clear of the battery envelope.
+    // Each post now has a blind M2.5 pilot aligned to the actual KiCad NPTH
+    // datum, so the main board is retained instead of merely resting on pads.
     for (hole = clamp_electronics_board_hole_xy) {
         x = hole[0];
         y = hole[1];
         floor_z = clamp_reinforcement_bottom_z_at(x) +
             clamp_electronics_board_standoff_floor_clearance_z;
+        post_h = clamp_electronics_board_bottom_z - floor_z + 0.03;
         translate([x, y, floor_z])
-            cylinder(
-                d = clamp_electronics_board_standoff_d,
-                h = clamp_electronics_board_bottom_z - floor_z + 0.03);
+            difference() {
+                cylinder(d = clamp_electronics_board_standoff_d,
+                         h = post_h);
+                translate([
+                    0, 0,
+                    max(0.1, post_h -
+                        clamp_electronics_board_mount_pilot_depth_z)
+                ])
+                    cylinder(
+                        d = clamp_electronics_board_mount_pilot_d,
+                        h = clamp_electronics_board_mount_pilot_depth_z +
+                            0.05);
+            }
     }
 }
 
@@ -3887,6 +3927,40 @@ module clamp_electronics_emitter_edge_clips_positive() {
                     clamp_electronics_emitter_board_bottom_z - floor_z +
                         0.03
                 ]);
+        }
+    }
+}
+
+module clamp_electronics_ui_side_mounts_positive() {
+    // The y+ UI window is cut through the side wall, so these four bosses are
+    // deliberately added after the cavity subtraction.  They root 0.2 mm
+    // into the remaining wall, end at the PCB back face, and carry blind
+    // M2.5 pilots.  The local PCB y datum maps to global z in the side frame.
+    boss_front_y = clamp_electronics_ui_side_board_plane_y;
+    boss_back_y = clamp_electronics_cavity_y_half -
+        clamp_electronics_ui_mount_root_overlap_y;
+    boss_depth_y = boss_front_y - boss_back_y;
+    assert(boss_depth_y > 0,
+           "UI side mounting bosses must reach the PCB plane");
+    for (x = [clamp_electronics_ui_board_x_min +
+                  clamp_electronics_ui_board_mount_hole_inset_x,
+              clamp_electronics_ui_board_x_max -
+                  clamp_electronics_ui_board_mount_hole_inset_x]) {
+        for (local_y = [clamp_electronics_ui_board_mount_hole_inset_y,
+                        clamp_electronics_ui_board_width_y -
+                            clamp_electronics_ui_board_mount_hole_inset_y]) {
+            z = clamp_electronics_ui_side_board_z_min +
+                clamp_electronics_ui_board_width_y - local_y;
+            translate([x, boss_front_y, z])
+                rotate([90, 0, 0])
+                    difference() {
+                        cylinder(d = clamp_electronics_ui_mount_boss_d,
+                                 h = boss_depth_y);
+                        translate([0, 0, -0.05])
+                            cylinder(
+                                d = clamp_electronics_ui_mount_pilot_d,
+                                h = boss_depth_y + 0.1);
+                    }
         }
     }
 }
@@ -3948,11 +4022,13 @@ module clamp_electronics_ui_side_datum_positive() {
 }
 
 module clamp_electronics_ui_side_stl_datum_positive() {
-    // Raw KiCad UI STL uses x=0..58, y=-28..0, z=0..5.84. Normalize only
-    // that import's negative-y board coordinates before entering the same
-    // side-panel frame; proxies must use the datum above without this shift.
+    // Raw KiCad UI STL uses x=0..58, y=-28..0, z=0..5.84 because pcbnew's
+    // export mirrors the board's positive-y drawing direction.  Reflect the
+    // imported mesh across its local y=0 plane so a KiCad component at y=8
+    // lands at the faceplate's local y=8.  A translation by +28 would put it
+    // at y=20 and turn the button/LED/USB layout upside down.
     clamp_electronics_ui_side_datum_positive()
-        translate([0, clamp_electronics_ui_board_width_y, 0])
+        mirror([0, 1, 0])
             children();
 }
 
@@ -4144,6 +4220,10 @@ module clamp_electronics_local_wiring_positive() {
 }
 
 module clamp_electronics_ui_bosses_positive() {
+    // Legacy bottom-cover diagnostic only.  The active UI daughter mounting
+    // points are clamp_electronics_ui_side_mounts_positive() below; keeping
+    // this old module isolated prevents the retired bottom-cover datum from
+    // reappearing in the y+ installation.
     // UI daughter mounting points bridge the board to the inner face of the
     // removable cover. They are separate from the four cover screws, leave
     // the board removable, use the actual H1-H4 3.5 mm edge datum, and follow
@@ -4229,10 +4309,10 @@ module clamp_electronics_ui_usb_proxy_positive() {
     color("black", 0.9)
         translate([
             clamp_electronics_ui_usb_center[0] - 4,
-            clamp_electronics_ui_usb_center[1] - 3,
+            clamp_electronics_ui_usb_center[1] - 2.5,
             clamp_electronics_ui_component_height_z + 0.2
         ])
-            cube([8, 6, 2.2]);
+            cube([8, 5, 2.2]);
 }
 
 module clamp_electronics_ui_service_proxies_positive() {
@@ -4271,8 +4351,8 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
     usb = [
         clamp_electronics_ui_usb_center[0] - 4,
         clamp_electronics_ui_usb_center[0] + 4,
-        clamp_electronics_ui_usb_center[1] - 3,
-        clamp_electronics_ui_usb_center[1] + 3
+        clamp_electronics_ui_usb_center[1] - 2.5,
+        clamp_electronics_ui_usb_center[1] + 2.5
     ];
     usb_opening = [
         usb[0] - clamp_electronics_faceplate_usb_clearance,
@@ -4405,25 +4485,29 @@ module clamp_electronics_ui_proxy_board_collision_positive() {
 
 module clamp_electronics_ui_panel_positive() {
     // Active y+ side-wall UI daughter board. The board/component solid comes
-    // from KiCad; the panel parts below are service envelopes captured by the
-    // outside faceplate. There is no UI bottom-cover solid in this stack.
+    // from KiCad. Only the cable-fed screen remains as a separate panel
+    // envelope; buttons, LEDs and USB-C are real board-mounted components.
     clamp_electronics_ui_board_positive();
-    clamp_electronics_ui_service_proxies_positive();
+    clamp_electronics_ui_screen_proxy_positive();
 }
 
 module clamp_electronics_ui_bezel_positive() {
-    // Separate printable y+ faceplate: screen window, two button bores, two
-    // light-pipe bores, speaker acoustic opening, and capped USB-C slot. It
-    // closes the side-wall window; there is no UI bottom cover or seal under
-    // this panel.
+    // Separate printable y+ faceplate: screen window, two shallow SMD-button
+    // pockets with captive plungers, two 0603 LED bores, speaker acoustic
+    // opening, and capped USB-C slot. The plungers bridge the board-to-panel
+    // gap and touch the 2 mm switch actuators; there is no oversized THT hole.
     faceplate_x_min = -clamp_electronics_faceplate_border;
     faceplate_x_max = clamp_electronics_ui_board_length_x +
         clamp_electronics_faceplate_border;
     faceplate_y_min = -clamp_electronics_faceplate_border;
-    faceplate_z = clamp_electronics_ui_component_height_z + 0.4;
+    faceplate_z = clamp_electronics_ui_service_height_z;
+    faceplate_outer_z = faceplate_z + clamp_electronics_faceplate_t;
+    button_pocket_bottom_z = faceplate_outer_z -
+        clamp_electronics_ui_button_pocket_depth_z;
     clamp_electronics_ui_side_datum_positive()
         color("black")
-            difference() {
+            union() {
+                difference() {
                 translate([faceplate_x_min, faceplate_y_min, faceplate_z])
                     cube([
                         faceplate_x_max - faceplate_x_min,
@@ -4447,20 +4531,22 @@ module clamp_electronics_ui_bezel_positive() {
                             2 * clamp_electronics_faceplate_window_clearance,
                         clamp_electronics_faceplate_t + 0.2
                     ]);
-                // START and MODE buttons.
+                // START and MODE SMD-button shallow pockets. The remaining
+                // inner membrane is the printed flexing surface; each stem
+                // below is fused to its underside.
                 for (center = clamp_electronics_ui_button_centers)
-                    translate([center[0], center[1], faceplate_z - 0.1])
+                    translate([center[0], center[1], button_pocket_bottom_z])
                         cylinder(
                             d = clamp_electronics_ui_button_d +
                                 2 * clamp_electronics_faceplate_button_clearance,
-                            h = clamp_electronics_faceplate_t + 0.2,
+                            h = clamp_electronics_ui_button_pocket_depth_z + 0.2,
                             $fn = 64);
-                // Status and battery light pipes.
+                // Status and battery 0603 LED bores. They are straight,
+                // short openings aligned to the top-emitting chip bodies.
                 for (center = clamp_electronics_ui_led_centers)
                     translate([center[0], center[1], faceplate_z - 0.1])
                         cylinder(
-                            d = clamp_electronics_ui_led_d +
-                                2 * clamp_electronics_faceplate_led_clearance,
+                            d = clamp_electronics_ui_led_bore_d,
                             h = clamp_electronics_faceplate_t + 0.2,
                             $fn = 48);
                 // Speaker acoustic window with a thin membrane installed later.
@@ -4476,7 +4562,7 @@ module clamp_electronics_ui_bezel_positive() {
                 // USB-C bulkhead slot and silicone cap seat.
                 usb_slot_w = 8 +
                     2 * clamp_electronics_faceplate_usb_clearance;
-                usb_slot_h = 6 +
+                usb_slot_h = 5 +
                     2 * clamp_electronics_faceplate_usb_clearance;
                 translate([
                     clamp_electronics_ui_usb_center[0] - usb_slot_w / 2,
@@ -4484,6 +4570,46 @@ module clamp_electronics_ui_bezel_positive() {
                            faceplate_z - 0.1])
                     cube([usb_slot_w, usb_slot_h,
                           clamp_electronics_faceplate_t + 0.2]);
+                // Four M2.5 faceplate holes align with the UI PCB NPTH holes
+                // and the side-wall pilot bosses.  Counterbores keep the
+                // screw heads flush on the service-facing y+ surface.
+                for (x = [clamp_electronics_ui_board_mount_hole_inset_x,
+                          clamp_electronics_ui_board_length_x -
+                              clamp_electronics_ui_board_mount_hole_inset_x])
+                    for (y = [clamp_electronics_ui_board_mount_hole_inset_y,
+                              clamp_electronics_ui_board_width_y -
+                                  clamp_electronics_ui_board_mount_hole_inset_y]) {
+                        translate([x, y, faceplate_z - 0.1])
+                            cylinder(
+                                d = clamp_electronics_ui_mount_screw_clearance_d,
+                                h = clamp_electronics_faceplate_t + 0.2,
+                                $fn = 48);
+                        translate([
+                            x, y,
+                            faceplate_z + clamp_electronics_faceplate_t -
+                                clamp_electronics_ui_mount_head_depth
+                        ])
+                            cylinder(
+                                d = clamp_electronics_ui_mount_head_d,
+                                h = clamp_electronics_ui_mount_head_depth +
+                                    0.1,
+                                $fn = 48);
+                    }
+                }
+                // Each plunger is part of the faceplate and starts 0.05 mm
+                // inside the SMD actuator top to avoid a visible free gap in
+                // the CAD while preserving the board's solder/component
+                // envelope. The outer membrane remains the finger surface.
+                for (center = clamp_electronics_ui_button_centers)
+                    translate([
+                        center[0], center[1],
+                        clamp_electronics_ui_button_top_z - 0.05
+                    ])
+                        cylinder(
+                            d = clamp_electronics_ui_button_plunger_d,
+                            h = button_pocket_bottom_z -
+                                (clamp_electronics_ui_button_top_z - 0.05),
+                            $fn = 32);
             }
 }
 
@@ -4650,6 +4776,7 @@ module clamp_electronics_full_cutaway_positive() {
     // UI bottom-cover or bottom-cover gasket in the active assembly.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_board_standoffs_positive();
+    clamp_electronics_ui_side_mounts_positive();
     clamp_electronics_battery_rails_positive();
     clamp_electronics_main_board_positive();
     clamp_electronics_battery_positive();
@@ -4667,6 +4794,7 @@ module clamp_electronics_structural_shell_for_clearance_positive() {
         table_clamp_body_positive();
         clamp_electronics_board_standoffs_positive();
         clamp_electronics_emitter_edge_clips_positive();
+        clamp_electronics_ui_side_mounts_positive();
         clamp_electronics_battery_rails_positive();
     }
 }
@@ -4812,6 +4940,7 @@ module clamp_electronics_exploded_positive() {
     // boolean clipping: PCB upward, the upper-shelf pouch downward from its
     // installed position, and the y+ UI board/faceplate outward.
     clamp_electronics_shell_display_frame_positive();
+    clamp_electronics_ui_side_mounts_positive();
     clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_main_board_positive();
     translate([0, 0, -10]) clamp_electronics_battery_positive();
@@ -4905,6 +5034,7 @@ module table_clamp_body_positive() {
     // after the main cavity subtraction instead of being cut away with it.
     clamp_electronics_board_standoffs_positive();
     clamp_electronics_emitter_edge_clips_positive();
+    clamp_electronics_ui_side_mounts_positive();
     clamp_electronics_battery_rails_positive();
     // These two side walls are structural C-clamp material, not detachable
     // overlays. Keeping them in this positive body makes the official body
@@ -10682,6 +10812,26 @@ module parameter_probe() {
              clamp_electronics_ui_board_length_x));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_board_width_y=",
              clamp_electronics_ui_board_width_y));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_board_x_min=",
+             clamp_electronics_ui_board_x_min));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_board_x_max=",
+             clamp_electronics_ui_board_x_max));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_board_mount_hole_inset_x=",
+             clamp_electronics_ui_board_mount_hole_inset_x));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_board_mount_hole_inset_y=",
+             clamp_electronics_ui_board_mount_hole_inset_y));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_component_height_z=",
+             clamp_electronics_ui_component_height_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_service_height_z=",
+             clamp_electronics_ui_service_height_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_side_board_plane_y=",
+             clamp_electronics_ui_side_board_plane_y));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_side_board_z_min=",
+             clamp_electronics_ui_side_board_z_min));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_side_board_z_max=",
+             clamp_electronics_ui_side_board_z_max));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_side_window_border=",
+             clamp_electronics_ui_side_window_border));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_board_z=",
              clamp_electronics_ui_board_z));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_board_y_shift=",
@@ -10722,6 +10872,50 @@ module parameter_probe() {
              clamp_electronics_faceplate_t));
     echo(str("NETSTAND_PARAM clamp_electronics_faceplate_border=",
              clamp_electronics_faceplate_border));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_screen_length_x=",
+             clamp_electronics_ui_screen_length_x));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_screen_width_y=",
+             clamp_electronics_ui_screen_width_y));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_d=",
+             clamp_electronics_ui_button_d));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_plunger_d=",
+             clamp_electronics_ui_button_plunger_d));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_pocket_depth_z=",
+             clamp_electronics_ui_button_pocket_depth_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_a_x=",
+             clamp_electronics_ui_button_centers[0][0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_a_y=",
+             clamp_electronics_ui_button_centers[0][1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_b_x=",
+             clamp_electronics_ui_button_centers[1][0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_button_b_y=",
+             clamp_electronics_ui_button_centers[1][1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_led_a_x=",
+             clamp_electronics_ui_led_centers[0][0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_led_a_y=",
+             clamp_electronics_ui_led_centers[0][1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_led_b_x=",
+             clamp_electronics_ui_led_centers[1][0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_led_b_y=",
+             clamp_electronics_ui_led_centers[1][1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_led_bore_d=",
+             clamp_electronics_ui_led_bore_d));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_speaker_x=",
+             clamp_electronics_ui_speaker_center[0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_speaker_y=",
+             clamp_electronics_ui_speaker_center[1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_speaker_d=",
+             clamp_electronics_ui_speaker_d));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_x=",
+             clamp_electronics_ui_usb_center[0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_y=",
+             clamp_electronics_ui_usb_center[1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_faceplate_window_clearance=",
+             clamp_electronics_faceplate_window_clearance));
+    echo(str("NETSTAND_PARAM clamp_electronics_faceplate_button_clearance=",
+             clamp_electronics_faceplate_button_clearance));
+    echo(str("NETSTAND_PARAM clamp_electronics_faceplate_usb_clearance=",
+             clamp_electronics_faceplate_usb_clearance));
     echo(str("NETSTAND_PARAM clamp_pad_outer_x=", clamp_pad_outer_x));
     echo(str("NETSTAND_PARAM clamp_outer_wall_x=", clamp_outer_wall_x));
     echo(str("NETSTAND_PARAM clamp_lower_arm_x=", clamp_lower_arm_x));

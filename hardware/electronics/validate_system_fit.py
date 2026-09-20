@@ -40,12 +40,12 @@ SCHEMATICS = [
     HERE / "daughter-boards-v0.2/emitter-power-v0.2.kicad_sch",
     HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",
 ]
-PRINT_MANIFEST = ROOT / "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json"
+PRINT_MANIFEST = ROOT / "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json"
 REPORT_JSON = HERE / "fit-report-v0.2.json"
 REPORT_MD = HERE / "fit-report-v0.2.md"
 MM = 1_000_000
 MX125_PITCH = 1.25
-EXPECTED_PRINTABLE_COUNT = 37
+EXPECTED_PRINTABLE_COUNT = 39
 
 
 BOARD_SPECS = {
@@ -81,7 +81,7 @@ BOARD_SPECS = {
     HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb": {
         "size": (58.0, 28.0),
         "model": "ui-panel-v0.2",
-        "mx125_refs": {"J_MOTHER", "J_OLED", "J_SPK", "J_BUZ", "J_USB_PANEL"},
+        "mx125_refs": {"J_MOTHER", "J_OLED", "J_SPK", "J_BUZ"},
         "refs": {
             "H1", "H2", "H3", "H4", "J_MOTHER", "J_OLED", "J_SPK",
             "J_BUZ", "SW_START", "SW_MODE", "D_STATUS", "D_BAT",
@@ -130,7 +130,41 @@ CONNECTOR_NET_CONTRACTS = {
         "J_OLED": ("3v3", "gnd", "ui_sda", "ui_scl"),
         "J_SPK": ("ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "3v3", "gnd"),
         "J_BUZ": ("ui_buzzer", "gnd"),
-        "J_USB_PANEL": ("usb_vbus", "gnd", "usb_dp", "usb_dn", "cc1", "cc2", "gnd"),
+    },
+}
+
+
+UI_DIRECT_PARTS = {
+    "SW_START": {
+        "model_token": "Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step",
+        "pad_nets": {"1": "ui_btn_start", "2": "gnd"},
+        "center": (10.0, 8.0),
+    },
+    "SW_MODE": {
+        "model_token": "Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step",
+        "pad_nets": {"1": "ui_btn_mode", "2": "gnd"},
+        "center": (10.0, 20.0),
+    },
+    "D_STATUS": {
+        "model_token": "LED_SMD.3dshapes/LED_0603_1608Metric.step",
+        "pad_nets": {"1": "ui_led_status", "2": "gnd"},
+        "center": (29.0, 3.0),
+    },
+    "D_BAT": {
+        "model_token": "LED_SMD.3dshapes/LED_0603_1608Metric.step",
+        "pad_nets": {"1": "ui_led_battery", "2": "gnd"},
+        "center": (32.0, 25.0),
+    },
+    "J_USB_PANEL": {
+        "model_token": "usb-c-vertical-proxy.step",
+        "pad_nets": {
+            "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
+            "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",
+            "A12": "gnd", "B1": "gnd", "B4": "usb_vbus", "B5": "cc2",
+            "B6": "usb_dp", "B7": "usb_dn", "B8": "usb_sbu1",
+            "B9": "usb_vbus", "B12": "gnd", "SH": "gnd",
+        },
+        "center": (47.0, 26.0),
     },
 }
 
@@ -264,6 +298,33 @@ def translate_bounds(
 ) -> Tuple[float, float, float, float, float, float]:
     xmin, xmax, ymin, ymax, zmin, zmax = bounds
     return xmin + dx, xmax + dx, ymin + dy, ymax + dy, zmin + dz, zmax + dz
+
+
+def ui_side_stl_bounds(
+    bounds: Tuple[float, float, float, float, float, float],
+    x_min: float,
+    board_plane_y: float,
+    board_z_min: float,
+    board_width_y: float,
+) -> Tuple[float, float, float, float, float, float]:
+    """Map pcbnew's mirrored-y STL into the vertical y+ UI datum.
+
+    KiCad exports a board with local y=-28..0.  The OpenSCAD side datum
+    reflects that coordinate, then rotates local z into global +y and local y
+    into global -z.  Keeping this transform here prevents the mechanical report
+    from silently falling back to the retired horizontal-cover placement.
+    """
+    xmin, xmax, ymin, ymax, zmin, zmax = bounds
+    local_y_min = -ymax
+    local_y_max = -ymin
+    return (
+        xmin + x_min,
+        xmax + x_min,
+        zmin + board_plane_y,
+        zmax + board_plane_y,
+        board_z_min + board_width_y - local_y_max,
+        board_z_min + board_width_y - local_y_min,
+    )
 
 
 def rotate_y_minus_90_then_translate(
@@ -495,6 +556,272 @@ def check_connector_net_contract(pcbnew: Any, board_path: Path,
     return {"status": "PASS", "connectors": records}
 
 
+def check_ui_direct_parts(pcbnew: Any, board_path: Path) -> Dict[str, Any]:
+    """Check that panel-contact parts are real library footprints in-place.
+
+    The screen is intentionally excluded because it is a cable-connected
+    module.  Buttons, LEDs, and USB-C are checked for their library model,
+    pad-to-net mapping, and the shared mechanical datum used by OpenSCAD.
+    """
+    board = pcbnew.LoadBoard(str(board_path))
+    records: Dict[str, Any] = {}
+    for reference, spec in UI_DIRECT_PARTS.items():
+        footprint = next(
+            (item for item in board.GetFootprints()
+             if str(item.GetReference()) == reference),
+            None,
+        )
+        if footprint is None:
+            raise RuntimeError(
+                "%s missing direct UI part %s" % (board_path.name, reference)
+            )
+        model_files = [str(model.m_Filename) for model in footprint.Models()]
+        if not any(spec["model_token"] in filename for filename in model_files):
+            raise RuntimeError(
+                "%s UI part %s has no expected library model: %s"
+                % (board_path.name, reference, model_files)
+            )
+        pads_by_name: Dict[str, List[str]] = {}
+        for pad in footprint.Pads():
+            name = str(pad.GetPadName())
+            pads_by_name.setdefault(name, []).append(str(pad.GetNetname()))
+        for pad_name, expected_net in spec["pad_nets"].items():
+            actual_nets = pads_by_name.get(pad_name, [])
+            if not actual_nets or any(net != expected_net for net in actual_nets):
+                raise RuntimeError(
+                    "%s UI part %s pad %s net mismatch: actual=%s expected=%s"
+                    % (board_path.name, reference, pad_name, actual_nets, expected_net)
+                )
+        center_x, center_y = spec["center"]
+        if reference == "J_USB_PANEL":
+            origin = footprint.GetPosition()
+            actual_center = (origin.x / MM, origin.y / MM)
+        else:
+            signal_pads = [
+                pad for pad in footprint.Pads()
+                if str(pad.GetPadName()) in spec["pad_nets"]
+            ]
+            if not signal_pads:
+                raise RuntimeError("%s UI part %s has no signal pads" % (board_path.name, reference))
+            actual_center = (
+                sum(pad.GetPosition().x for pad in signal_pads) / len(signal_pads) / MM,
+                sum(pad.GetPosition().y for pad in signal_pads) / len(signal_pads) / MM,
+            )
+        if any(abs(actual - expected) > 0.01 for actual, expected in zip(actual_center, (center_x, center_y))):
+            raise RuntimeError(
+                "%s UI part %s moved: actual=(%.3f, %.3f) expected=(%.3f, %.3f)"
+                % (board_path.name, reference, actual_center[0], actual_center[1], center_x, center_y)
+            )
+        records[reference] = {
+            "models": model_files,
+            "center_mm": [round(actual_center[0], 3), round(actual_center[1], 3)],
+            "pad_nets": {name: sorted(set(nets)) for name, nets in sorted(pads_by_name.items()) if name in spec["pad_nets"]},
+        }
+    return {"status": "PASS", "parts": records}
+
+
+def check_ui_interface_alignment(
+    pcbnew: Any, board_path: Path, parameters: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Prove that real PCB parts land under the printed y+ faceplate openings."""
+    direct = check_ui_direct_parts(pcbnew, board_path)
+    board = pcbnew.LoadBoard(str(board_path))
+    parameter_centers = {
+        "SW_START": (
+            number(parameters, "clamp_electronics_ui_button_a_x"),
+            number(parameters, "clamp_electronics_ui_button_a_y"),
+        ),
+        "SW_MODE": (
+            number(parameters, "clamp_electronics_ui_button_b_x"),
+            number(parameters, "clamp_electronics_ui_button_b_y"),
+        ),
+        "D_STATUS": (
+            number(parameters, "clamp_electronics_ui_led_a_x"),
+            number(parameters, "clamp_electronics_ui_led_a_y"),
+        ),
+        "D_BAT": (
+            number(parameters, "clamp_electronics_ui_led_b_x"),
+            number(parameters, "clamp_electronics_ui_led_b_y"),
+        ),
+        "J_USB_PANEL": (
+            number(parameters, "clamp_electronics_ui_usb_x"),
+            number(parameters, "clamp_electronics_ui_usb_y"),
+        ),
+    }
+    center_records: Dict[str, Dict[str, Any]] = {}
+    for reference, expected in parameter_centers.items():
+        actual = direct["parts"][reference]["center_mm"]
+        delta = max(abs(actual[index] - expected[index]) for index in (0, 1))
+        if delta > 0.01:
+            raise RuntimeError(
+                "UI panel datum mismatch for %s: actual=%s expected=%s"
+                % (reference, actual, expected)
+            )
+        center_records[reference] = {
+            "pcb_center_mm": actual,
+            "faceplate_center_mm": [round(expected[0], 3), round(expected[1], 3)],
+            "max_error_mm": round(delta, 4),
+            "status": "PASS",
+        }
+
+    # The four real NPTH holes are the board-side references for the four
+    # printed faceplate M2.5 holes.  A set comparison catches a swapped or
+    # vertically mirrored panel even when the direct component centers happen
+    # to look plausible.
+    hole_centers = []
+    for reference in ("H1", "H2", "H3", "H4"):
+        footprint = next(
+            (item for item in board.GetFootprints()
+             if str(item.GetReference()) == reference),
+            None,
+        )
+        if footprint is None:
+            raise RuntimeError("UI panel missing mounting hole %s" % reference)
+        position = footprint.GetPosition()
+        hole_centers.append((round(position.x / MM, 3), round(position.y / MM, 3)))
+    expected_holes = sorted(
+        (
+            (number(parameters, "clamp_electronics_ui_board_mount_hole_inset_x"),
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_y")),
+            (number(parameters, "clamp_electronics_ui_board_length_x") -
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_x"),
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_y")),
+            (number(parameters, "clamp_electronics_ui_board_length_x") -
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_x"),
+             number(parameters, "clamp_electronics_ui_board_width_y") -
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_y")),
+            (number(parameters, "clamp_electronics_ui_board_mount_hole_inset_x"),
+             number(parameters, "clamp_electronics_ui_board_width_y") -
+             number(parameters, "clamp_electronics_ui_board_mount_hole_inset_y")),
+        )
+    )
+    if sorted(hole_centers) != [(round(x, 3), round(y, 3)) for x, y in expected_holes]:
+        raise RuntimeError(
+            "UI panel mounting-hole datum mismatch: actual=%s expected=%s"
+            % (sorted(hole_centers), expected_holes)
+        )
+
+    board_width = number(parameters, "clamp_electronics_ui_board_length_x")
+    board_height = number(parameters, "clamp_electronics_ui_board_width_y")
+    border = number(parameters, "clamp_electronics_faceplate_border")
+    screen_w = number(parameters, "clamp_electronics_ui_screen_length_x")
+    screen_h = number(parameters, "clamp_electronics_ui_screen_width_y")
+    window_clearance = number(parameters, "clamp_electronics_faceplate_window_clearance")
+    button_d = number(parameters, "clamp_electronics_ui_button_d")
+    button_clearance = number(parameters, "clamp_electronics_faceplate_button_clearance")
+    led_bore_d = number(parameters, "clamp_electronics_ui_led_bore_d")
+    speaker_d = number(parameters, "clamp_electronics_ui_speaker_d") - 4
+    usb_w = 8 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
+    usb_h = 5 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
+    faceplate_inner_y = (
+        number(parameters, "clamp_electronics_ui_side_board_plane_y")
+        + number(parameters, "clamp_electronics_ui_service_height_z")
+    )
+    ui_local = stl_bounds(MODEL_DIR / "ui-panel-v0.2.stl")
+    board_to_faceplate_gap = faceplate_inner_y - (
+        number(parameters, "clamp_electronics_ui_side_board_plane_y") + ui_local[5]
+    )
+    if board_to_faceplate_gap < 0.2:
+        raise RuntimeError(
+            "UI board-to-faceplate service gap is too small: %.3f mm"
+            % board_to_faceplate_gap
+        )
+
+    screen_x = (board_width - screen_w) / 2
+    screen_y = (board_height - screen_h) / 2
+    screen_opening = (
+        screen_x - window_clearance,
+        screen_x + screen_w + window_clearance,
+        screen_y - window_clearance,
+        screen_y + screen_h + window_clearance,
+    )
+    usb_center = parameter_centers["J_USB_PANEL"]
+    usb_opening = (
+        usb_center[0] - usb_w / 2,
+        usb_center[0] + usb_w / 2,
+        usb_center[1] - usb_h / 2,
+        usb_center[1] + usb_h / 2,
+    )
+
+    def circle_rect_clearance(center: Tuple[float, float], diameter: float,
+                              rect: Tuple[float, float, float, float]) -> float:
+        x, y = center
+        x_gap = max(rect[0] - x, 0.0, x - rect[1])
+        y_gap = max(rect[2] - y, 0.0, y - rect[3])
+        return (x_gap * x_gap + y_gap * y_gap) ** 0.5 - diameter / 2
+
+    def rect_rect_clearance(
+        first: Tuple[float, float, float, float],
+        second: Tuple[float, float, float, float],
+    ) -> float:
+        x_gap = max(first[0] - second[1], second[0] - first[1], 0.0)
+        y_gap = max(first[2] - second[3], second[2] - first[3], 0.0)
+        return (x_gap * x_gap + y_gap * y_gap) ** 0.5
+
+    interface_clearances = {
+        "screen_to_faceplate_edge_mm": min(
+            screen_opening[0] + border,
+            board_width + border - screen_opening[1],
+            screen_opening[2] + border,
+            board_height + border - screen_opening[3],
+        ),
+        "usb_to_screen_mm": rect_rect_clearance(screen_opening, usb_opening),
+        "buttons_to_screen_mm": min(
+            circle_rect_clearance(parameter_centers["SW_START"], button_d, screen_opening),
+            circle_rect_clearance(parameter_centers["SW_MODE"], button_d, screen_opening),
+        ),
+    }
+    button_pocket_d = button_d + 2 * button_clearance
+    if button_pocket_d <= 3.9:
+        raise RuntimeError("UI button pocket does not clear the 3.9 mm switch body")
+    if led_bore_d <= 1.6:
+        raise RuntimeError("UI LED bore does not clear the 0603 body")
+    if min(interface_clearances.values()) < 0.2:
+        raise RuntimeError("UI faceplate openings lack the required 0.2 mm edge gap")
+
+    usb_footprint = next(
+        item for item in board.GetFootprints()
+        if str(item.GetReference()) == "J_USB_PANEL"
+    )
+    usb_orientation = float(usb_footprint.GetOrientation().AsDegrees())
+    if abs(usb_orientation) > 0.01:
+        raise RuntimeError(
+            "vertical USB-C footprint must remain at 0 degrees, got %.3f"
+            % usb_orientation
+        )
+
+    return {
+        "status": "PASS",
+        "pcb_to_faceplate_centers": center_records,
+        "mounting_holes": {
+            "actual_local_mm": sorted(hole_centers),
+            "expected_local_mm": [(round(x, 3), round(y, 3)) for x, y in expected_holes],
+            "status": "PASS",
+        },
+        "faceplate": {
+            "board_size_mm": [board_width, board_height],
+            "screen_opening_mm": [round(screen_w + 2 * window_clearance, 3), round(screen_h + 2 * window_clearance, 3)],
+            "button_pocket_d_mm": round(button_pocket_d, 3),
+            "button_plunger_d_mm": number(parameters, "clamp_electronics_ui_button_plunger_d"),
+            "led_bore_d_mm": round(led_bore_d, 3),
+            "speaker_opening_d_mm": round(speaker_d, 3),
+            "usb_opening_mm": [round(usb_w, 3), round(usb_h, 3)],
+            "board_to_faceplate_gap_mm": round(board_to_faceplate_gap, 3),
+            "opening_clearances_mm": {
+                key: round(value, 3) for key, value in interface_clearances.items()
+            },
+            "status": "PASS",
+        },
+        "usb_c": {
+            "orientation_deg": round(usb_orientation, 3),
+            "mating_axis": "PCB normal -> y+ panel",
+            "model": "usb-c-vertical-proxy.step",
+            "status": "PASS",
+            "physical_vendor_step": "OPEN until the purchased vertical receptacle SKU is frozen",
+        },
+    }
+
+
 def check_legacy_schematic_contract(schematic_path: Path) -> Dict[str, Any]:
     """Keep the retained legacy schematic from advertising obsolete connectors."""
 
@@ -575,6 +902,8 @@ def check_boards(pcbnew: Any) -> List[Dict[str, Any]]:
         record["connector_net_contract"] = check_connector_net_contract(
             pcbnew, path, CONNECTOR_NET_CONTRACTS[path]
         )
+        if path.name == "ui-panel-v0.2.kicad_pcb":
+            record["ui_direct_part_contract"] = check_ui_direct_parts(pcbnew, path)
         records.append(record)
     return records
 
@@ -767,7 +1096,6 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
     ) / 2
     main_y_shift = number(parameters, "clamp_electronics_main_board_y_shift") if "clamp_electronics_main_board_y_shift" in parameters else 18.5
     emitter_y_shift = number(parameters, "clamp_electronics_emitter_board_y_shift") if "clamp_electronics_emitter_board_y_shift" in parameters else 17.0
-    ui_y_shift = number(parameters, "clamp_electronics_ui_board_y_shift") if "clamp_electronics_ui_board_y_shift" in parameters else 14.0
     main_local = stl_bounds(MODEL_DIR / "esp32-control-v0.1.stl")
     emitter_local = stl_bounds(MODEL_DIR / "emitter-power-v0.2.stl")
     ui_local = stl_bounds(MODEL_DIR / "ui-panel-v0.2.stl")
@@ -778,8 +1106,12 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
         emitter_local, emitter_x_min, emitter_y_shift,
         number(parameters, "clamp_electronics_emitter_board_bottom_z"),
     )
-    ui_world = translate_bounds(
-        ui_local, ui_x_min, ui_y_shift, number(parameters, "clamp_electronics_ui_board_z")
+    ui_plane_y = number(parameters, "clamp_electronics_ui_side_board_plane_y")
+    ui_z_min = number(parameters, "clamp_electronics_ui_side_board_z_min")
+    ui_board_width = number(parameters, "clamp_electronics_ui_board_width_y")
+    ui_window_border = number(parameters, "clamp_electronics_ui_side_window_border")
+    ui_world = ui_side_stl_bounds(
+        ui_local, ui_x_min, ui_plane_y, ui_z_min, ui_board_width
     )
     cavity_floor_low = number(parameters, "clamp_reinforcement_near_table_bottom_z")
     main_region = (cavity_x_min, cavity_x_max, -cavity_y_half, cavity_y_half, cavity_floor_low, cavity_top)
@@ -818,11 +1150,16 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
         and -cavity_y_half < point[1] < cavity_y_half
         for point in hole_xy
     )
+    faceplate_inner_y = (
+        ui_plane_y + number(parameters, "clamp_electronics_ui_service_height_z")
+    )
     ui_xy_margins = {
         "x_min": ui_world[0] - cavity_x_min,
         "x_max": cavity_x_max - ui_world[1],
-        "y_min": ui_world[2] + cavity_y_half,
-        "y_max": cavity_y_half - ui_world[3],
+        "inner_wall": ui_world[2] - cavity_y_half,
+        "outer_faceplate_gap": faceplate_inner_y - ui_world[3],
+        "z_min": ui_world[4] - (ui_z_min - ui_window_border),
+        "z_max": (ui_z_min + ui_board_width + ui_window_border) - ui_world[5],
     }
     inner_x_min = number(parameters, "m6_detector_shell_inner_min_x")
     inner_x_max = number(parameters, "m6_detector_shell_inner_max_x")
@@ -883,8 +1220,13 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
         "ui_board": {
             "local_bounds": bounds_dict(ui_local),
             "world_bounds": bounds_dict(ui_world),
-            "translation": [ui_x_min, ui_y_shift, number(parameters, "clamp_electronics_ui_board_z")],
-            "xy_margins_to_cavity_datum": rounded_mapping(ui_xy_margins),
+            "side_datum": {
+                "board_x_min": ui_x_min,
+                "board_plane_y": ui_plane_y,
+                "board_z_min": ui_z_min,
+                "y_reflection": True,
+            },
+            "margins_to_side_window": rounded_mapping(ui_xy_margins),
             "status": "PASS" if ui_pass else "FAIL",
         },
         "internal_battery": {
@@ -1063,7 +1405,16 @@ def markdown_report(report: Dict[str, Any]) -> str:
     )
     for key, title in (("main_board", "right ESP32 mother board"), ("emitter_board", "left emitter power board"), ("ui_board", "cover UI board"), ("internal_battery", "internal battery envelope"), ("m6_receiver_carrier", "vertical M6 receiver carrier")):
         item = mechanical[key]
-        margins = item.get("margins_to_cavity", item.get("xy_margins_to_cavity_datum", item.get("margins_to_m6_inner_shell", {})))
+        margins = item.get(
+            "margins_to_cavity",
+            item.get(
+                "margins_to_side_window",
+                item.get(
+                    "xy_margins_to_cavity_datum",
+                    item.get("margins_to_m6_inner_shell", {}),
+                ),
+            ),
+        )
         minimum = min(margins.values()) if margins else 0
         lines.append("| %s | **%s** | %.3f mm |" % (title, item["status"], minimum))
     lines.extend(
@@ -1077,6 +1428,25 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "- Boolean interference: `%s` across both clamp sides and both M6 sides." % report["interference"]["status"],
             "- OpenSCAD view compilation: `%s` for full cutaway, physical shell cutaway, per-side exploded views, M6 integration, and M6 exploded assembly." % report["openscad_views"]["status"],
             "- Printable package: `%d/%d` STL files closed and positive volume." % (report["print_package"]["closed_count"], report["print_package"]["printable_stl_count"]),
+            "",
+            "## UI panel direct interface",
+            "",
+            "- Direct datum status: **%s**. START/MODE, both 0603 LEDs and the vertical USB-C footprint all match the printed faceplate centers with zero measured coordinate error." % report["ui_interface"]["status"],
+            "- Faceplate contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C slot `%.1f × %.1f mm`, board-to-faceplate gap `%.1f mm`." % (
+                report["ui_interface"]["faceplate"]["screen_opening_mm"][0],
+                report["ui_interface"]["faceplate"]["screen_opening_mm"][1],
+                report["ui_interface"]["faceplate"]["button_pocket_d_mm"],
+                report["ui_interface"]["faceplate"]["button_plunger_d_mm"],
+                report["ui_interface"]["faceplate"]["led_bore_d_mm"],
+                report["ui_interface"]["faceplate"]["speaker_opening_d_mm"],
+                report["ui_interface"]["faceplate"]["usb_opening_mm"][0],
+                report["ui_interface"]["faceplate"]["usb_opening_mm"][1],
+                report["ui_interface"]["faceplate"]["board_to_faceplate_gap_mm"],
+            ),
+            "- USB-C mating axis: `%s`; its model is `%s`. The final purchased vertical-receptacle STEP/part number remains an explicit first-article item." % (
+                report["ui_interface"]["usb_c"]["mating_axis"],
+                report["ui_interface"]["usb_c"]["model"],
+            ),
             "",
             "## PCB DRC evidence",
             "",
@@ -1104,6 +1474,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "- Mechanical/package gate: **PASS**.",
             "- Electrical fabrication gate: **OPEN** until copper routing, DRC, power-current bench validation, and the placeholder optocoupler/MCU selections are frozen.",
+            "- UI panel interface gate: **%s**; the real button/LED/USB-C footprints are checked against the printed y+ faceplate datum. The vertical USB-C proxy remains open only for the final vendor STEP swap." % report["ui_interface"]["status"],
             "- Lid fit is treated as a flush, no-visible-gap mechanical interface; this is not an IP waterproof certification.",
         ]
     )
@@ -1124,6 +1495,11 @@ def run_with_kicad_python() -> int:
     cli = find_kicad_cli()
     parameters = probe_scad(openscad)
     boards = check_boards(pcbnew)
+    ui_interface = check_ui_interface_alignment(
+        pcbnew,
+        HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb",
+        parameters,
+    )
     native_kicad = check_native_kicad(cli)
     pcb_drc = check_pcb_drc(cli)
     mechanical = check_model_fits(parameters)
@@ -1137,6 +1513,7 @@ def run_with_kicad_python() -> int:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "status": "PASS",
         "mechanical_fit": mechanical,
+        "ui_interface": ui_interface,
         "boards": boards,
         "native_kicad": native_kicad,
         "pcb_drc": pcb_drc,

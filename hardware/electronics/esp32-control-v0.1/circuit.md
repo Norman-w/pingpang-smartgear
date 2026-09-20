@@ -32,11 +32,11 @@ J8 是 J3 保护后的两芯 MX1.25 可插拔电源 hand-off，和 J4 的 3.3 V 
 | J7 | 网名 | ESP32-S3 GPIO | UI 子板负载 |
 | ---: | --- | ---: | --- |
 | 1 / 2 | `3v3 / gnd` | — | OLED、按钮、LED、音频公共电源 |
-| 3 / 4 | `ui_sda / ui_scl` | GPIO16 / GPIO15 | 0.96 英寸 I2C OLED 预留 |
+| 3 / 4 | `ui_sda / ui_scl` | GPIO16 / GPIO15 | 0.96 英寸 I2C OLED 排线接口 |
 | 5 / 6 | `ui_btn_start / ui_btn_mode` | GPIO3 / GPIO4 | 两个面板按钮 |
 | 7 | `ui_buzzer` | GPIO8 | 蜂鸣器驱动 |
 | 8 / 9 / 10 | `ui_spk_bclk / ui_spk_ws / ui_spk_dout` | GPIO6 / GPIO7 / GPIO17 | I2S 扬声器模块 |
-| 11 / 12 | `ui_led_status / ui_led_battery` | GPIO18 / GPIO21 | 导光柱指示灯 |
+| 11 / 12 | `ui_led_status / ui_led_battery` | GPIO18 / GPIO21 | UI PCB 上的 0603 单色直装指示灯 |
 
 ## ESP32-S3 关键焊盘
 

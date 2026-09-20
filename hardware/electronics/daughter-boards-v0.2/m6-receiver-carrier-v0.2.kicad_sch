@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "f2391a19-8165-4e31-b017-8ddf0543d515")
+	(uuid "1ecf22c4-683d-47bb-ba1c-47538376fd94")
 	(paper "A4")
 	(title_block
 		(title "M6 receiver carrier / ten isolated channels")
@@ -1649,91 +1649,91 @@
 		(exclude_from_sim no)
 		(at 14 12 0)
 		(effects (font (size 1.8 1.8)) (justify left bottom))
-		(uuid "a3924990-478b-498e-a6f4-af36e49a22b1")
+		(uuid "802a0056-046f-4933-ba7e-d43b088adf48")
 	)
 	(text "Each RX connector is a separate keyed 3-wire harness; board sockets are grouped after the 20 mm optical harness converges"
 		(exclude_from_sim no)
 		(at 14 18 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "51e6e97a-2470-468f-b175-2ff0f8c7c3f3")
+		(uuid "fd841b6d-ac68-4c52-81f3-ac5ba9f8ad59")
 	)
 	(text "LTV-817 and R_IN values remain first-article placeholders until the purchased NPN sensor output is measured"
 		(exclude_from_sim no)
 		(at 14 230 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "0c7cba53-e361-4719-9d75-c2fc275f2a50")
+		(uuid "855f70a6-92b1-4f08-8098-fff25f1c52a5")
 	)
 	(text "J_HOST is the 8-wire SPI/IRQ/reset handoff to the ESP32 mother board; J_PWR is sensor-side power only"
 		(exclude_from_sim no)
 		(at 14 237 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "9589224e-1235-437a-8a87-fa11c7fc752f")
+		(uuid "604a4d23-7d42-4e2c-9bbb-099a71fbc3ca")
 	)
 	(text "ERC/open connectivity is intentional at this review stage; do not release Gerbers from this file"
 		(exclude_from_sim no)
 		(at 14 244 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "f73a493d-4d8d-49ca-9280-6651e8eb216e")
+		(uuid "5822ed0c-4b6b-4263-a8dc-72918ae5dce1")
 	)
 	(wire
 		(pts (xy 45 28) (xy 86 28))
 		(stroke (width 0) (type solid))
-		(uuid "61e70f4c-5c00-4dd2-bbde-1f2d19ef976b")
+		(uuid "979a1664-6493-48fb-9aff-bcfbc0ab074d")
 	)
 	(wire
 		(pts (xy 45 46) (xy 86 46))
 		(stroke (width 0) (type solid))
-		(uuid "0a3b1bf8-2510-405d-b50c-a326a40212fc")
+		(uuid "1ece861d-db34-43a4-9107-9ef1108d0da0")
 	)
 	(wire
 		(pts (xy 45 64) (xy 86 64))
 		(stroke (width 0) (type solid))
-		(uuid "a757ece5-33c2-449e-b10f-37743ad54498")
+		(uuid "86e666c9-ee22-4bdf-b8f4-2285e3878866")
 	)
 	(wire
 		(pts (xy 45 82) (xy 86 82))
 		(stroke (width 0) (type solid))
-		(uuid "937e5d27-43cb-47c3-b803-652dd37f7cd0")
+		(uuid "f604a870-6bf3-4b3f-9791-58df5e28e74b")
 	)
 	(wire
 		(pts (xy 45 100) (xy 86 100))
 		(stroke (width 0) (type solid))
-		(uuid "93abfefb-7a78-40f4-9e9e-2610cd9088cd")
+		(uuid "a56c7a0c-4bc6-447e-a957-5e3cd6c44b16")
 	)
 	(wire
 		(pts (xy 45 118) (xy 86 118))
 		(stroke (width 0) (type solid))
-		(uuid "10ae01b7-13b5-4e1b-8498-bebb26b6a301")
+		(uuid "5d1aa550-aae9-42fa-b254-675a2728ff00")
 	)
 	(wire
 		(pts (xy 45 136) (xy 86 136))
 		(stroke (width 0) (type solid))
-		(uuid "e789e471-6894-40b6-9f40-12d0178511ca")
+		(uuid "ea41ce30-65dc-42dc-9f44-abaef2324ab6")
 	)
 	(wire
 		(pts (xy 45 154) (xy 86 154))
 		(stroke (width 0) (type solid))
-		(uuid "50aeb35d-880d-4e81-b790-7dbf19880f76")
+		(uuid "66fe9ad7-deab-4dce-8579-2566a9242c39")
 	)
 	(wire
 		(pts (xy 45 172) (xy 86 172))
 		(stroke (width 0) (type solid))
-		(uuid "f2638427-485e-437a-9b71-0d3096d60416")
+		(uuid "66c65668-0398-4408-8d1a-466a588d2ccb")
 	)
 	(wire
 		(pts (xy 45 190) (xy 86 190))
 		(stroke (width 0) (type solid))
-		(uuid "e982cadc-04c8-433a-8161-b0922118610c")
+		(uuid "d56d1d36-89fe-4352-af8e-b530dd949aee")
 	)
 	(wire
 		(pts (xy 105 125) (xy 175 125))
 		(stroke (width 0) (type solid))
-		(uuid "1cd6a2ee-c9e4-405f-94cc-45df9bee13c5")
+		(uuid "01b72c7d-b331-43bd-9d2f-6f967926717f")
 	)
 	(wire
 		(pts (xy 205 125) (xy 235 80))
 		(stroke (width 0) (type solid))
-		(uuid "36b03b8d-8dd5-421c-9104-9574aef7d879")
+		(uuid "6687cbb3-e1fc-458e-b3ac-00fa6809dd81")
 	)
 	(label "RX00..RX09: V / GND / NPN_SIG"
 		(at 48 22 0)
@@ -1741,7 +1741,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "5aff8e3d-504a-4551-bc94-bf3cc434f04f")
+		(uuid "eab5a40b-c36f-412f-a9be-15fd8732eea7")
 	)
 	(label "ISOLATED EDGE INPUTS"
 		(at 106 22 0)
@@ -1749,7 +1749,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "99e07840-25fc-4d18-97c9-8ef88f689c58")
+		(uuid "c924c9f1-41cc-40ae-be40-57bf648747a8")
 	)
 	(label "SPI + IRQ + RESET"
 		(at 208 72 0)
@@ -1757,7 +1757,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "d241a57e-06df-48b2-ac45-9042d02edf54")
+		(uuid "0716d4f8-4959-47ab-80be-b7cc07b710cd")
 	)
 	(label "10-30V SENSOR RAIL"
 		(at 208 157 0)
@@ -1765,7 +1765,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "831bbcab-4d53-40d7-a422-d9bf064df3bd")
+		(uuid "53110d52-fb5d-4e26-8382-4d2951601dd3")
 	)
 	(label "3V3_LOGIC"
 		(at 151 125 0)
@@ -1773,7 +1773,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "2615a95c-50e8-4a3f-b70c-39b7c4f9e59f")
+		(uuid "0eb6f485-f1d2-48c2-be50-db49d23beebd")
 	)
 	(symbol
 		(lib_id "MCU_ST_STM32G0:STM32G031C8Ux")
@@ -1783,7 +1783,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "32fd6a7d-820a-400c-942f-e984d6121bc4")
+		(uuid "1e9efd43-4b99-455f-b469-54c71f16e804")
 		(property "Reference" "U_MCU"
 			(at 0 -3.81 0)
 			(effects
@@ -1834,7 +1834,7 @@
 
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_MCU")
 					(unit 1)
 				)
@@ -1849,7 +1849,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e47ce0f1-18f5-4d43-a482-25926150c07c")
+		(uuid "68f5baa8-0fee-41c8-ba1c-e3d222c7cddc")
 		(property "Reference" "J_HOST"
 			(at 0 -3.81 0)
 			(effects
@@ -1899,32 +1899,32 @@
 		)
 
 		(pin "1"
-			(uuid "eb0de0af-3240-43e6-9448-dfc4e04394b2")
+			(uuid "90b4db5c-9334-4969-882d-5f8edd8a18bd")
 		)
 		(pin "2"
-			(uuid "43229694-54a2-43ef-b941-8a95e3edb283")
+			(uuid "d30f11b0-e2ff-4d9a-8717-ceab062803da")
 		)
 		(pin "3"
-			(uuid "17c52de6-6318-415f-af34-3165cd074727")
+			(uuid "f125ae26-c2b7-4a0a-9dbf-d45aacc804cc")
 		)
 		(pin "4"
-			(uuid "a5a06743-4735-4164-ac3b-191fe7a16113")
+			(uuid "e4b11df9-ea82-4ed3-89b0-999e8485ba43")
 		)
 		(pin "5"
-			(uuid "067f006b-5e90-46de-8873-6b533acae678")
+			(uuid "ccc6176c-5a09-4ab5-91ba-16fd015fc90d")
 		)
 		(pin "6"
-			(uuid "f011f2cf-12f5-4c24-9e4e-4a9c83ab169c")
+			(uuid "ed886001-5252-4eb3-8a84-01e5ff5336b4")
 		)
 		(pin "7"
-			(uuid "790858c0-19d6-4648-8755-b52a75e4e780")
+			(uuid "bc733713-38ea-4467-996b-6f0bc6b94ec9")
 		)
 		(pin "8"
-			(uuid "d6afd85f-5f03-4245-9b17-a31c5a39ec28")
+			(uuid "2f6d68b7-8ba8-4205-b1b8-b0f0f604670c")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_HOST")
 					(unit 1)
 				)
@@ -1939,7 +1939,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "eacc3765-23f0-4b47-a582-9d02484b1cd8")
+		(uuid "0dca7e4a-6ff5-4982-8a22-2ca1f9eba9ad")
 		(property "Reference" "J_PWR"
 			(at 0 -3.81 0)
 			(effects
@@ -1989,14 +1989,14 @@
 		)
 
 		(pin "1"
-			(uuid "87db32d0-4619-493f-bd62-4e771a387c3f")
+			(uuid "b8096e74-31c4-4152-94b2-35a9a9d296ed")
 		)
 		(pin "2"
-			(uuid "25914d57-4117-4ad7-ba04-96dafcecd491")
+			(uuid "fdf3434f-c56a-4e4f-838f-4c49fdc40431")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_PWR")
 					(unit 1)
 				)
@@ -2011,7 +2011,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "1d4452f0-b071-40e7-86cc-ffc3528043a4")
+		(uuid "7fbe048c-4980-4277-9088-7a778ab89521")
 		(property "Reference" "J_RX00"
 			(at 0 -3.81 0)
 			(effects
@@ -2061,17 +2061,17 @@
 		)
 
 		(pin "1"
-			(uuid "e575ac93-1a40-4eec-9686-d45bb128dcac")
+			(uuid "c52e1e87-693b-429b-bf85-d27ef8f53bd7")
 		)
 		(pin "2"
-			(uuid "5e30cede-c81c-47c5-8ea9-d4945498d7f8")
+			(uuid "22022ddf-551f-494f-9522-9cb76f5e00c4")
 		)
 		(pin "3"
-			(uuid "751bed4b-3513-4a30-a2c8-881ff204dd27")
+			(uuid "2db76705-69ca-44b2-8e2c-a1f3d2191d7b")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX00")
 					(unit 1)
 				)
@@ -2086,7 +2086,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a7f6aeaf-c1fe-4987-9f67-3e286d39813c")
+		(uuid "d80e68b6-3676-47a6-8e4f-a419986ee21c")
 		(property "Reference" "U_OP00"
 			(at 0 -3.81 0)
 			(effects
@@ -2136,20 +2136,20 @@
 		)
 
 		(pin "1"
-			(uuid "45899e4d-c9b5-422e-8988-0ca4c319d6d6")
+			(uuid "0dc5b563-8a9d-42db-83e9-d4ee5bd2123c")
 		)
 		(pin "2"
-			(uuid "ce3db38c-5cc2-4e48-b021-7ae03c005c1b")
+			(uuid "e34ae138-288a-4e2d-93c4-73569ea9f99a")
 		)
 		(pin "3"
-			(uuid "331b34fc-2257-48e0-965b-016b12195168")
+			(uuid "88b2e512-2250-45f9-8e7c-32ea5551e8c3")
 		)
 		(pin "4"
-			(uuid "7061f304-8a1a-4873-b32d-820b44cd9e51")
+			(uuid "8053b756-d895-4a6b-b135-2e768283e379")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP00")
 					(unit 1)
 				)
@@ -2164,7 +2164,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bf66ecc1-1b7b-4382-9633-b77d8fffa00e")
+		(uuid "b8255609-4961-4ab3-8f05-860c7d89b2d0")
 		(property "Reference" "J_RX01"
 			(at 0 -3.81 0)
 			(effects
@@ -2214,17 +2214,17 @@
 		)
 
 		(pin "1"
-			(uuid "0d776d9b-ac65-4fa8-acbd-b340e155a0ae")
+			(uuid "0e8a99a9-fcf3-4c3c-9231-9ea969d82215")
 		)
 		(pin "2"
-			(uuid "f41b9411-8f8f-410e-b4c6-88272b0d5e57")
+			(uuid "4acd4930-7570-4d4e-a8c2-57607ed8cac5")
 		)
 		(pin "3"
-			(uuid "f86683d8-1e07-4daf-aaf8-bbc75a8da6c8")
+			(uuid "06b2ed61-e737-4d83-b304-1c630455e05a")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX01")
 					(unit 1)
 				)
@@ -2239,7 +2239,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "629c710c-df0c-4953-b6f8-c7bc5be564c0")
+		(uuid "c2055587-cecf-4e41-835e-7e5c74067d6b")
 		(property "Reference" "U_OP01"
 			(at 0 -3.81 0)
 			(effects
@@ -2289,20 +2289,20 @@
 		)
 
 		(pin "1"
-			(uuid "56c0a2ca-a64d-4141-b929-5e418028a8c2")
+			(uuid "de477733-b581-4446-a9ce-59ae2a6b44c5")
 		)
 		(pin "2"
-			(uuid "a2bfce6f-9186-43e3-80c5-7e819feec5f7")
+			(uuid "2c617fcc-9a78-45b9-afe7-1109d5f7d5e7")
 		)
 		(pin "3"
-			(uuid "dfe80771-9c0f-4707-a6c1-01a0d3a13905")
+			(uuid "9799f784-9aa6-465c-99c2-e72fd1784bd0")
 		)
 		(pin "4"
-			(uuid "f08c3741-0ae8-4c4f-9fe2-93ae045b86ca")
+			(uuid "7913f9ac-a16b-4410-bed7-e068ce2c398e")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP01")
 					(unit 1)
 				)
@@ -2317,7 +2317,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "8700cfd4-1985-4f04-b0bb-0553cb6fea27")
+		(uuid "aed7378b-ea69-4aac-a436-fabaaf105c89")
 		(property "Reference" "J_RX02"
 			(at 0 -3.81 0)
 			(effects
@@ -2367,17 +2367,17 @@
 		)
 
 		(pin "1"
-			(uuid "0d233f39-18b5-49e9-9e3f-1185bae670aa")
+			(uuid "e8e7da87-33c9-475a-8768-859f20a56ad5")
 		)
 		(pin "2"
-			(uuid "bcd160d2-330c-4ea4-a65c-a37d7946953e")
+			(uuid "8be74594-7baf-43ff-9485-91828fcb5a36")
 		)
 		(pin "3"
-			(uuid "ce57330e-8325-4ac0-96e1-baa0f070296a")
+			(uuid "9c597675-dfef-4bbe-8ea9-0aed5bb8a449")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX02")
 					(unit 1)
 				)
@@ -2392,7 +2392,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "1d821b3c-8bb1-4d28-80b7-7c827b73ca42")
+		(uuid "8e8f0e26-eece-4e3a-bdfe-ed7b824650de")
 		(property "Reference" "U_OP02"
 			(at 0 -3.81 0)
 			(effects
@@ -2442,20 +2442,20 @@
 		)
 
 		(pin "1"
-			(uuid "ee8747e7-1777-4623-9d80-8b581ed6f7a9")
+			(uuid "05c63239-4ed4-4a9b-ae54-80a9194f2798")
 		)
 		(pin "2"
-			(uuid "67f69156-9c4e-4fba-9196-471b49a61e26")
+			(uuid "4416fc9e-8afa-4f02-8be4-00e73c2ecd45")
 		)
 		(pin "3"
-			(uuid "f3c3ea0d-63cb-4a7f-8189-c5497dfc3192")
+			(uuid "f01763f1-fd2b-4a6f-8d1e-c03ddd386b0f")
 		)
 		(pin "4"
-			(uuid "694977aa-7793-409e-a71f-ed9e60b05719")
+			(uuid "5295d018-b1df-4d72-9a24-6b5b3fb8e241")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP02")
 					(unit 1)
 				)
@@ -2470,7 +2470,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "562c73f9-2c4e-45d1-bc15-1f56caec0079")
+		(uuid "6c695358-cfc2-4a84-963e-795c79161332")
 		(property "Reference" "J_RX03"
 			(at 0 -3.81 0)
 			(effects
@@ -2520,17 +2520,17 @@
 		)
 
 		(pin "1"
-			(uuid "26bae368-98f0-4ca1-a96c-557ce5d8f6e6")
+			(uuid "417729ef-3f68-48d6-8616-2a6d3d733ffa")
 		)
 		(pin "2"
-			(uuid "bb4e3d40-89ae-4d52-b6b5-05dae3b6b7ec")
+			(uuid "1090e8c6-0d49-4540-b63a-fa3b48f99b0e")
 		)
 		(pin "3"
-			(uuid "b08e5270-77d7-4869-9cb6-df887943c581")
+			(uuid "433a9c58-7b1d-4d20-bdc3-fe572fdccfa3")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX03")
 					(unit 1)
 				)
@@ -2545,7 +2545,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "28560bd6-5f06-4e83-aa3c-d945b7a47439")
+		(uuid "3a54055e-2d0e-4b5b-90d4-1b04084a5f0c")
 		(property "Reference" "U_OP03"
 			(at 0 -3.81 0)
 			(effects
@@ -2595,20 +2595,20 @@
 		)
 
 		(pin "1"
-			(uuid "0b7876b6-3c39-46d5-82e3-08deca6ce79e")
+			(uuid "bd647f56-73af-440b-b012-3c70948be98e")
 		)
 		(pin "2"
-			(uuid "ca5f2741-4dca-4150-a5c5-1530709cbc97")
+			(uuid "4f4e60da-c70d-46cd-b1d4-51796525bcd4")
 		)
 		(pin "3"
-			(uuid "5cdd8190-eeda-496e-9442-c4a26e7714c0")
+			(uuid "4b807d95-617e-4c37-b3c4-5883bf2bb317")
 		)
 		(pin "4"
-			(uuid "16881196-80a1-4963-8ff2-738e359a1548")
+			(uuid "dbddb47c-970f-450e-bd10-1be58f2d4f33")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP03")
 					(unit 1)
 				)
@@ -2623,7 +2623,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2868e0ec-9e0a-4660-8180-b24cc26fd95a")
+		(uuid "eef5f523-ecb6-4fa3-83db-cce06f7843bf")
 		(property "Reference" "J_RX04"
 			(at 0 -3.81 0)
 			(effects
@@ -2673,17 +2673,17 @@
 		)
 
 		(pin "1"
-			(uuid "21b536a5-1dee-4b98-aef2-7391ac5c0e5a")
+			(uuid "389387f3-c7bd-44fa-a8d0-ad357812f1b1")
 		)
 		(pin "2"
-			(uuid "410285e2-7c57-4594-abc0-0e51e1d7ac91")
+			(uuid "c6b23951-a7dc-415e-8354-8d281de894a0")
 		)
 		(pin "3"
-			(uuid "68ed9b72-5939-4634-8b74-6187acfab088")
+			(uuid "e6852a3c-255f-4275-a991-eefbb023431e")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX04")
 					(unit 1)
 				)
@@ -2698,7 +2698,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b24f6fde-46fe-4552-a2d4-42d2ddec60a1")
+		(uuid "a1e808e8-8ae3-44d6-9625-190341935bb1")
 		(property "Reference" "U_OP04"
 			(at 0 -3.81 0)
 			(effects
@@ -2748,20 +2748,20 @@
 		)
 
 		(pin "1"
-			(uuid "d3e30126-9326-47df-b86f-a17c3e43a56c")
+			(uuid "223455b5-11c5-415c-8f18-344a5016efc1")
 		)
 		(pin "2"
-			(uuid "cf79e7e1-83e6-4552-8767-764c7a4907b7")
+			(uuid "54689a0e-a1bf-4525-ab49-91c9ac1b9a88")
 		)
 		(pin "3"
-			(uuid "bee17474-beea-4cda-a28e-ee79549dc7f1")
+			(uuid "65ac786c-6eb1-49f7-86ef-252c858d5383")
 		)
 		(pin "4"
-			(uuid "1ee7fb5b-b53f-4f28-a164-039f714eb558")
+			(uuid "143f40bd-08c1-4b8b-803c-84c96183b51b")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP04")
 					(unit 1)
 				)
@@ -2776,7 +2776,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "8ca09c71-1857-4019-8a82-be0961d91d2e")
+		(uuid "d0d12d32-321f-441b-8df5-838cff984704")
 		(property "Reference" "J_RX05"
 			(at 0 -3.81 0)
 			(effects
@@ -2826,17 +2826,17 @@
 		)
 
 		(pin "1"
-			(uuid "8dfd4591-ec98-4464-a8e6-73d91afdc786")
+			(uuid "221ae38c-cabd-4e2a-a426-81d4fc6743e6")
 		)
 		(pin "2"
-			(uuid "c5d6f0d9-da74-4cf4-b98b-ee703fc665eb")
+			(uuid "050c6fd3-c3ee-4a7a-8815-fa82333e2d13")
 		)
 		(pin "3"
-			(uuid "a317ddc3-6323-40d3-8c2b-666d250426fb")
+			(uuid "01a9abbe-b845-4e68-a8c2-3e967e6084be")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX05")
 					(unit 1)
 				)
@@ -2851,7 +2851,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "07c47f76-6ab0-4827-b536-6bda0ad4ca1b")
+		(uuid "1f19af29-628a-4fad-a62a-d11939762eb3")
 		(property "Reference" "U_OP05"
 			(at 0 -3.81 0)
 			(effects
@@ -2901,20 +2901,20 @@
 		)
 
 		(pin "1"
-			(uuid "1eec8fd8-aabc-4451-9b0c-608fabd62ab1")
+			(uuid "3b0c2b3d-d8f9-4746-8523-954c1a5e01c7")
 		)
 		(pin "2"
-			(uuid "c9adfa8b-464b-4c4b-8797-af1a2ba475d6")
+			(uuid "00d76485-ebaf-4da1-8441-a6afe090dc2d")
 		)
 		(pin "3"
-			(uuid "35586f01-e225-4080-9c52-10644910157a")
+			(uuid "4896c081-8440-450f-9310-ea11b862bbaf")
 		)
 		(pin "4"
-			(uuid "ce8b0e67-d74b-4934-a837-bcec736df927")
+			(uuid "a55466f9-9786-438a-8542-fa2a7cd2c72c")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP05")
 					(unit 1)
 				)
@@ -2929,7 +2929,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d6c76228-651c-4e84-8f43-8771ed2e0dee")
+		(uuid "a4882039-af94-43c9-ac73-2f545900c28a")
 		(property "Reference" "J_RX06"
 			(at 0 -3.81 0)
 			(effects
@@ -2979,17 +2979,17 @@
 		)
 
 		(pin "1"
-			(uuid "f63bb1df-acda-4ef3-b1a6-e44b27582e9b")
+			(uuid "d48ee610-56ec-4d9b-b857-53d74b31dfd7")
 		)
 		(pin "2"
-			(uuid "f40862bb-8345-4449-91c9-30802f8ee86d")
+			(uuid "df2b566e-3cc0-487e-904a-7a90ae0ec511")
 		)
 		(pin "3"
-			(uuid "4ac34f6c-efb1-4eec-89ac-d3e86dd0a468")
+			(uuid "3a25b16a-bd95-436b-bd9c-824ab2e35e01")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX06")
 					(unit 1)
 				)
@@ -3004,7 +3004,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "98d4598d-bfc0-4e03-af22-13601742f84a")
+		(uuid "9e31feb0-b523-4cbe-8b29-222f718b77d3")
 		(property "Reference" "U_OP06"
 			(at 0 -3.81 0)
 			(effects
@@ -3054,20 +3054,20 @@
 		)
 
 		(pin "1"
-			(uuid "23d9c6a2-fb07-4834-b652-31530b561273")
+			(uuid "99637016-8a8b-42ff-91d4-e9faa5dc97f6")
 		)
 		(pin "2"
-			(uuid "3e0684a7-4254-4761-9d8b-9a929351691f")
+			(uuid "7e34913c-6ba5-4bff-8525-414a35fad68a")
 		)
 		(pin "3"
-			(uuid "7efe92de-7b9f-4a51-8609-2db0809dc717")
+			(uuid "f4d8d4b5-e945-437b-8248-0ab04deee1f5")
 		)
 		(pin "4"
-			(uuid "0b83c7c9-001a-4f51-8491-a3e43f57728c")
+			(uuid "6f36a9e3-f7df-4f9d-b699-b17b8b231e70")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP06")
 					(unit 1)
 				)
@@ -3082,7 +3082,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3b9e0537-5207-4355-9860-6cdbc6ed652d")
+		(uuid "f5388984-4f69-49e2-8b13-ec98ea5109ca")
 		(property "Reference" "J_RX07"
 			(at 0 -3.81 0)
 			(effects
@@ -3132,17 +3132,17 @@
 		)
 
 		(pin "1"
-			(uuid "d1693b75-1972-4b1e-addf-96f2a288804f")
+			(uuid "53741b56-4c52-4b87-ae96-c469bc1f9245")
 		)
 		(pin "2"
-			(uuid "4d3127eb-0396-4743-b224-72c85c2af5ab")
+			(uuid "1e3cc797-578e-4ea4-a1ae-8933d0f1ae35")
 		)
 		(pin "3"
-			(uuid "40cf58f5-640d-47e3-a2b7-c881798011cb")
+			(uuid "762200ba-fa54-44e6-9435-9640743730b2")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX07")
 					(unit 1)
 				)
@@ -3157,7 +3157,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bcc27ab5-1f09-4f60-b3ed-60c82120cee8")
+		(uuid "dc5cd45f-6e6e-4a82-b141-a97ab975ef9f")
 		(property "Reference" "U_OP07"
 			(at 0 -3.81 0)
 			(effects
@@ -3207,20 +3207,20 @@
 		)
 
 		(pin "1"
-			(uuid "f26be82c-6633-4b2a-ad6a-4f504607196f")
+			(uuid "16905a10-de5d-4856-bd24-734a7e4b128e")
 		)
 		(pin "2"
-			(uuid "0861c3cc-24f4-4217-9f98-df7dcf75b59f")
+			(uuid "1436de0b-3a1d-4d3e-b4c2-e0c37026ec4d")
 		)
 		(pin "3"
-			(uuid "f2975c99-4f5b-487d-ab37-dfee782b35eb")
+			(uuid "d3223159-e7b0-425c-91cb-fcb376309484")
 		)
 		(pin "4"
-			(uuid "a3925502-2801-4029-85bf-583c7c5d89a1")
+			(uuid "a17ceef4-099b-44c1-9817-544f50dea1c1")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP07")
 					(unit 1)
 				)
@@ -3235,7 +3235,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "345c8d4f-b9df-408a-a4f7-3960d3d395c3")
+		(uuid "ecb8f573-24af-42f8-8a4f-c13b52a276d0")
 		(property "Reference" "J_RX08"
 			(at 0 -3.81 0)
 			(effects
@@ -3285,17 +3285,17 @@
 		)
 
 		(pin "1"
-			(uuid "0a8ea4b0-62d4-4ff0-bd92-e28e2a954a9f")
+			(uuid "5405fa8b-2791-47cf-886a-213a6392a3ca")
 		)
 		(pin "2"
-			(uuid "f763fbdb-75e2-44e5-8573-3274bac0335d")
+			(uuid "39b6d88d-520f-4b2a-a4c1-bbab3c2af551")
 		)
 		(pin "3"
-			(uuid "623aeb30-bff3-41f4-849d-4f200c1144ec")
+			(uuid "4e50c32b-6c7e-4830-a914-26956b7b3fd7")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX08")
 					(unit 1)
 				)
@@ -3310,7 +3310,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bdec4ee8-5885-4e39-8ca2-409d9592a744")
+		(uuid "18b2a0fa-9ac6-4522-a27d-a105321f9318")
 		(property "Reference" "U_OP08"
 			(at 0 -3.81 0)
 			(effects
@@ -3360,20 +3360,20 @@
 		)
 
 		(pin "1"
-			(uuid "89c5d930-0c73-4333-b455-0543678350f4")
+			(uuid "fc98f7d4-37c9-4aa4-98eb-8706a0453974")
 		)
 		(pin "2"
-			(uuid "e0c800a2-d1b7-4476-adda-47d789bce88f")
+			(uuid "96f18681-5939-4882-9efe-2c4143f63ab1")
 		)
 		(pin "3"
-			(uuid "2b782399-b48f-4b50-9291-412323c7d2b7")
+			(uuid "ecec2bef-bc18-4374-a56e-5cb98a3d967c")
 		)
 		(pin "4"
-			(uuid "7cb10bf7-f3a6-4bec-882e-cfa3d622c8cc")
+			(uuid "3cad67ad-dbd8-45de-923f-a380e601aae8")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP08")
 					(unit 1)
 				)
@@ -3388,7 +3388,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0f67c45f-8927-49db-94f5-589cc06a7045")
+		(uuid "5f387217-ab19-4a41-8ce3-d2a670a2f9d9")
 		(property "Reference" "J_RX09"
 			(at 0 -3.81 0)
 			(effects
@@ -3438,17 +3438,17 @@
 		)
 
 		(pin "1"
-			(uuid "7b46267d-1c89-47da-b62c-aa1a5aaf6b31")
+			(uuid "349d6ddb-bba1-4430-a2af-8c104ee924ab")
 		)
 		(pin "2"
-			(uuid "7a75af5d-16ba-4073-8208-2beb7a8c9c01")
+			(uuid "e41aade5-2230-4598-b8ba-fbb779112343")
 		)
 		(pin "3"
-			(uuid "297276c4-dd89-4635-8636-f7decb96ceab")
+			(uuid "5c9f39d1-bc50-4a2b-a58d-8088823f45b5")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "J_RX09")
 					(unit 1)
 				)
@@ -3463,7 +3463,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c9b8d199-f704-4298-bc9b-b85f39cbd316")
+		(uuid "b288ebfb-876e-4130-a3ea-db70d9973ba3")
 		(property "Reference" "U_OP09"
 			(at 0 -3.81 0)
 			(effects
@@ -3513,20 +3513,20 @@
 		)
 
 		(pin "1"
-			(uuid "e2690fb8-f879-4b8f-82d6-2d016a7fcdaa")
+			(uuid "7146a131-59b2-4b3e-9568-7988bb2f2905")
 		)
 		(pin "2"
-			(uuid "312c05ee-dbce-4022-8f78-aa16f3f1fd35")
+			(uuid "acc892aa-638b-4c9a-970d-f4d06d258811")
 		)
 		(pin "3"
-			(uuid "6b15571d-74e1-4613-b4e0-48953e7b1550")
+			(uuid "89e53fd9-231e-4a6b-afca-f68792972a94")
 		)
 		(pin "4"
-			(uuid "6ace7f77-19f0-4d71-8cc4-e7e137d9c1e0")
+			(uuid "b25dd2d3-efbf-4d46-af23-766af33969b3")
 		)
 		(instances
 			(project "m6-receiver-carrier-v0.2"
-				(path "/0fb0ba14-f6e0-45bc-bf8d-51e92c9ee031"
+				(path "/7ba9cea5-3ac3-4577-ade0-5fb45ff6e25d"
 					(reference "U_OP09")
 					(unit 1)
 				)

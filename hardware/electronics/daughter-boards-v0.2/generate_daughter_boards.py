@@ -35,6 +35,20 @@ MODEL_MX125_1X2 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM02B-GH
 MODEL_SOIC8 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-8_3.9x4.9mm_P1.27mm.step"
 MODEL_SOIC4 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-4_4.55x2.6mm_P1.27mm.step"
 MODEL_0603 = "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+MODEL_PANEL_BUTTON = "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
+MODEL_PANEL_LED = "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
+# The UI PCB is installed vertically behind the y+ service panel.  A local
+# first-article envelope stands in for the exact vendor STEP until the
+# purchased 16-pin vertical receptacle is frozen; the old right-angle
+# USB4085 would point along the PCB plane and could not mate through this wall.
+MODEL_USB_C_PANEL = "${KIPRJMOD}/../3d/v0.2/usb-c-vertical-proxy.step"
+
+KICAD_FOOTPRINT_ROOT = Path(
+    "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
+)
+LIB_PANEL_BUTTON = KICAD_FOOTPRINT_ROOT / "Button_Switch_SMD.pretty"
+LIB_PANEL_LED = KICAD_FOOTPRINT_ROOT / "LED_SMD.pretty"
+LIB_USB_C_PANEL = KICAD_FOOTPRINT_ROOT / "Connector_USB.pretty"
 
 
 def add_3d_model(pcbnew, fp, filename: str, rotation=(0.0, 0.0, 0.0)):
@@ -135,6 +149,122 @@ def new_fp(board, pcbnew, ref: str, value: str, x: float, y: float,
     fp.Value().SetLayer(pcbnew.F_Fab)
     fp.SetPosition(xy(pcbnew, x, y))
     fp.SetOrientation(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
+    return fp
+
+
+def load_library_fp(board, pcbnew, library: Path, name: str, ref: str,
+                    value: str, x: float, y: float, rotation: float = 0.0):
+    """Add an installed KiCad footprint without replacing its 3D model.
+
+    The library footprint is deliberately loaded instead of drawing a generic
+    rectangle.  That keeps the copper land pattern, courtyard, mounting
+    holes, and the purchased-part model tied together for the mechanical
+    review.  ``x``/``y`` is the footprint origin used by the library; callers
+    compensate for off-centre origins when they need a panel datum.
+    """
+    if not library.is_dir():
+        raise RuntimeError(f"KiCad footprint library is missing: {library}")
+    plugin_type = pcbnew.PCB_IO_MGR.GuessPluginTypeFromLibPath(str(library))
+    plugin = pcbnew.PCB_IO_MGR.FindPlugin(plugin_type)
+    fp = plugin.FootprintLoad(str(library), name)
+    if fp is None:
+        raise RuntimeError(f"cannot load KiCad footprint {library.name}:{name}")
+    fp.SetReference(ref)
+    fp.SetValue(value)
+    fp.SetPosition(xy(pcbnew, x, y))
+    fp.SetOrientation(pcbnew.EDA_ANGLE(rotation, pcbnew.DEGREES_T))
+    # Keep references readable in the board preview while leaving the
+    # installed library's fabrication/courtyard graphics intact.
+    fp.Reference().SetLayer(pcbnew.F_Fab)
+    fp.Value().SetLayer(pcbnew.F_Fab)
+    # The direct panel parts are identified by their value/reference in the
+    # fabrication view; their library silkscreen outlines are too close to
+    # the neighbouring cable lands for this compact review board.
+    for item in fp.GraphicalItems():
+        if item.GetLayer() == pcbnew.F_SilkS:
+            item.SetLayer(pcbnew.F_Fab)
+    board.Add(fp)
+    return fp
+
+
+def assign_pad_nets(fp, nets: dict[str, object], mapping: dict[str, str]):
+    """Assign named library pads, including duplicated USB-C pad names."""
+    for pad in fp.Pads():
+        number = str(pad.GetPadName())
+        net_name = mapping.get(number)
+        if net_name is not None:
+            pad.SetNet(nets[net_name])
+
+
+def add_panel_button(board, pcbnew, nets: dict[str, object], ref: str,
+                     value: str, center_x: float, center_y: float,
+                     signal_net: str):
+    # TS-1088-xR020 is a 3.9 x 3.0 x 2.0 mm, two-pad SMD tactile switch.  Its
+    # footprint origin is the centre of the actuator body, so the board datum
+    # and the printed button plunger use the same x/y coordinate directly.
+    fp = load_library_fp(
+        board, pcbnew, LIB_PANEL_BUTTON, "SW_SPST_TS-1088-xR020", ref, value,
+        center_x, center_y,
+    )
+    assign_pad_nets(fp, nets, {"1": signal_net, "2": "gnd"})
+    return fp
+
+
+def add_panel_led(board, pcbnew, nets: dict[str, object], ref: str,
+                  value: str, center_x: float, center_y: float,
+                  signal_net: str, model: str):
+    # The 0603 footprint origin is the optical/body centre.  Keep the two
+    # existing single-colour LED nets and expose them through short, straight
+    # faceplate bores; a WS2812B/RGB replacement would require new data/RGB
+    # wiring, which is deliberately outside this placement-only revision.
+    fp = load_library_fp(
+        board, pcbnew, LIB_PANEL_LED, "LED_0603_1608Metric", ref, value,
+        center_x, center_y,
+    )
+    assign_pad_nets(fp, nets, {"1": signal_net, "2": "gnd"})
+    # Use the library 0603 model for both colour positions; the actual LED
+    # colour remains a BOM/first-article selection while the mechanical body
+    # envelope stays truthful.
+    fp.Models().clear()
+    add_3d_model(pcbnew, fp, model)
+    return fp
+
+
+def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
+                    value: str, center_x: float, center_y: float):
+    # The vertical 16-pin receptacle's mating axis is the PCB normal.  With the
+    # UI PCB mounted vertically, that normal points through the y+ bezel; keep
+    # the footprint at 0 degrees so the electrical pads and mechanical mouth
+    # share the same panel datum.
+    fp = load_library_fp(
+        board, pcbnew, LIB_USB_C_PANEL,
+        "USB_C_Receptacle_G-Switch_GT-USB-7051x",
+        ref, value, center_x, center_y, rotation=0.0,
+    )
+    # KiCad's library footprint has no bundled vendor STEP on this install.
+    # Replace that unresolved reference with the checked-in vertical
+    # first-article envelope so board export and enclosure fit use the same
+    # mating axis instead of silently dropping the connector model.
+    fp.Models().clear()
+    add_3d_model(pcbnew, fp, MODEL_USB_C_PANEL)
+    assign_pad_nets(fp, nets, {
+        "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
+        "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",
+        "A12": "gnd", "B1": "gnd", "B4": "usb_vbus", "B5": "cc2",
+        "B6": "usb_dp", "B7": "usb_dn", "B8": "usb_sbu1",
+        "B9": "usb_vbus", "B12": "gnd", "SH": "gnd",
+    })
+    # Keep the 0.79 mm vertical-receptacle pitch while using a 0.65 mm review pad.  It
+    # leaves the board's normal 0.20 mm copper-clearance rule intact and still
+    # gives a 0.125 mm annulus around the 0.40 mm plated drill.  The final
+    # fabrication land is a first-article datasheet check, not a hidden
+    # relaxation of the whole board's DRC.
+    for pad in fp.Pads():
+        name = str(pad.GetPadName())
+        if name not in {"", "SH"}:
+            pad.SetSize(xy(pcbnew, 0.65, 0.65))
+        if pad.GetNetname() == "gnd":
+            pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
     return fp
 
 
@@ -480,10 +610,11 @@ def build_ui(pcbnew):
     net_names = ["gnd", "3v3", "ui_sda", "ui_scl", "ui_btn_start",
                  "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws",
                  "ui_spk_dout", "ui_led_status", "ui_led_battery",
-                 "usb_vbus", "usb_dp", "usb_dn", "cc1", "cc2"]
+                 "usb_vbus", "usb_dp", "usb_dn", "cc1", "cc2",
+                 "usb_sbu1", "usb_sbu2"]
     board, nets = make_board(
         pcbnew,
-        "Pingpang sealed UI daughter / OLED speaker USB reserve v0.2",
+        "Pingpang sealed UI daughter / direct controls USB-C v0.2",
         "Pingpang SmartGear UI daughter v0.2",
         width, height, tuple(net_names),
     )
@@ -496,7 +627,14 @@ def build_ui(pcbnew):
          "8": nets["ui_spk_bclk"], "9": nets["ui_spk_ws"],
          "10": nets["ui_spk_dout"], "11": nets["ui_led_status"],
          "12": nets["ui_led_battery"]},
-        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_12P", 12.0, 9.0, 12,
+        # Keep the 12-pin mother-board cable on the lower interior band.  The
+        # left column is reserved for the two real tactile switches so their
+        # actuator bodies and panel bores cannot be hidden under a connector.
+        # Shift the keyed harness body 2 mm left.  The old centre put its
+        # left mechanical pad under the right pad of the MODE tactile switch
+        # once the real 3.9 x 3.0 mm SMD footprint was loaded.  This is a
+        # placement-only correction: no PCB copper is routed or changed.
+        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_12P", 18.0, 17.0, 12,
         MX125_PITCH,
         horizontal=True,
     )
@@ -504,7 +642,7 @@ def build_ui(pcbnew):
         board, pcbnew,
         {"1": nets["3v3"], "2": nets["gnd"], "3": nets["ui_sda"],
          "4": nets["ui_scl"]},
-        "J_OLED", "MX1.25_I2C_OLED_RESERVE_4P", 26.0, 8.0, 4,
+        "J_OLED", "MX1.25_I2C_OLED_FPC_4P", 26.0, 8.0, 4,
         MX125_PITCH,
         horizontal=False,
     )
@@ -519,41 +657,35 @@ def build_ui(pcbnew):
     add_connector(
         board, pcbnew,
         {"1": nets["ui_buzzer"], "2": nets["gnd"]},
-        "J_BUZ", "MX1.25_BUZZER_LOCK_2P", 23.0, 18.0, 2,
+        "J_BUZ", "MX1.25_BUZZER_LOCK_2P", 38.0, 16.0, 2,
         MX125_PITCH,
         horizontal=True,
     )
-    add_connector(
-        board, pcbnew,
-        {"1": nets["ui_btn_start"], "2": nets["gnd"]},
-        "SW_START", "SEALED_BUTTON_START", 34.0, 18.0, 2, 5.00,
-        horizontal=True,
+    # These are the actual panel-contact parts.  Their centre datums are
+    # shared with net_stand.scad and the electronics browser; no separate
+    # generic connector or light-pipe placeholder is allowed here.
+    add_panel_button(
+        board, pcbnew, nets, "SW_START", "SEALED_SMD_TACTILE_START", 10.0, 8.0,
+        "ui_btn_start",
     )
-    add_connector(
-        board, pcbnew,
-        {"1": nets["ui_btn_mode"], "2": nets["gnd"]},
-        "SW_MODE", "SEALED_BUTTON_MODE", 45.0, 18.0, 2, 5.00,
-        horizontal=True,
+    add_panel_button(
+        board, pcbnew, nets, "SW_MODE", "SEALED_SMD_TACTILE_MODE", 10.0, 20.0,
+        "ui_btn_mode",
     )
-    add_two_pad(board, pcbnew, {
-        "1": nets["ui_led_status"], "2": nets["gnd"]},
-        "D_STATUS", "LED_STATUS_LIGHTPIPE", 34.0, 13.0)
-    add_two_pad(board, pcbnew, {
-        "1": nets["ui_led_battery"], "2": nets["gnd"]},
-        "D_BAT", "LED_BATTERY_LIGHTPIPE", 40.0, 13.0)
-    # A separate 7-pin panel handoff allows a capped panel USB-C bulkhead to
-    # sit on the cover without routing a raw USB receptacle through PETG.
-    add_connector(
-        board, pcbnew,
-        {"1": nets["usb_vbus"], "2": nets["gnd"], "3": nets["usb_dp"],
-         "4": nets["usb_dn"], "5": nets["cc1"], "6": nets["cc2"],
-         "7": nets["gnd"]},
-        "J_USB_PANEL", "MX1.25_USB_C_BULKHEAD_REF_7P", 44.0, 24.0, 7,
-        MX125_PITCH,
-        horizontal=True,
+    add_panel_led(
+        board, pcbnew, nets, "D_STATUS", "LED_STATUS_0603_GREEN", 29.0, 3.0,
+        "ui_led_status", MODEL_PANEL_LED,
     )
-    add_text(board, pcbnew, "SEALED PANEL: OLED / BTN / LED / AUDIO", 29, 2.0, 0.68)
-    add_text(board, pcbnew, "USB-C BULKHEAD + SILICONE CAP", 44, 27.0, 0.58)
+    add_panel_led(
+        board, pcbnew, nets, "D_BAT", "LED_BATTERY_0603_YELLOW", 32.0, 25.0,
+        "ui_led_battery", MODEL_PANEL_LED,
+    )
+    add_panel_usb_c(
+        board, pcbnew, nets, "J_USB_PANEL", "USB-C_VERTICAL_16P_DIRECT",
+        47.0, 26.0,
+    )
+    add_text(board, pcbnew, "SEALED PANEL: OLED CABLE / DIRECT BTN / LED / USB-C", 29, 2.0, 0.60)
+    add_text(board, pcbnew, "USB-C 16P / PORT TO y+ BEZEL", 47, 27.0, 0.54)
     add_ground_zone(board, pcbnew, nets["gnd"], width, height)
     return board, width, height
 

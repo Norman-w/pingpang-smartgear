@@ -35,7 +35,7 @@
       <section class="intro-block">
         <div class="section-kicker">C 夹 / 电子腔 / 维护视角</div>
         <h2>把腔体打开<br><em>看清板、<br>电池和按钮</em></h2>
-        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。壳体来自当前正式分型 STL，板级模型来自 KiCad 导出的 STL；电池、支柱、按钮、屏幕、扬声器和走线是按当前 SCAD 基准叠加的安装包络。UI 不再放在底部盖板上。</p>
+        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。右侧腔体只有 ESP32 主控板和 UI 子板，光学发射/接收载板不在这里。壳体来自当前正式分型 STL，板级模型来自 KiCad 导出的 STL；按钮、LED 和立式 USB-C 是板上真实器件，USB-C 沿 PCB 法向从 y+ 面板插拔，屏幕通过排线连接，电池、支柱和走线按当前 SCAD 基准显示。UI 不再放在底部盖板上。</p>
       </section>
 
       <section class="control-card">
@@ -43,9 +43,8 @@
         <div id="side-switch" class="segmented" role="group" aria-label="选择腔体">
           <button class="segmented-button active" type="button" data-side="right">右侧主控</button>
           <button class="segmented-button" type="button" data-side="left">左侧发射</button>
-          <button class="segmented-button" type="button" data-side="both">双侧对照</button>
         </div>
-        <p class="control-help">右侧显示 ESP32 主控板、UI 板和按钮；左侧显示发射电源板与对应电池。双侧适合看整体左右镜像关系。</p>
+        <p class="control-help">右侧只显示 ESP32 主控板、贴在 y+ 侧壁的 UI 子板以及排线屏幕、板上按键、直装 LED、扬声器和立式 USB-C；左侧只显示发射电源板与对应电池。两个腔体通过上方按钮分别查看，不在同一画布叠放。</p>
       </section>
 
       <section class="control-card">
@@ -79,10 +78,10 @@
         <label class="check-row"><input id="show-main-board" type="checkbox" checked><span>主控板（真实 KiCad STL）</span></label>
         <label class="check-row"><input id="show-emitter-board" type="checkbox" checked><span>发射电源板（真实 KiCad STL）</span></label>
         <label class="check-row"><input id="show-battery" type="checkbox" checked><span>电池包与边缘止挡</span></label>
-        <label class="check-row"><input id="show-ui" type="checkbox" checked><span>y+ UI 板、面框、屏幕和按钮</span></label>
-        <label class="check-row"><input id="show-bosses" type="checkbox" checked><span>PCB 支柱 / 电池止挡参考</span></label>
+        <label class="check-row"><input id="show-ui" type="checkbox" checked><span>y+ UI 子板 + 屏幕/按键/指示灯面板</span></label>
+        <label class="check-row"><input id="show-bosses" type="checkbox" checked><span>PCB 支柱 / 主控板螺钉 / 电池止挡参考</span></label>
         <label class="check-row"><input id="show-wiring" type="checkbox" checked><span>短距离走线参考</span></label>
-        <p class="control-help">按钮、屏幕、LED、扬声器和 USB-C 是 y+ 侧壁检修包络；侧面面框的螺钉/密封尺寸尚未冻结，因此暂不计入 37 件 PETG 打印清单。</p>
+        <p class="control-help">主控板由四个竖直支柱承托，并用四颗 M2.5 螺钉从板面拧入盲孔；UI 板上的按钮、LED 和立式 USB-C 直接与 y+ 正式打印面框开口接触，屏幕只通过排线连接。UI 板由四个侧向支柱承接，面框本身已经进入 39 件正式打印包；具体 USB-C 厂家 STEP 仍需首样冻结。</p>
       </section>
 
       <section class="data-card" aria-live="polite">
@@ -165,6 +164,6 @@
     </section>
   </main>
 
-  <script type="module" src="./electronics.js?v=electronics-v1"></script>
+<script type="module" src="./electronics.js?v=electronics-v10"></script>
 </body>
 </html>

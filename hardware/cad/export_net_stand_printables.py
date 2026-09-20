@@ -416,10 +416,20 @@ def build_export_specs() -> list[ExportSpec]:
         )
     )
     # The active electronics bay has an integrated floor and a y+ UI window.
-    # The side faceplate is still a preview/fit item until its screw, gasket,
-    # and service-opening dimensions are frozen; it is intentionally absent
-    # from this 37-STL first package. The retired UI bottom cover remains only
-    # as a legacy source diagnostic and is not part of the active assembly.
+    # The side faceplate is the real printed closure for that window: it carries
+    # the screen opening, shallow SMD-button pockets/plungers, straight LED
+    # bores, speaker opening, USB-C slot and the four M2.5 service screws.  It
+    # is a formal part of each side's package; the retired sloped UI bottom
+    # cover remains only as a legacy source diagnostic.
+    specs.extend(
+        _side_specs(
+            "clamp_electronics_ui_bezel",
+            "clamp-electronics-ui-bezel",
+            "PETG",
+            "y+ 面朝上；屏幕窗口和按键浅凹面朝外；四个 M2.5 沉头孔朝外；按面框平放配置支撑。",
+            "y+ 侧 UI 交互面板正式打印件。面板与 58×28 mm UI PCB 共用坐标，屏幕窗口留 1.2 mm 周边余量；START/MODE 为 3.9×3.0×2.0 mm 两脚 SMD 按键，面板内置 1.6 mm plunger 和浅凹腔；两个 0603 单色 LED 对准 2.2 mm 直孔；扬声器开声学窗；16 针立式 USB-C 插座用 9.6×6.6 mm 面板槽从法向 y+ 侧插拔，并配硅胶帽。四枚 M2.5 螺钉把面板锁到 y+ 侧壁支柱。它取代旧的 UI 底盖，不是底部盖件；屏幕本体、PCB、按键、LED、USB-C 和螺钉仍是非打印装配件，USB-C 的 `usb-c-vertical-proxy.step` 只作首样机械包络。",
+        )
+    )
     specs.extend(
         _side_specs(
             "m6_detector_body",
