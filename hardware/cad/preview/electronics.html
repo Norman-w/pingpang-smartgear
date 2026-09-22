@@ -13,7 +13,7 @@
     }
   }
   </script>
-  <link rel="stylesheet" href="./electronics.css?v=electronics-v1">
+  <link rel="stylesheet" href="./electronics.css?v=electronics-v3">
 </head>
 <body>
   <header class="topbar">
@@ -34,8 +34,8 @@
     <aside class="control-rail" aria-label="电子腔体预览控制">
       <section class="intro-block">
         <div class="section-kicker">C 夹 / 电子腔 / 维护视角</div>
-        <h2>把腔体打开<br><em>看清板、<br>电池和按钮</em></h2>
-        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。右侧腔体只有 ESP32 主控板和 UI 子板，光学发射/接收载板不在这里。壳体来自当前正式分型 STL，板级模型来自 KiCad 导出的 STL；按钮、LED 和立式 USB-C 是板上真实器件，USB-C 沿 PCB 法向从 y+ 面板插拔，屏幕通过排线连接，电池、支柱和走线按当前 SCAD 基准显示。UI 不再放在底部盖板上。</p>
+        <h2>把腔体打开<br><em>看清板与<br>内装封口板</em></h2>
+        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。页面载入正式壳体、外侧齐平 UI 填平板、腔内八孔搭接固定框、包含按键/LED/USB-C KiCad 3D 模型的板级 STL，以及由 SCAD 挂载的屏幕、扬声器等线束实体件。</p>
       </section>
 
       <section class="control-card">
@@ -44,7 +44,7 @@
           <button class="segmented-button active" type="button" data-side="right">右侧主控</button>
           <button class="segmented-button" type="button" data-side="left">左侧发射</button>
         </div>
-        <p class="control-help">右侧只显示 ESP32 主控板、贴在 y+ 侧壁的 UI 子板以及排线屏幕、板上按键、直装 LED、扬声器和立式 USB-C；左侧只显示发射电源板与对应电池。两个腔体通过上方按钮分别查看，不在同一画布叠放。</p>
+        <p class="control-help">右侧显示 ESP32 主控板、y+ 侧壁 UI 子板、外侧齐平填平板和腔内八孔搭接框；左侧显示发射电源板。两个腔体通过上方按钮分别查看，不在同一画布叠放。</p>
       </section>
 
       <section class="control-card">
@@ -70,18 +70,14 @@
         <input id="shell-opacity" class="range-input" type="range" min="0" max="75" step="1" value="22">
         <label class="check-row"><input id="show-user-shell" type="checkbox"><span>显示操作者侧半体（y−）</span></label>
         <label class="check-row"><input id="show-opponent-shell" type="checkbox" checked><span>显示对手侧半体（y＋）</span></label>
-        <label class="check-row"><input id="show-cavity" type="checkbox" checked><span>显示电子腔边界参考</span></label>
       </section>
 
       <section class="control-card">
         <div class="card-label">内部对象</div>
         <label class="check-row"><input id="show-main-board" type="checkbox" checked><span>主控板（真实 KiCad STL）</span></label>
         <label class="check-row"><input id="show-emitter-board" type="checkbox" checked><span>发射电源板（真实 KiCad STL）</span></label>
-        <label class="check-row"><input id="show-battery" type="checkbox" checked><span>电池包与边缘止挡</span></label>
-        <label class="check-row"><input id="show-ui" type="checkbox" checked><span>y+ UI 子板 + 屏幕/按键/指示灯面板</span></label>
-        <label class="check-row"><input id="show-bosses" type="checkbox" checked><span>PCB 支柱 / 主控板螺钉 / 电池止挡参考</span></label>
-        <label class="check-row"><input id="show-wiring" type="checkbox" checked><span>短距离走线参考</span></label>
-        <p class="control-help">主控板由四个竖直支柱承托，并用四颗 M2.5 螺钉从板面拧入盲孔；UI 板上的按钮、LED 和立式 USB-C 直接与 y+ 正式打印面框开口接触，屏幕只通过排线连接。UI 板由四个侧向支柱承接，面框本身已经进入 39 件正式打印包；具体 USB-C 厂家 STEP 仍需首样冻结。</p>
+        <label class="check-row"><input id="show-ui" type="checkbox" checked><span>y+ UI 子板 + 线束实体件 + 内装封口板</span></label>
+        <p class="control-help">主控板与发射板显示为 KiCad 导出的真实板级 STL；UI 板 STL 同时包含 PCB 直装按键、LED、USB-C，屏幕/扬声器等线束实体来自 net_stand.scad。</p>
       </section>
 
       <section class="data-card" aria-live="polite">
@@ -101,7 +97,7 @@
       <div class="workspace-head">
         <div>
           <div class="section-kicker">专用视图 / 电子腔维护</div>
-          <h2>壳体、线路板、电池与面板件</h2>
+          <h2>壳体、线路板与实体器件</h2>
         </div>
         <div class="metrics" aria-live="polite">
           <div class="metric"><b id="object-count">—</b><span>可视对象</span></div>
@@ -122,7 +118,6 @@
             <button class="tiny-button" type="button" data-focus="cavity">腔体</button>
             <button class="tiny-button" type="button" data-focus="board">PCB</button>
             <button class="tiny-button" type="button" data-focus="ui">UI 面板</button>
-            <button class="tiny-button" type="button" data-focus="battery">电池</button>
           </div>
         </div>
         <div id="model-host" class="model-host">
@@ -132,7 +127,7 @@
             <small>可旋转、缩放、平移；建议先用“分型面”视角</small>
           </div>
           <div id="hover-label" class="hover-label" hidden></div>
-          <div class="axis-hint">x 光束左右 · y 前后 · z 竖直</div>
+          <div class="axis-hint" aria-label="三维世界坐标轴说明"><strong>世界坐标轴</strong><br><span class="axis-x-text">红 X：左右</span> · <span class="axis-y-text">绿 Y：前后（Y+ UI侧）</span> · <span class="axis-z-text">蓝 Z：上下</span></div>
         </div>
         <div id="model-caption" class="model-caption">网页显示用于检查安装关系和维护空间；它不替代切片、装配和首样受力验证。</div>
       </section>
@@ -144,26 +139,25 @@
             <div><i class="swatch shell"></i><span>当前 C 夹半体</span></div>
             <div><i class="swatch board"></i><span>主控 / PCB</span></div>
             <div><i class="swatch emitter"></i><span>发射电源板</span></div>
-            <div><i class="swatch battery"></i><span>电池包占位</span></div>
-            <div><i class="swatch ui"></i><span>UI / 面框</span></div>
-            <div><i class="swatch fastener"></i><span>支柱 / 止挡</span></div>
-            <div><i class="swatch wiring"></i><span>走线参考</span></div>
+            <div><i class="swatch ui"></i><span>UI 子板 + KiCad 贴板件</span></div>
+            <div><i class="swatch bezel"></i><span>外侧齐平 UI 填平板 STL</span></div>
+            <div><i class="swatch ui-frame"></i><span>腔内八孔搭接固定框 STL</span></div>
           </div>
         </article>
         <article class="visual-card info-card">
           <div class="visual-card-head"><div><div class="card-label">当前参数基准</div><h3>来自 net_stand.scad</h3></div></div>
-          <div class="parameter-list">
+            <div class="parameter-list">
             <div><span>电子腔有效范围</span><strong>116.8 × 40 mm</strong></div>
             <div><span>主控板</span><strong>86 × 32 × 5.84 mm</strong></div>
-            <div><span>电池包</span><strong>65 × 30 × 7 mm</strong></div>
-            <div><span>UI 板 / 面框</span><strong>58 × 28 mm / 64 × 34 mm</strong></div>
-            <div><span>面板件</span><strong>屏幕、2 按钮、2 LED、扬声器、USB-C</strong></div>
+            <div><span>发射电源板</span><strong>KiCad STL</strong></div>
+            <div><span>UI 子板</span><strong>KiCad STL（含按键/LED/USB-C）+ SCAD 线束件</strong></div>
+            <div><span>UI 外侧填平板 / 腔内固定框</span><strong>62.8 × 32.8 × 3.4 mm / 72 × 42 × 2.5 mm · 8×2 mm 蘑菇头自攻钉直锁 Ø1.6 内壁盲孔（框孔 Ø2.3，整体外移 1.0 mm）</strong></div>
           </div>
         </article>
       </section>
     </section>
   </main>
 
-<script type="module" src="./electronics.js?v=electronics-v10"></script>
+<script type="module" src="./electronics.js?v=electronics-v30"></script>
 </body>
 </html>

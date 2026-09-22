@@ -540,8 +540,10 @@ def build_board():
 
     # Mechanical mounting is deliberately outside the RF keepout and follows
     # the compact 86 x 32 mm board envelope used by the SCAD clamp cavity.
-    # These four NPTH holes are the board-to-boss datum; the PETG boss diameter
-    # and insert choice remain a first-article strength check.
+    # These four NPTH holes remain useful PCB/fabrication features.  The current
+    # PETG shell does not align bosses or locating pins to them: its mechanical
+    # datum is the Edge.Cuts contour; the enclosure retains it with two
+    # opposing x-end C-brackets.
     for ref, x, y in (
         # The RF module and edge connectors occupy the nominal corners, so
         # the four bosses use the nearest clear pockets on this compact board.

@@ -2,10 +2,12 @@
 """Generate the connectorized first-article daughter boards.
 
 The boards intentionally keep copper routing at the first-article review
-gate, but they are real KiCad boards: the generated footprints carry library
-3D models so the mechanical package can use the same board/component
-envelopes.  Board size, connector count and mounting-hole datums remain
-machine checked before the reviewed copper-routing pass.
+gate, but they are real KiCad boards.  Board-specific connector/IC models and
+the PCB-mounted panel parts (buttons, LEDs and USB-C) stay attached to the
+board export, so the KiCad board STL is the single source for those solids.
+Off-board, wire-connected parts such as the screen and speaker are mounted by
+the SCAD assembly.  Board size, connector count and mounting-hole datums
+remain machine checked before the reviewed copper-routing pass.
 """
 
 from __future__ import annotations
@@ -37,12 +39,12 @@ MODEL_SOIC4 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-4_4.55x2.6mm_P1.2
 MODEL_0603 = "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
 MODEL_PANEL_BUTTON = "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
 MODEL_PANEL_LED = "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
-# The UI PCB is installed vertically behind the y+ service panel.  A local
-# first-article envelope stands in for the exact vendor STEP until the
-# purchased 16-pin vertical receptacle is frozen; the old right-angle
-# USB4085 would point along the PCB plane and could not mate through this wall.
-MODEL_USB_C_PANEL = "${KIPRJMOD}/../3d/v0.2/usb-c-vertical-proxy.step"
-
+# The UI PCB is installed vertically behind the y+ service panel.  KiCad's
+# 16-pin GCT top-mount library model is rotated about the footprint x axis so
+# its horizontal mating axis becomes the panel-normal direction after the UI
+# board is installed vertically.  It remains attached to the KiCad footprint
+# and is therefore included in the board export, not SCAD.
+MODEL_USB_C_PANEL = "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step"
 KICAD_FOOTPRINT_ROOT = Path(
     "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
 )
@@ -222,9 +224,6 @@ def add_panel_led(board, pcbnew, nets: dict[str, object], ref: str,
         center_x, center_y,
     )
     assign_pad_nets(fp, nets, {"1": signal_net, "2": "gnd"})
-    # Use the library 0603 model for both colour positions; the actual LED
-    # colour remains a BOM/first-article selection while the mechanical body
-    # envelope stays truthful.
     fp.Models().clear()
     add_3d_model(pcbnew, fp, model)
     return fp
@@ -241,12 +240,12 @@ def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
         "USB_C_Receptacle_G-Switch_GT-USB-7051x",
         ref, value, center_x, center_y, rotation=0.0,
     )
-    # KiCad's library footprint has no bundled vendor STEP on this install.
-    # Replace that unresolved reference with the checked-in vertical
-    # first-article envelope so board export and enclosure fit use the same
-    # mating axis instead of silently dropping the connector model.
+    # The footprint's installed G-Switch model is not present in this KiCad
+    # library package. Use the available 16-pin KiCad library model explicitly
+    # so board export and enclosure fit share the same panel-normal mating
+    # axis instead of silently dropping the connector model.
     fp.Models().clear()
-    add_3d_model(pcbnew, fp, MODEL_USB_C_PANEL)
+    add_3d_model(pcbnew, fp, MODEL_USB_C_PANEL, rotation=(90.0, 0.0, 0.0))
     assign_pad_nets(fp, nets, {
         "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
         "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",

@@ -45,7 +45,7 @@ REPORT_JSON = HERE / "fit-report-v0.2.json"
 REPORT_MD = HERE / "fit-report-v0.2.md"
 MM = 1_000_000
 MX125_PITCH = 1.25
-EXPECTED_PRINTABLE_COUNT = 39
+EXPECTED_PRINTABLE_COUNT = 41
 
 
 BOARD_SPECS = {
@@ -156,7 +156,7 @@ UI_DIRECT_PARTS = {
         "center": (32.0, 25.0),
     },
     "J_USB_PANEL": {
-        "model_token": "usb-c-vertical-proxy.step",
+        "model_token": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step",
         "pad_nets": {
             "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
             "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",
@@ -560,8 +560,10 @@ def check_ui_direct_parts(pcbnew: Any, board_path: Path) -> Dict[str, Any]:
     """Check that panel-contact parts are real library footprints in-place.
 
     The screen is intentionally excluded because it is a cable-connected
-    module.  Buttons, LEDs, and USB-C are checked for their library model,
-    pad-to-net mapping, and the shared mechanical datum used by OpenSCAD.
+    module. Buttons, LEDs, and USB-C are checked for their electrical
+    footprint, KiCad 3D model, pad-to-net mapping, and the shared mechanical
+    datum used by OpenSCAD. Their KiCad models must be present in the board
+    export so the board STL is the only direct-component mechanical instance.
     """
     board = pcbnew.LoadBoard(str(board_path))
     records: Dict[str, Any] = {}
@@ -574,12 +576,12 @@ def check_ui_direct_parts(pcbnew: Any, board_path: Path) -> Dict[str, Any]:
         if footprint is None:
             raise RuntimeError(
                 "%s missing direct UI part %s" % (board_path.name, reference)
-            )
+        )
         model_files = [str(model.m_Filename) for model in footprint.Models()]
         if not any(spec["model_token"] in filename for filename in model_files):
             raise RuntimeError(
-                "%s UI part %s has no expected library model: %s"
-                % (board_path.name, reference, model_files)
+                "%s UI part %s is missing KiCad model %s: %s"
+                % (board_path.name, reference, spec["model_token"], model_files)
             )
         pads_by_name: Dict[str, List[str]] = {}
         for pad in footprint.Pads():
@@ -614,6 +616,7 @@ def check_ui_direct_parts(pcbnew: Any, board_path: Path) -> Dict[str, Any]:
             )
         records[reference] = {
             "models": model_files,
+            "model_source": "kicad_board_export",
             "center_mm": [round(actual_center[0], 3), round(actual_center[1], 3)],
             "pad_nets": {name: sorted(set(nets)) for name, nets in sorted(pads_by_name.items()) if name in spec["pad_nets"]},
         }
@@ -664,10 +667,10 @@ def check_ui_interface_alignment(
             "status": "PASS",
         }
 
-    # The four real NPTH holes are the board-side references for the four
-    # printed faceplate M2.5 holes.  A set comparison catches a swapped or
-    # vertically mirrored panel even when the direct component centers happen
-    # to look plausible.
+    # The four real NPTH holes remain the PCB fabrication references. They are
+    # intentionally separate from the new eight-hole cavity-side retaining
+    # frame: the frame carries the panel load and the outer fill panel no
+    # longer drills at the PCB H1-H4 locations.
     hole_centers = []
     for reference in ("H1", "H2", "H3", "H4"):
         footprint = next(
@@ -701,6 +704,12 @@ def check_ui_interface_alignment(
             % (sorted(hole_centers), expected_holes)
         )
 
+    expected_frame_holes = [
+        (10.0, -4.6), (48.0, -4.6),
+        (10.0, 32.6), (48.0, 32.6),
+        (-4.6, 8.0), (-4.6, 20.0),
+        (62.6, 8.0), (62.6, 20.0),
+    ]
     board_width = number(parameters, "clamp_electronics_ui_board_length_x")
     board_height = number(parameters, "clamp_electronics_ui_board_width_y")
     border = number(parameters, "clamp_electronics_faceplate_border")
@@ -713,14 +722,108 @@ def check_ui_interface_alignment(
     speaker_d = number(parameters, "clamp_electronics_ui_speaker_d") - 4
     usb_w = 8 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
     usb_h = 5 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
-    faceplate_inner_y = (
-        number(parameters, "clamp_electronics_ui_side_board_plane_y")
-        + number(parameters, "clamp_electronics_ui_service_height_z")
+    ui_plane_y = number(parameters, "clamp_electronics_ui_side_board_plane_y")
+    ui_shift_y = number(parameters, "clamp_electronics_ui_side_panel_inward_shift_y")
+    cavity_y_half = number(parameters, "clamp_electronics_cavity_y_half")
+    board_y_max = number(parameters, "clamp_electronics_main_board_y_shift")
+    panel_border = number(parameters, "clamp_electronics_ui_insert_panel_border")
+    window_border = number(parameters, "clamp_electronics_ui_side_window_border")
+    panel_t = number(parameters, "clamp_electronics_ui_insert_panel_t")
+    frame_outer_border = number(parameters, "clamp_electronics_ui_retaining_frame_outer_border")
+    frame_inner_border = number(parameters, "clamp_electronics_ui_retaining_frame_inner_border")
+    frame_window_clearance = number(
+        parameters, "clamp_electronics_ui_retaining_frame_window_clearance"
     )
+    frame_t = number(parameters, "clamp_electronics_ui_retaining_frame_t")
+    frame_hole_d = number(parameters, "clamp_electronics_ui_retaining_frame_hole_d")
+    frame_min_edge_land = number(
+        parameters, "clamp_electronics_ui_retaining_frame_min_edge_land"
+    )
+    wall_pilot_d = number(parameters, "clamp_electronics_ui_wall_pilot_d")
+    wall_pilot_floor_t = number(
+        parameters, "clamp_electronics_ui_wall_pilot_floor_t"
+    )
+    # Compatibility values are intentionally required to be zero: a UI
+    # retaining frame must not grow a separate positive boss.
+    boss_d = number(parameters, "clamp_electronics_ui_mount_boss_d")
+    screw_nominal_d = number(parameters, "clamp_electronics_ui_mount_screw_nominal_d")
+    boss_height = number(parameters, "clamp_electronics_ui_mount_boss_height")
+    panel_inner_local_z = number(
+        parameters, "clamp_electronics_ui_panel_inner_local_z"
+    )
+    panel_outer_local_z = number(
+        parameters, "clamp_electronics_ui_panel_outer_local_z"
+    )
+    panel_inner_y = ui_plane_y + panel_inner_local_z
+    panel_outer_y = ui_plane_y + panel_outer_local_z
+    wall_outer_y = number(parameters, "clamp_reinforcement_depth_y") / 2
+    insertion_clearance = window_border - panel_border
+    # The retaining part is stepped. Its broad mounting flange is on the
+    # cavity side of the solid y+ wall (17.5..20.0 mm); the narrower capture
+    # bridge then crosses the rectangular window and ends 0.1 mm before the
+    # panel back (25.5 mm). The previous one-level calculation put the whole
+    # ring inside the wall and forced bogus relief pockets into the panel.
+    frame_mount_front_y = cavity_y_half
+    frame_mount_back_y = frame_mount_front_y - frame_t
+    frame_capture_back_y = frame_mount_front_y
+    frame_capture_front_y = panel_inner_y - number(
+        parameters, "clamp_electronics_ui_panel_seat_gap_z"
+    )
+    pilot_depth_y = wall_outer_y - wall_pilot_floor_t - frame_mount_front_y
+    frame_edge_lands = [
+        min(
+            x - (-frame_outer_border) - frame_hole_d / 2,
+            (board_width + frame_outer_border) - x - frame_hole_d / 2,
+            y - (-frame_outer_border) - frame_hole_d / 2,
+            (board_height + frame_outer_border) - y - frame_hole_d / 2,
+        )
+        for x, y in expected_frame_holes
+    ]
+    frame_wall_overlap = frame_outer_border - window_border
+    if len(expected_frame_holes) != 8:
+        raise RuntimeError("UI retaining frame must define eight perimeter holes")
+    if insertion_clearance < 0.4:
+        raise RuntimeError(
+            "UI insert panel must clear the y+ window for cavity-side insertion: %.3f mm/side"
+            % insertion_clearance
+        )
+    if not (
+        ui_shift_y > 0
+        and ui_plane_y < cavity_y_half
+        and ui_plane_y > board_y_max
+        and frame_mount_back_y > board_y_max + 0.1
+        and frame_mount_front_y <= cavity_y_half + 0.01
+        and frame_capture_back_y >= cavity_y_half - 0.01
+        and frame_capture_front_y < panel_inner_y
+        and frame_capture_front_y > frame_capture_back_y + 2.0
+        and frame_outer_border > window_border
+        and frame_window_clearance >= 0.2
+        and window_border - frame_window_clearance > panel_border
+        and frame_inner_border < panel_border
+        and frame_wall_overlap >= 2.0
+        and frame_t >= 2.0
+        and abs(panel_t - number(parameters, "clamp_electronics_faceplate_t")) <= 0.01
+        and frame_min_edge_land >= 1.0
+        and min(frame_edge_lands) >= frame_min_edge_land - 0.01
+        and pilot_depth_y > 2.0
+        and wall_pilot_floor_t >= 0.5
+        and abs(screw_nominal_d - 2.0) <= 0.01
+        and 1.5 <= wall_pilot_d < screw_nominal_d
+        and frame_hole_d > screw_nominal_d
+        and abs(boss_d) <= 0.01
+        and abs(boss_height) <= 0.01
+        and abs(panel_outer_y - wall_outer_y) <= 0.05
+    ):
+        raise RuntimeError(
+            "UI two-piece panel stack does not satisfy the cavity-side M2 direct-wall retention contract: "
+            f"plane_y={ui_plane_y}, panel_inner_y={panel_inner_y}, panel_outer_y={panel_outer_y}, "
+            f"mount_frame=({frame_mount_back_y}, {frame_mount_front_y}), "
+            f"capture_frame=({frame_capture_back_y}, {frame_capture_front_y}), "
+            f"frame_t={frame_t}, edge_land={min(frame_edge_lands)}, "
+            f"wall_pilot={wall_pilot_d}, screw={screw_nominal_d}, bosses=({boss_d}, {boss_height})"
+        )
     ui_local = stl_bounds(MODEL_DIR / "ui-panel-v0.2.stl")
-    board_to_faceplate_gap = faceplate_inner_y - (
-        number(parameters, "clamp_electronics_ui_side_board_plane_y") + ui_local[5]
-    )
+    board_to_faceplate_gap = panel_inner_y - (ui_plane_y + ui_local[5])
     if board_to_faceplate_gap < 0.2:
         raise RuntimeError(
             "UI board-to-faceplate service gap is too small: %.3f mm"
@@ -786,7 +889,7 @@ def check_ui_interface_alignment(
     usb_orientation = float(usb_footprint.GetOrientation().AsDegrees())
     if abs(usb_orientation) > 0.01:
         raise RuntimeError(
-            "vertical USB-C footprint must remain at 0 degrees, got %.3f"
+            "USB-C footprint must remain at 0 degrees, got %.3f"
             % usb_orientation
         )
 
@@ -796,6 +899,30 @@ def check_ui_interface_alignment(
         "mounting_holes": {
             "actual_local_mm": sorted(hole_centers),
             "expected_local_mm": [(round(x, 3), round(y, 3)) for x, y in expected_holes],
+            "status": "PASS",
+        },
+        "retaining_frame": {
+            "hole_count": len(expected_frame_holes),
+            "hole_centers_local_mm": expected_frame_holes,
+            "outer_border_mm": round(frame_outer_border, 3),
+            "inner_border_mm": round(frame_inner_border, 3),
+            "window_clearance_mm": round(frame_window_clearance, 3),
+            "thickness_mm": round(frame_t, 3),
+            "hole_d_mm": round(frame_hole_d, 3),
+            "screw": "2 mm mushroom-head self-tapping screw, cavity-side entry",
+            "pilot_d_mm": round(wall_pilot_d, 3),
+            "boss_d_mm": round(boss_d, 3),
+            "boss_height_mm": round(boss_height, 3),
+            "boss_height_rule": "not used; direct C-clamp wall pilot",
+            "pilot_depth_mm": round(pilot_depth_y, 3),
+            "blind_floor_mm": round(wall_pilot_floor_t, 3),
+            "edge_land_mm": round(min(frame_edge_lands), 3),
+            "direct_wall_pilot": True,
+            "mount_back_y_mm": round(frame_mount_back_y, 3),
+            "mount_front_y_mm": round(frame_mount_front_y, 3),
+            "capture_back_y_mm": round(frame_capture_back_y, 3),
+            "capture_front_y_mm": round(frame_capture_front_y, 3),
+            "panel_hidden_relief_cutouts": False,
             "status": "PASS",
         },
         "faceplate": {
@@ -812,12 +939,30 @@ def check_ui_interface_alignment(
             },
             "status": "PASS",
         },
+        "insert_panel": {
+            "panel_border_mm": round(panel_border, 3),
+            "panel_thickness_mm": round(panel_t, 3),
+            "window_border_mm": round(window_border, 3),
+            "insertion_clearance_per_side_mm": round(insertion_clearance, 3),
+            "installation_direction": "cavity y- -> wall y+",
+            "inner_y_mm": round(panel_inner_y, 3),
+            "outer_y_mm": round(panel_outer_y, 3),
+            "outer_wall_flush_error_mm": round(abs(panel_outer_y - wall_outer_y), 3),
+            "frame_mount_back_y_mm": round(frame_mount_back_y, 3),
+            "frame_mount_front_y_mm": round(frame_mount_front_y, 3),
+            "frame_capture_back_y_mm": round(frame_capture_back_y, 3),
+            "frame_capture_front_y_mm": round(frame_capture_front_y, 3),
+            "wall_pilot_end_y_mm": round(wall_outer_y - wall_pilot_floor_t, 3),
+            "mushroom_head_surface": "cavity y- retaining-frame side",
+            "outer_face_screw_openings": False,
+            "status": "PASS",
+        },
         "usb_c": {
             "orientation_deg": round(usb_orientation, 3),
             "mating_axis": "PCB normal -> y+ panel",
-            "model": "usb-c-vertical-proxy.step",
+            "model": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (KiCad library model, rotated for y+)",
             "status": "PASS",
-            "physical_vendor_step": "OPEN until the purchased vertical receptacle SKU is frozen",
+            "physical_vendor_step": "OPEN until the purchased receptacle dimensions/SKU are frozen",
         },
     }
 
@@ -1139,24 +1284,45 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
         (cavity_x_min, cavity_x_max, -cavity_y_half, cavity_y_half, cavity_floor_low, cavity_top),
     )
     battery_margins["floor"] = battery_world[4] - battery_floor
-    hole_xy = [
-        [main_x_min + 13.5, main_y_shift - 28.0],
-        [main_x_min + 45.0, main_y_shift - 28.0],
-        [main_x_min + 75.0, main_y_shift - 3.5],
-        [main_x_min + 75.0, main_y_shift - 28.0],
-    ]
-    boss_check = all(
-        cavity_x_min < point[0] < cavity_x_max
-        and -cavity_y_half < point[1] < cavity_y_half
-        for point in hole_xy
+    board_width = number(parameters, "clamp_electronics_board_width_y")
+    board_length = number(parameters, "clamp_electronics_board_length_x")
+    end_margin_x = (
+        number(parameters, "clamp_electronics_cavity_length_x") - board_length
+    ) / 2
+    slot_edge_overlap = number(
+        parameters, "clamp_electronics_board_bracket_edge_overlap_x"
+    )
+    slot_check = (
+        main_x_min > cavity_x_min
+        and main_x_min + number(parameters, "clamp_electronics_board_length_x")
+        < cavity_x_max
+        and main_y_shift - board_width >= -cavity_y_half
+        and main_y_shift <= cavity_y_half
+        and number(parameters, "clamp_electronics_board_bracket_clearance_xy") >= 0.2
+        and number(parameters, "clamp_electronics_board_bracket_clearance_z") >= 0.15
+        and 0.3 <= slot_edge_overlap < end_margin_x
+        and number(parameters, "clamp_electronics_board_bracket_root_overlap_x") >= 3.0
+        and number(parameters, "clamp_electronics_board_bracket_root_overlap_x") < end_margin_x
+        and number(parameters, "clamp_electronics_board_bracket_wall_overlap_x") > 0
+        and number(parameters, "clamp_electronics_board_bracket_y_overrun") >= 0
+        and board_width / 2 + number(parameters, "clamp_electronics_board_bracket_y_overrun") < cavity_y_half
     )
     faceplate_inner_y = (
         ui_plane_y + number(parameters, "clamp_electronics_ui_service_height_z")
     )
+    # The UI PCB is intentionally recessed 0.8 mm into the y+ wall.  The
+    # printed side-window relief starts farther inward, so compare the board
+    # to that opening datum rather than incorrectly treating the cavity edge
+    # itself as a collision boundary.
+    ui_window_start_y = min(
+        cavity_y_half - 0.1,
+        ui_plane_y
+        - number(parameters, "clamp_electronics_ui_side_window_relief_y"),
+    )
     ui_xy_margins = {
         "x_min": ui_world[0] - cavity_x_min,
         "x_max": cavity_x_max - ui_world[1],
-        "inner_wall": ui_world[2] - cavity_y_half,
+        "inner_wall": ui_world[2] - ui_window_start_y,
         "outer_faceplate_gap": faceplate_inner_y - ui_world[3],
         "z_min": ui_world[4] - (ui_z_min - ui_window_border),
         "z_max": (ui_z_min + ui_board_width + ui_window_border) - ui_world[5],
@@ -1237,10 +1403,23 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
             "rail_side_clearance": round(cavity_y_half - battery_width / 2 - number(parameters, "clamp_electronics_battery_rail_clearance_y") - number(parameters, "clamp_electronics_battery_rail_t") / 2, 4),
             "status": "PASS" if battery_pass else "FAIL",
         },
-        "mother_board_bosses": {
-            "hole_centers_xy_mm": [[round(x, 4), round(y, 4)] for x, y in hole_xy],
-            "boss_diameter_mm": number(parameters, "clamp_electronics_board_standoff_d"),
-            "status": "PASS" if boss_check else "FAIL",
+        "mother_board_end_brackets": {
+            "board_outline_source": "esp32-control-v0.1.kicad_pcb Edge.Cuts",
+            "capture_profile": "two opposing printed x-end [ / ] C-brackets",
+            "clearance_xy_mm": number(
+                parameters, "clamp_electronics_board_bracket_clearance_xy"
+            ),
+            "clearance_z_mm": number(
+                parameters, "clamp_electronics_board_bracket_clearance_z"
+            ),
+            "edge_overlap_mm": slot_edge_overlap,
+            "web_root_overlap_mm": number(
+                parameters, "clamp_electronics_board_bracket_root_overlap_x"
+            ),
+            "wall_overlap_mm": number(
+                parameters, "clamp_electronics_board_bracket_wall_overlap_x"
+            ),
+            "status": "PASS" if slot_check else "FAIL",
         },
         "m6_receiver_carrier": {
             "local_bounds": bounds_dict(receiver_local),
@@ -1253,7 +1432,7 @@ def check_model_fits(parameters: Dict[str, Any]) -> Dict[str, Any]:
             "declared_conservative_body_clearance": round(receiver_declared_clearance, 4),
             "status": "PASS" if receiver_pass else "FAIL",
         },
-        "all_pass": main_pass and emitter_pass and ui_pass and battery_pass and boss_check and receiver_pass,
+        "all_pass": main_pass and emitter_pass and ui_pass and battery_pass and slot_check and receiver_pass,
     }
 
 
@@ -1420,7 +1599,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "Mother-board boss centers are taken from the four NPTH positions in `esp32-control-v0.1.kicad_pcb`; the report does not use a symmetric placeholder hole pattern.",
+            "Mother-board retention is the native `esp32-control-v0.1.kicad_pcb` Edge.Cuts contour plus two opposing x-end printed `[`/`]` C-brackets; the full-height webs stay outside the board pocket and the lower/upper lips capture the board without shell bosses or locating pins.",
             "",
             "## Interference and exploded-view evidence",
             "",
@@ -1431,8 +1610,8 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "## UI panel direct interface",
             "",
-            "- Direct datum status: **%s**. START/MODE, both 0603 LEDs and the vertical USB-C footprint all match the printed faceplate centers with zero measured coordinate error." % report["ui_interface"]["status"],
-            "- Faceplate contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C slot `%.1f × %.1f mm`, board-to-faceplate gap `%.1f mm`." % (
+            "- Direct datum status: **%s**. START/MODE, both 0603 LEDs and the USB-C footprint all match the printed insert-panel centers with zero measured coordinate error." % report["ui_interface"]["status"],
+            "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C slot `%.1f × %.1f mm`, board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][1],
                 report["ui_interface"]["faceplate"]["button_pocket_d_mm"],
@@ -1442,8 +1621,28 @@ def markdown_report(report: Dict[str, Any]) -> str:
                 report["ui_interface"]["faceplate"]["usb_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["usb_opening_mm"][1],
                 report["ui_interface"]["faceplate"]["board_to_faceplate_gap_mm"],
+                report["ui_interface"]["insert_panel"]["insertion_clearance_per_side_mm"],
+                report["ui_interface"]["insert_panel"]["outer_wall_flush_error_mm"],
             ),
-            "- USB-C mating axis: `%s`; its model is `%s`. The final purchased vertical-receptacle STEP/part number remains an explicit first-article item." % (
+            "- Retaining-frame contract: `%d` cavity-side holes, a `%.1f mm` mounting flange at y=`%.1f..%.1f mm` plus a window capture bridge at y=`%.1f..%.1f mm`, outer/inner borders `%.1f/%.1f mm`, window clearance `%.1f mm`, Ø`%.1f mm` clearance holes for 2 mm mushroom-head self-tapping screws into Ø`%.1f mm` blind pilots cut directly in the solid C-clamp wall; pilot depth `%.1f mm` leaves `%.1f mm` outer-wall floor, with no positive boss and `%.1f mm` minimum edge land. Panel hidden relief cutouts: `%s`; outer face screw openings: `%s`." % (
+                report["ui_interface"]["retaining_frame"]["hole_count"],
+                report["ui_interface"]["retaining_frame"]["thickness_mm"],
+                report["ui_interface"]["retaining_frame"]["mount_back_y_mm"],
+                report["ui_interface"]["retaining_frame"]["mount_front_y_mm"],
+                report["ui_interface"]["retaining_frame"]["capture_back_y_mm"],
+                report["ui_interface"]["retaining_frame"]["capture_front_y_mm"],
+                report["ui_interface"]["retaining_frame"]["outer_border_mm"],
+                report["ui_interface"]["retaining_frame"]["inner_border_mm"],
+                report["ui_interface"]["retaining_frame"]["window_clearance_mm"],
+                report["ui_interface"]["retaining_frame"]["hole_d_mm"],
+                report["ui_interface"]["retaining_frame"]["pilot_d_mm"],
+                report["ui_interface"]["retaining_frame"]["pilot_depth_mm"],
+                report["ui_interface"]["retaining_frame"]["blind_floor_mm"],
+                report["ui_interface"]["retaining_frame"]["edge_land_mm"],
+                "none" if not report["ui_interface"]["retaining_frame"]["panel_hidden_relief_cutouts"] else "present",
+                "none" if not report["ui_interface"]["insert_panel"]["outer_face_screw_openings"] else "present",
+            ),
+            "- USB-C mating axis: `%s`; its KiCad footprint model is `%s`. The final purchased receptacle dimensions/part number remains an explicit first-article item." % (
                 report["ui_interface"]["usb_c"]["mating_axis"],
                 report["ui_interface"]["usb_c"]["model"],
             ),
@@ -1474,7 +1673,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "- Mechanical/package gate: **PASS**.",
             "- Electrical fabrication gate: **OPEN** until copper routing, DRC, power-current bench validation, and the placeholder optocoupler/MCU selections are frozen.",
-            "- UI panel interface gate: **%s**; the real button/LED/USB-C footprints are checked against the printed y+ faceplate datum. The vertical USB-C proxy remains open only for the final vendor STEP swap." % report["ui_interface"]["status"],
+            "- UI panel interface gate: **%s**; the real button/LED/USB-C footprints and KiCad 3D models are checked against the printed y+ insert-panel datum. Screen/speaker/battery remain the off-board SCAD envelopes; the purchased USB-C dimensions/part number remains open until first article." % report["ui_interface"]["status"],
             "- Lid fit is treated as a flush, no-visible-gap mechanical interface; this is not an IP waterproof certification.",
         ]
     )

@@ -22,6 +22,7 @@ EXPECTED_COUNTS = {
     "clamp_body_half_user": 2,
     "clamp_body_half_opponent": 2,
     "clamp_electronics_ui_bezel": 2,
+    "clamp_electronics_ui_retaining_frame": 2,
     "m6_detector_body": 2,
     "m6_detector_shell_front": 2,
     "m6_detector_shell_rear": 2,
@@ -72,8 +73,8 @@ REMOVED_ACTIVE_PARTS = {
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 39:
-        raise AssertionError(f"expected 39 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 41:
+        raise AssertionError(f"expected 41 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -112,6 +113,23 @@ def validate_export_specs() -> None:
             for spec in split_specs
         ):
             raise AssertionError(f"{part} 必须明确 y=0 分型、9 处 M5 连接位与分型间隙")
+
+    ui_parts = {
+        "clamp_electronics_ui_bezel": [spec for spec in EXPORT_SPECS if spec.part == "clamp_electronics_ui_bezel"],
+        "clamp_electronics_ui_retaining_frame": [spec for spec in EXPORT_SPECS if spec.part == "clamp_electronics_ui_retaining_frame"],
+    }
+    if any(len(items) != 2 for items in ui_parts.values()):
+        raise AssertionError("UI 填平板和八孔搭接框必须各导出左右两件")
+    if any(
+        "不打孔" not in spec.notes or "外表面与 C 夹壁齐平" not in spec.notes
+        for spec in ui_parts["clamp_electronics_ui_bezel"]
+    ):
+        raise AssertionError("UI 外侧填平板必须没有可见螺钉孔")
+    if any(
+        "8 个通孔为 Ø2.3 mm" not in spec.notes or "1.6 mm" not in spec.notes or "2 mm 蘑菇头自攻钉" not in spec.notes
+        for spec in ui_parts["clamp_electronics_ui_retaining_frame"]
+    ):
+        raise AssertionError("UI 八孔搭接框必须记录 2 mm 自攻钉和 C 夹内壁 1.6 mm 盲导孔")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:
@@ -274,9 +292,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (39 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (41 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (39 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (41 specs, manifest not present)")
 
 
 if __name__ == "__main__":

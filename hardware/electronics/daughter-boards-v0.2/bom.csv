@@ -16,4 +16,4 @@ ui-panel-v0.2,SW_START/SW_MODE,2,SW_SPST_TS-1088-xR020,PCB 直装 START/MODE 贴
 ui-panel-v0.2,D_STATUS/D_BAT,2,LED_0603_1608Metric_GREEN/YELLOW,PCB 直装状态/电池 0603 LED,候选,单色 0603 顶发光；面框开 2.2 mm 直孔；不引入 WS2812/RGB 新走线
 ui-panel-v0.2,J_BUZ,1,MX1.25_BUZZER_LOCK_2P,蜂鸣器接口,候选,物理节距锁定 1.25 mm；盖板声学膜/防护网
 ui-panel-v0.2,J_SPK,1,MX1.25_I2S_SPEAKER_LOCK_5P,扬声器 I2S 接口,候选,物理节距锁定 1.25 mm；按峰值电流/声学窗口核对
-ui-panel-v0.2,J_USB_PANEL,1,USB_C_Receptacle_G-Switch_GT-USB-7051x,PCB 直装立式 USB-C 插座,候选,16 针立式封装；端口法向穿过 y+ 面框并配硅胶帽；当前机械模型为 usb-c-vertical-proxy.stl，待首样冻结具体厂家料号
+ui-panel-v0.2,J_USB_PANEL,1,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,PCB 直装 USB-C 插座,候选,16 针 KiCad 库模型随板 STL 导出并旋转到 y+ 面板法向；端口穿过面框并配硅胶帽；待首样冻结具体厂家料号

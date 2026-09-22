@@ -269,7 +269,16 @@ def fit_orientations(
         ("z0", (0.0, 0.0, 0.0)),
         ("z90", (0.0, 0.0, 90.0)),
     ]
-    if part == "post_clamp_carrier":
+    if part == "clamp_body_half_user":
+        # Print the y- outer side face on the bed.  The x/z profile then grows
+        # layer-by-layer along +y, so the opposing PCB lips are not 15 mm
+        # unsupported z-overhangs inside the electronics bay.
+        rotations = [("y-minus-face-down-rx90", (90.0, 0.0, 0.0))]
+    elif part == "clamp_body_half_opponent":
+        # Mirror the build direction for the y+ half so its outer y+ face is
+        # also the bed face; the two halves remain complementary after assembly.
+        rotations = [("y-plus-face-down-rx-90", (-90.0, 0.0, 0.0))]
+    elif part == "post_clamp_carrier":
         # The complete installed part is intentionally kept whole.  Although
         # the active post is taller than the 256 mm build height, the complete
         # carrier stays one piece and uses this rigid 3D tilt.  The post has a

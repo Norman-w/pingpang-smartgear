@@ -4,77 +4,46 @@ import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 const MANIFEST_URL = new URL("../exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json", import.meta.url);
 const MODEL_ROOT = new URL("../../../electronics/3d/v0.2/", MANIFEST_URL);
+const PREVIEW_CACHE_BUSTER = "electronics-v30";
 const COLORS = Object.freeze({
   shellUser: "#65727b",
   shellOpponent: "#8898a1",
   mainBoard: "#2f80ed",
   emitterBoard: "#c94b63",
-  battery: "#e89b3a",
   uiBoard: "#48a0e8",
-  faceplate: "#222f38",
-  screen: "#20d6ed",
-  button: "#f6bd67",
-  led: "#64df85",
-  speaker: "#9975d2",
-  usb: "#e7ba5d",
-  fastener: "#5bd0ad",
-  wiring: "#437de7",
-  cavity: "#f2c76b",
+  uiBezel: "#222f38",
+  uiFrame: "#f2a33b",
 });
 
 const D = Object.freeze({
   cavityXMin: 777.5,
   cavityXMax: 894.3,
   cavityYHalf: 20,
-  cavityTopZ: 0.5,
-  reinforcementStartX: 759.5,
-  reinforcementEndX: 918.3,
-  reinforcementBottomStartZ: -75,
-  reinforcementBottomEndZ: -49,
   boardXMin: 792.9,
   boardXMax: 878.9,
-  boardYMin: -13.5,
-  boardBottomZ: -46.4912,
-  boardMountScrewHeadD: 5.0,
-  boardMountScrewHeadH: 1.4,
-  boardMountScrewHeadZ: 2.3,
-  batteryXMin: 803.4,
-  batteryXMax: 868.4,
-  batteryYMin: -15,
-  batteryBottomZ: -34.2912,
+  boardYMin: -16,
+  boardBottomZ: -36.4912,
   emitterBoardXMin: 802.9,
   emitterBoardXMax: 870.9,
   emitterBoardYMin: -16,
-  emitterBoardBottomZ: -48.0912,
+  emitterBoardBottomZ: -35.8912,
   uiBoardXMin: 806.9,
-  // UI is mounted through the positive-Y side wall: the PCB plane is just
-  // inside the wall and the faceplate/components project out to y+.
-  uiSideBoardPlaneY: 23.2,
-  uiSideZMin: -50,
-  uiBoardLength: 58,
+  // UI PCB is the interference datum behind the positive-Y wall window; the
+  // printed insert panel is installed from y- and finishes at the wall outer
+  // face. The KiCad board remains at the same world plane.
+  uiSideBoardPlaneY: 19.2,
+  uiSideZMin: -40,
   uiBoardWidth: 28,
-  uiBoardT: 1.6,
-  uiMountBossD: 7,
-  uiMountBossYFront: 23.2,
-  uiMountBossYBack: 19.8,
-  uiMountXInset: 3.5,
-  uiMountYInset: 3.5,
-  screenLength: 25,
-  screenWidth: 14,
-  buttonDiameter: 4.2,
-  buttonPlungerDiameter: 1.6,
-  buttonTopZ: 2.0,
-  // The vertical USB-C proxy reaches 7.395 mm above the PCB top; the printed
-  // faceplate starts 0.4 mm beyond that actual board/component envelope.
-  faceplateInnerZ: 7.795,
-  faceplateOuterZ: 11.795,
-  ledDiameter: 1.6,
-  ledBoreDiameter: 2.2,
-  speakerDiameter: 16,
-  buttonCenters: [[10, 8], [10, 20]],
-  ledCenters: [[29, 3], [32, 25]],
-  speakerCenter: [52.2, 8],
-  usbCenter: [47, 26],
+  // Bounds of PART="clamp_electronics_ui_physical_items" exported from the
+  // SCAD off-board component library (screen + speaker only). The STL is
+  // normalized at load time; this is its world-space minimum in the same
+  // assembly datum.
+  uiPhysicalItemsMin: [823.4, 28.35, -33.0],
+  // World-axis reference is translated into the active cavity so it stays
+  // visible while retaining the shared global x/y/z directions.
+  axisOriginX: (777.5 + 894.3) / 2,
+  axisOriginZ: -35,
+  axisLength: 35,
 });
 
 const refs = {
@@ -105,13 +74,9 @@ const state = {
   shellOpacity: 0.22,
   showUserShell: false,
   showOpponentShell: true,
-  showCavity: true,
   showMainBoard: true,
   showEmitterBoard: true,
-  showBattery: true,
   showUi: true,
-  showBosses: true,
-  showWiring: true,
   view: "iso",
   loaded: false,
   scene: null,
@@ -119,19 +84,92 @@ const state = {
   renderer: null,
   controls: null,
   root: null,
+  axes: null,
   raycaster: new THREE.Raycaster(),
   pointer: new THREE.Vector2(),
   selectedId: null,
   focus: null,
+  // STL files arrive asynchronously. Once the user starts orbiting, the
+  // eventual load completion must never re-apply the initial ISO fit.
+  cameraInteracted: false,
+  initialViewApplied: false,
+  cameraProgrammatic: false,
 };
+
+function makeAxisLabel(text, color) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 320;
+  canvas.height = 72;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.font = "700 30px -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.lineWidth = 8;
+  context.strokeStyle = "rgba(5, 16, 21, .92)";
+  context.strokeText(text, canvas.width / 2, canvas.height / 2);
+  context.fillStyle = color;
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(20, 4.5, 1);
+  sprite.renderOrder = 30;
+  return sprite;
+}
+
+function createWorldAxes() {
+  const group = new THREE.Group();
+  group.name = "world-coordinate-axes";
+  const helper = new THREE.AxesHelper(D.axisLength);
+  helper.name = "world-coordinate-axes-lines";
+  helper.renderOrder = 20;
+  const axisMaterials = Array.isArray(helper.material) ? helper.material : [helper.material];
+  axisMaterials.forEach((material) => {
+    material.transparent = true;
+    material.opacity = 0.92;
+    material.depthTest = false;
+    material.depthWrite = false;
+    material.needsUpdate = true;
+  });
+  group.add(helper);
+
+  const length = D.axisLength;
+  const labels = [
+    ["X+ 右", "#ff6b6b", [length + 3, 0, 0]],
+    ["X− 左", "#ff6b6b", [-length - 3, 0, 0]],
+    ["Y+ UI侧", "#68e0b4", [0, length + 4, 0]],
+    ["Y− 操作者侧", "#68e0b4", [0, -length - 5, 0]],
+    ["Z+ 上", "#6ea8ff", [0, 0, length + 3]],
+    ["Z− 下", "#6ea8ff", [0, 0, -length - 3]],
+  ];
+  for (const [text, color, position] of labels) {
+    const label = makeAxisLabel(text, color);
+    label.position.set(...position);
+    label.userData.axisLabel = true;
+    group.add(label);
+  }
+  state.axes = group;
+  state.scene.add(group);
+  updateWorldAxesOrigin();
+}
+
+function updateWorldAxesOrigin() {
+  if (!state.axes) return;
+  const sign = state.side === "left" ? -1 : 1;
+  state.axes.position.set(sign * D.axisOriginX, 0, D.axisOriginZ);
+}
 
 function setStatus(text, kind = "loading") {
   refs.status.textContent = text;
   refs.statusDot.className = `status-dot ${kind === "ready" ? "ready" : kind === "error" ? "error" : ""}`;
-}
-
-function escapeText(value) {
-  return String(value || "").replace(/[&<>\"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[char]));
 }
 
 function number(value, fallback = 0) {
@@ -143,19 +181,15 @@ function sourceEntry(file) {
   return state.manifest?.parts?.find((entry) => entry.file === file) || null;
 }
 
-function sourceUrl(file) {
-  return new URL(file, MANIFEST_URL);
-}
-
 function geometryUrl(file) {
-  const base = /^(esp32-control|emitter-power|ui-panel|m6-receiver)/.test(file) ? MODEL_ROOT : MANIFEST_URL;
+  // Electronics STLs live beside the KiCad exports under hardware/electronics.
+  // Keep optional guide parts in this list too; otherwise a new part is
+  // resolved relative to the print-package manifest and makes Promise.all()
+  // reject the complete view with a misleading 404.
+  const base = /^(esp32-control|emitter-power|ui-panel|ui-physical-items|ui-led-light-pipes|m6-receiver)/.test(file) ? MODEL_ROOT : MANIFEST_URL;
   const url = file.startsWith("http") ? new URL(file) : new URL(file, base);
   if (state.manifest?.source_sha256) url.searchParams.set("v", state.manifest.source_sha256.slice(0, 16));
   return url.href;
-}
-
-function floorAt(x) {
-  return D.reinforcementBottomStartZ + ((x - D.reinforcementStartX) / (D.reinforcementEndX - D.reinforcementStartX)) * (D.reinforcementBottomEndZ - D.reinforcementBottomStartZ);
 }
 
 function sideVisible(side) {
@@ -203,7 +237,7 @@ function makeItem(id, name, category, basePosition, explosion = [0, 0, 0], optio
     side: options.side || 0,
     role: options.role || category,
     visibleWhen: options.visibleWhen || (() => true),
-    detail: options.detail || "网页显示参考",
+    detail: options.detail || "来源模型",
     meshes: [],
   };
   item.object.userData.previewId = id;
@@ -212,55 +246,6 @@ function makeItem(id, name, category, basePosition, explosion = [0, 0, 0], optio
   state.items.push(item);
   state.root.add(item.object);
   return item;
-}
-
-function addMesh(item, mesh, localPosition = [0, 0, 0], options = {}) {
-  mesh.position.set(...localPosition.map(number));
-  if (options.rotation) mesh.rotation.set(...options.rotation.map(number));
-  if (options.scale) mesh.scale.set(...options.scale.map(number));
-  mesh.userData.previewId = item.id;
-  item.object.add(mesh);
-  item.meshes.push(mesh);
-  return mesh;
-}
-
-function addBox(item, size, localPosition, color, options = {}) {
-  const geometry = new THREE.BoxGeometry(...size.map(number));
-  const material = createMaterial(color, options.opacity ?? 1, options);
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(localPosition[0] + size[0] / 2, localPosition[1] + size[1] / 2, localPosition[2] + size[2] / 2);
-  mesh.userData.previewId = item.id;
-  item.object.add(mesh);
-  item.meshes.push(mesh);
-  return mesh;
-}
-
-function addCylinder(item, diameter, height, center, color, options = {}) {
-  const geometry = new THREE.CylinderGeometry(diameter / 2, diameter / 2, height, options.segments || 32);
-  const material = createMaterial(color, options.opacity ?? 1, options);
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(...center.map(number));
-  if (options.rotation) mesh.rotation.set(...options.rotation.map(number));
-  mesh.userData.previewId = item.id;
-  item.object.add(mesh);
-  item.meshes.push(mesh);
-  return mesh;
-}
-
-function addTube(item, a, b, diameter, color, options = {}) {
-  const start = new THREE.Vector3(...a);
-  const end = new THREE.Vector3(...b);
-  const delta = new THREE.Vector3().subVectors(end, start);
-  const length = delta.length();
-  const geometry = new THREE.CylinderGeometry(diameter / 2, diameter / 2, length, 16);
-  const material = createMaterial(color, options.opacity ?? 0.88, options);
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.copy(start).add(end).multiplyScalar(0.5);
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize());
-  mesh.userData.previewId = item.id;
-  item.object.add(mesh);
-  item.meshes.push(mesh);
-  return mesh;
 }
 
 function entryBounds(file) {
@@ -302,29 +287,6 @@ function addShellItem(file, sideName, half, basePosition) {
   });
 }
 
-function addCavityReference(sideName) {
-  const width = D.cavityXMax - D.cavityXMin;
-  const height = D.cavityTopZ - floorAt((D.cavityXMin + D.cavityXMax) / 2);
-  const mirrored = sideName === "left";
-  const center = [mirrored ? -(D.cavityXMin + D.cavityXMax) / 2 : (D.cavityXMin + D.cavityXMax) / 2, 0, floorAt((D.cavityXMin + D.cavityXMax) / 2) + height / 2];
-  const item = makeItem(`reference:cavity:${sideName}`, `${sideName === "right" ? "右侧" : "左侧"} 电子腔有效边界（参考）`, "cavity", [0, 0, 0], [0, 0, 0], {
-    side: mirrored ? -1 : 1,
-    role: "cavity",
-    detail: `按当前 SCAD 的 116.8 × 40 mm ${sideName === "right" ? "右侧" : "左侧"}腔体范围绘制。底面实际为斜面，这个线框用于快速观察包络。左右结构不在同一画布叠加。`,
-    visibleWhen: () => state.showCavity && sideVisible(sideName),
-  });
-  const geometry = new THREE.BoxGeometry(width, D.cavityYHalf * 2, height);
-  const edges = new THREE.EdgesGeometry(geometry);
-  const material = new THREE.LineBasicMaterial({ color: COLORS.cavity, transparent: true, opacity: 0.72 });
-  const lines = new THREE.LineSegments(edges, material);
-  lines.position.set(center[0], center[1], center[2]);
-  if (mirrored) lines.scale.x = -1;
-  lines.userData.previewId = item.id;
-  item.object.add(lines);
-  item.meshes.push(lines);
-  return item;
-}
-
 function addMainBoard() {
   return addStlItem({
     id: "electronics:main-board:right",
@@ -336,7 +298,7 @@ function addMainBoard() {
     side: 1,
     role: "main-board",
     explosion: [0, 0, 24],
-    detail: "真实 KiCad 板级模型；板框 86 × 32 mm，包含板上器件的 3D 包络。",
+    detail: "真实 KiCad 板级模型；板框 86 × 32 mm，沿 y=0 腔体中线居中，左右墙各留约 4 mm，包含板上器件的 3D 包络。",
     visibleWhen: () => sideVisible("right") && state.showMainBoard,
   });
 }
@@ -358,22 +320,10 @@ function addEmitterBoard() {
   });
 }
 
-function addBattery(sideName) {
-  const mirrored = sideName === "left";
-  const item = makeItem(`battery:${sideName}`, `${sideName === "right" ? "右侧主控" : "左侧发射"} 电池包（安装包络）`, "battery", mirrored ? [-D.batteryXMax, D.batteryYMin, D.batteryBottomZ] : [D.batteryXMin, D.batteryYMin, D.batteryBottomZ], [0, 0, -22], {
-    side: mirrored ? -1 : 1,
-    role: "battery",
-    detail: "65 × 30 × 7 mm 受保护电池包占位；位置来自当前 SCAD 的二层托位，实际电池型号/绝缘/固定方式仍需首样复核。",
-    visibleWhen: () => sideVisible(sideName) && state.showBattery,
-  });
-  const mesh = addBox(item, [D.batteryXMax - D.batteryXMin, 30, 7], [0, 0, 0], COLORS.battery, { opacity: 0.78, roughness: 0.44, metalness: 0.08 });
-  return item;
-}
-
-async function addUiStack() {
+async function addUiBoard() {
   const item = await addStlItem({
-    id: "electronics:ui-stack:right",
-    name: "UI 子板 + y+ 屏幕/按键/指示灯面板",
+    id: "electronics:ui-board:right",
+    name: "UI 子板（真实 KiCad STL）",
     category: "ui",
     file: "ui-panel-v0.2.stl",
     basePosition: [D.uiBoardXMin, D.uiSideBoardPlaneY, D.uiSideZMin + D.uiBoardWidth],
@@ -381,7 +331,7 @@ async function addUiStack() {
     side: 1,
     role: "ui",
     explosion: [0, 34, 0],
-    detail: "这块较小的 PCB 是 UI 子板，不是光学发射/接收板。KiCad 板模型现在包含真实的 PCB 直装 3.9×3×2 mm START/MODE 贴片按键、0603 单色状态/电量 LED 和 16 针立式 USB-C 插座；面框用一体 plunger 接触微型按键，LED 用直通小孔，USB-C 沿 PCB 法向从 y+ 面板插拔，屏幕保留为排线连接的独立件。PCB 的四个 M2.5 孔由侧壁支柱承接，面框用同一组螺钉从 y+ 侧夹紧，取消底部 UI 盖板。USB-C 当前使用仓库内 STEP 机械包络代理，具体厂家料号待首样冻结。",
+    detail: "真实 KiCad 板级 STL；包含 PCB、板侧线束连接器，以及 KiCad 封装中的按键、LED、USB-C 3D 模型。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
   // STLLoader normalizes the raw KiCad y=-28..0 range to 0..28. Reflect it
@@ -394,104 +344,91 @@ async function addUiStack() {
   // positive-Y wall. The normalized STL is top-anchored in z; board/component
   // material ends at the side opening and the service face projects to y+.
   item.object.rotation.x = -Math.PI / 2;
-  addBox(item, [64, 34, 4], [-3, -3, D.faceplateInnerZ], COLORS.faceplate, { opacity: 0.52, side: THREE.DoubleSide });
-  addBox(item, [D.screenLength, D.screenWidth, 1.1], [(D.uiBoardLength - D.screenLength) / 2, (D.uiBoardWidth - D.screenWidth) / 2, D.faceplateInnerZ + 0.1], COLORS.screen, { opacity: 0.94, roughness: 0.3, metalness: 0.12 });
-  for (const [x, y] of D.buttonCenters) {
-    addBox(item, [D.buttonPlungerDiameter, D.buttonPlungerDiameter, D.faceplateInnerZ - D.buttonTopZ], [x, y, D.buttonTopZ + (D.faceplateInnerZ - D.buttonTopZ) / 2], COLORS.fastener, { opacity: 0.72 });
-    addBox(item, [D.buttonDiameter, 3.4, 0.7], [x, y, D.faceplateOuterZ - 0.35], COLORS.fastener, { opacity: 0.78 });
-  }
-  for (const [x, y] of D.ledCenters) {
-    addBox(item, [D.ledBoreDiameter, D.ledBoreDiameter, D.faceplateInnerZ], [x, y, D.faceplateInnerZ / 2], COLORS.led, { opacity: 0.18 });
-  }
-  const outwardCylinder = [-Math.PI / 2, 0, 0];
-  addCylinder(item, D.speakerDiameter, 2.8, [D.speakerCenter[0], D.speakerCenter[1], D.faceplateInnerZ + 0.2], COLORS.speaker, { opacity: 0.88, roughness: 0.5, rotation: outwardCylinder });
   return item;
 }
 
-function addBosses(sideName) {
-  const mirrored = sideName === "left";
-  const sign = mirrored ? -1 : 1;
-  const item = makeItem(`reference:mounting:${sideName}`, `${sideName === "right" ? "右侧主控" : "左侧发射"} 支柱、螺钉与电池止挡`, "fastener", [0, 0, 0], [0, 0, 0], {
-    side: sign,
-    role: "bosses",
-    detail: "右侧显示主控板四个竖直支柱和 M2.5 固定螺钉、y+ UI 侧向支柱；左侧显示发射板四个边缘夹块。两侧还各显示电池端部止挡；这些是实际安装基准，不是额外外凸加强柱。",
-    visibleWhen: () => sideVisible(sideName) && state.showBosses,
+async function addUiPhysicalItems() {
+  return addStlItem({
+    id: "electronics:ui-physical-items:right",
+    name: "UI 线束实体件（SCAD）",
+    category: "ui-components",
+    file: "ui-physical-items-v0.2.stl",
+    basePosition: D.uiPhysicalItemsMin,
+    color: "#7be0c0",
+    side: 1,
+    role: "ui-components",
+    explosion: [0, 34, 0],
+    detail: "来自 net_stand.scad 的 clamp_electronics_ui_physical_items：仅挂载通过线束连接的屏幕和扬声器；PCB 按键、LED、USB-C 已由 KiCad 板 STL 提供。",
+    visibleWhen: () => sideVisible("right") && state.showUi,
   });
-  if (sideName === "right") {
-    const boardHoles = [[806.4, -9.5], [837.9, -9.5], [867.9, 15], [867.9, -9.5]];
-    for (const [x, y] of boardHoles) {
-      const floor = floorAt(x) + 0.8;
-      // Three.js cylinders are Y-axis aligned by default.  The printed main-
-      // board standoffs are Z-axis posts, so rotate this reference geometry
-      // before placing it; otherwise the preview falsely shows horizontal rods
-      // and makes the PCB look unsupported.
-      addCylinder(item, 6, D.boardBottomZ - floor, [x, y, floor + (D.boardBottomZ - floor) / 2], COLORS.fastener, {
-        opacity: 0.76,
-        segments: 24,
-        rotation: [Math.PI / 2, 0, 0],
-      });
-      // Hardware reference only: a short M2.5 screw passes through the board
-      // hole into the blind pilot in the printed post.  Screws are not part of
-      // the PETG print STL, but showing their heads makes the retained joint
-      // unambiguous in the cavity view.
-      addCylinder(item, D.boardMountScrewHeadD, D.boardMountScrewHeadH, [x, y, D.boardBottomZ + D.boardMountScrewHeadZ], COLORS.fastener, {
-        opacity: 0.96,
-        segments: 32,
-        rotation: [Math.PI / 2, 0, 0],
-      });
-    }
-  } else {
-    // The emitter PCB is retained by four short edge clips, not by the
-    // right-side ESP32 standoff pattern.  Showing the correct clips keeps the
-    // left-only view from looking like a second copy of the main-board mount.
-    const supportLength = 5;
-    const supportWidth = 2;
-    const supportYs = [-15.6, 13.6];
-    for (const x of [D.emitterBoardXMin, D.emitterBoardXMax - supportLength]) {
-      const floor = floorAt(x + supportLength / 2) + 0.8;
-      const px = -(x + supportLength);
-      for (const y of supportYs) {
-        addBox(item, [supportLength, supportWidth, D.emitterBoardBottomZ - floor], [px, y, floor], COLORS.fastener, { opacity: 0.78 });
-      }
-    }
-  }
-  if (sideName === "right") {
-    const uiXs = [D.uiBoardXMin + D.uiMountXInset, D.uiBoardXMin + D.uiBoardLength - D.uiMountXInset];
-    const uiZs = [D.uiSideZMin + D.uiBoardWidth - D.uiMountYInset, D.uiSideZMin + D.uiMountYInset];
-    const uiDepth = D.uiMountYFront - D.uiMountYBack;
-    for (const x of uiXs) {
-      for (const z of uiZs) {
-        addCylinder(item, D.uiMountBossD, uiDepth, [x, (D.uiMountYFront + D.uiMountYBack) / 2, z], COLORS.fastener, {
-          opacity: 0.88,
-          segments: 32,
-          rotation: [Math.PI / 2, 0, 0],
-        });
-      }
-    }
-  }
-  const stops = [803.4, 863.4];
-  for (const x of stops) {
-    const px = mirrored ? -(x + 5) : x;
-    for (const y of [-16.5, 14.5]) addBox(item, [5, 2, 8], [px, y, D.batteryBottomZ], COLORS.fastener, { opacity: 0.78 });
-  }
-  return item;
 }
 
-function addWiring(sideName) {
-  const mirrored = sideName === "left";
-  const sign = mirrored ? -1 : 1;
-  const item = makeItem(`reference:wiring:${sideName}`, `${sideName === "right" ? "右侧主控" : "左侧发射"} 短距离走线参考`, "wiring", [0, 0, 0], [0, 0, 7], {
-    side: sign,
-    role: "wiring",
-    detail: "蓝色软管是从板边到腔体外侧的短距离路线参考，金色块表示连接器/扎带位置，不是最终线束模型。",
-    visibleWhen: () => sideVisible(sideName) && state.showWiring,
+async function addUiBezel() {
+  const bounds = entryBounds("right-clamp-electronics-ui-bezel.stl");
+  return addStlItem({
+    id: "electronics:ui-bezel:right",
+    name: "右侧 y+ 内装 UI 封口板（打印 STL）",
+    category: "ui-bezel",
+    file: "right-clamp-electronics-ui-bezel.stl",
+    basePosition: bounds.min,
+    color: COLORS.uiBezel,
+    side: 1,
+    role: "ui-bezel",
+    explosion: [0, 34, 0],
+    detail: "当前打印包中的正式外侧齐平 UI 填平板 STL；从电子腔 y- 侧穿入窗口并由阶梯固定框的窗口内边定位，外侧齐平且不设螺钉孔，也没有隐藏 boss 收纳槽。8 个蘑菇头螺钉孔位在独立的腔内搭接固定框上；按键导向柱、LED 直孔、屏幕窗、扬声器窗和 Type-C 直通槽均以 KiCad UI 板为同一干涉基准。",
+    visibleWhen: () => sideVisible("right") && state.showUi,
   });
-  const boardEdge = mirrored ? -873.9 : 873.9;
-  const route = mirrored ? -899.3 : 899.3;
-  addTube(item, [boardEdge, 10, D.boardBottomZ + 2.8], [route, 10, D.boardBottomZ + 2.8], 2.6, COLORS.wiring, { opacity: 0.9 });
-  addTube(item, [route, 10, D.boardBottomZ + 2.8], [route, 10, -18], 2.6, COLORS.wiring, { opacity: 0.9 });
-  addBox(item, [8, 6, 4], [mirrored ? route - 4 - 8 : route - 4, 7, D.boardBottomZ + 0.8], COLORS.usb, { opacity: 0.92, roughness: 0.34 });
-  return item;
+}
+
+async function addUiRetainingFrame() {
+  const bounds = entryBounds("right-clamp-electronics-ui-retaining-frame.stl");
+  return addStlItem({
+    id: "electronics:ui-retaining-frame:right",
+    name: "腔内 UI 八孔搭接固定框（打印 STL）",
+    category: "ui-retaining-frame",
+    file: "right-clamp-electronics-ui-retaining-frame.stl",
+    basePosition: bounds.min,
+    color: COLORS.uiFrame,
+    side: 1,
+    role: "ui-retaining-frame",
+    explosion: [0, 40, 0],
+    detail: "独立的腔内阶梯搭接固定框；外侧固定法兰落在 y=17.5..20.0 mm 腔内墙面，固定框外延为 72×42 mm，窗口内搭接环延伸到 y=25.5 mm 并压住面板背面 0.8 mm。8 个 Ø2.3 mm 通孔从腔内装入 2 mm 蘑菇头自攻钉，孔中心相对旧 M3 方案向外移 1.0 mm，螺钉直接进入 C 夹实心内壁的 Ø1.6 mm 盲导孔，孔边至少保留 1.2 mm 实体边，外壁保留 0.7 mm 底且不生成正向 boss；外壁不露螺钉。",
+    visibleWhen: () => sideVisible("right") && state.showUi,
+  });
+}
+
+async function addUiLightPipes() {
+  // Optional transparent-print guide part generated from the same SCAD datum.
+  // It is intentionally a separate object so a clear resin/PETG guide can be
+  // printed without turning the opaque UI insert panel into a fake LED body.
+  const id = "electronics:ui-led-light-pipes:right";
+  try {
+    return await addStlItem({
+      id,
+      name: "UI LED 导光柱（可选透明件）",
+      category: "ui-components",
+      file: "ui-led-light-pipes-v0.2.stl",
+      basePosition: [834.9, 25.4, -38.0],
+      color: "#b8f6dc",
+      side: 1,
+      role: "ui-components",
+      explosion: [0, 34, 0],
+      detail: "由 net_stand.scad 的 LED 中心生成的独立透明导光柱；不重复创建 0603 LED，直线穿过内装封口板的 LED 孔。",
+      visibleWhen: () => sideVisible("right") && state.showUi,
+    });
+  } catch (error) {
+    // A transparent guide is optional.  If an older checkout has not yet
+    // received this STL, remove the half-created item and keep the real shell,
+    // KiCad boards and UI insert usable instead of failing the whole view.
+    const item = state.itemById.get(id);
+    if (item) {
+      state.root.remove(item.object);
+      state.itemById.delete(id);
+      state.items = state.items.filter((candidate) => candidate !== item);
+    }
+    console.warn("optional UI LED light pipes unavailable", error);
+    return null;
+  }
 }
 
 function updateItemTransform(item) {
@@ -544,10 +481,9 @@ function focusBounds(role) {
   let hasMesh = false;
   for (const item of state.items) {
     if (!item.object.visible) continue;
-    const match = role === "cavity" ? ["shell", "cavity", "bosses", "battery", "main-board", "emitter-board", "ui"].includes(item.role)
+    const match = role === "cavity" ? ["shell", "main-board", "emitter-board", "ui", "ui-components", "ui-bezel", "ui-retaining-frame"].includes(item.role)
       : role === "board" ? ["main-board", "emitter-board"].includes(item.role)
-        : role === "ui" ? item.role === "ui"
-          : role === "battery" ? item.role === "battery"
+        : role === "ui" ? ["ui", "ui-components", "ui-bezel", "ui-retaining-frame"].includes(item.role)
             : true;
     if (!match) continue;
     item.object.updateMatrixWorld(true);
@@ -558,7 +494,12 @@ function focusBounds(role) {
   return hasMesh && !box.isEmpty() ? box : visibleBounds();
 }
 
-function setCameraView(view = state.view, focus = state.focus) {
+function setCameraView(view = state.view, focus = state.focus, options = {}) {
+  const force = Boolean(options.force);
+  // A completed STL request or a visibility refresh must never overwrite a
+  // camera that the user has already touched.  Only an explicit view/fit/
+  // reset action passes force:true.
+  if (state.initialViewApplied && state.cameraInteracted && !force) return false;
   state.view = view;
   const box = focusBounds(focus);
   const center = box.getCenter(new THREE.Vector3());
@@ -576,17 +517,23 @@ function setCameraView(view = state.view, focus = state.focus) {
     bottom: new THREE.Vector3(-0.08, 0.2, -1.8),
   };
   const direction = (directions[view] || directions.iso).clone().normalize();
-  state.camera.position.copy(center).addScaledVector(direction, radius * 1.62);
-  state.camera.near = Math.max(0.1, radius / 1000);
-  state.camera.far = Math.max(3000, radius * 10);
-  state.camera.updateProjectionMatrix();
-  state.controls.target.copy(center);
-  state.camera.lookAt(center);
-  state.camera.updateMatrixWorld(true);
-  state.controls.update();
-  state.camera.lookAt(center);
-  state.camera.updateMatrixWorld(true);
+  state.cameraProgrammatic = true;
+  try {
+    state.camera.position.copy(center).addScaledVector(direction, radius * 1.62);
+    state.camera.near = Math.max(0.1, radius / 1000);
+    state.camera.far = Math.max(3000, radius * 10);
+    state.camera.updateProjectionMatrix();
+    state.controls.target.copy(center);
+    state.camera.lookAt(center);
+    state.camera.updateMatrixWorld(true);
+    state.controls.update();
+    state.camera.lookAt(center);
+    state.camera.updateMatrixWorld(true);
+  } finally {
+    state.cameraProgrammatic = false;
+  }
   document.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+  return true;
 }
 
 function applySelection(item) {
@@ -632,29 +579,30 @@ function bindControls() {
   document.querySelectorAll("[data-side]").forEach((button) => button.addEventListener("click", () => {
     state.side = button.dataset.side;
     document.querySelectorAll("[data-side]").forEach((other) => other.classList.toggle("active", other === button));
+    updateWorldAxesOrigin();
     updateVisibility();
-    setCameraView(state.view, state.focus);
+    setCameraView(state.view, state.focus, {force: true});
   }));
-  document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => { state.focus = null; setCameraView(button.dataset.view); }));
+  document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => { state.focus = null; setCameraView(button.dataset.view, state.focus, {force: true}); }));
   document.querySelectorAll("[data-focus]").forEach((button) => button.addEventListener("click", () => {
     state.focus = button.dataset.focus;
     // The UI hardware faces y+.  Jumping to the y+ camera when the user asks
     // for the UI focus prevents the default y- isometric view from showing
     // only the back edge of the small daughter board.
     const focusView = state.focus === "ui" ? "side" : state.view;
-    setCameraView(focusView, state.focus);
+    setCameraView(focusView, state.focus, {force: true});
   }));
   refs.explode.addEventListener("input", () => { state.explode = number(refs.explode.value) / 100; refs.explodeOutput.textContent = String(Math.round(state.explode * 100)); updateVisibility(); });
   refs.shellOpacity.addEventListener("input", () => { state.shellOpacity = number(refs.shellOpacity.value) / 100; refs.shellOpacityOutput.textContent = String(Math.round(state.shellOpacity * 100)); updateVisibility(); });
   const checks = {
-    "show-user-shell": "showUserShell", "show-opponent-shell": "showOpponentShell", "show-cavity": "showCavity",
-    "show-main-board": "showMainBoard", "show-emitter-board": "showEmitterBoard", "show-battery": "showBattery",
-    "show-ui": "showUi", "show-bosses": "showBosses", "show-wiring": "showWiring",
+    "show-user-shell": "showUserShell", "show-opponent-shell": "showOpponentShell",
+    "show-main-board": "showMainBoard", "show-emitter-board": "showEmitterBoard",
+    "show-ui": "showUi",
   };
   Object.entries(checks).forEach(([id, key]) => document.querySelector(`#${id}`).addEventListener("change", (event) => { state[key] = event.target.checked; updateVisibility(); }));
-  refs.host.addEventListener("dblclick", () => { state.focus = null; setCameraView(state.view); });
-  document.querySelector("#fit-button").addEventListener("click", () => setCameraView(state.view, state.focus));
-  document.querySelector("#reset-button").addEventListener("click", () => { state.explode = 0; refs.explode.value = "0"; refs.explodeOutput.textContent = "0"; state.focus = null; updateVisibility(); setCameraView("iso"); });
+  refs.host.addEventListener("dblclick", () => { state.focus = null; setCameraView(state.view, state.focus, {force: true}); });
+  document.querySelector("#fit-button").addEventListener("click", () => setCameraView(state.view, state.focus, {force: true}));
+  document.querySelector("#reset-button").addEventListener("click", () => { state.explode = 0; refs.explode.value = "0"; refs.explodeOutput.textContent = "0"; state.focus = null; updateVisibility(); setCameraView("iso", state.focus, {force: true}); });
 }
 
 function setupThree() {
@@ -673,8 +621,18 @@ function setupThree() {
   state.controls.screenSpacePanning = true;
   state.controls.minDistance = 20;
   state.controls.maxDistance = 2500;
+  const markCameraInteraction = () => {
+    if (!state.cameraProgrammatic) state.cameraInteracted = true;
+  };
+  state.controls.addEventListener("start", markCameraInteraction);
+  state.controls.addEventListener("end", markCameraInteraction);
+  // Cover browsers where a pointerdown is delivered before OrbitControls'
+  // start event, and treat wheel zoom as camera interaction too.
+  state.renderer.domElement.addEventListener("pointerdown", markCameraInteraction, {capture: true});
+  state.renderer.domElement.addEventListener("wheel", markCameraInteraction, {capture: true, passive: true});
   state.root = new THREE.Group();
   state.scene.add(state.root);
+  createWorldAxes();
   state.scene.add(new THREE.HemisphereLight("#d7ffff", "#142029", 2.0));
   state.scene.add(new THREE.AmbientLight("#ffffff", 0.8));
   const key = new THREE.DirectionalLight("#ffffff", 2.8); key.position.set(200, -250, 360); state.scene.add(key);
@@ -689,13 +647,14 @@ function setupThree() {
 }
 
 async function buildScene() {
-  const response = await fetch(`${MANIFEST_URL.href}?preview=electronics`);
+  const manifestUrl = new URL(MANIFEST_URL.href);
+  manifestUrl.searchParams.set("preview", "electronics");
+  manifestUrl.searchParams.set("v", PREVIEW_CACHE_BUSTER);
+  const response = await fetch(manifestUrl.href, {cache: "no-store"});
   if (!response.ok) throw new Error(`manifest HTTP ${response.status}`);
   state.manifest = await response.json();
   refs.manifestLink.href = MANIFEST_URL.href;
   refs.manifestLink.textContent = `当前源 manifest · ${String(state.manifest.source_sha256 || "").slice(0, 12)} ↗`;
-  addCavityReference("right");
-  addCavityReference("left");
   const shellJobs = [];
   for (const sideName of ["right", "left"]) {
     for (const half of ["user", "opponent"]) {
@@ -706,19 +665,20 @@ async function buildScene() {
   }
   await Promise.all(shellJobs);
   await Promise.all([addMainBoard(), addEmitterBoard()]);
-  addBattery("right");
-  addBattery("left");
-  await addUiStack();
-  addBosses("right");
-  addBosses("left");
-  addWiring("right");
-  addWiring("left");
+  await Promise.all([addUiBoard(), addUiPhysicalItems(), addUiBezel(), addUiRetainingFrame(), addUiLightPipes()]);
   state.loaded = true;
   refs.placeholder.hidden = true;
   setStatus(`当前源 ${String(state.manifest.source_sha256 || "").slice(0, 12)} · 电子对象已载入`, "ready");
-  refs.caption.textContent = "当前正式壳体 STL + 当前 KiCad 板级 STL 已载入；颜色件是安装包络参考。网页检查通过后仍需切片、实物装配、绝缘与受力验证。";
+      refs.caption.textContent = "当前载入正式壳体、外侧齐平 UI 填平板、72×42 mm 腔内八孔搭接固定框、包含 PCB 直装器件模型的 KiCad 板级 STL，以及来自 electronics_components.scad 的屏幕/扬声器线束实体。2 mm 蘑菇头自攻钉从腔内穿过框上 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边；网页检查仍不替代切片、实物装配、绝缘与受力验证。";
   updateVisibility();
-  setCameraView("iso");
+  // The first STL load used to unconditionally snap the camera back to ISO.
+  // Keep the fit only for a load that completed before any user orbit/pan/
+  // zoom. After that point the controls own the camera until an explicit view
+  // button, fit button, or reset button is pressed.
+  if (!state.cameraInteracted || !state.initialViewApplied) {
+    if (!state.cameraInteracted) setCameraView("iso");
+    state.initialViewApplied = true;
+  }
   // Render once immediately after the async STL loads.  The animation loop
   // continues afterwards, but this removes a blank first frame on browsers
   // that delay requestAnimationFrame while the tab is being restored.

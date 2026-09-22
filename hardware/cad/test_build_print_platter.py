@@ -146,13 +146,14 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    # Each 356.5 mm upright occupies its own diagonal plate; the current
-    # deterministic layout packs the remaining fixed bodies and clips on four
-    # additional PETG plates and keeps TPU separate.
-    if len(data["plates"]) != 6 or sum(p["part_count"] for p in data["plates"]) != 39:
-        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 6/39）")
+    # Each 356.5 mm upright occupies its own diagonal plate.  The two large
+    # x-z C-clamp profiles share two plates after rotating their outer y faces
+    # onto the bed; the remaining parts fill three PETG plates and one TPU
+    # plate.
+    if len(data["plates"]) != 7 or sum(p["part_count"] for p in data["plates"]) != 41:
+        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 7/41）")
     groups = [plate.get("material_group") for plate in data["plates"]]
-    if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
+    if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")
     oversized = {item["file"] for item in data["oversized"]}
     if oversized:
@@ -170,6 +171,24 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
         for entry in post_entries
     ):
         raise AssertionError("整根立柱必须在默认 256 mm 拼盘中使用已验证三轴斜放姿态和专用边缘余量")
+    split_entries = [
+        entry
+        for plate in data["plates"]
+        for entry in plate.get("parts", [])
+        if entry.get("part") in {"clamp_body_half_user", "clamp_body_half_opponent"}
+    ]
+    if len(split_entries) != 4:
+        raise AssertionError("两侧 C 夹应各有操作者侧/对手侧半体")
+    for entry in split_entries:
+        expected = (
+            "y-minus-face-down-rx90"
+            if entry.get("part") == "clamp_body_half_user"
+            else "y-plus-face-down-rx-90"
+        )
+        if entry.get("orientation_label") != expected:
+            raise AssertionError(
+                f"{entry.get('file')} 必须把对应 y 外侧大平面贴床，实际为 {entry.get('orientation_label')}"
+            )
 
 
 def main() -> int:

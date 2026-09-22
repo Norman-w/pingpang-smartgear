@@ -2,9 +2,12 @@
 """Export the generated KiCad boards as mechanical board/component models.
 
 The PCB generators remain the source of truth for the board outline, pads,
-nets and library 3D models.  This adapter creates stable STL/STEP artifacts
-for the OpenSCAD mechanical assembly and refuses to silently accept a board
-with no attached library models.
+nets and every PCB-mounted library 3D model, including the UI buttons, LEDs
+and USB-C receptacle. Off-board wire-connected parts such as the screen and
+speaker are supplied by the OpenSCAD mechanical assembly and are intentionally
+not part of a PCB export. This adapter creates stable STL/STEP artifacts for
+the OpenSCAD mechanical assembly and refuses to silently accept a board with
+no attached library models.
 """
 
 from __future__ import annotations
@@ -13,11 +16,14 @@ import argparse
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "3d" / "v0.2"
+OUTLINE_SCRIPT = HERE / "esp32-control-v0.1" / "generate_board_outline_scad.py"
+OUTLINE_OUTPUT = HERE / "esp32-control-v0.1" / "board-outline.scad"
 BOARDS = (
     HERE / "esp32-control-v0.1" / "esp32-control-v0.1.kicad_pcb",
     HERE / "daughter-boards-v0.2" / "m6-receiver-carrier-v0.2.kicad_pcb",
@@ -94,6 +100,27 @@ def export(cli: str, board: Path, output_dir: Path) -> None:
     print(f"EXPORTED {stem}: footprints={footprints} models={models}")
 
 
+def export_mechanical_outline(board: Path) -> None:
+    """Keep the tracked OpenSCAD pocket contour tied to KiCad Edge.Cuts."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(OUTLINE_SCRIPT),
+            "--board",
+            str(board),
+            "--output",
+            str(OUTLINE_OUTPUT),
+        ],
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"board outline export failed:\n{result.stdout}")
+    print(result.stdout.strip())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
@@ -103,6 +130,7 @@ def main() -> int:
         if not board.is_file():
             raise RuntimeError(f"missing board: {board}")
         export(cli, board, args.output_dir)
+    export_mechanical_outline(BOARDS[0])
     print(f"BOARD_MODELS_OK {args.output_dir}")
     return 0
 

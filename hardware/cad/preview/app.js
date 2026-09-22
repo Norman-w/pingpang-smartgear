@@ -95,7 +95,7 @@ const COLORS = {
 
 const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、12 mm 大径/4 mm 螺距 PETG 锥形粗牙螺杆和配套打印螺母固定在球台边缘；牙根和凹槽各约 2 mm，外侧锥尖约 0.4 mm，牙根为连续实体带；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，粗牙压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入 PCB；主控板由底部柱支撑，电池放在主控板器件层上方的第二层托位，避开底部柱体，不再压穿电池；x+ 外侧墙和 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装左右各一件正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色整根立柱坐在绿色顶面 z=16 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。固定网柱继续到按球头底座自动计算的顶端 z=260.5 mm；当前正式打印件就是这套接口，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
+  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色整根立柱坐在绿色顶面 z=16 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。固定网柱继续到按球头底座自动计算的顶端 z=260.5 mm；当前正式打印件就是这套接口，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
   { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
@@ -119,6 +119,8 @@ const ASSEMBLY_GROUPS = {
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
+// Keep the manifest/iframe cache key stable for the preview-consistency
+// contract; the app bundle itself is cache-busted by index.html.
 const PREVIEW_CACHE_BUSTER = "split-c-scheme-v11";
 
 const getVersionedUrl = (path, key = "v") => {
@@ -203,6 +205,11 @@ const state = {
     loadId: 0,
     raycaster: null,
     pointer: null,
+    // OrbitControls keeps running while STL files arrive.  Once the user
+    // touches the canvas, async completion and ordinary rerenders must not
+    // call fitThreeCamera and take the view back to a preset.
+    cameraInteracted: false,
+    cameraProgrammatic: false,
   },
 };
 
@@ -396,7 +403,6 @@ function sourcePrintableEntries() {
     "clamp_body_segment",
     "clamp_electronics_cover",
     "clamp_electronics_gasket",
-    "clamp_electronics_ui_bezel",
     "reference_carriage_body",
   ]);
   return entries.filter((entry) => entry && entry.file && entry.printable !== false
@@ -545,6 +551,7 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
   if (entry.part === "clamp_electronics_gasket") explosion = [0, -38, 7];
   if (entry.part === "clamp_electronics_cover") explosion = [0, -52, 14];
   if (entry.part === "clamp_electronics_ui_bezel") explosion = [0, -58, -4];
+  if (entry.part === "clamp_electronics_ui_retaining_frame") explosion = [0, -48, -4];
   if (entry.part === "clamp_body_half_user") explosion = [0, -86, 0];
   if (entry.part === "clamp_body_half_opponent") explosion = [0, 86, 0];
   if (entry.part === "net_clamp_clip") {
@@ -614,17 +621,17 @@ const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
   main: {
     file: "esp32-control-v0.1.stl",
     size: [86, 32, 5.84],
-    worldMin: [785.9, -13.5, -47.6],
+    worldMin: [792.9, -16, -36.4912],
     color: "#2f80ed",
     name: "ESP32-S3 主控板",
     sideLabel: "右侧电子腔",
     explosion: [0, 0, 12],
-    notes: "KiCad 导出的真实板级 3D 模型，包含主控、USB-C、连接器和板上器件包络。装配时先分开 y=0 两个 C 夹半体，再从分型面放入右侧整段电子仓并落在底部安装柱上；受保护电池位于主控板器件层上方的第二层托位，避开底部柱体；x+ 外侧墙和 boss 保持完整。爆炸时沿 z+ 拉出，仅用于检查板框、器件高度和维护空间。",
+    notes: "KiCad 导出的真实板级 3D 模型，包含主控、USB-C、连接器和板上器件包络。装配时先分开 y=0 两个 C 夹半体，把主板平放到任一半体的下承托唇上，让 x−/x+ 两端同时落入 [ / ] 夹件，再合上另一半完成夹持；不使用主板 boss、定位柱或伸入腔体的螺丝。受保护电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙与分型承力 boss 保持完整。爆炸时沿 z+ 拉出，仅用于检查板框、器件高度和维护空间。",
   },
   emitter: {
     file: "emitter-power-v0.2.stl",
     size: [68, 32, 5.84],
-    worldMin: [794.9, -16, -49.2],
+    worldMin: [802.9, -16, -35.8912],
     color: "#c94b63",
     name: "发射端电源子板",
     sideLabel: "左侧电子腔",
@@ -633,14 +640,14 @@ const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
   },
   ui: {
     file: "ui-panel-v0.2.stl",
-    size: [58, 28, 5.84],
-    worldMin: [799.9, -14, ELECTRONICS_UI_COVER_MOUNTED_Z],
+    size: [58, 28, 8.35],
+    worldMin: [806.9, 19.2, -12],
     color: "#48a0e8",
     name: "UI 交互子板",
-    sideLabel: "右侧 C 夹电子腔内侧",
-    stlTransform: { rotation: [0, ELECTRONICS_UI_COVER_ANGLE_Y, 0] },
+    sideLabel: "右侧 C 夹 y+ 侧壁",
+    stlTransform: { rotation: [-Math.PI / 2, 0, 0], mirrorY: true },
     explosion: [0, -58, -7],
-    notes: "KiCad 导出的真实 UI 子板 3D 模型。PCB/电池从 y=0 分型面装入，左右各一件正式打印的 y+ 交互面板压框锁到侧壁支柱；压框提供屏幕窗、按键浅凹面/1.6 mm plunger、0603 LED 直孔、扬声器窗和 USB-C 槽，不再使用旧的 UI 底盖。",
+        notes: "KiCad 导出的真实 UI 子板 3D 模型。PCB/电池从 y=0 分型面装入；y+ UI 采用外侧齐平填平板与腔内八孔搭接固定框两件式结构，8 枚 2 mm 蘑菇头自攻钉从腔内穿过外延 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，外侧不露螺钉且不使用正向 boss 柱。填平板提供屏幕窗、按键浅凹面/1.6 mm plunger、0603 LED 直孔、扬声器窗和 USB-C 槽，不再使用旧的 UI 底盖。",
   },
 });
 
@@ -2229,7 +2236,7 @@ function isRightUiFocusItem(item) {
   if (!item || item.side !== 1) return false;
   const part = item.sourceEntry?.part;
   return (item.group === "electronics" && String(item.id || "").includes("electronics:ui"))
-    || ["clamp_electronics_cover", "clamp_electronics_ui_bezel", "clamp_electronics_gasket"].includes(part);
+    || ["clamp_electronics_cover", "clamp_electronics_ui_bezel", "clamp_electronics_ui_retaining_frame", "clamp_electronics_gasket"].includes(part);
 }
 
 function isRightConnectionFocusItem(item) {
@@ -2669,7 +2676,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只沿真实 x 向推入方向改变显示位置；绿色底座在爆炸归零时进入固定灰色 C 夹让位腔，黄色立柱保持原 z 坐标并坐在绿色顶面 z=16 mm。两枚 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位；网布/卡夹功能区到 z=168.5 mm，固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从绿色顶面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的整根黄色固定网柱与夹体分开打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入 PCB；主控板由底部柱支撑，电池放在主控板器件层上方的第二层托位，避开底部柱体，不再压穿电池；x+ 外侧墙和 boss 保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱从绿色顶面 z=16 mm 一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的整根黄色固定网柱与夹体分开打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入主控 PCB，板形让位来自 KiCad Edge.Cuts，板边由 x−/[ 与 x+/] 两个端部 C 形夹件夹持，不再使用主板底部柱、定位柱或主板螺丝；电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙和 boss 保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱从绿色顶面 z=16 mm 一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     if (state.laserEnabled) {
       refs.modelTitle.textContent = state.assembly.focusPreset === "laserArray" ? "裸激光十路夹座 · 原球头粗调"
@@ -3227,9 +3234,15 @@ function assemblyCameraFitScale() {
   return FOCUS_PRESETS[state.assembly.focusPreset]?.distanceScale || FOCUS_PRESETS.global.distanceScale;
 }
 
-function fitThreeCamera(filter = null, preset = null, distanceScale = 1.9) {
+function fitThreeCamera(filter = null, preset = null, distanceScale = 1.9, options = {}) {
   const { THREE, camera, controls, modelRoot } = state.three;
   if (!THREE || !camera || !controls || !modelRoot || !modelRoot.children.length) return;
+  const force = Boolean(options.force);
+  // A late STL completion, hover rerender, or mode refresh is not an
+  // instruction to change the user's camera.  Explicit view/fit/focus
+  // controls pass force:true; the initial load is also allowed before the
+  // first pointer interaction.
+  if (state.three.cameraInteracted && !force) return false;
   const isAssemblyView = state.uiMode === "assembly" || state.uiMode === "exploded";
   const selectedPreset = preset && VIEW_PRESETS[preset]
     ? preset
@@ -3246,18 +3259,24 @@ function fitThreeCamera(filter = null, preset = null, distanceScale = 1.9) {
   const maxDimension = Math.max(size.x, size.y, size.z, 1);
   const distance = maxDimension * distanceScale;
   const direction = new THREE.Vector3(...view.direction).normalize();
-  camera.up.set(...view.up);
-  camera.position.copy(center).addScaledVector(direction, distance);
-  camera.near = Math.max(0.1, maxDimension / 1000);
-  camera.far = Math.max(5000, maxDimension * 10);
-  resizeCadCamera(camera,refs.modelHost.clientWidth,refs.modelHost.clientHeight,
-    distance*Math.tan(THREE.MathUtils.degToRad(21)),true);
-  controls.target.copy(center);
-  controls.update();
+  state.three.cameraProgrammatic = true;
+  try {
+    camera.up.set(...view.up);
+    camera.position.copy(center).addScaledVector(direction, distance);
+    camera.near = Math.max(0.1, maxDimension / 1000);
+    camera.far = Math.max(5000, maxDimension * 10);
+    resizeCadCamera(camera,refs.modelHost.clientWidth,refs.modelHost.clientHeight,
+      distance*Math.tan(THREE.MathUtils.degToRad(21)),true);
+    controls.target.copy(center);
+    controls.update();
+  } finally {
+    state.three.cameraProgrammatic = false;
+  }
   if (isAssemblyView) {
     state.assembly.viewPreset = selectedPreset;
     setViewPresetActive(selectedPreset);
   }
+  return true;
 }
 
 function applyViewPreset(preset) {
@@ -3265,7 +3284,7 @@ function applyViewPreset(preset) {
   if (state.uiMode !== "assembly" && state.uiMode !== "exploded") return;
   // The quick view should respect an already selected M6 or SKP close-up, but
   // otherwise frame all currently visible objects, including the explosion.
-  fitThreeCamera(assemblyCameraFilter(), preset, assemblyCameraFitScale());
+  fitThreeCamera(assemblyCameraFilter(), preset, assemblyCameraFitScale(), {force: true});
 }
 
 function clearLegacyFocusModes() {
@@ -3320,7 +3339,7 @@ function applyFocusPreset(preset) {
   setFocusPresetActive(preset);
   updateAssemblyScene();
   render();
-  fitThreeCamera(config.filter, config.cameraPreset, config.distanceScale);
+  fitThreeCamera(config.filter, config.cameraPreset, config.distanceScale, {force: true});
 }
 
 function fitM6OrientationCamera() {
@@ -3353,6 +3372,7 @@ function fitM6OrientationCamera() {
     state.assembly.focusM6 ? isM6FocusItem : null,
     state.assembly.focusM6 ? "m6" : "iso",
     state.assembly.focusM6 ? FOCUS_PRESETS.m6.distanceScale : FOCUS_PRESETS.global.distanceScale,
+    {force: true},
   );
   if (state.assembly.focusM6 && state.three.camera && state.three.controls) {
     // Use a rear elevation for the check: x reads left-to-right on screen,
@@ -3401,6 +3421,7 @@ function fitSkpCandidateCamera() {
     nextFocus ? isSkpCandidateItem : null,
     nextFocus ? "connection" : "iso",
     nextFocus ? FOCUS_PRESETS.connection.distanceScale : FOCUS_PRESETS.global.distanceScale,
+    {force: true},
   );
   if (nextFocus && state.three.camera && state.three.controls) {
     // The side elevation makes the candidate's x-direction 15 mm extension,
@@ -4009,6 +4030,13 @@ async function loadAssemblyModel() {
   const { THREE } = state.three;
   if (state.uiMode === "assembly") state.assembly.explode = 0;
   const requestId = ++state.three.loadId;
+  // This load is an explicit model/mode refresh.  Start a fresh camera
+  // lifecycle so the initial proxy fit is allowed, then let any interaction
+  // during the STL download take ownership of the camera.
+  state.three.cameraInteracted = false;
+  // STL meshes arrive asynchronously.  Reset this marker for the new load;
+  // the proxy pass below establishes an immediate camera, and a later user
+  // orbit must win over the final STL-completion fit.
   clearThreeModel();
   state.assembly.items = buildAssemblyItems();
   state.assembly.loadError = null;
@@ -4017,6 +4045,12 @@ async function loadAssemblyModel() {
   for (const item of state.assembly.items.filter((candidate) => candidate.shape !== "stl")) {
     createAssemblyProxy(THREE, item);
   }
+  // Fit the proxy geometry before waiting on STL downloads.  This makes the
+  // canvas usable immediately and gives OrbitControls a meaningful target.
+  updateAssemblyScene();
+  fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale(), {force: true});
+  const proxyCameraPosition = state.three.camera.position.clone();
+  const proxyCameraTarget = state.three.controls.target.clone();
   await Promise.all(state.assembly.items.filter((item) => item.shape === "stl").map(async (item) => {
     try {
       const geometry = await loadGeometry(item.sourcePath);
@@ -4034,6 +4068,10 @@ async function loadAssemblyModel() {
       if (item.stlTransform?.mirrorX) {
         mesh.scale.x = -1;
         if (item.stlTransform.mirrorAroundBounds) mesh.position.x = geometry.boundingBox.max.x;
+      }
+      if (item.stlTransform?.mirrorY) {
+        mesh.scale.y = -1;
+        mesh.position.y = geometry.boundingBox.max.y;
       }
       const group = new THREE.Group();
       group.position.set(...item.baseMin);
@@ -4053,7 +4091,17 @@ async function loadAssemblyModel() {
     ? `装配预览已载入，但有 ${failures.length} 个 STL 读取失败；非打印占位仍可检查。`
     : "装配预览已载入；鼠标悬停查看中文名称，点击零件查看材料和装配说明。";
   updateAssemblyScene();
-  fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale());
+  // Do not snap back to the proxy fit if the user started orbiting while the
+  // remaining STL files were downloading. Compare the actual transform rather
+  // than relying only on a pointer event, because browsers differ in the
+  // ordering of OrbitControls start/change events. A later explicit view/focus
+  // button still calls fitThreeCamera and intentionally re-frames the scene.
+  const cameraStillAtProxyFit =
+    state.three.camera.position.distanceTo(proxyCameraPosition) < 1e-4 &&
+    state.three.controls.target.distanceTo(proxyCameraTarget) < 1e-4;
+  if (!state.three.cameraInteracted && cameraStillAtProxyFit) {
+    fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale());
+  }
   renderAssemblyGuide();
 }
 
@@ -4125,12 +4173,13 @@ async function loadModel() {
       await loadAssemblyModel();
     } else {
       updateAssemblyScene();
-      fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale());
+      fitThreeCamera(assemblyCameraFilter(), null, assemblyCameraFitScale(), {force: true});
     }
     return;
   }
   const plate = currentPlate();
   const requestId = ++state.three.loadId;
+  state.three.cameraInteracted = false;
   clearThreeModel();
   refs.modelPlaceholder.hidden = false;
 
@@ -4233,6 +4282,16 @@ async function initThree() {
     state.three.globalAxes = axes;
     state.three.raycaster = new THREE.Raycaster();
     state.three.pointer = new THREE.Vector2();
+    const markCameraInteraction = () => {
+      if (!state.three.cameraProgrammatic) state.three.cameraInteracted = true;
+    };
+    // OrbitControls emits start/end in the normal path.  The canvas-level
+    // listeners cover browsers that deliver a pointer event without the
+    // corresponding OrbitControls start event, and also lock zoom/pan.
+    controls.addEventListener("start", markCameraInteraction);
+    controls.addEventListener("end", markCameraInteraction);
+    renderer.domElement.addEventListener("pointerdown", markCameraInteraction, {capture: true});
+    renderer.domElement.addEventListener("wheel", markCameraInteraction, {capture: true, passive: true});
     scene.add(state.three.modelRoot);
     state.three.ready = true;
     resizeThree();
@@ -4436,7 +4495,7 @@ refs.resetButton.addEventListener("click", () => {
 });
 refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
-refs.fitModel.addEventListener("click", () => fitThreeCamera());
+refs.fitModel.addEventListener("click", () => fitThreeCamera(null, null, 1.9, {force: true}));
 refs.fitM6?.addEventListener("click", fitM6OrientationCamera);
 refs.fitSkp?.addEventListener("click", fitSkpCandidateCamera);
 refs.focusPresetButtons.forEach((button) => {

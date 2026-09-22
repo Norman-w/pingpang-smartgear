@@ -40,6 +40,7 @@ PARTS = (
     "clamp_electronics_gasket",
     "clamp_electronics_ui_panel",
     "clamp_electronics_ui_bezel",
+    "clamp_electronics_ui_retaining_frame",
     "clamp_electronics_emitter_preview",
     "clamp_electronics_system_preview",
     "clamp_electronics_full_cutaway",
@@ -234,6 +235,50 @@ def _stl_topology(path: Path, tolerance: float = 1e-6) -> tuple[bool, str]:
     return ok, details
 
 
+def _stl_component_count(path: Path, tolerance: float = 1e-6) -> int:
+    """Return the number of edge-connected solids in an STL mesh."""
+
+    triangles = _stl_triangles(path)
+    if not triangles:
+        return 0
+
+    def vertex_key(point: tuple[float, float, float]) -> tuple[int, int, int]:
+        return tuple(int(round(value / tolerance)) for value in point)
+
+    edge_to_triangles: dict[
+        tuple[tuple[int, int, int], tuple[int, int, int]], list[int]
+    ] = {}
+    for index, triangle in enumerate(triangles):
+        keys = tuple(vertex_key(point) for point in triangle)
+        for start, end in (
+            (keys[0], keys[1]),
+            (keys[1], keys[2]),
+            (keys[2], keys[0]),
+        ):
+            edge = tuple(sorted((start, end)))
+            edge_to_triangles.setdefault(edge, []).append(index)
+
+    adjacency: list[set[int]] = [set() for _ in triangles]
+    for connected in edge_to_triangles.values():
+        for index in connected:
+            adjacency[index].update(
+                other for other in connected if other != index
+            )
+
+    unseen = set(range(len(triangles)))
+    components = 0
+    while unseen:
+        components += 1
+        stack = [unseen.pop()]
+        while stack:
+            index = stack.pop()
+            for other in adjacency[index]:
+                if other in unseen:
+                    unseen.remove(other)
+                    stack.append(other)
+    return components
+
+
 def _stl_volume_from_triangles(
     triangles: list[tuple[tuple[float, float, float], ...]]
 ) -> float:
@@ -330,8 +375,8 @@ def validate_electronics_interference_probes(
     """Require the electronics collision PARTs to stay geometrically empty.
 
     OpenSCAD omits an STL and exits with code 1 for an empty intersection. That
-    is the intended pass state here; a non-empty STL means a board, proxy, or
-    structural shell has positive-volume penetration.
+    is the intended pass state here; a non-empty STL means a board, canonical
+    component solid, or structural shell has positive-volume penetration.
     """
 
     collision_parts = (
@@ -339,6 +384,9 @@ def validate_electronics_interference_probes(
         "clamp_electronics_emitter_interference_check",
         "clamp_electronics_ui_internal_interference_check",
         "clamp_electronics_ui_proxy_board_collision",
+        "clamp_electronics_board_end_bracket_main_board_collision",
+        "clamp_electronics_emitter_clip_board_collision",
+        "clamp_split_boss_main_board_collision",
     )
     for part in collision_parts:
         output = output_dir / f"{part}.stl"
@@ -363,8 +411,20 @@ def validate_electronics_interference_probes(
     )
     if "UI_PROXY_LAYOUT_OK" not in layout_result.stdout:
         raise RuntimeError(
-            "UI proxy layout did not satisfy the faceplate clearance contract:\n"
+            "UI component layout did not satisfy the faceplate clearance contract:\n"
             f"{layout_result.stdout}"
+        )
+
+    alignment_output = output_dir / "clamp_electronics_ui_component_alignment_check.stl"
+    alignment_result = run_openscad(
+        openscad,
+        alignment_output,
+        'PART="clamp_electronics_ui_component_alignment_check"',
+    )
+    if "UI_COMPONENT_ALIGNMENT_OK" not in alignment_result.stdout:
+        raise RuntimeError(
+            "SCAD electronics component alignment contract failed:\n"
+            f"{alignment_result.stdout}"
         )
 
 
@@ -430,7 +490,10 @@ def validate_no_drill_thickness(
     knob_nut_stack_depth: float,
     body_nut_z: float,
     body_nut_top_z: float,
-    guard_post_h: float,
+    pressure_pad_t: float,
+    retainer_h: float,
+    retainer_top_clearance_z: float,
+    retainer_outer_d: float,
 ) -> None:
     """Compile the under-table pressure path for a first-pass thickness matrix."""
 
@@ -498,17 +561,30 @@ def validate_no_drill_thickness(
     knob_bounds = stl_bounds(knob)
     knob_nut_bounds = stl_bounds(knob_nut)
     tabletop_bottom = -float(table_thickness)
+    pad_body_bottom_z = pad_bounds[5] - pressure_pad_t
+    retainer_top_z = pad_body_bottom_z - retainer_top_clearance_z
+    retainer_bottom_z = retainer_top_z - retainer_h
+    guard_components = _stl_component_count(guard)
+    if guard_components != 1:
+        raise RuntimeError(
+            "pressure pad retainer is not one connected printed part: "
+            f"components={guard_components}"
+        )
     if not (
         top_pad_bounds[4] >= -0.01
         and top_pad_bounds[5] <= top_pad_t + 0.01
         and pad_bounds[5] < tabletop_bottom
         and screw_bounds[5] < tabletop_bottom
-        and screw_bounds[5] <= pad_bounds[4] + pressure_pad_socket_depth + 0.01
+        and screw_bounds[5] <= pad_body_bottom_z + pressure_pad_socket_depth + 0.01
         and printed_screw_bounds[5] < tabletop_bottom
-        and printed_screw_bounds[5] <= pad_bounds[4] + pressure_pad_socket_depth + 0.01
+        and printed_screw_bounds[5] <= pad_body_bottom_z + pressure_pad_socket_depth + 0.01
         and guard_bounds[2] < guard_bounds[3]
-        and guard_bounds[4] < pad_bounds[4]
-        and guard_bounds[5] <= pad_bounds[4] + guard_post_h + 0.01
+        and guard_bounds[4] < pad_body_bottom_z
+        and abs(guard_bounds[4] - retainer_bottom_z) < 0.01
+        and abs(guard_bounds[5] - retainer_top_z) < 0.01
+        and abs(
+            (guard_bounds[1] - guard_bounds[0]) - retainer_outer_d
+        ) < 0.02
         and body_nut_bounds[5] < tabletop_bottom
         and body_nut_bounds[4] >= body_nut_z - 0.01
         and body_nut_bounds[5] <= body_nut_top_z + 0.01
@@ -611,11 +687,72 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_split_seam_gap_y",
         "clamp_split_boss_d",
         "clamp_split_boss_depth_y",
+        "clamp_split_lower_boss_d",
+        "clamp_split_lower_boss_board_clearance_z",
+        "clamp_split_lower_boss_drop_z",
+        "clamp_split_lower_right_x",
+        "clamp_split_lower_right_z",
+        "clamp_split_lower_left_x",
+        "clamp_split_lower_left_z",
         "clamp_split_boss_min_cavity_overlap_x",
         "clamp_split_fastener_d",
         "clamp_split_fastener_head_d",
+        "clamp_split_fastener_head_depth_y",
+        "clamp_split_fastener_label_size",
+        "clamp_split_fastener_label_height",
+        "clamp_split_fastener_label_offset_x",
+        "clamp_split_fastener_label_pocket_depth_y",
+        "clamp_split_fastener_label_floor_overlap_y",
         "clamp_split_nut_af",
-        "clamp_electronics_mount_boss_floor_clearance_z",
+        "clamp_split_nut_depth_y",
+        "clamp_split_nut_clearance",
+        "clamp_electronics_cavity_floor_t",
+        "clamp_electronics_cavity_top_z",
+        "clamp_electronics_assembly_z_shift",
+        "clamp_electronics_cavity_y_half",
+        "clamp_electronics_board_bottom_z",
+        "clamp_electronics_board_width_y",
+        "clamp_electronics_main_board_y_shift",
+        "clamp_electronics_main_board_wall_clearance_y",
+        "clamp_electronics_board_bracket_clearance_xy",
+        "clamp_electronics_board_bracket_clearance_z",
+        "clamp_electronics_board_bracket_lower_lip_below_z",
+        "clamp_electronics_board_bracket_lower_lip_t_z",
+        "clamp_electronics_board_bracket_upper_lip_gap_z",
+        "clamp_electronics_board_bracket_upper_lip_t_z",
+        "clamp_electronics_board_bracket_root_overlap_x",
+        "clamp_electronics_board_bracket_wall_overlap_x",
+        "clamp_electronics_board_bracket_edge_overlap_x",
+        "clamp_electronics_board_bracket_y_overrun",
+        "clamp_electronics_board_support_floor_clearance_z",
+        "clamp_electronics_emitter_clip_top_clearance_z",
+        "clamp_electronics_ui_side_board_plane_y",
+        "clamp_electronics_ui_side_board_z_min",
+        "clamp_electronics_ui_side_panel_inward_shift_y",
+        "clamp_electronics_ui_mount_root_overlap_y",
+        "clamp_electronics_ui_mount_thread_engagement_y",
+        "clamp_electronics_ui_side_window_border",
+        "clamp_electronics_ui_insert_panel_border",
+        "clamp_electronics_ui_insert_panel_t",
+        "clamp_electronics_ui_panel_outer_local_z",
+        "clamp_electronics_ui_panel_inner_local_z",
+        "clamp_electronics_ui_panel_seat_gap_z",
+        "clamp_electronics_ui_retaining_frame_outer_border",
+        "clamp_electronics_ui_retaining_frame_inner_border",
+        "clamp_electronics_ui_retaining_frame_window_clearance",
+        "clamp_electronics_ui_retaining_frame_t",
+        "clamp_electronics_ui_retaining_frame_hole_d",
+        "clamp_electronics_ui_retaining_frame_min_edge_land",
+        "clamp_electronics_ui_wall_pilot_d",
+        "clamp_electronics_ui_wall_pilot_floor_t",
+        "clamp_electronics_ui_mount_boss_d",
+        "clamp_electronics_ui_mount_pilot_d",
+        "clamp_electronics_ui_mount_screw_nominal_d",
+        "clamp_electronics_ui_mount_boss_height",
+        "clamp_electronics_ui_mount_pilot_floor_t",
+        "clamp_electronics_faceplate_t",
+        "clamp_reinforcement_start_x",
+        "clamp_reinforcement_end_x",
         "clamp_pad_outer_x",
         "clamp_outer_wall_x",
         "clamp_horizontal_part_outboard_limit",
@@ -629,6 +766,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_printed_thread_major_d",
         "clamp_printed_thread_core_d",
         "clamp_printed_thread_pitch",
+        "clamp_printed_thread_band_tangent_width",
         "clamp_printed_thread_clearance_r",
         "clamp_printed_thread_nut_af",
         "clamp_printed_thread_body_nut_h",
@@ -687,6 +825,35 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_pressure_pad_screw_socket_depth",
         "clamp_pressure_pad_screw_socket_mouth_d",
         "clamp_pressure_pad_screw_socket_chamfer_h",
+        "clamp_pressure_pad_ball_clearance_r",
+        "clamp_pressure_pad_ball_clearance_z",
+        "clamp_pressure_pad_socket_housing_root_d",
+        "clamp_pressure_pad_socket_housing_major_d",
+        "clamp_pressure_pad_socket_housing_bottom_offset_z",
+        "clamp_pressure_pad_socket_housing_h",
+        "clamp_pressure_pad_socket_cavity_depth_z",
+        "clamp_pressure_pad_socket_thread_pitch",
+        "clamp_pressure_pad_socket_thread_clearance_r",
+        "clamp_pressure_pad_socket_thread_start_offset_z",
+        "clamp_pressure_pad_socket_thread_length_z",
+        "clamp_pressure_pad_retainer_outer_d",
+        "clamp_pressure_pad_retainer_h",
+        "clamp_pressure_pad_retainer_top_clearance_z",
+        "clamp_pressure_pad_retainer_thread_start_offset_z",
+        "clamp_pressure_pad_retainer_thread_length_z",
+        "clamp_pressure_pad_retainer_thread_tangent_width",
+        "clamp_pressure_pad_retainer_transition_h",
+        "clamp_pressure_pad_retainer_transition_outer_d",
+        "clamp_pressure_pad_retainer_thread_root_clear_d",
+        "clamp_pressure_pad_retainer_thread_major_clear_d",
+        "clamp_pressure_pad_retainer_lip_inner_d",
+        "clamp_pressure_pad_retainer_lip_inner_top_d",
+        "clamp_pressure_pad_retainer_lip_outer_d",
+        "clamp_pressure_pad_retainer_lip_h",
+        "clamp_pressure_pad_retainer_top_z",
+        "clamp_pressure_pad_retainer_bottom_z",
+        "clamp_pressure_pad_retainer_lip_bottom_z",
+        "clamp_pressure_pad_retainer_lip_top_z",
         "clamp_pressure_pad_guard_outer_d",
         "clamp_pressure_pad_guard_inner_d",
         "clamp_pressure_pad_guard_t",
@@ -1815,6 +1982,7 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
             - (
                 parameters["clamp_pressure_pad_bottom_z"]
                 + parameters["clamp_pressure_pad_screw_socket_depth"]
+                - parameters["clamp_pressure_pad_ball_clearance_z"]
             )
         ) < 0.01
         and parameters["clamp_pressure_pad_d"]
@@ -1840,6 +2008,72 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         > parameters["clamp_pressure_pad_guard_inner_d"]
         and parameters["clamp_pressure_pad_guard_inner_d"]
         > parameters["clamp_printed_screw_shaft_d"]
+        and abs(
+            parameters["clamp_pressure_pad_screw_socket_d"]
+            - (
+                parameters["clamp_printed_screw_head_d"]
+                + 2 * parameters["clamp_pressure_pad_ball_clearance_r"]
+            )
+        )
+        < 0.01
+        and parameters["clamp_pressure_pad_socket_housing_major_d"]
+        > parameters["clamp_pressure_pad_socket_housing_root_d"]
+        > parameters["clamp_pressure_pad_screw_socket_d"]
+        and parameters["clamp_pressure_pad_socket_housing_h"]
+        >= parameters["clamp_pressure_pad_socket_cavity_depth_z"]
+        and parameters["clamp_pressure_pad_socket_thread_length_z"]
+        >= parameters["clamp_pressure_pad_socket_thread_pitch"]
+        and parameters["clamp_pressure_pad_retainer_outer_d"]
+        > parameters["clamp_pressure_pad_retainer_thread_major_clear_d"] + 5
+        and parameters["clamp_pressure_pad_retainer_h"]
+            > parameters["clamp_pressure_pad_retainer_lip_h"]
+        and parameters["clamp_pressure_pad_retainer_h"]
+            > parameters["clamp_pressure_pad_retainer_transition_h"]
+        and parameters["clamp_pressure_pad_retainer_thread_start_offset_z"]
+            > parameters["clamp_pressure_pad_retainer_transition_h"]
+        and parameters["clamp_pressure_pad_retainer_thread_length_z"]
+            >= parameters["clamp_pressure_pad_socket_thread_pitch"]
+        and parameters["clamp_pressure_pad_retainer_thread_tangent_width"]
+            > parameters["clamp_printed_thread_band_tangent_width"]
+        and abs(
+            parameters["clamp_pressure_pad_retainer_bottom_z"]
+            + parameters["clamp_pressure_pad_retainer_thread_start_offset_z"]
+            - (
+                parameters["clamp_pressure_pad_bottom_z"]
+                - parameters["clamp_pressure_pad_socket_housing_bottom_offset_z"]
+                + parameters["clamp_pressure_pad_socket_thread_start_offset_z"]
+            )
+        ) < 0.01
+        and parameters["clamp_pressure_pad_retainer_transition_outer_d"]
+            > parameters["clamp_pressure_pad_retainer_thread_root_clear_d"]
+        and parameters["clamp_pressure_pad_retainer_bottom_z"]
+            + parameters["clamp_pressure_pad_retainer_transition_h"]
+            < parameters["clamp_pressure_pad_bottom_z"]
+            - parameters["clamp_pressure_pad_socket_housing_bottom_offset_z"]
+            - 0.1
+        and parameters["clamp_pressure_pad_retainer_thread_root_clear_d"]
+        > parameters["clamp_pressure_pad_socket_housing_root_d"]
+        and parameters["clamp_pressure_pad_retainer_thread_major_clear_d"]
+        > parameters["clamp_pressure_pad_socket_housing_major_d"]
+        and parameters["clamp_pressure_pad_retainer_lip_inner_d"]
+        > parameters["clamp_printed_screw_shaft_d"]
+        and parameters["clamp_pressure_pad_retainer_lip_inner_d"]
+        < parameters["clamp_printed_screw_head_d"]
+        and parameters["clamp_pressure_pad_retainer_lip_inner_top_d"]
+        > parameters["clamp_pressure_pad_retainer_lip_inner_d"]
+        and parameters["clamp_pressure_pad_retainer_lip_inner_top_d"]
+        < parameters["clamp_pressure_pad_retainer_lip_outer_d"]
+        and parameters["clamp_pressure_pad_retainer_lip_outer_d"]
+        < parameters["clamp_pressure_pad_screw_socket_d"]
+        and parameters["clamp_pressure_pad_retainer_bottom_z"]
+        < parameters["clamp_pressure_pad_retainer_lip_bottom_z"]
+        < parameters["clamp_pressure_pad_retainer_lip_top_z"]
+        and parameters["clamp_pressure_pad_retainer_lip_top_z"]
+            <= parameters["clamp_screw_top_z"]
+            - parameters["clamp_printed_screw_head_h"]
+            - 0.19
+        < parameters["clamp_pressure_pad_retainer_top_z"]
+        < parameters["clamp_pressure_pad_bottom_z"]
     ):
         raise RuntimeError(f"coarse printed clamp pressure path is inconsistent: {parameters}")
     if not (
@@ -2266,6 +2500,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     bottom_gasket_module = module_text("m6_detector_bottom_gasket_positive()")
     direct_mount_module = module_text("m6_detector_direct_mount_positive()")
     table_clamp_body_module = module_text("table_clamp_body_positive()")
+    cavity_module = module_text("clamp_electronics_cavity_negative()")
     table_clamp_raw_module = module_text("table_clamp_raw_positive()")
     clamp_body_segment_module = module_text("clamp_body_segment_positive()")
     clamp_carrier_module = module_text("table_clamp_carrier_positive()")
@@ -2347,12 +2582,12 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "clamp_electronics_cavity_negative();" not in table_clamp_body_module
         or "if (clamp_slide_interface_enabled)" not in table_clamp_body_module
         or "net_passage_negative_positive();" in table_clamp_body_module
-        or "clamp_electronics_board_standoffs_positive();" not in table_clamp_body_module
+        or "clamp_electronics_main_board_end_bracket_capture_positive();" not in table_clamp_body_module
+        or "clamp_electronics_main_board_pocket_negative();" not in cavity_module
         or "clamp_electronics_emitter_edge_clips_positive();" not in table_clamp_body_module
         or "clamp_electronics_battery_rails_positive();" not in table_clamp_body_module
         or "clamp_solid_tapered_reinforcement_positive();" not in table_clamp_raw_module
         or "clamp_solid_outboard_bridge_positive();" not in table_clamp_raw_module
-        or "clamp_electronics_mount_bosses_positive();" in table_clamp_raw_module
         or "table_clamp_body_positive();" not in clamp_body_segment_module
         or "post_skp_leg_foot_c_fit_tool_positive();" not in clamp_body_segment_module
         or "post_skp_c_detent_bore_negative_positive();" not in clamp_body_segment_module
@@ -3062,6 +3297,58 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         )
 
 
+def validate_split_fastener_label_contract(parameters: dict[str, float]) -> None:
+    """Keep the nine split-joint identification digits printable and hidden."""
+
+    source_text = SOURCE.read_text(encoding="utf-8")
+    required_fragments = (
+        "module clamp_split_fastener_label_recess_negative_positive(y_side)",
+        "module clamp_split_fastener_labels_positive(y_side)",
+        "text(str(index + 1)",
+        "clamp_split_fastener_label_recess_negative_positive(y_side);",
+        "clamp_split_fastener_labels_positive(y_side);",
+        "label_rotation = y_side < 0 ? [-90, 0, 0] : [90, 0, 0];",
+    )
+    if any(fragment not in source_text for fragment in required_fragments):
+        raise RuntimeError(
+            "split-joint label source is incomplete: numbered positive digits must be "
+            "defined and called after the hidden split-face recess"
+        )
+
+    label_size = parameters["clamp_split_fastener_label_size"]
+    label_height = parameters["clamp_split_fastener_label_height"]
+    label_offset = parameters["clamp_split_fastener_label_offset_x"]
+    recess_depth = parameters["clamp_split_fastener_label_pocket_depth_y"]
+    floor_overlap = parameters["clamp_split_fastener_label_floor_overlap_y"]
+    head_d = parameters["clamp_split_fastener_head_d"]
+    nut_radius = (
+        parameters["clamp_split_nut_af"]
+        + 2 * parameters["clamp_split_nut_clearance"]
+    ) / (2 * math.cos(math.radians(30)))
+    seam_half_gap = parameters["clamp_split_seam_gap_y"] / 2
+    user_floor_y = -seam_half_gap - recess_depth
+    opponent_floor_y = seam_half_gap + recess_depth
+    user_digit_top_y = user_floor_y - floor_overlap + label_height
+    opponent_digit_top_y = opponent_floor_y + floor_overlap - label_height
+    if not (
+        2.0 <= label_size <= 5.0
+        and 0.30 <= label_height <= 0.80
+        and 0.50 <= recess_depth <= 1.20
+        and 0.0 <= floor_overlap <= 0.10
+        and label_offset - label_size / 2
+        >= max(head_d, 2 * nut_radius) / 2 + 0.2
+        and user_digit_top_y <= -seam_half_gap - 0.20
+        and opponent_digit_top_y >= seam_half_gap + 0.20
+    ):
+        raise RuntimeError(
+            "split-joint labels must be raised, pocket-floor mounted, and clear of "
+            f"the M5 head/nut envelope: size={label_size}, height={label_height}, "
+            f"offset={label_offset}, recess_depth={recess_depth}, "
+            f"user_floor_y={user_floor_y}, opponent_floor_y={opponent_floor_y}, "
+            f"user_digit_top_y={user_digit_top_y}, opponent_digit_top_y={opponent_digit_top_y}"
+        )
+
+
 def validate_net_retention_contract(parameters: dict[str, float]) -> None:
     """Validate the real net passage, sliding U clip, and passive keeper."""
 
@@ -3316,6 +3603,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="pingpang-smartgear-net-stand-") as directory:
         output_dir = Path(directory)
         parameters = probe_parameters(openscad, output_dir)
+        validate_split_fastener_label_contract(parameters)
         validate_current_m6_contract(parameters)
         validate_net_retention_contract(parameters)
         validate_post_clamp_slide_path(openscad, output_dir, parameters)
@@ -3402,6 +3690,7 @@ def main() -> None:
             "clamp_electronics_gasket",
             "clamp_electronics_ui_panel",
             "clamp_electronics_ui_bezel",
+    "clamp_electronics_ui_retaining_frame",
             "clamp_electronics_emitter_preview",
             "clamp_electronics_full_cutaway",
             "clamp_electronics_exploded",
@@ -3542,14 +3831,157 @@ def main() -> None:
                 f"cover={electronics_cover_bounds}, cavity="
                 f"({cavity_x_min}, {cavity_x_max}, +/-{cavity_y_half})"
             )
+        end_margin_x = (
+            parameters["clamp_electronics_cavity_length_x"]
+            - parameters["clamp_electronics_board_length_x"]
+        ) / 2
         if not (
-            0 < parameters["clamp_electronics_mount_boss_floor_clearance_z"]
-            < parameters["clamp_electronics_cavity_floor_t"]
+            parameters["clamp_electronics_board_bracket_clearance_xy"] >= 0.2
+            and parameters["clamp_electronics_board_bracket_clearance_z"] >= 0.15
+            and parameters["clamp_electronics_board_bracket_lower_lip_below_z"] >= 0.6
+            and parameters["clamp_electronics_board_bracket_lower_lip_below_z"]
+            - parameters["clamp_electronics_board_bracket_lower_lip_t_z"]
+            >= parameters["clamp_electronics_board_bracket_clearance_z"]
+            and parameters["clamp_electronics_board_bracket_upper_lip_gap_z"] >= 0.2
+            and parameters["clamp_electronics_board_bracket_upper_lip_t_z"] >= 0.8
+            and parameters["clamp_electronics_board_bracket_root_overlap_x"] >= 3.0
+            and parameters["clamp_electronics_board_bracket_root_overlap_x"]
+            < end_margin_x
+            and parameters["clamp_electronics_board_bracket_wall_overlap_x"] > 0
+            and 0.3
+            <= parameters["clamp_electronics_board_bracket_edge_overlap_x"]
+            < end_margin_x
+            and parameters["clamp_electronics_board_bracket_y_overrun"] >= 0
+            and parameters["clamp_electronics_board_width_y"] / 2
+            + parameters["clamp_electronics_board_bracket_y_overrun"]
+            < cavity_y_half
         ):
             raise RuntimeError(
-                "electronics side-wall boss roots must stay above the sloped outer skin: "
-                f"clearance={parameters['clamp_electronics_mount_boss_floor_clearance_z']}, "
-                f"floor_t={parameters['clamp_electronics_cavity_floor_t']}"
+                "PCB end brackets must leave printable board clearance and a rooted two-lip capture: "
+                f"clearance_xy={parameters['clamp_electronics_board_bracket_clearance_xy']}, "
+                f"clearance_z={parameters['clamp_electronics_board_bracket_clearance_z']}, "
+                f"wall_overlap={parameters['clamp_electronics_board_bracket_wall_overlap_x']}"
+            )
+        if not (
+            0 <= parameters["clamp_electronics_emitter_clip_top_clearance_z"]
+            <= 0.8
+        ):
+            raise RuntimeError(
+                "emitter PCB clips must end at or below the board underside: "
+                f"clearance={parameters['clamp_electronics_emitter_clip_top_clearance_z']}"
+            )
+        board_y_min = (
+            parameters["clamp_electronics_main_board_y_shift"]
+            - parameters["clamp_electronics_board_width_y"]
+        )
+        board_y_max = parameters["clamp_electronics_main_board_y_shift"]
+        wall_clearance_y = parameters[
+            "clamp_electronics_main_board_wall_clearance_y"
+        ]
+        if not (
+            wall_clearance_y > 0
+            and board_y_min >= -cavity_y_half + wall_clearance_y - 0.01
+            and board_y_max <= cavity_y_half - wall_clearance_y + 0.01
+        ):
+            raise RuntimeError(
+                "main PCB must be centered inside the electronics cavity: "
+                f"board_y=({board_y_min}, {board_y_max}), cavity=+/-{cavity_y_half}, "
+                f"wall_clearance={wall_clearance_y}"
+            )
+        ui_plane_y = parameters["clamp_electronics_ui_side_board_plane_y"]
+        ui_shift_y = parameters["clamp_electronics_ui_side_panel_inward_shift_y"]
+        ui_window_border = parameters["clamp_electronics_ui_side_window_border"]
+        ui_panel_border = parameters["clamp_electronics_ui_insert_panel_border"]
+        ui_panel_lower_z = (
+            parameters["clamp_electronics_ui_side_board_z_min"]
+            - ui_panel_border
+        )
+        ui_panel_inner_local_z = parameters["clamp_electronics_ui_panel_inner_local_z"]
+        ui_panel_outer_local_z = parameters["clamp_electronics_ui_panel_outer_local_z"]
+        ui_wall_outer_y = parameters["clamp_reinforcement_depth_y"] / 2
+        ui_panel_inner_y = ui_plane_y + ui_panel_inner_local_z
+        ui_panel_outer_y = ui_plane_y + ui_panel_outer_local_z
+        ui_frame_outer_border = parameters["clamp_electronics_ui_retaining_frame_outer_border"]
+        ui_frame_inner_border = parameters["clamp_electronics_ui_retaining_frame_inner_border"]
+        ui_frame_window_clearance = parameters[
+            "clamp_electronics_ui_retaining_frame_window_clearance"
+        ]
+        ui_frame_t = parameters["clamp_electronics_ui_retaining_frame_t"]
+        ui_frame_hole_d = parameters["clamp_electronics_ui_retaining_frame_hole_d"]
+        ui_frame_min_edge_land = parameters[
+            "clamp_electronics_ui_retaining_frame_min_edge_land"
+        ]
+        ui_wall_pilot_d = parameters["clamp_electronics_ui_wall_pilot_d"]
+        ui_wall_pilot_floor_t = parameters[
+            "clamp_electronics_ui_wall_pilot_floor_t"
+        ]
+        # Compatibility values must stay zero so no stale positive boss can
+        # enter the printable body through an older module name.
+        ui_boss_d = parameters["clamp_electronics_ui_mount_boss_d"]
+        ui_screw_d = parameters["clamp_electronics_ui_mount_screw_nominal_d"]
+        ui_boss_h = parameters["clamp_electronics_ui_mount_boss_height"]
+        ui_frame_hole_centers = (
+            (10.0, -4.6), (48.0, -4.6),
+            (10.0, 32.6), (48.0, 32.6),
+            (-4.6, 8.0), (-4.6, 20.0),
+            (62.6, 8.0), (62.6, 20.0),
+        )
+        ui_frame_edge_lands = [
+            min(
+                x - (-ui_frame_outer_border) - ui_frame_hole_d / 2,
+                (parameters["clamp_electronics_ui_board_length_x"] + ui_frame_outer_border)
+                - x - ui_frame_hole_d / 2,
+                y - (-ui_frame_outer_border) - ui_frame_hole_d / 2,
+                (parameters["clamp_electronics_ui_board_width_y"] + ui_frame_outer_border)
+                - y - ui_frame_hole_d / 2,
+            )
+            for x, y in ui_frame_hole_centers
+        ]
+        # The released retaining frame is stepped: its broad mounting flange
+        # sits on the cavity side of the solid wall, and only the narrower
+        # capture bridge enters the y+ window. This keeps the frame out of the
+        # wall's solid envelope and means the UI panel has no hidden boss
+        # relief pockets.
+        ui_frame_mount_front_y = cavity_y_half
+        ui_frame_mount_back_y = ui_frame_mount_front_y - ui_frame_t
+        ui_frame_capture_back_y = ui_frame_mount_front_y
+        ui_frame_capture_front_y = ui_panel_inner_y - parameters[
+            "clamp_electronics_ui_panel_seat_gap_z"
+        ]
+        if not (
+            ui_shift_y > 0
+            and ui_plane_y < cavity_y_half
+            and ui_plane_y > board_y_max
+            and ui_frame_mount_back_y > board_y_max + 0.1
+            and ui_frame_mount_front_y <= cavity_y_half + 0.01
+            and ui_frame_capture_back_y >= cavity_y_half - 0.01
+            and ui_frame_capture_front_y > ui_frame_capture_back_y + 2.0
+            and ui_frame_capture_front_y < ui_panel_inner_y
+            and ui_panel_border <= ui_window_border - 0.4
+            and ui_frame_outer_border > ui_window_border
+            and ui_frame_window_clearance >= 0.2
+            and ui_window_border - ui_frame_window_clearance > ui_panel_border
+            and ui_frame_inner_border < ui_panel_border
+            and ui_frame_outer_border - ui_window_border >= 2.0
+            and ui_frame_t >= 2.0
+            and ui_frame_min_edge_land >= 1.0
+            and min(ui_frame_edge_lands) >= ui_frame_min_edge_land - 0.01
+            and ui_wall_pilot_floor_t >= 0.5
+            and abs(ui_screw_d - 2.0) <= 0.01
+            and 1.5 <= ui_wall_pilot_d < ui_screw_d
+            and ui_frame_hole_d > ui_screw_d
+            and abs(ui_boss_d) <= 0.01
+            and abs(ui_boss_h) <= 0.01
+            and ui_wall_outer_y - ui_wall_pilot_floor_t - ui_frame_mount_front_y > 2.0
+            and abs(ui_panel_outer_y - ui_wall_outer_y) <= 0.05
+        ):
+            raise RuntimeError(
+                "UI two-piece panel stack must fit from the cavity, finish flush, and keep the 2 mm screw in a direct 1.6 mm wall pilot: "
+                f"plane_y={ui_plane_y}, panel_inner_y={ui_panel_inner_y}, panel_outer_y={ui_panel_outer_y}, "
+                f"mount_frame=({ui_frame_mount_back_y}, {ui_frame_mount_front_y}), "
+                f"capture_frame=({ui_frame_capture_back_y}, {ui_frame_capture_front_y}), "
+                f"frame_t={ui_frame_t}, edge_land={min(ui_frame_edge_lands)}, "
+                f"wall_pilot={ui_wall_pilot_d}, screw={ui_screw_d}, bosses=({ui_boss_d}, {ui_boss_h})"
             )
         if abs(net_bounds[5] - parameters["net_panel_top_z"]) > 0.01:
             raise RuntimeError(f"net panel top does not meet the direct cloth-top datum: {net_bounds}")
@@ -3651,6 +4083,71 @@ def main() -> None:
                 f"min_overlap={parameters['clamp_split_boss_min_cavity_overlap_x']}, "
                 f"boss_d={parameters['clamp_split_boss_d']}"
             )
+        def reinforcement_bottom_at(x: float) -> float:
+            start = parameters["clamp_reinforcement_start_x"]
+            end = parameters["clamp_reinforcement_end_x"]
+            near = parameters["clamp_reinforcement_near_table_bottom_z"]
+            outer = parameters["clamp_reinforcement_outer_bottom_z"]
+            return near + (x - start) / (end - start) * (outer - near)
+
+        def cavity_overlap_at(x: float, diameter: float) -> float:
+            return min(
+                x + diameter / 2,
+                cavity_x_max,
+            ) - max(
+                x - diameter / 2,
+                cavity_x_min,
+            )
+
+        lower_boss_d = parameters["clamp_split_lower_boss_d"]
+        lower_boss_clearance_z = parameters[
+            "clamp_split_lower_boss_board_clearance_z"
+        ]
+        expected_lower_boss_z = (
+            parameters["clamp_electronics_board_bottom_z"]
+            - lower_boss_clearance_z
+            - lower_boss_d / 2
+            - parameters["clamp_split_lower_boss_drop_z"]
+        )
+        for label, x_key, z_key in (
+            ("right", "clamp_split_lower_right_x", "clamp_split_lower_right_z"),
+            ("left", "clamp_split_lower_left_x", "clamp_split_lower_left_z"),
+        ):
+            x = parameters[x_key]
+            z = parameters[z_key]
+            cavity_floor = reinforcement_bottom_at(x) + parameters[
+                "clamp_electronics_cavity_floor_t"
+            ]
+            if not (
+                lower_boss_d > parameters["clamp_split_fastener_head_d"]
+                and lower_boss_d < parameters["clamp_split_boss_d"]
+                and lower_boss_clearance_z >= 0.5
+                and 0 <= parameters["clamp_split_lower_boss_drop_z"] <= 10
+                and math.isclose(z, expected_lower_boss_z, abs_tol=0.01)
+                and z + lower_boss_d / 2 < ui_panel_lower_z - 0.5
+                and cavity_overlap_at(x, lower_boss_d)
+                >= parameters["clamp_split_boss_min_cavity_overlap_x"]
+                and z - lower_boss_d / 2
+                < parameters["clamp_electronics_cavity_top_z"]
+                and z + lower_boss_d / 2 > cavity_floor
+                and z - lower_boss_d / 2
+                > reinforcement_bottom_at(x) + 0.5
+                and x - lower_boss_d / 2
+                > parameters["clamp_reinforcement_start_x"] + 0.5
+                and x + lower_boss_d / 2
+                < parameters["clamp_reinforcement_end_x"] - 0.5
+                and z + lower_boss_d / 2
+                <= parameters["clamp_electronics_board_bottom_z"]
+                - lower_boss_clearance_z + 0.01
+            ):
+                raise RuntimeError(
+                    f"lower {label} split boss must clear the main PCB and remain inside the tapered wall: "
+                    f"x={x}, z={z}, d={lower_boss_d}, board_bottom="
+                    f"{parameters['clamp_electronics_board_bottom_z']}, "
+                    f"drop_z={parameters['clamp_split_lower_boss_drop_z']}, "
+                    f"ui_panel_lower_z={ui_panel_lower_z}, "
+                    f"reinforcement_bottom={reinforcement_bottom_at(x):.3f}"
+                )
         if not (
             abs(top_pad_bounds[0] - parameters["clamp_top_pad_x"]) < 0.01
             and abs(
@@ -3685,7 +4182,8 @@ def main() -> None:
             pressure_pad_bounds[5] < -parameters["table_thickness"]
             and screw_bounds[5] < -parameters["table_thickness"]
             and screw_bounds[5]
-            <= pressure_pad_bounds[4]
+            <= pressure_pad_bounds[5]
+            - parameters["clamp_pressure_pad_t"]
             + parameters["clamp_pressure_pad_screw_socket_depth"]
             + 0.01
             and abs(pressure_pad_bounds[5] - parameters["clamp_pressure_pad_top_z"]) < 0.01
@@ -3717,14 +4215,38 @@ def main() -> None:
             < 0.01
             and abs(screw_bounds[5] - parameters["clamp_screw_top_z"]) < 0.01
             and pressure_pad_guard_bounds[2] < pressure_pad_guard_bounds[3]
-            and pressure_pad_guard_bounds[4] < pressure_pad_bounds[4]
-            and pressure_pad_guard_bounds[5]
-            <= pressure_pad_bounds[4]
-            + parameters["clamp_pressure_pad_guard_post_h"]
-            + 0.01
+            and pressure_pad_guard_bounds[4]
+            < pressure_pad_bounds[5] - parameters["clamp_pressure_pad_t"]
+            and abs(
+                pressure_pad_guard_bounds[0]
+                - (
+                    parameters["clamp_screw_x"]
+                    - parameters["clamp_pressure_pad_retainer_outer_d"] / 2
+                )
+            )
+            < 0.01
+            and abs(
+                pressure_pad_guard_bounds[1]
+                - (
+                    parameters["clamp_screw_x"]
+                    + parameters["clamp_pressure_pad_retainer_outer_d"] / 2
+                )
+            )
+            < 0.01
+            and abs(
+                pressure_pad_guard_bounds[4]
+                - parameters["clamp_pressure_pad_retainer_bottom_z"]
+            )
+            < 0.01
+            and abs(
+                pressure_pad_guard_bounds[5]
+                - parameters["clamp_pressure_pad_retainer_top_z"]
+            )
+            < 0.01
             and printed_screw_bounds[5] < -parameters["table_thickness"]
             and printed_screw_bounds[5]
-            <= pressure_pad_bounds[4]
+            <= pressure_pad_bounds[5]
+            - parameters["clamp_pressure_pad_t"]
             + parameters["clamp_pressure_pad_screw_socket_depth"]
             + 0.01
             and abs(knob_bounds[4] - parameters["clamp_knob_bottom_z"]) < 0.01
@@ -3914,7 +4436,10 @@ def main() -> None:
                 - (table_thickness - parameters["table_thickness"]),
                 parameters["clamp_body_nut_top_z"]
                 - (table_thickness - parameters["table_thickness"]),
-                parameters["clamp_pressure_pad_guard_post_h"],
+                parameters["clamp_pressure_pad_t"],
+                parameters["clamp_pressure_pad_retainer_h"],
+                parameters["clamp_pressure_pad_retainer_top_clearance_z"],
+                parameters["clamp_pressure_pad_retainer_outer_d"],
             )
 
         invalid_grid = run_openscad(

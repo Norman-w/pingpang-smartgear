@@ -38,7 +38,7 @@ PART_NAMES_ZH = {
     "post_joint_key": "旧版立柱接缝诊断件",
     "clamp_top_pad": "台面保护软垫",
     "clamp_pressure_pad": "台底可动压块",
-    "clamp_pressure_pad_guard": "台底压块扁球头防丢背护罩",
+    "clamp_pressure_pad_guard": "台底压块球头螺纹防脱压环（无胶）",
     "clamp_printed_screw": "PETG 粗牙扁球头夹紧螺杆",
     "clamp_body_nut": "PETG 粗牙固定螺母",
     "clamp_knob": "夹紧手拧旋钮",
@@ -58,7 +58,8 @@ PART_NAMES_ZH = {
     "net_clamp_rod": "旧版卡网圆柱（兼容诊断件）",
     "clamp_electronics_cover": "电子腔底盖",
     "clamp_electronics_gasket": "电子腔连续压紧垫",
-    "clamp_electronics_ui_bezel": "交互面板压框",
+    "clamp_electronics_ui_bezel": "y+ UI 外侧齐平填平板",
+    "clamp_electronics_ui_retaining_frame": "UI 腔内八孔搭接固定框",
     "m6_detector_body": "M6 十路主体",
     "m6_detector_shell_front": "M6 光学端前盖",
     "m6_detector_shell_rear": "M6 线缆端后盖",
@@ -259,18 +260,18 @@ ASSEMBLY_COMPONENTS = [
         "printable": True,
         "quantity": "2 件",
         "scad_part": "clamp_pressure_pad",
-        "notes": "顶面为平盘，接触台面底面；底面中央为内宽外窄的扁球头收纳窝，另配背护罩从底部向上扣入并胶合，防止拆下收纳时丢失。它不是软垫，首样按刚性 PETG 小底盘打印；若需要可在顶面另贴薄胶皮。",
+        "notes": "顶面为平盘，接触台面底面；底面中央是带 Ø30 粗牙外螺纹 boss 的贯穿球头窝，窝径比 Ø15.5 扁球头大 1.2 mm，轴向留 0.6 mm；下方另装无胶螺纹防脱压环。它不是软垫，首样按刚性 PETG 小底盘打印；若需要可在顶面另贴薄胶皮。",
     },
     {
         "id": "table-bottom-pressure-pad-guards",
-        "name_zh": "台底压块背护罩",
+        "name_zh": "台底压块球头螺纹防脱压环",
         "name_en": "underside pressure-pad back guards",
-        "kind": "防丢结构件",
-        "status": "PETG 打印件 / 装入后胶合",
+        "kind": "球头防脱结构件",
+        "status": "PETG 打印件 / 粗牙旋入，无胶",
         "printable": True,
         "quantity": "2 件（左右各 1）",
         "scad_part": "clamp_pressure_pad_guard",
-        "notes": "从压块底部向上扣入；中心孔让 12 mm 粗牙杆身通过但挡住 Ø15.5 扁球头，四根定位柱插入压块盲孔后再点胶。它只负责收纳防丢，不承担夹紧主载荷。",
+        "notes": "先从 12 mm 粗牙螺杆尾部套入，再把球头装入压块窝，最后把压环拧入压块底部 Ø30 粗牙 boss；下缘 Ø13.2 孔让杆身通过但挡住球头，锥形上口 Ø14.7 保留运动余量。无胶、无热熔螺母、无松散销钉；压环负责球头防脱，不承担台面夹紧主载荷。",
     },
     {
         "id": "clamp-electronics-installation",
@@ -281,7 +282,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "左右各 1 套",
         "scad_part": "clamp_electronics_full_cutaway",
-        "notes": "右侧放 ESP32 母板、1S 电池和 y+ 侧壁 UI 子板/面框；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。电子腔取消 UI 底盖，侧壁窗口由可拆面框维护。",
+        "notes": "右侧放 ESP32 母板、1S 电池和 y+ 侧壁 UI 子板；UI 由外侧齐平填平板和腔内八孔搭接固定框组成，2 mm 蘑菇头自攻钉从腔内穿过外延 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接锁入 C 夹内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，不使用正向 boss 柱；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。电子腔取消 UI 底盖，侧壁矩形窗口由腔内插入的两件式 UI 结构维护。",
     },
     {
         "id": "m6-receiver-carrier-pcb",
@@ -388,13 +389,14 @@ def build_export_specs() -> list[ExportSpec]:
     specs.extend(_post_clamp_carrier_specs())
     split_notes = (
         "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。"
-        "两半各有 9 个横向 M5 连接位；只有连接位的 Ø16 mm 足迹真正贴到电子腔空腔边界时，"
-        "才打印 boss 柱和十字加强肋。完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、"
+        "两半各有 9 个横向 M5 连接位；只有分型面连接位真正贴到电子腔空腔边界时，"
+        "才打印用于 M5 承力的 boss 柱和十字加强肋；完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、"
         "沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，"
         "电子仓左下角与右下斜加强边沿各补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧"
-        "为 M5 圆头沉孔，对手侧为防转六角螺母窝，分型总间隙 0.20 mm。电子腔在中间"
-        "打开后可从分型面布线/装板；绿色 C 方案底座的 x+ 推入让位腔、两枚 Ø4.4 mm"
-        "连接孔和中央钢珠定位孔保持不变。两个半体必须与新版 post_clamp_carrier 配套，"
+        "为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间"
+        "打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；"
+        "每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，"
+        "主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier 配套，"
         "旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。"
     )
     specs.extend(
@@ -402,7 +404,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp_body_half_user",
             "clamp-body-half-user",
             "PETG",
-            "大平面朝下；y- 分型面朝内；M5 圆头沉孔从外侧可达；底面朝下打印后去除分型毛刺。",
+            "把 y- 外侧大平面（x-z 面）贴打印床，分型面 y=0 朝上；这样 [ / ] 唇沿 y 方向逐层生成，不需要在电子腔内做 15 mm 悬空支撑；M5 圆头沉孔从外侧可达，打印后去除分型毛刺。",
             split_notes,
         )
     )
@@ -411,23 +413,32 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp_body_half_opponent",
             "clamp-body-half-opponent",
             "PETG",
-            "大平面朝下；y+ 分型面朝内；M5 六角螺母窝从外侧装入；底面朝下打印后去除分型毛刺。",
+            "把 y+ 外侧大平面（x-z 面）贴打印床，分型面 y=0 朝上；这样 [ / ] 唇沿 y 方向逐层生成，不需要在电子腔内做 15 mm 悬空支撑；M5 六角螺母窝从外侧装入，打印后去除分型毛刺。",
             split_notes,
         )
     )
     # The active electronics bay has an integrated floor and a y+ UI window.
-    # The side faceplate is the real printed closure for that window: it carries
-    # the screen opening, shallow SMD-button pockets/plungers, straight LED
-    # bores, speaker opening, USB-C slot and the four M2.5 service screws.  It
-    # is a formal part of each side's package; the retired sloped UI bottom
-    # cover remains only as a legacy source diagnostic.
+    # The formal printed part is an internal insert panel: it enters from the
+    # cavity side, stops on the shell ledge, finishes flush with the wall, and
+    # carries the screen opening, button plungers, LED bores, speaker opening,
+    # USB-C slot; the panel has no hidden backside boss pockets and the visible
+    # y+ face has no screw holes.
     specs.extend(
         _side_specs(
             "clamp_electronics_ui_bezel",
             "clamp-electronics-ui-bezel",
             "PETG",
-            "y+ 面朝上；屏幕窗口和按键浅凹面朝外；四个 M2.5 沉头孔朝外；按面框平放配置支撑。",
-            "y+ 侧 UI 交互面板正式打印件。面板与 58×28 mm UI PCB 共用坐标，屏幕窗口留 1.2 mm 周边余量；START/MODE 为 3.9×3.0×2.0 mm 两脚 SMD 按键，面板内置 1.6 mm plunger 和浅凹腔；两个 0603 单色 LED 对准 2.2 mm 直孔；扬声器开声学窗；16 针立式 USB-C 插座用 9.6×6.6 mm 面板槽从法向 y+ 侧插拔，并配硅胶帽。四枚 M2.5 螺钉把面板锁到 y+ 侧壁支柱。它取代旧的 UI 底盖，不是底部盖件；屏幕本体、PCB、按键、LED、USB-C 和螺钉仍是非打印装配件，USB-C 的 `usb-c-vertical-proxy.step` 只作首样机械包络。",
+            "y+ 面朝上；从腔内 y- 侧推入窗口后由阶梯搭接框的窗口内边定位；外侧齐平面无螺钉孔；面板平放配置支撑。",
+            "y+ 侧 UI 外侧齐平填平板正式打印件。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入并由搭接框的内侧窗口边定位，外表面与 C 夹壁齐平。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；面板没有隐藏 boss 收纳槽，y+ 可见面不打孔、不做沉头。",
+        )
+    )
+    specs.extend(
+        _side_specs(
+            "clamp_electronics_ui_retaining_frame",
+            "clamp-electronics-ui-retaining-frame",
+            "PETG",
+            "搭接框大平面朝下（腔体 y- 侧）；8 个 Ø2.3 mm 通孔朝上对准 C 夹实心内壁的 Ø1.6 mm 盲导孔；孔中心比旧 M3 方案向外延移动 1.0 mm，框平放打印后每孔仍保留至少 1.2 mm 实体边。",
+            "UI 腔内阶梯式搭接固定框。外侧固定法兰位于腔内 y=17.5..20.0 mm，窗口内搭接环延伸到 y=25.5 mm 并压住填平板背面 0.8 mm；搭接环相对 64×34 mm 侧窗每边留 0.2 mm 装配余量，外侧法兰比侧窗边界每侧外扩 4.0 mm（固定框外轮廓 72×42 mm）。8 个通孔为 Ø2.3 mm，孔位比旧 M3 方案向外延 1.0 mm，由腔内装入 2 mm 蘑菇头自攻钉，直接进入 C 夹实心内壁的 Ø1.6 mm 盲导孔并保留 0.7 mm 外壁底；不生成正向 boss 柱，外侧面板不出现螺钉头。",
         )
     )
     specs.extend(
@@ -499,7 +510,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-pressure-pad",
             "PETG",
             "平盘顶面朝上；底面粗牙螺杆扁球头收纳窝朝下；圆盘平面贴打印床。",
-            "独立台底 Ø50 mm 刚性圆盘压块；位于下舌头台下有效区段中点，顶面接触台底，底面内宽外窄窝容纳 Ø15.5 扁球头；底部四个盲孔接收背护罩定位柱；可选在顶面另贴薄胶皮。",
+            "独立台底 Ø50 mm 刚性圆盘压块；底面中央为带 Ø30 粗牙外螺纹 boss 的贯穿球头窝，Ø16.7 内腔相对 Ø15.5 扁球头保留 0.6 mm 径向余量、顶部留 0.6 mm 轴向余量；下方由无胶螺纹压环完整捕获球头；可选在顶面另贴薄胶皮。",
         )
     )
     specs.extend(
@@ -507,8 +518,8 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp_pressure_pad_guard",
             "clamp-pressure-pad-guard",
             "PETG",
-            "环形护罩平面朝下；四根定位柱朝上插入压块底部盲孔。",
-            "独立台底压块的扁球头防丢背护罩；中心孔允许 12 mm 粗牙杆身通过但挡住 Ø15.5 扁球头，装入压块后点胶固定，不承担夹紧主载荷。",
+            "外圆面朝下；先套到螺杆上，再让球头进入压块窝，最后沿压块 boss 轴向旋入。",
+            "独立台底压块的无胶球头防脱压环；内置匹配 Ø30/4 mm 粗牙，外径 Ø38；下缘 Ø13.2 孔允许 Ø12 粗牙杆身通过但阻挡球头，上口 Ø14.7 并向内腔扩口，给球头上下运动留下余量。压环只负责防脱，不承担夹紧主载荷。",
         )
     )
     specs.extend(
