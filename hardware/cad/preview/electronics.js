@@ -374,36 +374,19 @@ async function addUiPhysicalItems() {
   });
 }
 
-async function addUiBezel() {
-  const bounds = entryBounds("right-clamp-electronics-ui-bezel.stl");
+async function addUiPanelMount() {
+  const bounds = entryBounds("right-clamp-electronics-ui-panel-mount.stl");
   return addStlItem({
-    id: "electronics:ui-bezel:right",
-    name: "右侧 y+ 内装 UI 封口板（打印 STL）",
-    category: "ui-bezel",
-    file: "right-clamp-electronics-ui-bezel.stl",
+    id: "electronics:ui-panel-mount:right",
+    name: "右侧 y+ UI 填平固定板（一体打印 STL）",
+    category: "ui-panel-mount",
+    file: "right-clamp-electronics-ui-panel-mount.stl",
     basePosition: bounds.min,
     color: COLORS.uiBezel,
     side: 1,
-    role: "ui-bezel",
+    role: "ui-panel-mount",
     explosion: [0, 34, 0],
-    detail: "当前打印包中的正式外侧齐平 UI 填平板 STL；从电子腔 y- 侧穿入窗口并由阶梯固定框的窗口内边定位，外侧齐平且不设螺钉孔，也没有隐藏 boss 收纳槽。8 个蘑菇头螺钉孔位在独立的腔内搭接固定框上；按键导向柱、LED 直孔、屏幕窗、扬声器窗和 Type-C 圆角碗槽均以 KiCad UI 板为同一干涉基准，外围碗槽保留 0.60 mm 环形底，中心 KiCad-fit 通孔贯穿，由 Type-C 模型负责中心显示。",
-    visibleWhen: () => sideVisible("right") && state.showUi,
-  });
-}
-
-async function addUiRetainingFrame() {
-  const bounds = entryBounds("right-clamp-electronics-ui-retaining-frame.stl");
-  return addStlItem({
-    id: "electronics:ui-retaining-frame:right",
-    name: "腔内 UI 八孔搭接固定框（打印 STL）",
-    category: "ui-retaining-frame",
-    file: "right-clamp-electronics-ui-retaining-frame.stl",
-    basePosition: bounds.min,
-    color: COLORS.uiFrame,
-    side: 1,
-    role: "ui-retaining-frame",
-    explosion: [0, 40, 0],
-    detail: "独立的腔内阶梯搭接固定框；外侧固定法兰落在 y=17.5..20.0 mm 腔内墙面，固定框外延为 72×42 mm，窗口内搭接环延伸到 y=25.5 mm 并压住面板背面 0.8 mm。8 个 Ø2.3 mm 通孔从腔内装入 2 mm 蘑菇头自攻钉，孔中心相对旧 M3 方案向外移 1.0 mm，螺钉直接进入 C 夹实心内壁的 Ø1.6 mm 盲导孔，孔边至少保留 1.2 mm 实体边，外壁保留 0.7 mm 底且不生成正向 boss；外壁不露螺钉。",
+    detail: "当前打印包中的正式一体式 UI 填平固定板 STL；从电子腔 y- 侧穿入窗口，外侧齐平，腔内侧固定法兰、捕获环和 8 个螺钉孔与面板融合。按键导向柱、LED 直孔、屏幕窗、扬声器窗和 Type-C 圆角碗槽均以 KiCad UI 板为同一干涉基准，外围碗槽保留 0.60 mm 环形底，中心 KiCad-fit 通孔贯穿，由 Type-C 模型负责中心显示。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
 }
@@ -492,9 +475,9 @@ function focusBounds(role) {
   let hasMesh = false;
   for (const item of state.items) {
     if (!item.object.visible) continue;
-    const match = role === "cavity" ? ["shell", "main-board", "emitter-board", "ui", "ui-components", "ui-bezel", "ui-retaining-frame"].includes(item.role)
+    const match = role === "cavity" ? ["shell", "main-board", "emitter-board", "ui", "ui-components", "ui-panel-mount"].includes(item.role)
       : role === "board" ? ["main-board", "emitter-board"].includes(item.role)
-        : role === "ui" ? ["ui", "ui-components", "ui-bezel", "ui-retaining-frame"].includes(item.role)
+        : role === "ui" ? ["ui", "ui-components", "ui-panel-mount"].includes(item.role)
             : true;
     if (!match) continue;
     item.object.updateMatrixWorld(true);
@@ -676,11 +659,11 @@ async function buildScene() {
   }
   await Promise.all(shellJobs);
   await Promise.all([addMainBoard(), addEmitterBoard()]);
-  await Promise.all([addUiBoard(), addUiPhysicalItems(), addUiBezel(), addUiRetainingFrame(), addUiLightPipes()]);
+  await Promise.all([addUiBoard(), addUiPhysicalItems(), addUiPanelMount(), addUiLightPipes()]);
   state.loaded = true;
   refs.placeholder.hidden = true;
   setStatus(`当前源 ${String(state.manifest.source_sha256 || "").slice(0, 12)} · 电子对象已载入`, "ready");
-      refs.caption.textContent = "当前载入正式壳体、外侧齐平 UI 填平板、72×42 mm 腔内八孔搭接固定框、包含 PCB 直装器件模型的 KiCad 板级 STL，以及来自 electronics_components.scad 的屏幕/扬声器线束实体。2 mm 蘑菇头自攻钉从腔内穿过框上 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边；网页检查仍不替代切片、实物装配、绝缘与受力验证。";
+      refs.caption.textContent = "当前载入正式壳体、一体式外侧齐平 UI 填平固定板（含 72×42 mm 腔内固定法兰、捕获环和 8 个通孔）、包含 PCB 直装器件模型的 KiCad 板级 STL，以及来自 electronics_components.scad 的屏幕/扬声器线束实体。2 mm 蘑菇头自攻钉从腔内穿过一体件上的 Ø2.3 通孔，直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边；网页检查仍不替代切片、实物装配、绝缘与受力验证。";
   updateVisibility();
   // The first STL load used to unconditionally snap the camera back to ISO.
   // Keep the fit only for a load that completed before any user orbit/pan/

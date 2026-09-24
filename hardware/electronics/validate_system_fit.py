@@ -45,7 +45,7 @@ REPORT_JSON = HERE / "fit-report-v0.2.json"
 REPORT_MD = HERE / "fit-report-v0.2.md"
 MM = 1_000_000
 MX125_PITCH = 1.25
-EXPECTED_PRINTABLE_COUNT = 41
+EXPECTED_PRINTABLE_COUNT = 39
 
 
 BOARD_SPECS = {
@@ -312,7 +312,7 @@ def ui_side_stl_bounds(
     KiCad exports a board with local y=-28..0.  The OpenSCAD side datum
     reflects that coordinate, then rotates local z into global +y and local y
     into global -z.  Keeping this transform here prevents the mechanical report
-    from silently falling back to the retired horizontal-cover placement.
+    from silently falling back to the retired horizontal UI placement.
     """
     xmin, xmax, ymin, ymax, zmin, zmax = bounds
     local_y_min = -ymax
@@ -668,9 +668,8 @@ def check_ui_interface_alignment(
         }
 
     # The four real NPTH holes remain the PCB fabrication references. They are
-    # intentionally separate from the new eight-hole cavity-side retaining
-    # frame: the frame carries the panel load and the outer fill panel no
-    # longer drills at the PCB H1-H4 locations.
+    # distinct from the eight cavity-side panel-mount holes: the integrated
+    # panel mount carries the load and the outer face has no PCB-hole copies.
     hole_centers = []
     for reference in ("H1", "H2", "H3", "H4"):
         footprint = next(
@@ -715,6 +714,8 @@ def check_ui_interface_alignment(
     border = number(parameters, "clamp_electronics_faceplate_border")
     screen_w = number(parameters, "clamp_electronics_ui_screen_length_x")
     screen_h = number(parameters, "clamp_electronics_ui_screen_width_y")
+    screen_offset_x = number(parameters, "clamp_electronics_ui_screen_offset_x")
+    screen_offset_y = number(parameters, "clamp_electronics_ui_screen_offset_y")
     window_clearance = number(parameters, "clamp_electronics_faceplate_window_clearance")
     button_d = number(parameters, "clamp_electronics_ui_button_d")
     button_clearance = number(parameters, "clamp_electronics_faceplate_button_clearance")
@@ -778,25 +779,27 @@ def check_ui_interface_alignment(
     panel_border = number(parameters, "clamp_electronics_ui_insert_panel_border")
     window_border = number(parameters, "clamp_electronics_ui_side_window_border")
     panel_t = number(parameters, "clamp_electronics_ui_insert_panel_t")
-    frame_outer_border = number(parameters, "clamp_electronics_ui_retaining_frame_outer_border")
-    frame_inner_border = number(parameters, "clamp_electronics_ui_retaining_frame_inner_border")
+    frame_outer_border = number(parameters, "clamp_electronics_ui_panel_mount_outer_border")
+    frame_inner_border = number(parameters, "clamp_electronics_ui_panel_mount_inner_border")
     frame_window_clearance = number(
-        parameters, "clamp_electronics_ui_retaining_frame_window_clearance"
+        parameters, "clamp_electronics_ui_panel_mount_window_clearance"
     )
-    frame_t = number(parameters, "clamp_electronics_ui_retaining_frame_t")
-    frame_hole_d = number(parameters, "clamp_electronics_ui_retaining_frame_hole_d")
+    frame_t = number(parameters, "clamp_electronics_ui_panel_mount_t")
+    frame_integrated_overlap = number(
+        parameters, "clamp_electronics_ui_integrated_capture_overlap_z"
+    )
+    frame_hole_d = number(parameters, "clamp_electronics_ui_panel_mount_hole_d")
     frame_min_edge_land = number(
-        parameters, "clamp_electronics_ui_retaining_frame_min_edge_land"
+        parameters, "clamp_electronics_ui_panel_mount_min_edge_land"
     )
     wall_pilot_d = number(parameters, "clamp_electronics_ui_wall_pilot_d")
     wall_pilot_floor_t = number(
         parameters, "clamp_electronics_ui_wall_pilot_floor_t"
     )
-    # Compatibility values are intentionally required to be zero: a UI
-    # retaining frame must not grow a separate positive boss.
-    boss_d = number(parameters, "clamp_electronics_ui_mount_boss_d")
-    screw_nominal_d = number(parameters, "clamp_electronics_ui_mount_screw_nominal_d")
-    boss_height = number(parameters, "clamp_electronics_ui_mount_boss_height")
+    # The integrated panel mount intentionally has no positive boss.
+    boss_d = number(parameters, "clamp_electronics_ui_panel_mount_boss_d")
+    screw_nominal_d = number(parameters, "clamp_electronics_ui_panel_mount_screw_nominal_d")
+    boss_height = number(parameters, "clamp_electronics_ui_panel_mount_boss_height")
     panel_inner_local_z = number(
         parameters, "clamp_electronics_ui_panel_inner_local_z"
     )
@@ -807,17 +810,14 @@ def check_ui_interface_alignment(
     panel_outer_y = ui_plane_y + panel_outer_local_z
     wall_outer_y = number(parameters, "clamp_reinforcement_depth_y") / 2
     insertion_clearance = window_border - panel_border
-    # The retaining part is stepped. Its broad mounting flange is on the
-    # cavity side of the solid y+ wall (17.5..20.0 mm); the narrower capture
-    # bridge then crosses the rectangular window and ends 0.1 mm before the
-    # panel back (25.5 mm). The previous one-level calculation put the whole
-    # ring inside the wall and forced bogus relief pockets into the panel.
+    # The integrated panel mount is stepped. Its broad mounting flange is
+    # on the cavity side of the solid y+ wall (17.5..20.0 mm); the narrower
+    # capture bridge crosses the rectangular window and overlaps the panel
+    # perimeter so both pieces are one connected print.
     frame_mount_front_y = cavity_y_half
     frame_mount_back_y = frame_mount_front_y - frame_t
     frame_capture_back_y = frame_mount_front_y
-    frame_capture_front_y = panel_inner_y - number(
-        parameters, "clamp_electronics_ui_panel_seat_gap_z"
-    )
+    frame_capture_front_y = panel_inner_y + frame_integrated_overlap
     pilot_depth_y = wall_outer_y - wall_pilot_floor_t - frame_mount_front_y
     frame_edge_lands = [
         min(
@@ -830,7 +830,7 @@ def check_ui_interface_alignment(
     ]
     frame_wall_overlap = frame_outer_border - window_border
     if len(expected_frame_holes) != 8:
-        raise RuntimeError("UI retaining frame must define eight perimeter holes")
+        raise RuntimeError("UI panel mount must define eight perimeter holes")
     if insertion_clearance < 0.4:
         raise RuntimeError(
             "UI insert panel must clear the y+ window for cavity-side insertion: %.3f mm/side"
@@ -843,7 +843,8 @@ def check_ui_interface_alignment(
         and frame_mount_back_y > board_y_max + 0.1
         and frame_mount_front_y <= cavity_y_half + 0.01
         and frame_capture_back_y >= cavity_y_half - 0.01
-        and frame_capture_front_y < panel_inner_y
+        and frame_integrated_overlap > 0
+        and frame_capture_front_y > panel_inner_y
         and frame_capture_front_y > frame_capture_back_y + 2.0
         and frame_outer_border > window_border
         and frame_window_clearance >= 0.2
@@ -881,10 +882,11 @@ def check_ui_interface_alignment(
         and usb_profile_radius * 2 <= usb_profile_h + 0.01
     ):
         raise RuntimeError(
-            "UI two-piece panel stack does not satisfy the cavity-side M2 direct-wall retention contract: "
+            "UI integrated panel mount does not satisfy the cavity-side M2 direct-wall retention contract: "
             f"plane_y={ui_plane_y}, panel_inner_y={panel_inner_y}, panel_outer_y={panel_outer_y}, "
             f"mount_frame=({frame_mount_back_y}, {frame_mount_front_y}), "
             f"capture_frame=({frame_capture_back_y}, {frame_capture_front_y}), "
+            f"integrated_overlap={frame_integrated_overlap}, "
             f"frame_t={frame_t}, edge_land={min(frame_edge_lands)}, "
             f"wall_pilot={wall_pilot_d}, screw={screw_nominal_d}, bosses=({boss_d}, {boss_height})"
         )
@@ -896,8 +898,8 @@ def check_ui_interface_alignment(
             % board_to_faceplate_gap
         )
 
-    screen_x = (board_width - screen_w) / 2
-    screen_y = (board_height - screen_h) / 2
+    screen_x = (board_width - screen_w) / 2 + screen_offset_x
+    screen_y = (board_height - screen_h) / 2 + screen_offset_y
     screen_opening = (
         screen_x - window_clearance,
         screen_x + screen_w + window_clearance,
@@ -967,7 +969,9 @@ def check_ui_interface_alignment(
             "expected_local_mm": [(round(x, 3), round(y, 3)) for x, y in expected_holes],
             "status": "PASS",
         },
-        "retaining_frame": {
+        "panel_mount": {
+            "integrated_panel_mount": True,
+            "capture_overlap_mm": round(frame_integrated_overlap, 3),
             "hole_count": len(expected_frame_holes),
             "hole_centers_local_mm": expected_frame_holes,
             "outer_border_mm": round(frame_outer_border, 3),
@@ -1035,7 +1039,7 @@ def check_ui_interface_alignment(
             "frame_capture_back_y_mm": round(frame_capture_back_y, 3),
             "frame_capture_front_y_mm": round(frame_capture_front_y, 3),
             "wall_pilot_end_y_mm": round(wall_outer_y - wall_pilot_floor_t, 3),
-            "mushroom_head_surface": "cavity y- retaining-frame side",
+            "mushroom_head_surface": "cavity y- panel-mount side",
             "outer_face_screw_openings": False,
             "status": "PASS",
         },
@@ -1664,7 +1668,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "|---|---|---:|",
         ]
     )
-    for key, title in (("main_board", "right ESP32 mother board"), ("emitter_board", "left emitter power board"), ("ui_board", "cover UI board"), ("internal_battery", "internal battery envelope"), ("m6_receiver_carrier", "vertical M6 receiver carrier")):
+    for key, title in (("main_board", "right ESP32 mother board"), ("emitter_board", "left emitter power board"), ("ui_board", "y+ side UI board"), ("internal_battery", "internal battery envelope"), ("m6_receiver_carrier", "vertical M6 receiver carrier")):
         item = mechanical[key]
         margins = item.get(
             "margins_to_cavity",
@@ -1707,22 +1711,23 @@ def markdown_report(report: Dict[str, Any]) -> str:
                 report["ui_interface"]["insert_panel"]["insertion_clearance_per_side_mm"],
                 report["ui_interface"]["insert_panel"]["outer_wall_flush_error_mm"],
             ),
-            "- Retaining-frame contract: `%d` cavity-side holes, a `%.1f mm` mounting flange at y=`%.1f..%.1f mm` plus a window capture bridge at y=`%.1f..%.1f mm`, outer/inner borders `%.1f/%.1f mm`, window clearance `%.1f mm`, Ø`%.1f mm` clearance holes for 2 mm mushroom-head self-tapping screws into Ø`%.1f mm` blind pilots cut directly in the solid C-clamp wall; pilot depth `%.1f mm` leaves `%.1f mm` outer-wall floor, with no positive boss and `%.1f mm` minimum edge land. Panel hidden relief cutouts: `%s`; outer face screw openings: `%s`." % (
-                report["ui_interface"]["retaining_frame"]["hole_count"],
-                report["ui_interface"]["retaining_frame"]["thickness_mm"],
-                report["ui_interface"]["retaining_frame"]["mount_back_y_mm"],
-                report["ui_interface"]["retaining_frame"]["mount_front_y_mm"],
-                report["ui_interface"]["retaining_frame"]["capture_back_y_mm"],
-                report["ui_interface"]["retaining_frame"]["capture_front_y_mm"],
-                report["ui_interface"]["retaining_frame"]["outer_border_mm"],
-                report["ui_interface"]["retaining_frame"]["inner_border_mm"],
-                report["ui_interface"]["retaining_frame"]["window_clearance_mm"],
-                report["ui_interface"]["retaining_frame"]["hole_d_mm"],
-                report["ui_interface"]["retaining_frame"]["pilot_d_mm"],
-                report["ui_interface"]["retaining_frame"]["pilot_depth_mm"],
-                report["ui_interface"]["retaining_frame"]["blind_floor_mm"],
-                report["ui_interface"]["retaining_frame"]["edge_land_mm"],
-                "none" if not report["ui_interface"]["retaining_frame"]["panel_hidden_relief_cutouts"] else "present",
+            "- Integrated UI panel-mount contract: the faceplate and cavity-side capture ring are one fused print with `%d` cavity-side holes, a `%.1f mm` mounting flange at y=`%.1f..%.1f mm` plus a window capture bridge at y=`%.1f..%.1f mm` (panel perimeter overlap `%.1f mm`), outer/inner borders `%.1f/%.1f mm`, window clearance `%.1f mm`, Ø`%.1f mm` clearance holes for 2 mm mushroom-head self-tapping screws into Ø`%.1f mm` blind pilots cut directly in the solid C-clamp wall; pilot depth `%.1f mm` leaves `%.1f mm` outer-wall floor, with no positive boss and `%.1f mm` minimum edge land. Panel hidden relief cutouts: `%s`; outer face screw openings: `%s`." % (
+                report["ui_interface"]["panel_mount"]["hole_count"],
+                report["ui_interface"]["panel_mount"]["thickness_mm"],
+                report["ui_interface"]["panel_mount"]["mount_back_y_mm"],
+                report["ui_interface"]["panel_mount"]["mount_front_y_mm"],
+                report["ui_interface"]["panel_mount"]["capture_back_y_mm"],
+                report["ui_interface"]["panel_mount"]["capture_front_y_mm"],
+                report["ui_interface"]["panel_mount"]["capture_overlap_mm"],
+                report["ui_interface"]["panel_mount"]["outer_border_mm"],
+                report["ui_interface"]["panel_mount"]["inner_border_mm"],
+                report["ui_interface"]["panel_mount"]["window_clearance_mm"],
+                report["ui_interface"]["panel_mount"]["hole_d_mm"],
+                report["ui_interface"]["panel_mount"]["pilot_d_mm"],
+                report["ui_interface"]["panel_mount"]["pilot_depth_mm"],
+                report["ui_interface"]["panel_mount"]["blind_floor_mm"],
+                report["ui_interface"]["panel_mount"]["edge_land_mm"],
+                "none" if not report["ui_interface"]["panel_mount"]["panel_hidden_relief_cutouts"] else "present",
                 "none" if not report["ui_interface"]["insert_panel"]["outer_face_screw_openings"] else "present",
             ),
             "- USB-C mating axis: `%s`; its KiCad footprint model is `%s`. The final purchased receptacle dimensions/part number remains an explicit first-article item." % (

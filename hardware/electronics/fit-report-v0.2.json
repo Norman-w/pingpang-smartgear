@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-24T05:39:50.877536+00:00",
+  "generated_at": "2026-09-24T07:40:30.545159+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -374,7 +374,9 @@
       ],
       "status": "PASS"
     },
-    "retaining_frame": {
+    "panel_mount": {
+      "integrated_panel_mount": true,
+      "capture_overlap_mm": 0.4,
       "hole_count": 8,
       "hole_centers_local_mm": [
         [
@@ -427,7 +429,7 @@
       "mount_back_y_mm": 17.5,
       "mount_front_y_mm": 20.0,
       "capture_back_y_mm": 20.0,
-      "capture_front_y_mm": 25.5,
+      "capture_front_y_mm": 26.0,
       "panel_hidden_relief_cutouts": false,
       "status": "PASS"
     },
@@ -468,8 +470,8 @@
       ],
       "board_to_faceplate_gap_mm": 0.56,
       "opening_clearances_mm": {
-        "screen_to_faceplate_edge_mm": 8.8,
-        "usb_to_screen_mm": 0.24,
+        "screen_to_faceplate_edge_mm": 8.0,
+        "usb_to_screen_mm": 1.04,
         "buttons_to_screen_mm": 3.2
       },
       "status": "PASS"
@@ -486,9 +488,9 @@
       "frame_mount_back_y_mm": 17.5,
       "frame_mount_front_y_mm": 20.0,
       "frame_capture_back_y_mm": 20.0,
-      "frame_capture_front_y_mm": 25.5,
+      "frame_capture_front_y_mm": 26.0,
       "wall_pilot_end_y_mm": 28.3,
-      "mushroom_head_surface": "cavity y- retaining-frame side",
+      "mushroom_head_surface": "cavity y- panel-mount side",
       "outer_face_screw_openings": false,
       "status": "PASS"
     },
@@ -1582,7 +1584,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[13:39:08] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[15:39:45] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 210,
     "erc_errors": 119,
@@ -1652,9 +1654,9 @@
   },
   "print_package": {
     "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
-    "printable_stl_count": 41,
-    "closed_count": 41,
-    "positive_volume_count": 41,
+    "printable_stl_count": 39,
+    "closed_count": 39,
+    "positive_volume_count": 39,
     "status": "PASS"
   },
   "interference": {
@@ -1701,7 +1703,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 9159485,
+        "bytes": 9159334,
         "manifold_reported": true
       },
       {
@@ -1715,7 +1717,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 8992451,
+        "bytes": 8995698,
         "manifold_reported": true
       },
       {
@@ -1729,7 +1731,7 @@
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 38578132,
+        "bytes": 38581379,
         "manifold_reported": true
       },
       {
@@ -1737,7 +1739,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 25772210,
+        "bytes": 25768789,
         "manifold_reported": true
       },
       {
@@ -1745,7 +1747,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 26094465,
+        "bytes": 26091001,
         "manifold_reported": true
       },
       {

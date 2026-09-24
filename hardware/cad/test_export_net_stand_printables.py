@@ -21,8 +21,7 @@ EXPECTED_COUNTS = {
     "post_clamp_carrier": 2,
     "clamp_body_half_user": 2,
     "clamp_body_half_opponent": 2,
-    "clamp_electronics_ui_bezel": 2,
-    "clamp_electronics_ui_retaining_frame": 2,
+    "clamp_electronics_ui_panel_mount": 2,
     "m6_detector_body": 2,
     "m6_detector_shell_front": 2,
     "m6_detector_shell_rear": 2,
@@ -69,12 +68,27 @@ REMOVED_ACTIVE_PARTS = {
     "upper_stand_segment",
     "net_clamp_rod",
     "clamp_body_segment",
+    "clamp_electronics_cover",
+    "clamp_electronics_gasket",
+    "clamp_electronics_ui_bezel",
+    "clamp_electronics_ui_retaining_frame",
 }
+
+OBSOLETE_UI_SYMBOLS = (
+    "clamp_electronics_cover",
+    "clamp_electronics_gasket",
+    "clamp_electronics_ui_bezel",
+    "clamp_electronics_ui_retaining_frame",
+)
 
 
 def validate_export_specs() -> None:
-    if len(EXPORT_SPECS) != 41:
-        raise AssertionError(f"expected 41 printable exports, got {len(EXPORT_SPECS)}")
+    source_text = SOURCE.read_text(encoding="utf-8")
+    leaked = [symbol for symbol in OBSOLETE_UI_SYMBOLS if symbol in source_text]
+    if leaked:
+        raise AssertionError(f"obsolete UI symbols remain in the active SCAD source: {leaked}")
+    if len(EXPORT_SPECS) != 39:
+        raise AssertionError(f"expected 39 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -114,22 +128,19 @@ def validate_export_specs() -> None:
         ):
             raise AssertionError(f"{part} 必须明确 y=0 分型、9 处 M5 连接位与分型间隙")
 
-    ui_parts = {
-        "clamp_electronics_ui_bezel": [spec for spec in EXPORT_SPECS if spec.part == "clamp_electronics_ui_bezel"],
-        "clamp_electronics_ui_retaining_frame": [spec for spec in EXPORT_SPECS if spec.part == "clamp_electronics_ui_retaining_frame"],
-    }
-    if any(len(items) != 2 for items in ui_parts.values()):
-        raise AssertionError("UI 填平板和八孔搭接框必须各导出左右两件")
+    ui_parts = [spec for spec in EXPORT_SPECS if spec.part == "clamp_electronics_ui_panel_mount"]
+    if len(ui_parts) != 2:
+        raise AssertionError("UI 填平板与八孔搭接框必须合并为左右两件一体式打印件")
     if any(
-        "不打孔" not in spec.notes or "外表面与 C 夹壁齐平" not in spec.notes
-        for spec in ui_parts["clamp_electronics_ui_bezel"]
+        "一体件" not in spec.notes
+        or "外表面与 C 夹壁齐平" not in spec.notes
+        or "8 个 Ø2.3 mm" not in spec.notes
+        or "1.6 mm" not in spec.notes
+        or "2 mm 蘑菇头自攻钉" not in spec.notes
+        or "0.4 mm" not in spec.notes
+        for spec in ui_parts
     ):
-        raise AssertionError("UI 外侧填平板必须没有可见螺钉孔")
-    if any(
-        "8 个通孔为 Ø2.3 mm" not in spec.notes or "1.6 mm" not in spec.notes or "2 mm 蘑菇头自攻钉" not in spec.notes
-        for spec in ui_parts["clamp_electronics_ui_retaining_frame"]
-    ):
-        raise AssertionError("UI 八孔搭接框必须记录 2 mm 自攻钉和 C 夹内壁 1.6 mm 盲导孔")
+        raise AssertionError("一体式 UI 填平固定板必须记录面板齐平、八孔、自攻钉、盲导孔和融合搭接环")
 
     for spec in EXPORT_SPECS:
         if spec.part in PREVIEW_ONLY_PARTS:
@@ -292,9 +303,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (41 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (39 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (41 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (39 specs, manifest not present)")
 
 
 if __name__ == "__main__":

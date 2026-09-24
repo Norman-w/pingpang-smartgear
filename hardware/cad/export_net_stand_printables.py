@@ -56,10 +56,7 @@ PART_NAMES_ZH = {
     "calibration_gauge": "过网高度标定规",
     "net_clamp_clip": "全高 U 形滑入卡网夹",
     "net_clamp_rod": "旧版卡网圆柱（兼容诊断件）",
-    "clamp_electronics_cover": "电子腔底盖",
-    "clamp_electronics_gasket": "电子腔连续压紧垫",
-    "clamp_electronics_ui_bezel": "y+ UI 外侧齐平填平板",
-    "clamp_electronics_ui_retaining_frame": "UI 腔内八孔搭接固定框",
+    "clamp_electronics_ui_panel_mount": "y+ UI 外侧齐平填平固定板（一体件）",
     "m6_detector_body": "M6 十路主体",
     "m6_detector_shell_front": "M6 光学端前盖",
     "m6_detector_shell_rear": "M6 线缆端后盖",
@@ -282,7 +279,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "左右各 1 套",
         "scad_part": "clamp_electronics_full_cutaway",
-        "notes": "右侧放 ESP32 母板、1S 电池和 y+ 侧壁 UI 子板；UI 由外侧齐平填平板和腔内八孔搭接固定框组成，2 mm 蘑菇头自攻钉从腔内穿过外延 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接锁入 C 夹内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，不使用正向 boss 柱；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。电子腔取消 UI 底盖，侧壁矩形窗口由腔内插入的两件式 UI 结构维护。",
+        "notes": "右侧放 ESP32 母板、1S 电池和 y+ 侧壁 UI 子板；UI 由一体式外侧齐平填平固定板维护，腔内固定法兰、捕获环和 8 个通孔融合在同一件中，2 mm 蘑菇头自攻钉从腔内穿过 Ø2.3 通孔，直接锁入 C 夹内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，不使用正向 boss 柱；左侧放发射电源子板与内置电池；所有线束沿 M6 侧出线并保留端子/压接接口。电子腔取消 UI 底盖，侧壁矩形窗口由腔内插入的一体式 UI 结构维护。",
     },
     {
         "id": "m6-receiver-carrier-pcb",
@@ -418,28 +415,18 @@ def build_export_specs() -> list[ExportSpec]:
         )
     )
     # The active electronics bay has an integrated floor and a y+ UI window.
-    # The formal printed part is an internal insert panel: it enters from the
+    # The formal printed part is one internal insert panel plus its cavity-side
+    # retaining flange. It enters from the cavity and finishes flush with the
     # cavity side, stops on the shell ledge, finishes flush with the wall, and
     # carries the screen opening, button plungers, LED bores, speaker opening,
-    # and tight rounded USB-C bowl; the panel has no hidden backside boss
-    # pockets and the visible
-    # y+ face has no screw holes.
+    # and tight rounded USB-C bowl; the visible y+ face has no screw holes.
     specs.extend(
         _side_specs(
-            "clamp_electronics_ui_bezel",
-            "clamp-electronics-ui-bezel",
+            "clamp_electronics_ui_panel_mount",
+            "clamp-electronics-ui-panel-mount",
             "PETG",
-            "y+ 面朝上；从腔内 y- 侧推入窗口后由阶梯搭接框的窗口内边定位；外侧齐平面无螺钉孔；面板平放配置支撑。",
-            "y+ 侧 UI 外侧齐平填平板正式打印件。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入并由搭接框的内侧窗口边定位，外表面与 C 夹壁齐平。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；USB-C 通道尺寸取自当前 KiCad UI 的 J_USB_PANEL 外壳/屏蔽件，排除了焊接脚，再加每侧 0.25 mm 打印配合；外侧改为到达 KiCad 金属外壳前沿的圆角碗槽，外围保留 0.60 mm 连续环形打印底，中心 KiCad-fit 通孔贯穿并由 Type-C 金属壳体负责显示/插入；面板没有隐藏 boss 收纳槽，y+ 可见面不打孔、不做沉头。",
-        )
-    )
-    specs.extend(
-        _side_specs(
-            "clamp_electronics_ui_retaining_frame",
-            "clamp-electronics-ui-retaining-frame",
-            "PETG",
-            "搭接框大平面朝下（腔体 y- 侧）；8 个 Ø2.3 mm 通孔朝上对准 C 夹实心内壁的 Ø1.6 mm 盲导孔；孔中心比旧 M3 方案向外延移动 1.0 mm，框平放打印后每孔仍保留至少 1.2 mm 实体边。",
-            "UI 腔内阶梯式搭接固定框。外侧固定法兰位于腔内 y=17.5..20.0 mm，窗口内搭接环延伸到 y=25.5 mm 并压住填平板背面 0.8 mm；搭接环相对 64×34 mm 侧窗每边留 0.2 mm 装配余量，外侧法兰比侧窗边界每侧外扩 4.0 mm（固定框外轮廓 72×42 mm）。8 个通孔为 Ø2.3 mm，孔位比旧 M3 方案向外延 1.0 mm，由腔内装入 2 mm 蘑菇头自攻钉，直接进入 C 夹实心内壁的 Ø1.6 mm 盲导孔并保留 0.7 mm 外壁底；不生成正向 boss 柱，外侧面板不出现螺钉头。",
+            "y+ 面朝上；从腔内 y- 侧推入窗口；外侧齐平面无螺钉孔；面板、周边搭接法兰、窗口内捕获环和 8 个 Ø2.3 mm 螺钉通孔熔成一件，按面板平放方向切片并复核支撑。",
+            "y+ UI 外侧齐平填平固定板正式打印件（一体件）。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入，外表面与 C 夹壁齐平；腔内侧固定法兰、窗口捕获环和 8 个 Ø2.3 mm 通孔与面板熔成一件，捕获环伸入面板周边 0.4 mm；通孔供 2 mm 蘑菇头自攻钉穿入 C 夹内壁 Ø1.6 mm 盲导孔。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；USB-C 通道尺寸取自当前 KiCad UI 的 J_USB_PANEL 外壳/屏蔽件，排除了焊接脚，再加每侧 0.25 mm 打印配合；外侧改为到达 KiCad 金属外壳前沿的圆角碗槽，外围保留 0.60 mm 连续环形打印底，中心 KiCad-fit 通孔贯穿并由 Type-C 金属壳体负责显示/插入；不使用正向 boss，y+ 可见面不打孔、不做沉头。",
         )
     )
     specs.extend(

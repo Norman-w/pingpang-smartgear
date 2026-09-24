@@ -35,7 +35,7 @@
       <section class="intro-block">
         <div class="section-kicker">C 夹 / 电子腔 / 维护视角</div>
         <h2>把腔体打开<br><em>看清板与<br>内装封口板</em></h2>
-        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。页面载入正式壳体、外侧齐平 UI 填平板、腔内八孔搭接固定框、包含按键/LED/USB-C KiCad 3D 模型的板级 STL，以及由 SCAD 挂载的屏幕、扬声器等线束实体件。</p>
+        <p>这里单独检查右侧主控腔、左侧发射腔和 y+ 侧面的 UI。页面载入正式壳体、一体式外侧齐平 UI 填平固定板（含腔内八孔搭接法兰和捕获环）、包含按键/LED/USB-C KiCad 3D 模型的板级 STL，以及由 SCAD 挂载的屏幕、扬声器等线束实体件。</p>
       </section>
 
       <section class="control-card">
@@ -44,7 +44,7 @@
           <button class="segmented-button active" type="button" data-side="right">右侧主控</button>
           <button class="segmented-button" type="button" data-side="left">左侧发射</button>
         </div>
-        <p class="control-help">右侧显示 ESP32 主控板、y+ 侧壁 UI 子板、外侧齐平填平板和腔内八孔搭接框；左侧显示发射电源板。两个腔体通过上方按钮分别查看，不在同一画布叠放。</p>
+          <p class="control-help">右侧显示 ESP32 主控板、y+ 侧壁 UI 子板和一体式外侧齐平填平固定板；左侧显示发射电源板。两个腔体通过上方按钮分别查看，不在同一画布叠放。</p>
       </section>
 
       <section class="control-card">
@@ -140,8 +140,7 @@
             <div><i class="swatch board"></i><span>主控 / PCB</span></div>
             <div><i class="swatch emitter"></i><span>发射电源板</span></div>
             <div><i class="swatch ui"></i><span>UI 子板 + KiCad 贴板件</span></div>
-            <div><i class="swatch bezel"></i><span>外侧齐平 UI 填平板 STL</span></div>
-            <div><i class="swatch ui-frame"></i><span>腔内八孔搭接固定框 STL</span></div>
+            <div><i class="swatch bezel"></i><span>一体式外侧齐平 UI 填平固定板 STL</span></div>
           </div>
         </article>
         <article class="visual-card info-card">
@@ -151,7 +150,7 @@
             <div><span>主控板</span><strong>86 × 32 × 5.84 mm</strong></div>
             <div><span>发射电源板</span><strong>KiCad STL</strong></div>
             <div><span>UI 子板</span><strong>KiCad STL（含按键/LED/USB-C）+ SCAD 线束件</strong></div>
-            <div><span>UI 外侧填平板 / 腔内固定框</span><strong>62.8 × 32.8 × 3.4 mm / 72 × 42 × 2.5 mm · 8×2 mm 蘑菇头自攻钉直锁 Ø1.6 内壁盲孔（框孔 Ø2.3，整体外移 1.0 mm）</strong></div>
+            <div><span>一体式 UI 填平固定板</span><strong>外板 62.8 × 32.8 mm + 腔内法兰 72 × 42 mm · 8×2 mm 蘑菇头自攻钉直锁 Ø1.6 内壁盲孔（通孔 Ø2.3，捕获环与面板融合 0.4 mm）</strong></div>
           </div>
         </article>
       </section>

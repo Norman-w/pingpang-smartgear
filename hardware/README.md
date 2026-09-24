@@ -19,12 +19,12 @@
 
 网顶不设置轨道。网布从球台中心侧进入两侧立柱的连续 `3 mm` 过道，端部止到立柱外表面；整高 U 形卡网夹从桌外侧沿 `x+ → x−` 推入，夹爪夹住网布。网端附近左右各一个 PVDF 振动传感器，与网架保留 `18 mm` 横向净距。
 
-固定 `clamp_body_segment` 与整根 `post_clamp_carrier` 分体打印；固定夹主体除网/卡夹功能开口外保持实心。立柱底面在 C 夹黄灰交界 `z=16 mm` 共面，一体实心延伸到 `z=372.5 mm`（总高 `356.5 mm`），不向下插入 C 形座；网布/卡夹功能区仍只到 `z=168.5 mm`，从承托面向上 `30 mm`（至 `z=46 mm`）做 `35×58 mm → 28×38 mm` 连续实心渐变，之后统一为顶端 `28×38 mm` 截面。网布仍从球台中心侧穿过连续 `3 mm` 过道，U 形卡夹从桌外侧沿 `x+ → x−` 推入；网布张力和绳的拉力负责把卡夹压住，立柱内嵌单一被动止挡只防向外拔出，按开夹爪即可解锁。立柱本体和网布过道没有上下接缝，固定网柱顶端不再设置直连 M8 孔。
+C 形夹按 y=0 分型为 `clamp_body_half_user` 与 `clamp_body_half_opponent` 两半，整根 `post_clamp_carrier` 单独打印；固定夹半体除网/卡夹功能开口外保持实心。立柱底面在 C 夹黄灰交界 `z=16 mm` 共面，一体实心延伸到 `z=260.5 mm`，不向下插入 C 形座；网布/卡夹功能区仍只到 `z=168.5 mm`。网布仍从球台中心侧穿过连续 `3 mm` 过道，U 形卡夹从桌外侧沿 `x+ → x−` 推入；网布张力和绳的拉力负责把卡夹压住，立柱内嵌单一被动止挡只防向外拔出，按开夹爪即可解锁。立柱本体和网布过道没有上下接缝，固定网柱顶端不再设置直连 M8 孔。
 
 盒盖、压合边和接口以“装配后严丝合缝、无明显贯穿缝”为目标；这里不宣称防水等级。真实网布、螺纹、张力、线缆弯曲和夹体耐久必须用首样实测。
 
 ## 打印状态
 
-当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/manifest.json) 为准：`37` 个 STL。256 mm 打印床拼盘见 [`cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.4-top-load/print-platter-256/manifest.json)：`6` 张板、`37` 个已排版、`0` 个超尺寸件；两件整根立柱/载体使用实际三轴斜放。旧分体立柱、套筒、内芯和圆柱卡网件不再属于当前清单。
+当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json) 为准：`39` 个 STL。256 mm 打印床拼盘见 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：`7` 张板、`39` 个已排版、`0` 个超尺寸件；两件整根立柱/载体使用实际三轴斜放。旧整件 C 夹、电子腔底盖/连续垫、分体立柱、套筒、内芯和圆柱卡网件不再属于当前清单。
 
 这是 CAD 包络/封闭 STL/排版证据，不是已切片、已生成 G-code 或已完成实物打印的证明。

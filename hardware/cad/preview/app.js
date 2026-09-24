@@ -544,14 +544,9 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
   let stlTransform = null;
   let reviewPlacement = null;
   let explosion = explosionVector(group, sideSign(entry));
-  // Match the real service order in clamp_electronics_exploded_positive():
-  // gasket, cover, and faceplate travel away from the cavity opening, rather
-  // than taking the generic clamp-hardware vector and appearing detached from
-  // the electronics stack.
-  if (entry.part === "clamp_electronics_gasket") explosion = [0, -38, 7];
-  if (entry.part === "clamp_electronics_cover") explosion = [0, -52, 14];
-  if (entry.part === "clamp_electronics_ui_bezel") explosion = [0, -58, -4];
-  if (entry.part === "clamp_electronics_ui_retaining_frame") explosion = [0, -48, -4];
+  // The one-piece UI panel mount travels away from the cavity opening along
+  // the real service path; there is no separate bottom closure in this design.
+  if (entry.part === "clamp_electronics_ui_panel_mount") explosion = [0, -58, -4];
   if (entry.part === "clamp_body_half_user") explosion = [0, -86, 0];
   if (entry.part === "clamp_body_half_opponent") explosion = [0, 86, 0];
   if (entry.part === "net_clamp_clip") {
@@ -608,15 +603,6 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
 // deliberately kept in its real vertical orientation: its local board x
 // axis becomes world z by the same -90 degree Y rotation used by SCAD.
 const ELECTRONICS_BOARD_MODEL_ROOT = "../../../electronics/3d/v0.2/";
-// The UI daughter board is mounted to the removable cover's sloped datum.  The
-// source SCAD derives the same slope from the 40-to-14 mm tapered underside;
-// the browser applies it to the flat KiCad STL so the four H1-H4 holes stay
-// coaxial with the cover bosses.  The current review candidate recesses the
-// cover by its 3 mm thickness and puts the UI stack on the cavity side, so the
-// board origin is above the C-clamp floor rather than below the body.
-const ELECTRONICS_UI_COVER_SLOPE_XZ = 26 / (918.3 - 759.5);
-const ELECTRONICS_UI_COVER_ANGLE_Y = -Math.atan(ELECTRONICS_UI_COVER_SLOPE_XZ);
-const ELECTRONICS_UI_COVER_MOUNTED_Z = -64.3853904282116;
 const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
   main: {
     file: "esp32-control-v0.1.stl",
@@ -647,7 +633,7 @@ const ELECTRONICS_BOARD_LAYOUT = Object.freeze({
     sideLabel: "右侧 C 夹 y+ 侧壁",
     stlTransform: { rotation: [-Math.PI / 2, 0, 0], mirrorY: true },
     explosion: [0, -58, -7],
-        notes: "KiCad 导出的真实 UI 子板 3D 模型。PCB/电池从 y=0 分型面装入；y+ UI 采用外侧齐平填平板与腔内八孔搭接固定框两件式结构，8 枚 2 mm 蘑菇头自攻钉从腔内穿过外延 Ø2.3 通孔，孔中心相对旧 M3 方案向外移 1.0 mm，直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，外侧不露螺钉且不使用正向 boss 柱。填平板提供屏幕窗、按键浅凹面/1.6 mm plunger、0603 LED 直孔、扬声器窗和 USB-C 槽，不再使用旧的 UI 底盖。",
+    notes: "KiCad 导出的真实 UI 子板 3D 模型。PCB/电池从 y=0 分型面装入；y+ UI 使用一体式外侧齐平填平固定板，腔内固定法兰、捕获环和 8 个 Ø2.3 通孔与面板融合，8 枚 2 mm 蘑菇头自攻钉从腔内直接进入 C 夹实心内壁 Ø1.6 盲导孔，孔边至少保留 1.2 mm 实体边，外侧不露螺钉且不使用正向 boss 柱。填平固定板提供屏幕窗、按键浅凹面/1.6 mm plunger、0603 LED 直孔、扬声器窗和 USB-C 槽，不再使用旧的 UI 底盖。",
   },
 });
 
@@ -2234,9 +2220,8 @@ function isRightPcbFocusItem(item) {
 
 function isRightUiFocusItem(item) {
   if (!item || item.side !== 1) return false;
-  const part = item.sourceEntry?.part;
   return (item.group === "electronics" && String(item.id || "").includes("electronics:ui"))
-    || ["clamp_electronics_cover", "clamp_electronics_ui_bezel", "clamp_electronics_ui_retaining_frame", "clamp_electronics_gasket"].includes(part);
+    || item.sourceEntry?.part === "clamp_electronics_ui_panel_mount";
 }
 
 function isRightConnectionFocusItem(item) {

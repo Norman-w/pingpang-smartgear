@@ -12,7 +12,7 @@
 
 三块子板均有对应原生 KiCad 原理图：[`m6-receiver-carrier-v0.2.kicad_sch`](m6-receiver-carrier-v0.2.kicad_sch)、[`emitter-power-v0.2.kicad_sch`](emitter-power-v0.2.kicad_sch)、[`ui-panel-v0.2.kicad_sch`](ui-panel-v0.2.kicad_sch)，审查 PDF 在 [`../output/pdf/`](../output/pdf/)；它们把 10 路 M6、内置电池/外接后备电源、UI/按钮/屏/音频/USB-C 的接口关系画成可打开的 KiCad 文件。
 
-接收载板安装时长边对应 M6 壳体的竖直 z 方向，当前 `80 mm` 只作为壳体内的集中式采集板尺寸，不再把十个光学头的 `20 mm` 节距展开到 PCB 上；发射板和 UI 板对应梯形腔/盖板的独立安装面。发射板使用电池外侧的四个边缘支撑/压片，不把 boss 穿过电池宽面；主控母板的腔体余量和所有接口分工见 [`../system-packaging-v0.2.zh-CN.md`](../system-packaging-v0.2.zh-CN.md)。
+接收载板安装时长边对应 M6 壳体的竖直 z 方向，当前 `80 mm` 只作为壳体内的集中式采集板尺寸，不再把十个光学头的 `20 mm` 节距展开到 PCB 上；发射板和 UI 板分别对应梯形腔与 y+ 一体式 UI 填平固定板的安装面。发射板使用电池外侧的四个边缘支撑/压片，不把 boss 穿过电池宽面；主控母板的腔体余量和所有接口分工见 [`../system-packaging-v0.2.zh-CN.md`](../system-packaging-v0.2.zh-CN.md)。
 
 对应的板级机械模型在 [`../3d/v0.2/`](../3d/v0.2/)：`m6-receiver-carrier-v0.2.{stl,step}`、`emitter-power-v0.2.{stl,step}`、`ui-panel-v0.2.{stl,step}`。统一装入壳体后的边界、boss、过线和干涉结果见 [`../fit-report-v0.2.md`](../fit-report-v0.2.md)。
 
@@ -23,7 +23,7 @@
 - M6 接收端：每路 `BN / BU / BK` 三芯线仍按 `J_RX00…J_RX09` 独立编号；线束汇聚后在紧凑接收板上插接，接收板排列不代表光学头的物理间距。
 - 本目录的接口候选统一锁定为 `MX1.25` 节距；JST-GH 模型只是当前仓库可用的 1.25 mm 锁扣外观代理，准确 MX1.25 厂家/料号、线径和额定电流仍需首样冻结，不使用 2.54 mm 物理连接器。
 - `J_EXT` 是可插拔螺钉/压接端子形式的外部后备输入，不能与电池裸并联；最终反接、保险/TVS 和升压电流按实物模块冻结。
-- UI 子板的母板、OLED、扬声器和蜂鸣器仍使用锁扣线束；START/MODE 使用库存 3.9×3.0×2.0 mm 两脚 SMD 按键，状态/电量使用 0603 单色 LED，USB-C 使用 KiCad 16 针库模型直接焊在 UI PCB 上，并与 y+ 封口板开口共用坐标。封口板在按键位置做浅凹面和腔内一体 1.6 mm 导向柱，直接顶到 KiCad 按键模型；LED 对准 2.2 mm 直孔；屏幕保留为排线连接的独立件，不把屏幕玻璃强行固定到 PCB，USB-C 端口配硅胶帽。按键、LED、USB-C 的机械实体只来自 KiCad 板模型；屏幕、扬声器和电池等非贴板件由 `hardware/cad/electronics_components.scad` 定义并在装配世界坐标中挂载；最终 USB-C 厂家/料号仍需首样冻结。
+- UI 子板的母板、OLED、扬声器和蜂鸣器仍使用锁扣线束；START/MODE 使用库存 3.9×3.0×2.0 mm 两脚 SMD 按键，状态/电量使用 0603 单色 LED，USB-C 使用 KiCad 16 针库模型直接焊在 UI PCB 上，并与 y+ 一体式填平固定板开口共用坐标。面板在按键位置做浅凹面和腔内一体 1.6 mm 导向柱，直接顶到 KiCad 按键模型；LED 对准 2.2 mm 直孔；屏幕保留为排线连接的独立件，不把屏幕玻璃强行固定到 PCB，USB-C 端口配硅胶帽。按键、LED、USB-C 的机械实体只来自 KiCad 板模型；屏幕、扬声器和电池等非贴板件由 `hardware/cad/electronics_components.scad` 定义并在装配世界坐标中挂载；最终 USB-C 厂家/料号仍需首样冻结。
 
 ## 重生成与检查
 
@@ -48,6 +48,6 @@ python3 ../generate_daughter_schematics.py
 $KICAD_PYTHON hardware/electronics/validate_system_fit.py
 ```
 
-## 盖合边界
+## 面板装配边界
 
-盒盖这里不追求 IP 防水等级。“水密”只表示盖板装上后定位唇、连续压合面和胶条/替换密封条能够贴合，不出现明显贯通缝、错台或松动；线缆则用压紧出线件和应力释放完成装配。实际胶条压缩量、PETG boss 强度、电池弯折半径和连接器插拔空间仍需首样实物确认。
+UI 面板不追求 IP 防水等级。“齐平”只表示一体式填平固定板从腔内装入后与 y+ 外壁贴合，不出现明显错台或松动；线缆则用锁扣端子和应力释放完成装配。实际 PETG 固定强度、电池弯折半径和连接器插拔空间仍需首样实物确认。

@@ -5,11 +5,11 @@ The C-clamp is split at y=0 into an operator-side half and an opponent-side
 half.  The active connection is the SKP C-scheme: a green integrated base on
 the upright slides into a clearance pocket in the fixed body, then two M4
 fasteners and a spring-ball detent retain it.  Nine transverse M5 joints clamp
-the two C-clamp halves.  This helper selects the six print objects, normalises
+the two C-clamp halves.  This helper selects the five print objects, normalises
 their OpenSCAD world coordinates, and produces an editable Bambu project with
 all object names preserved.
 
-The generated 3MF is an editable Bambu project.  The six source objects are kept
+The generated 3MF is an editable Bambu project.  The five source objects are kept
 together as complete source objects, but they are deliberately not claimed to
 be one-plate G-code: the fixed body and the tilted carrier cannot both fit beside
 each other on one X1C plate.  Open the project in Bambu Studio and arrange the
@@ -157,22 +157,20 @@ def build_side(
     body_user_name = f"{side}-clamp-body-half-user.stl"
     body_opponent_name = f"{side}-clamp-body-half-opponent.stl"
     clip_name = f"{side}-net-clamp-clip.stl"
-    bezel_name = f"{side}-clamp-electronics-ui-bezel.stl"
-    retaining_frame_name = f"{side}-clamp-electronics-ui-retaining-frame.stl"
+    ui_panel_mount_name = f"{side}-clamp-electronics-ui-panel-mount.stl"
     source_files = [
         source_dir / body_user_name,
         source_dir / body_opponent_name,
         source_dir / carrier_name,
         source_dir / clip_name,
-        source_dir / bezel_name,
-        source_dir / retaining_frame_name,
+        source_dir / ui_panel_mount_name,
     ]
     for path in source_files:
         if not path.is_file():
             raise SystemExit(f"当前打印包缺少必要零件: {path}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    # Keep all three source meshes next to the generated project so opening the
+    # Keep all source meshes next to the generated project so opening the
     # package never requires recovering them from an older directory.
     for path in source_files:
         shutil.copy2(path, output_dir / path.name)
@@ -221,7 +219,7 @@ def build_side(
             shutil.copy2(seeded, final_path)
         else:
             raise RuntimeError(
-                "当前接口换版包包含 C 夹前后半体、C 方案黄绿立柱、y+ 填平板、腔内搭接框和网夹六件，不能诚实地作为一张 X1C 底板切片；"
+                "当前接口换版包包含 C 夹前后半体、C 方案黄绿立柱、一体式 y+ UI 填平固定板和网夹五件，不能诚实地作为一张 X1C 底板切片；"
                 "请省略 --slice（默认生成可编辑 3MF），在 Bambu Studio 中分盘排版后再切片。"
             )
 
@@ -230,8 +228,7 @@ def build_side(
         body_opponent_name,
         carrier_name,
         clip_name,
-        bezel_name,
-        retaining_frame_name,
+        ui_panel_mount_name,
     }
     names = verify_3mf(final_path, required_names, require_gcode=not no_slice)
     manifest = {
@@ -251,12 +248,12 @@ def build_side(
         "project_objects": names,
         "sliced": not no_slice,
         "notes": [
-            "这是 C 方案分型接口换版包：操作者侧/对手侧两件 C 夹半体、带绿色整体底座的整根立柱、y+ 外侧齐平填平板、腔内八孔搭接固定框和全高 U 形滑入网夹是六类独立打印对象。",
+            "这是 C 方案分型接口换版包：操作者侧/对手侧两件 C 夹半体、带绿色整体底座的整根立柱、一体式 y+ 外侧齐平填平固定板（含腔内八孔搭接法兰）和全高 U 形滑入网夹是五类独立打印对象。",
             "两件 C 夹半体在 y=0 合拢；前半圆头沉孔朝外，后半防转六角螺母窝朝外，9 个横向 M5 连接位把两半锁成一体；两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，分开后按号装配，字顶低于分型基准；只有贴到电子腔空腔边界的连接位带承力 boss，实心夹臂里的连接位只保留孔位，避免外壳凸起。左下角孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点。",
             "分型后的 C 夹必须与带让位腔的立柱配套换版；旧的完整整件夹体不能继续使用。",
             "绿色整体底座沿 x 方向推入灰色让位腔，两个 M4 穿孔锁紧，4 mm 钢珠只负责终点定位。",
-            "腔内 UI 搭接框外延加宽到 72×42 mm，8 个 Ø2.3 mm 通孔用于 2 mm 蘑菇头自攻钉；孔中心相对旧 M3 方案向外移 1.0 mm，螺钉直接进入 C 夹实心内壁 Ø1.6 mm 盲导孔，孔边保留至少 1.2 mm 实体边，导向孔深按当前壳体参数生成，外壁保留 0.7 mm 底厚，不再生成正向 boss 柱。",
-            "本 3MF 保留六件完整模型但不包含 G-code；两件 C 夹半体、斜放立柱、y+ 填平板和腔内搭接框不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",
+            "一体式 UI 填平固定板外延加宽到 72×42 mm，腔内固定法兰和窗口捕获环与面板融合；8 个 Ø2.3 mm 通孔用于 2 mm 蘑菇头自攻钉，螺钉直接进入 C 夹实心内壁 Ø1.6 mm 盲导孔，孔边保留至少 1.2 mm 实体边，导向孔深按当前壳体参数生成，外壁保留 0.7 mm 底厚，不生成正向 boss 柱。",
+            "本 3MF 保留五件完整模型但不包含 G-code；两件 C 夹半体、斜放立柱和一体式 UI 填平固定板不能同时放在一张 X1C 底板内，请在 Bambu Studio 中分盘排版后切片。",
             "当前方案没有独立圆柱 net_clamp_rod；旧名称只是兼容诊断入口。",
             "切片/导出通过不等于实物推入配合、网布夹持和承力验收。",
         ],
@@ -285,7 +282,7 @@ def parse_args() -> argparse.Namespace:
         "--slice",
         dest="no_slice",
         action="store_false",
-        help="已禁用：六件不能诚实地在一张 X1C 底板切片；请在 Bambu Studio 中分盘后切片",
+        help="已禁用：五件不能诚实地在一张 X1C 底板切片；请在 Bambu Studio 中分盘后切片",
     )
     parser.add_argument(
         "--clean",
@@ -310,7 +307,7 @@ def main() -> int:
         raise SystemExit(f"找不到 X1C/PETG 设置模板: {template}")
     if not args.no_slice:
         raise SystemExit(
-            "当前换版包包含 C 夹前后半体、C 方案黄绿立柱、y+ 填平板、腔内搭接框和网夹六件，不能作为一张 X1C 底板切片；"
+            "当前换版包包含 C 夹前后半体、C 方案黄绿立柱、一体式 y+ UI 填平固定板和网夹五件，不能作为一张 X1C 底板切片；"
             "请直接运行本脚本生成可编辑 3MF，再在 Bambu Studio 中分盘排版。"
         )
     if args.clean and output_dir.is_dir():
@@ -331,6 +328,12 @@ def main() -> int:
         for path in output_dir.glob("*-clamp-body-half-opponent.stl"):
             path.unlink()
         for path in output_dir.glob("*-net-clamp-clip.stl"):
+            path.unlink()
+        # Remove every stale electronics STL variant before copying the one
+        # current panel-mount object back in build_side(). This also clears
+        # retired bottom-cover, gasket, bezel, or retaining-frame files from
+        # a reused output directory.
+        for path in output_dir.glob("*-clamp-electronics-*.stl"):
             path.unlink()
 
     bambu = find_bambu(args.bambu)

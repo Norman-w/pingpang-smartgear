@@ -150,8 +150,8 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     # x-z C-clamp profiles share two plates after rotating their outer y faces
     # onto the bed; the remaining parts fill three PETG plates and one TPU
     # plate.
-    if len(data["plates"]) != 7 or sum(p["part_count"] for p in data["plates"]) != 41:
-        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 7/41）")
+    if len(data["plates"]) != 7 or sum(p["part_count"] for p in data["plates"]) != 39:
+        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 7/39）")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")

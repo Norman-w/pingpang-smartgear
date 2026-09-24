@@ -1,7 +1,7 @@
 # Pingpang SmartGear electronics system fit report v0.2
 
 - Overall mechanical/package status: **PASS**
-- Generated: `2026-09-24T05:39:50.877536+00:00`
+- Generated: `2026-09-24T07:40:30.545159+00:00`
 - Mechanical source: `hardware/cad/net_stand.scad`
 - Native KiCad status: `PASS`
 - Native KiCad projects: `4` `.kicad_pcb` / `4` `.kicad_pro`; schematic PDF export: `PASS`
@@ -30,7 +30,7 @@ The PCB files and board STL/STEP exports are real KiCad artifacts. The main boar
 |---|---|---:|
 | right ESP32 mother board | **PASS** | 4.000 mm |
 | left emitter power board | **PASS** | 4.000 mm |
-| cover UI board | **PASS** | 0.560 mm |
+| y+ side UI board | **PASS** | 0.560 mm |
 | internal battery envelope | **PASS** | 2.000 mm |
 | vertical M6 receiver carrier | **PASS** | 1.500 mm |
 
@@ -41,13 +41,13 @@ Mother-board retention is the native `esp32-control-v0.1.kicad_pcb` Edge.Cuts co
 - AABB fit: conservative x/y/z envelope checks for every imported KiCad board and both internal battery packs.
 - Boolean interference: `PASS` across both clamp sides and both M6 sides.
 - OpenSCAD view compilation: `PASS` for full cutaway, physical shell cutaway, per-side exploded views, M6 integration, and M6 exploded assembly.
-- Printable package: `41/41` STL files closed and positive volume.
+- Printable package: `39/39` STL files closed and positive volume.
 
 ## UI panel direct interface
 
 - Direct datum status: **PASS**. START/MODE and both 0603 LEDs use their footprint centers; USB-C uses the measured component-model front-profile datum from the KiCad export.
 - Insert-panel contract: screen opening `27.4 × 16.4 mm`, button pocket `Ø4.9 mm` with `Ø1.6 mm` plungers, LED bores `Ø2.2 mm`, speaker opening `Ø12.0 mm`, USB-C fit tunnel `9.4 × 3.7 mm` from the G-Switch `.kicad_mod` F.Fab rounded metal-shell profile (solder/contact legs and F.CrtYd rectangle excluded), with the larger rounded bowl ending at the placed KiCad housing front; a `0.6 mm` annular printed floor remains around that bowl, while the smaller KiCad-fit tunnel is open through the centre for the Type-C housing; no subtraction widens through the C-clamp wall; board-to-panel gap `0.6 mm`; panel inserts from the cavity with `0.6 mm` side clearance and finishes `0.0 mm` from the wall datum.
-- Retaining-frame contract: `8` cavity-side holes, a `2.5 mm` mounting flange at y=`17.5..20.0 mm` plus a window capture bridge at y=`20.0..25.5 mm`, outer/inner borders `7.0/1.6 mm`, window clearance `0.2 mm`, Ø`2.3 mm` clearance holes for 2 mm mushroom-head self-tapping screws into Ø`1.6 mm` blind pilots cut directly in the solid C-clamp wall; pilot depth `8.3 mm` leaves `0.7 mm` outer-wall floor, with no positive boss and `1.2 mm` minimum edge land. Panel hidden relief cutouts: `none`; outer face screw openings: `none`.
+- Integrated UI panel-mount contract: the faceplate and cavity-side capture ring are one fused print with `8` cavity-side holes, a `2.5 mm` mounting flange at y=`17.5..20.0 mm` plus a window capture bridge at y=`20.0..26.0 mm` (panel perimeter overlap `0.4 mm`), outer/inner borders `7.0/1.6 mm`, window clearance `0.2 mm`, Ø`2.3 mm` clearance holes for 2 mm mushroom-head self-tapping screws into Ø`1.6 mm` blind pilots cut directly in the solid C-clamp wall; pilot depth `8.3 mm` leaves `0.7 mm` outer-wall floor, with no positive boss and `1.2 mm` minimum edge land. Panel hidden relief cutouts: `none`; outer face screw openings: `none`.
 - USB-C mating axis: `PCB normal -> y+ panel`; its KiCad footprint model is `USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (component-filtered KiCad export, rotated +90° for y+)`. The final purchased receptacle dimensions/part number remains an explicit first-article item.
 
 ## PCB DRC evidence

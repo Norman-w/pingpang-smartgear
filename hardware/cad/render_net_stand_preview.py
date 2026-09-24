@@ -401,13 +401,6 @@ def main() -> None:
     )
     render(
         openscad,
-        "clamp_electronics_cover",
-        args.output_dir / "net-stand-clamp-electronics-cover.png",
-        1200,
-        700,
-    )
-    render(
-        openscad,
         "clamp_electronics_system_preview",
         args.output_dir / "net-stand-electronics-system-preview.png",
         1800,

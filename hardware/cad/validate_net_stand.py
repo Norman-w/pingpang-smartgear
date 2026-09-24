@@ -36,11 +36,8 @@ PARTS = (
     "table_clamp",
     "table_clamp_section",
     "table_clamp_body",
-    "clamp_electronics_cover",
-    "clamp_electronics_gasket",
     "clamp_electronics_ui_panel",
-    "clamp_electronics_ui_bezel",
-    "clamp_electronics_ui_retaining_frame",
+    "clamp_electronics_ui_panel_mount",
     "clamp_electronics_emitter_preview",
     "clamp_electronics_system_preview",
     "clamp_electronics_full_cutaway",
@@ -729,27 +726,22 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "clamp_electronics_ui_side_board_plane_y",
         "clamp_electronics_ui_side_board_z_min",
         "clamp_electronics_ui_side_panel_inward_shift_y",
-        "clamp_electronics_ui_mount_root_overlap_y",
-        "clamp_electronics_ui_mount_thread_engagement_y",
         "clamp_electronics_ui_side_window_border",
         "clamp_electronics_ui_insert_panel_border",
         "clamp_electronics_ui_insert_panel_t",
         "clamp_electronics_ui_panel_outer_local_z",
         "clamp_electronics_ui_panel_inner_local_z",
-        "clamp_electronics_ui_panel_seat_gap_z",
-        "clamp_electronics_ui_retaining_frame_outer_border",
-        "clamp_electronics_ui_retaining_frame_inner_border",
-        "clamp_electronics_ui_retaining_frame_window_clearance",
-        "clamp_electronics_ui_retaining_frame_t",
-        "clamp_electronics_ui_retaining_frame_hole_d",
-        "clamp_electronics_ui_retaining_frame_min_edge_land",
+        "clamp_electronics_ui_panel_mount_outer_border",
+        "clamp_electronics_ui_panel_mount_inner_border",
+        "clamp_electronics_ui_panel_mount_window_clearance",
+        "clamp_electronics_ui_panel_mount_t",
+        "clamp_electronics_ui_panel_mount_hole_d",
+        "clamp_electronics_ui_panel_mount_min_edge_land",
         "clamp_electronics_ui_wall_pilot_d",
         "clamp_electronics_ui_wall_pilot_floor_t",
-        "clamp_electronics_ui_mount_boss_d",
-        "clamp_electronics_ui_mount_pilot_d",
-        "clamp_electronics_ui_mount_screw_nominal_d",
-        "clamp_electronics_ui_mount_boss_height",
-        "clamp_electronics_ui_mount_pilot_floor_t",
+        "clamp_electronics_ui_panel_mount_boss_d",
+        "clamp_electronics_ui_panel_mount_screw_nominal_d",
+        "clamp_electronics_ui_panel_mount_boss_height",
         "clamp_electronics_faceplate_t",
         "clamp_reinforcement_start_x",
         "clamp_reinforcement_end_x",
@@ -3686,11 +3678,8 @@ def main() -> None:
             "table_clamp",
             "table_clamp_section",
             "table_clamp_body",
-            "clamp_electronics_cover",
-            "clamp_electronics_gasket",
             "clamp_electronics_ui_panel",
-            "clamp_electronics_ui_bezel",
-    "clamp_electronics_ui_retaining_frame",
+            "clamp_electronics_ui_panel_mount",
             "clamp_electronics_emitter_preview",
             "clamp_electronics_full_cutaway",
             "clamp_electronics_exploded",
@@ -3771,9 +3760,6 @@ def main() -> None:
 
         net_bounds = stl_bounds(output_dir / "net.stl")
         clamp_body_bounds = stl_bounds(output_dir / "table_clamp_body.stl")
-        electronics_cover_bounds = stl_bounds(
-            output_dir / "clamp_electronics_cover.stl"
-        )
         clamp_section_bounds = stl_bounds(output_dir / "table_clamp_section.stl")
         top_pad_bounds = stl_bounds(output_dir / "clamp_top_pad.stl")
         pressure_pad_bounds = stl_bounds(output_dir / "clamp_pressure_pad.stl")
@@ -3819,17 +3805,15 @@ def main() -> None:
         cavity_y_half = parameters["clamp_electronics_cavity_y_half"]
         cavity_length = parameters["clamp_electronics_cavity_length_x"]
         board_length = parameters["clamp_electronics_board_length_x"]
+        board_width = parameters["clamp_electronics_board_width_y"]
         if not (
-            electronics_cover_bounds[0] < cavity_x_min
-            and electronics_cover_bounds[1] > cavity_x_max
-            and electronics_cover_bounds[3] - electronics_cover_bounds[2]
-            > 2 * cavity_y_half
-            and cavity_length > board_length
+            cavity_length > board_length
+            and board_width / 2 < cavity_y_half
         ):
             raise RuntimeError(
-                "electronics cover does not span the SCAD cavity/board envelope: "
-                f"cover={electronics_cover_bounds}, cavity="
-                f"({cavity_x_min}, {cavity_x_max}, +/-{cavity_y_half})"
+                "electronics cavity does not leave a board envelope: "
+                f"cavity=({cavity_x_min}, {cavity_x_max}, +/-{cavity_y_half}), "
+                f"board=({board_length} x {board_width})"
             )
         end_margin_x = (
             parameters["clamp_electronics_cavity_length_x"]
@@ -3901,15 +3885,18 @@ def main() -> None:
         ui_wall_outer_y = parameters["clamp_reinforcement_depth_y"] / 2
         ui_panel_inner_y = ui_plane_y + ui_panel_inner_local_z
         ui_panel_outer_y = ui_plane_y + ui_panel_outer_local_z
-        ui_frame_outer_border = parameters["clamp_electronics_ui_retaining_frame_outer_border"]
-        ui_frame_inner_border = parameters["clamp_electronics_ui_retaining_frame_inner_border"]
+        ui_frame_outer_border = parameters["clamp_electronics_ui_panel_mount_outer_border"]
+        ui_frame_inner_border = parameters["clamp_electronics_ui_panel_mount_inner_border"]
         ui_frame_window_clearance = parameters[
-            "clamp_electronics_ui_retaining_frame_window_clearance"
+            "clamp_electronics_ui_panel_mount_window_clearance"
         ]
-        ui_frame_t = parameters["clamp_electronics_ui_retaining_frame_t"]
-        ui_frame_hole_d = parameters["clamp_electronics_ui_retaining_frame_hole_d"]
+        ui_frame_t = parameters["clamp_electronics_ui_panel_mount_t"]
+        ui_frame_integrated_overlap = parameters[
+            "clamp_electronics_ui_integrated_capture_overlap_z"
+        ]
+        ui_frame_hole_d = parameters["clamp_electronics_ui_panel_mount_hole_d"]
         ui_frame_min_edge_land = parameters[
-            "clamp_electronics_ui_retaining_frame_min_edge_land"
+            "clamp_electronics_ui_panel_mount_min_edge_land"
         ]
         ui_wall_pilot_d = parameters["clamp_electronics_ui_wall_pilot_d"]
         ui_wall_pilot_floor_t = parameters[
@@ -3917,9 +3904,9 @@ def main() -> None:
         ]
         # Compatibility values must stay zero so no stale positive boss can
         # enter the printable body through an older module name.
-        ui_boss_d = parameters["clamp_electronics_ui_mount_boss_d"]
-        ui_screw_d = parameters["clamp_electronics_ui_mount_screw_nominal_d"]
-        ui_boss_h = parameters["clamp_electronics_ui_mount_boss_height"]
+        ui_boss_d = parameters["clamp_electronics_ui_panel_mount_boss_d"]
+        ui_screw_d = parameters["clamp_electronics_ui_panel_mount_screw_nominal_d"]
+        ui_boss_h = parameters["clamp_electronics_ui_panel_mount_boss_height"]
         ui_frame_hole_centers = (
             (10.0, -4.6), (48.0, -4.6),
             (10.0, 32.6), (48.0, 32.6),
@@ -3937,17 +3924,14 @@ def main() -> None:
             )
             for x, y in ui_frame_hole_centers
         ]
-        # The released retaining frame is stepped: its broad mounting flange
+        # The released UI panel mount is stepped: its broad mounting flange
         # sits on the cavity side of the solid wall, and only the narrower
-        # capture bridge enters the y+ window. This keeps the frame out of the
-        # wall's solid envelope and means the UI panel has no hidden boss
-        # relief pockets.
+        # capture bridge enters the y+ window. The bridge intentionally
+        # overlaps the panel perimeter so both pieces are one connected print.
         ui_frame_mount_front_y = cavity_y_half
         ui_frame_mount_back_y = ui_frame_mount_front_y - ui_frame_t
         ui_frame_capture_back_y = ui_frame_mount_front_y
-        ui_frame_capture_front_y = ui_panel_inner_y - parameters[
-            "clamp_electronics_ui_panel_seat_gap_z"
-        ]
+        ui_frame_capture_front_y = ui_panel_inner_y + ui_frame_integrated_overlap
         if not (
             ui_shift_y > 0
             and ui_plane_y < cavity_y_half
@@ -3956,7 +3940,8 @@ def main() -> None:
             and ui_frame_mount_front_y <= cavity_y_half + 0.01
             and ui_frame_capture_back_y >= cavity_y_half - 0.01
             and ui_frame_capture_front_y > ui_frame_capture_back_y + 2.0
-            and ui_frame_capture_front_y < ui_panel_inner_y
+            and ui_frame_integrated_overlap > 0
+            and ui_frame_capture_front_y > ui_panel_inner_y
             and ui_panel_border <= ui_window_border - 0.4
             and ui_frame_outer_border > ui_window_border
             and ui_frame_window_clearance >= 0.2
@@ -3976,10 +3961,11 @@ def main() -> None:
             and abs(ui_panel_outer_y - ui_wall_outer_y) <= 0.05
         ):
             raise RuntimeError(
-                "UI two-piece panel stack must fit from the cavity, finish flush, and keep the 2 mm screw in a direct 1.6 mm wall pilot: "
+                "UI integrated panel mount must fit from the cavity, finish flush, fuse the capture ring into the panel perimeter, and keep the 2 mm screw in a direct 1.6 mm wall pilot: "
                 f"plane_y={ui_plane_y}, panel_inner_y={ui_panel_inner_y}, panel_outer_y={ui_panel_outer_y}, "
                 f"mount_frame=({ui_frame_mount_back_y}, {ui_frame_mount_front_y}), "
                 f"capture_frame=({ui_frame_capture_back_y}, {ui_frame_capture_front_y}), "
+                f"integrated_overlap={ui_frame_integrated_overlap}, "
                 f"frame_t={ui_frame_t}, edge_land={min(ui_frame_edge_lands)}, "
                 f"wall_pilot={ui_wall_pilot_d}, screw={ui_screw_d}, bosses=({ui_boss_d}, {ui_boss_h})"
             )
