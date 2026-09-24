@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-21T23:21:18.596142+00:00",
+  "generated_at": "2026-09-24T05:39:50.877536+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -445,13 +445,31 @@
       "led_bore_d_mm": 2.2,
       "speaker_opening_d_mm": 12.0,
       "usb_opening_mm": [
-        9.6,
-        6.6
+        9.44,
+        3.66
+      ],
+      "usb_kicad_mod_profile_mm": {
+        "width": 8.94,
+        "height": 3.16,
+        "radius": 1.58,
+        "source": "Connector_USB.pretty/USB_C_Receptacle_G-Switch_GT-USB-7051x.kicad_mod F.Fab"
+      },
+      "usb_bowl_outer_mm": [
+        10.54,
+        4.76
+      ],
+      "usb_bowl_floor_local_z_mm": 5.27,
+      "usb_bowl_bottom_t_mm": 0.6,
+      "usb_bowl_support_floor_local_z_mm": 4.67,
+      "usb_bowl_depth_local_mm": 4.53,
+      "usb_shell_center_mm": [
+        47.0,
+        24.27
       ],
       "board_to_faceplate_gap_mm": 0.56,
       "opening_clearances_mm": {
         "screen_to_faceplate_edge_mm": 8.8,
-        "usb_to_screen_mm": 0.5,
+        "usb_to_screen_mm": 0.24,
         "buttons_to_screen_mm": 3.2
       },
       "status": "PASS"
@@ -477,7 +495,7 @@
     "usb_c": {
       "orientation_deg": 0.0,
       "mating_axis": "PCB normal -> y+ panel",
-      "model": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (KiCad library model, rotated for y+)",
+      "model": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (component-filtered KiCad export, rotated +90° for y+)",
       "status": "PASS",
       "physical_vendor_step": "OPEN until the purchased receptacle dimensions/SKU are frozen"
     }
@@ -555,7 +573,7 @@
         "stl": "hardware/electronics/3d/v0.2/esp32-control-v0.1.stl",
         "step": "hardware/electronics/3d/v0.2/esp32-control-v0.1.step",
         "stl_bytes": 6182324,
-        "step_bytes": 5482802,
+        "step_bytes": 5482349,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1564,7 +1582,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[07:20:41] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[13:39:08] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 210,
     "erc_errors": 119,
@@ -1683,7 +1701,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 9010765,
+        "bytes": 9159485,
         "manifold_reported": true
       },
       {
@@ -1697,7 +1715,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 8851485,
+        "bytes": 8992451,
         "manifold_reported": true
       },
       {
@@ -1711,7 +1729,7 @@
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 38437166,
+        "bytes": 38578132,
         "manifold_reported": true
       },
       {
@@ -1719,7 +1737,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 25623487,
+        "bytes": 25772210,
         "manifold_reported": true
       },
       {
@@ -1727,7 +1745,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 25943932,
+        "bytes": 26094465,
         "manifold_reported": true
       },
       {

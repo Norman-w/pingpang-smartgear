@@ -421,7 +421,8 @@ def build_export_specs() -> list[ExportSpec]:
     # The formal printed part is an internal insert panel: it enters from the
     # cavity side, stops on the shell ledge, finishes flush with the wall, and
     # carries the screen opening, button plungers, LED bores, speaker opening,
-    # USB-C slot; the panel has no hidden backside boss pockets and the visible
+    # and tight rounded USB-C bowl; the panel has no hidden backside boss
+    # pockets and the visible
     # y+ face has no screw holes.
     specs.extend(
         _side_specs(
@@ -429,7 +430,7 @@ def build_export_specs() -> list[ExportSpec]:
             "clamp-electronics-ui-bezel",
             "PETG",
             "y+ 面朝上；从腔内 y- 侧推入窗口后由阶梯搭接框的窗口内边定位；外侧齐平面无螺钉孔；面板平放配置支撑。",
-            "y+ 侧 UI 外侧齐平填平板正式打印件。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入并由搭接框的内侧窗口边定位，外表面与 C 夹壁齐平。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；面板没有隐藏 boss 收纳槽，y+ 可见面不打孔、不做沉头。",
+            "y+ 侧 UI 外侧齐平填平板正式打印件。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入并由搭接框的内侧窗口边定位，外表面与 C 夹壁齐平。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；USB-C 通道尺寸取自当前 KiCad UI 的 J_USB_PANEL 外壳/屏蔽件，排除了焊接脚，再加每侧 0.25 mm 打印配合；外侧改为到达 KiCad 金属外壳前沿的圆角碗槽，外围保留 0.60 mm 连续环形打印底，中心 KiCad-fit 通孔贯穿并由 Type-C 金属壳体负责显示/插入；面板没有隐藏 boss 收纳槽，y+ 可见面不打孔、不做沉头。",
         )
     )
     specs.extend(

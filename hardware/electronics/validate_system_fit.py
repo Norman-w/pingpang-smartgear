@@ -720,8 +720,57 @@ def check_ui_interface_alignment(
     button_clearance = number(parameters, "clamp_electronics_faceplate_button_clearance")
     led_bore_d = number(parameters, "clamp_electronics_ui_led_bore_d")
     speaker_d = number(parameters, "clamp_electronics_ui_speaker_d") - 4
-    usb_w = 8 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
-    usb_h = 5 + 2 * number(parameters, "clamp_electronics_faceplate_usb_clearance")
+    usb_fit_envelope_w = number(
+        parameters, "clamp_electronics_ui_usb_kicad_fit_envelope_w"
+    )
+    usb_fit_envelope_h = number(
+        parameters, "clamp_electronics_ui_usb_kicad_fit_envelope_h"
+    )
+    usb_fit_clearance = number(
+        parameters, "clamp_electronics_ui_usb_kicad_fit_clearance"
+    )
+    usb_profile_w = number(
+        parameters, "clamp_electronics_ui_usb_kicad_profile_w"
+    )
+    usb_profile_h = number(
+        parameters, "clamp_electronics_ui_usb_kicad_profile_h"
+    )
+    usb_profile_radius = number(
+        parameters, "clamp_electronics_ui_usb_kicad_profile_radius"
+    )
+    usb_fit_radius = number(
+        parameters, "clamp_electronics_ui_usb_kicad_fit_radius"
+    )
+    # fit_envelope already includes the per-side print clearance.  Adding it
+    # a second time was the source of the oversized opening in the previous
+    # revision.
+    usb_w = usb_fit_envelope_w
+    usb_h = usb_fit_envelope_h
+    usb_bowl_outer_w = usb_fit_envelope_w + 2 * number(
+        parameters, "clamp_electronics_ui_usb_bowl_outer_margin_x"
+    )
+    usb_bowl_outer_h = usb_fit_envelope_h + 2 * number(
+        parameters, "clamp_electronics_ui_usb_bowl_outer_margin_y"
+    )
+    usb_shell_front_local_z = number(
+        parameters, "clamp_electronics_ui_usb_kicad_shell_front_local_z"
+    )
+    usb_bowl_floor_local_z = number(
+        parameters, "clamp_electronics_ui_usb_bowl_floor_local_z"
+    )
+    usb_bowl_bottom_t = number(
+        parameters, "clamp_electronics_ui_usb_bowl_bottom_t"
+    )
+    usb_bowl_support_floor_local_z = number(
+        parameters, "clamp_electronics_ui_usb_bowl_support_floor_local_z"
+    )
+    usb_bowl_depth = number(
+        parameters, "clamp_electronics_ui_usb_bowl_depth_z"
+    )
+    usb_shell_center = (
+        number(parameters, "clamp_electronics_ui_usb_shell_x"),
+        number(parameters, "clamp_electronics_ui_usb_shell_y"),
+    )
     ui_plane_y = number(parameters, "clamp_electronics_ui_side_board_plane_y")
     ui_shift_y = number(parameters, "clamp_electronics_ui_side_panel_inward_shift_y")
     cavity_y_half = number(parameters, "clamp_electronics_cavity_y_half")
@@ -813,6 +862,23 @@ def check_ui_interface_alignment(
         and abs(boss_d) <= 0.01
         and abs(boss_height) <= 0.01
         and abs(panel_outer_y - wall_outer_y) <= 0.05
+        and usb_bowl_floor_local_z < panel_inner_local_z
+        and usb_bowl_support_floor_local_z < usb_bowl_floor_local_z
+        and abs(
+            (usb_bowl_floor_local_z - usb_bowl_support_floor_local_z)
+            - usb_bowl_bottom_t
+        ) <= 0.01
+        and usb_bowl_bottom_t >= 0.6
+        and abs(
+            usb_bowl_depth - (panel_outer_local_z - usb_bowl_floor_local_z)
+        ) <= 0.01
+        and usb_bowl_outer_w >= usb_w
+        and usb_bowl_outer_h >= usb_h
+        and usb_shell_front_local_z < panel_inner_local_z
+        and abs(usb_fit_envelope_w - (usb_profile_w + 2 * usb_fit_clearance)) <= 0.01
+        and abs(usb_fit_envelope_h - (usb_profile_h + 2 * usb_fit_clearance)) <= 0.01
+        and abs(usb_fit_radius - (usb_profile_radius + usb_fit_clearance)) <= 0.01
+        and usb_profile_radius * 2 <= usb_profile_h + 0.01
     ):
         raise RuntimeError(
             "UI two-piece panel stack does not satisfy the cavity-side M2 direct-wall retention contract: "
@@ -838,7 +904,7 @@ def check_ui_interface_alignment(
         screen_y - window_clearance,
         screen_y + screen_h + window_clearance,
     )
-    usb_center = parameter_centers["J_USB_PANEL"]
+    usb_center = usb_shell_center
     usb_opening = (
         usb_center[0] - usb_w / 2,
         usb_center[0] + usb_w / 2,
@@ -933,6 +999,22 @@ def check_ui_interface_alignment(
             "led_bore_d_mm": round(led_bore_d, 3),
             "speaker_opening_d_mm": round(speaker_d, 3),
             "usb_opening_mm": [round(usb_w, 3), round(usb_h, 3)],
+            "usb_kicad_mod_profile_mm": {
+                "width": round(usb_profile_w, 3),
+                "height": round(usb_profile_h, 3),
+                "radius": round(usb_profile_radius, 3),
+                "source": "Connector_USB.pretty/USB_C_Receptacle_G-Switch_GT-USB-7051x.kicad_mod F.Fab",
+            },
+            "usb_bowl_outer_mm": [
+                round(usb_bowl_outer_w, 3), round(usb_bowl_outer_h, 3)
+            ],
+            "usb_bowl_floor_local_z_mm": round(usb_bowl_floor_local_z, 3),
+            "usb_bowl_bottom_t_mm": round(usb_bowl_bottom_t, 3),
+            "usb_bowl_support_floor_local_z_mm": round(
+                usb_bowl_support_floor_local_z, 3
+            ),
+            "usb_bowl_depth_local_mm": round(usb_bowl_depth, 3),
+            "usb_shell_center_mm": [round(usb_shell_center[0], 3), round(usb_shell_center[1], 3)],
             "board_to_faceplate_gap_mm": round(board_to_faceplate_gap, 3),
             "opening_clearances_mm": {
                 key: round(value, 3) for key, value in interface_clearances.items()
@@ -960,7 +1042,7 @@ def check_ui_interface_alignment(
         "usb_c": {
             "orientation_deg": round(usb_orientation, 3),
             "mating_axis": "PCB normal -> y+ panel",
-            "model": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (KiCad library model, rotated for y+)",
+            "model": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step (component-filtered KiCad export, rotated +90° for y+)",
             "status": "PASS",
             "physical_vendor_step": "OPEN until the purchased receptacle dimensions/SKU are frozen",
         },
@@ -1610,8 +1692,8 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "## UI panel direct interface",
             "",
-            "- Direct datum status: **%s**. START/MODE, both 0603 LEDs and the USB-C footprint all match the printed insert-panel centers with zero measured coordinate error." % report["ui_interface"]["status"],
-            "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C slot `%.1f × %.1f mm`, board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
+            "- Direct datum status: **%s**. START/MODE and both 0603 LEDs use their footprint centers; USB-C uses the measured component-model front-profile datum from the KiCad export." % report["ui_interface"]["status"],
+            "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C fit tunnel `%.1f × %.1f mm` from the G-Switch `.kicad_mod` F.Fab rounded metal-shell profile (solder/contact legs and F.CrtYd rectangle excluded), with the larger rounded bowl ending at the placed KiCad housing front; a `%.1f mm` annular printed floor remains around that bowl, while the smaller KiCad-fit tunnel is open through the centre for the Type-C housing; no subtraction widens through the C-clamp wall; board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][1],
                 report["ui_interface"]["faceplate"]["button_pocket_d_mm"],
@@ -1620,6 +1702,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
                 report["ui_interface"]["faceplate"]["speaker_opening_d_mm"],
                 report["ui_interface"]["faceplate"]["usb_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["usb_opening_mm"][1],
+                report["ui_interface"]["faceplate"]["usb_bowl_bottom_t_mm"],
                 report["ui_interface"]["faceplate"]["board_to_faceplate_gap_mm"],
                 report["ui_interface"]["insert_panel"]["insertion_clearance_per_side_mm"],
                 report["ui_interface"]["insert_panel"]["outer_wall_flush_error_mm"],

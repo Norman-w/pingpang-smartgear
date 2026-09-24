@@ -39,11 +39,13 @@ MODEL_SOIC4 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-4_4.55x2.6mm_P1.2
 MODEL_0603 = "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
 MODEL_PANEL_BUTTON = "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
 MODEL_PANEL_LED = "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
-# The UI PCB is installed vertically behind the y+ service panel.  KiCad's
-# 16-pin GCT top-mount library model is rotated about the footprint x axis so
-# its horizontal mating axis becomes the panel-normal direction after the UI
-# board is installed vertically.  It remains attached to the KiCad footprint
-# and is therefore included in the board export, not SCAD.
+# The UI PCB is installed vertically behind the y+ service panel.  The
+# available 16-pin GCT top-mount library model is a horizontal receptacle, so
+# its source +Y mating axis is rotated +90 degrees about footprint X into the
+# vertical footprint's +Z board normal.  The complete UI board is then
+# installed with -90 degrees about X, carrying that opening through the y+
+# panel.  The model remains attached to the KiCad footprint and is therefore
+# included in the board export, not SCAD.
 MODEL_USB_C_PANEL = "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step"
 KICAD_FOOTPRINT_ROOT = Path(
     "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
@@ -231,10 +233,10 @@ def add_panel_led(board, pcbnew, nets: dict[str, object], ref: str,
 
 def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
                     value: str, center_x: float, center_y: float):
-    # The vertical 16-pin receptacle's mating axis is the PCB normal.  With the
-    # UI PCB mounted vertically, that normal points through the y+ bezel; keep
-    # the footprint at 0 degrees so the electrical pads and mechanical mouth
-    # share the same panel datum.
+    # The electrical footprint is vertical and stays at 0 degrees.  The
+    # substituted GCT model is rotated +90 degrees about footprint X so its
+    # actual +Y opening points along the footprint's +Z normal.  When the
+    # entire UI board is installed on the y+ wall, that normal becomes +Y.
     fp = load_library_fp(
         board, pcbnew, LIB_USB_C_PANEL,
         "USB_C_Receptacle_G-Switch_GT-USB-7051x",

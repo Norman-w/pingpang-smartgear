@@ -4,7 +4,7 @@ import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 const MANIFEST_URL = new URL("../exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json", import.meta.url);
 const MODEL_ROOT = new URL("../../../electronics/3d/v0.2/", MANIFEST_URL);
-const PREVIEW_CACHE_BUSTER = "electronics-v30";
+const PREVIEW_CACHE_BUSTER = "electronics-v39";
 const COLORS = Object.freeze({
   shellUser: "#65727b",
   shellOpponent: "#8898a1",
@@ -31,14 +31,21 @@ const D = Object.freeze({
   // UI PCB is the interference datum behind the positive-Y wall window; the
   // printed insert panel is installed from y- and finishes at the wall outer
   // face. The KiCad board remains at the same world plane.
+  // The PCB stays at y=19.2 inside the cavity; the printed USB land reaches
+  // inward to the KiCad housing front without moving the complete board.
   uiSideBoardPlaneY: 19.2,
+  // ui-panel-v0.2.stl has a raw KiCad component envelope down to z=-2.51.
+  // normalizeGeometry() removes that minimum, so put it back here; otherwise
+  // the browser moves the whole board 2.51 mm toward the panel and exposes
+  // the connector's far interior beyond the printed bowl datum.
+  uiBoardModelMinZ: -2.51,
   uiSideZMin: -40,
   uiBoardWidth: 28,
   // Bounds of PART="clamp_electronics_ui_physical_items" exported from the
   // SCAD off-board component library (screen + speaker only). The STL is
   // normalized at load time; this is its world-space minimum in the same
   // assembly datum.
-  uiPhysicalItemsMin: [823.4, 28.35, -33.0],
+  uiPhysicalItemsMin: [823.4, 25.8, -33.0],
   // World-axis reference is translated into the active cavity so it stays
   // visible while retaining the shared global x/y/z directions.
   axisOriginX: (777.5 + 894.3) / 2,
@@ -326,7 +333,11 @@ async function addUiBoard() {
     name: "UI 子板（真实 KiCad STL）",
     category: "ui",
     file: "ui-panel-v0.2.stl",
-    basePosition: [D.uiBoardXMin, D.uiSideBoardPlaneY, D.uiSideZMin + D.uiBoardWidth],
+    basePosition: [
+      D.uiBoardXMin,
+      D.uiSideBoardPlaneY + D.uiBoardModelMinZ,
+      D.uiSideZMin + D.uiBoardWidth,
+    ],
     color: COLORS.uiBoard,
     side: 1,
     role: "ui",
@@ -375,7 +386,7 @@ async function addUiBezel() {
     side: 1,
     role: "ui-bezel",
     explosion: [0, 34, 0],
-    detail: "当前打印包中的正式外侧齐平 UI 填平板 STL；从电子腔 y- 侧穿入窗口并由阶梯固定框的窗口内边定位，外侧齐平且不设螺钉孔，也没有隐藏 boss 收纳槽。8 个蘑菇头螺钉孔位在独立的腔内搭接固定框上；按键导向柱、LED 直孔、屏幕窗、扬声器窗和 Type-C 直通槽均以 KiCad UI 板为同一干涉基准。",
+    detail: "当前打印包中的正式外侧齐平 UI 填平板 STL；从电子腔 y- 侧穿入窗口并由阶梯固定框的窗口内边定位，外侧齐平且不设螺钉孔，也没有隐藏 boss 收纳槽。8 个蘑菇头螺钉孔位在独立的腔内搭接固定框上；按键导向柱、LED 直孔、屏幕窗、扬声器窗和 Type-C 圆角碗槽均以 KiCad UI 板为同一干涉基准，外围碗槽保留 0.60 mm 环形底，中心 KiCad-fit 通孔贯穿，由 Type-C 模型负责中心显示。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
 }

@@ -315,10 +315,10 @@ clamp_electronics_ui_service_height_z = 6.40;
 // no longer references this bottom-cover datum.
 clamp_electronics_ui_cover_recess_z = clamp_electronics_cavity_cover_t;
 clamp_electronics_ui_cover_clearance_z = 1;
-// Side-wall UI datum: move the panel farther into the y+ wall than the first
-// conservative pass.  The PCB plane now sits 0.8 mm inside the cavity edge;
-// the component stack and replaceable faceplate still cross the y+ window and
-// project outward for direct service access.
+// Side-wall UI datum: keep the PCB at y=19.2 inside the cavity.  The USB-C
+// shell front is 1.08 mm farther toward y- than the panel's normal inner
+// surface, so the panel gets a local printed USB land below rather than
+// moving the complete board into the wall.
 clamp_electronics_ui_side_panel_inward_shift_y = 4.0;
 // Extra inward relief behind the recessed UI board.  It follows the board's
 // x/z footprint and only removes the sloped-floor material that the vertical
@@ -408,7 +408,24 @@ clamp_electronics_ui_led_bore_d = 2.2;
 clamp_electronics_ui_button_centers = [[10, 8], [10, 20]];
 clamp_electronics_ui_led_centers = [[29, 3], [32, 25]];
 clamp_electronics_ui_speaker_center = [52.2, 8];
+// PCB footprint datum from ui-panel-v0.2.kicad_pcb.
 clamp_electronics_ui_usb_center = [47, 26];
+// The UI footprint's G-Switch .kicad_mod F.Fab drawing contains the actual
+// panel-facing Type-C outer contour: two horizontal segments from x=-2.89..+
+// 2.89 at y=+/-1.58 and two semicircular arcs with x=+/-4.47.  This is the
+// rounded metal-shell profile; the F.CrtYd rectangle, copper pads, and four
+// SH/solder legs are not the panel opening.  The profile is 8.94 x 3.16 mm,
+// with a 1.58 mm end radius.  The GCT STEP is only the available review model
+// for the missing G-Switch STEP; its KiCad-exported mating profile is offset
+// from the footprint anchor, so use the measured exported model datum below
+// rather than translating the body until it visually fits the opening.
+// The exact J_USB_PANEL component-only KiCad export puts the front profile at
+// raw z=5.27 and raw y=-25.85..-22.69.  The UI side datum mirrors raw y, so
+// the panel-local profile center is [47,24.27].
+clamp_electronics_ui_usb_shell_center = [47, 24.27];
+clamp_electronics_ui_usb_kicad_profile_w = 8.94;
+clamp_electronics_ui_usb_kicad_profile_h = 3.16;
+clamp_electronics_ui_usb_kicad_profile_radius = 1.58;
 clamp_electronics_ui_proxy_clearance = 0.8;
 clamp_electronics_ui_speaker_d = 16;
 clamp_electronics_ui_gland_d = 12;
@@ -445,6 +462,75 @@ clamp_electronics_faceplate_window_clearance = 1.2;
 clamp_electronics_faceplate_button_clearance = 0.35;
 clamp_electronics_faceplate_led_clearance = 0.3;
 clamp_electronics_faceplate_usb_clearance = 0.8;
+// USB-C is a PCB-mounted KiCad component, so the printed panel must not use a
+// generic square proxy.  The fit tunnel is the .kicad_mod F.Fab metal-shell
+// profile above plus 0.25 mm per side.  The F.CrtYd rectangle, copper pads,
+// and solder/contact solids stay out of this opening.  The component-only
+// KiCad STEP export is retained separately as a visual/interference reference.
+clamp_electronics_ui_usb_kicad_fit_clearance = 0.25;
+clamp_electronics_ui_usb_kicad_fit_envelope_w =
+    clamp_electronics_ui_usb_kicad_profile_w +
+    2 * clamp_electronics_ui_usb_kicad_fit_clearance;
+clamp_electronics_ui_usb_kicad_fit_envelope_h =
+    clamp_electronics_ui_usb_kicad_profile_h +
+    2 * clamp_electronics_ui_usb_kicad_fit_clearance;
+clamp_electronics_ui_usb_kicad_fit_radius =
+    clamp_electronics_ui_usb_kicad_profile_radius +
+    clamp_electronics_ui_usb_kicad_fit_clearance;
+// The derived housing-only STL is exported from the component-filtered KiCad
+// STEP, so these bounds are its raw reference envelope before the side datum
+// mirrors y.  They are diagnostic values; the opening itself is driven by the
+// .kicad_mod F.Fab profile above.
+clamp_electronics_ui_usb_kicad_shell_model =
+    "../electronics/3d/v0.2/usb-c-shell-v0.2.stl";
+clamp_electronics_ui_usb_kicad_crop_x_min = 42.53;
+clamp_electronics_ui_usb_kicad_crop_x_max = 51.47;
+clamp_electronics_ui_usb_kicad_crop_raw_y_min = -26.95;
+clamp_electronics_ui_usb_kicad_crop_raw_y_max = -22.69;
+clamp_electronics_ui_usb_kicad_crop_z_min = -2.06;
+clamp_electronics_ui_usb_kicad_crop_z_max = 5.27;
+// The component-only KiCad export puts the selected housing/shield mating
+// face at local z=5.27 after the same UI side datum.  The pocket floor is
+// exactly that metal-front plane: the printed recess stops at the metal and
+// does not continue through the C-clamp wall. Solder/contact solids remain
+// cavity-side and never enlarge the external opening. The separate support
+// datum is below this visible floor so the outer bowl has a printable annular
+// floor; the smaller KiCad-fit tunnel remains open through the centre for the
+// real Type-C housing.
+clamp_electronics_ui_usb_kicad_shell_front_local_z = 5.27;
+clamp_electronics_ui_usb_bowl_touch_clearance_z = 0;
+clamp_electronics_ui_usb_bowl_floor_local_z =
+    clamp_electronics_ui_usb_kicad_shell_front_local_z -
+    clamp_electronics_ui_usb_bowl_touch_clearance_z;
+// Leave a continuous, printable bottom under the outer rounded bowl. 0.60 mm
+// is two 0.30 mm layers on a typical 0.20/0.30 mm PETG profile and is kept
+// below the KiCad metal-front datum. The central KiCad-fit tunnel is cut
+// through this land, so this thickness is an annular support floor, not a
+// plastic plug over the Type-C mating opening.
+clamp_electronics_ui_usb_bowl_bottom_t = 0.60;
+clamp_electronics_ui_usb_bowl_depth_z =
+    clamp_electronics_ui_panel_outer_local_z -
+    clamp_electronics_ui_usb_bowl_floor_local_z;
+// The outside rim is deliberately only a small edge allowance beyond the
+// housing envelope.  It also encloses the 0.25 mm insertion-fit tunnel, so the
+// outer pocket cannot expose a solder/contact leg or leave a taller slit.
+// The bowl is larger than the 0.25 mm insertion tunnel by 0.30 mm per side,
+// leaving a visible printed bearing ring around the real metal housing.
+clamp_electronics_ui_usb_bowl_outer_margin_x = 0.55;
+clamp_electronics_ui_usb_bowl_outer_margin_y = 0.55;
+clamp_electronics_ui_usb_bowl_outer_radius =
+    clamp_electronics_ui_usb_kicad_profile_radius +
+    clamp_electronics_ui_usb_kicad_fit_clearance +
+    clamp_electronics_ui_usb_bowl_outer_margin_x;
+// A local support land extends only around the USB pocket. It starts below
+// the visible bowl floor; the outer negative leaves a 0.60 mm annular floor,
+// while the smaller KiCad-fit negative cuts through the centre. No cutter
+// widens beyond the bowl into the C-clamp wall.
+clamp_electronics_ui_usb_bowl_support_margin_x = 0.20;
+clamp_electronics_ui_usb_bowl_support_margin_y = 0.20;
+clamp_electronics_ui_usb_bowl_support_floor_local_z =
+    clamp_electronics_ui_usb_bowl_floor_local_z -
+    clamp_electronics_ui_usb_bowl_bottom_t;
 post_top_margin = 18;
 
 // 网、光栅和网顶传感器
@@ -4811,8 +4897,10 @@ module clamp_electronics_ui_service_proxies_positive() {
 
 module clamp_electronics_ui_proxy_layout_check_positive() {
     // A faceplate is a 2D packing problem before it becomes a 3D cut.  Keep a
-    // measurable 0.8 mm service/print clearance between every independent
-    // proxy and inside the removable bezel boundary.
+    // measurable clearance between every independent service opening and
+    // inside the removable bezel boundary.  The Type-C fit itself is measured
+    // from the KiCad silhouette; its outer bowl is checked as a second,
+    // larger envelope below.
     screen = [
         (clamp_electronics_ui_board_length_x -
             clamp_electronics_ui_screen_length_x) / 2,
@@ -4829,17 +4917,32 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
         screen[2] - clamp_electronics_faceplate_window_clearance,
         screen[3] + clamp_electronics_faceplate_window_clearance
     ];
+    // The service envelope is the measured KiCad connector silhouette plus
+    // its 0.25 mm per-side insertion fit.  The opening envelope additionally
+    // includes the shallow rounded bowl on the visible face.
     usb = [
-        clamp_electronics_ui_usb_center[0] - 4,
-        clamp_electronics_ui_usb_center[0] + 4,
-        clamp_electronics_ui_usb_center[1] - 2.5,
-        clamp_electronics_ui_usb_center[1] + 2.5
+        clamp_electronics_ui_usb_shell_center[0] -
+            clamp_electronics_ui_usb_kicad_fit_envelope_w / 2,
+        clamp_electronics_ui_usb_shell_center[0] +
+            clamp_electronics_ui_usb_kicad_fit_envelope_w / 2,
+        clamp_electronics_ui_usb_shell_center[1] -
+            clamp_electronics_ui_usb_kicad_fit_envelope_h / 2,
+        clamp_electronics_ui_usb_shell_center[1] +
+            clamp_electronics_ui_usb_kicad_fit_envelope_h / 2
     ];
     usb_opening = [
-        usb[0] - clamp_electronics_faceplate_usb_clearance,
-        usb[1] + clamp_electronics_faceplate_usb_clearance,
-        usb[2] - clamp_electronics_faceplate_usb_clearance,
-        usb[3] + clamp_electronics_faceplate_usb_clearance
+        clamp_electronics_ui_usb_shell_center[0] -
+            (clamp_electronics_ui_usb_kicad_fit_envelope_w / 2 +
+             clamp_electronics_ui_usb_bowl_outer_margin_x),
+        clamp_electronics_ui_usb_shell_center[0] +
+            (clamp_electronics_ui_usb_kicad_fit_envelope_w / 2 +
+             clamp_electronics_ui_usb_bowl_outer_margin_x),
+        clamp_electronics_ui_usb_shell_center[1] -
+            (clamp_electronics_ui_usb_kicad_fit_envelope_h / 2 +
+             clamp_electronics_ui_usb_bowl_outer_margin_y),
+        clamp_electronics_ui_usb_shell_center[1] +
+            (clamp_electronics_ui_usb_kicad_fit_envelope_h / 2 +
+             clamp_electronics_ui_usb_bowl_outer_margin_y)
     ];
     button_a = clamp_electronics_ui_button_centers[0];
     button_b = clamp_electronics_ui_button_centers[1];
@@ -4891,7 +4994,7 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
                 button_b, button_hole_d) >= 0.2,
            "UI button bores overlap each other");
     assert(clamp_ui_rect_clearance(screen_opening, usb_opening) >= 0.2,
-           "UI USB opening overlaps the display opening");
+           "UI USB bowl overlaps the display opening");
     assert(clamp_ui_circle_clearance(button_a,
                 clamp_electronics_ui_button_d,
                 button_b, clamp_electronics_ui_button_d) >= clearance,
@@ -4930,11 +5033,11 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
            screen[2] >= face_y_min + clearance &&
            screen[3] <= face_y_max - clearance,
            "UI display leaves the faceplate boundary");
-    assert(usb[0] >= face_x_min + clearance &&
-           usb[1] <= face_x_max - clearance &&
-           usb[2] >= face_y_min + clearance &&
-           usb[3] <= face_y_max - clearance,
-           "UI USB slot leaves the faceplate boundary");
+    assert(usb_opening[0] >= face_x_min + clearance &&
+           usb_opening[1] <= face_x_max - clearance &&
+           usb_opening[2] >= face_y_min + clearance &&
+           usb_opening[3] <= face_y_max - clearance,
+           "UI USB bowl leaves the faceplate boundary");
     for (button = [button_a, button_b])
         assert(button[0] - clamp_electronics_ui_button_d / 2 >=
                    face_x_min + clearance &&
@@ -4955,6 +5058,7 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
                face_y_max - clearance,
            "UI speaker leaves the faceplate boundary");
     echo("UI_COMPONENT_LAYOUT_OK");
+    echo("UI_USB_KICAD_FIT_OK");
     // Keep the legacy token for the existing validation/report consumers.
     echo("UI_PROXY_LAYOUT_OK");
 }
@@ -5014,9 +5118,110 @@ module clamp_electronics_ui_component_alignment_check_positive() {
                clamp_electronics_ui_board_length_x &&
            clamp_electronics_ui_usb_center[1] >= 0 &&
            clamp_electronics_ui_usb_center[1] <=
-               clamp_electronics_ui_board_width_y,
+           clamp_electronics_ui_board_width_y,
            "USB-C instance is outside the UI board datum");
+    assert(clamp_electronics_ui_usb_shell_center[0] >= 0 &&
+           clamp_electronics_ui_usb_shell_center[0] <=
+               clamp_electronics_ui_board_length_x &&
+           clamp_electronics_ui_usb_shell_center[1] >= 0 &&
+           clamp_electronics_ui_usb_shell_center[1] <=
+               clamp_electronics_ui_board_width_y,
+           "USB-C housing envelope is outside the UI board datum");
     echo("UI_COMPONENT_ALIGNMENT_OK");
+}
+
+module clamp_electronics_ui_rounded_rect_prism_local(
+    width_x, height_y, depth_z, radius) {
+    // Rounded rectangle in the panel's local x/y plane.  Four vertical
+    // cylinders keep the cutter a single printable solid and leave no sharp
+    // rectangular corners at the visible USB recess.
+    assert(width_x >= 2 * radius - 0.001 &&
+           height_y >= 2 * radius - 0.001 &&
+           depth_z > 0 && radius > 0,
+           "UI USB rounded-rectangle dimensions are invalid");
+    hull()
+        for (x = [-width_x / 2 + radius, width_x / 2 - radius])
+            for (y = [-height_y / 2 + radius, height_y / 2 - radius])
+                translate([x, y, 0])
+                    cylinder(r = radius, h = depth_z, $fn = 48);
+}
+
+module clamp_electronics_ui_usb_kicad_fit_negative_local(
+    panel_inner_z, panel_outer_z) {
+    // The envelope dimensions come from the .kicad_mod F.Fab outer profile.
+    // Use a single stadium-shaped solid for the boolean: a triangulated metal
+    // shell is a hollow ring and would leave a web across the USB opening.
+    // The fit cutter starts at the support floor, passing through the outer
+    // bowl's annular floor so the real Type-C housing is visible/insertable.
+    // Solder/contact solids are deliberately excluded from this opening.
+    translate([
+        clamp_electronics_ui_usb_shell_center[0],
+        clamp_electronics_ui_usb_shell_center[1],
+        clamp_electronics_ui_usb_bowl_support_floor_local_z
+    ])
+        clamp_electronics_ui_rounded_rect_prism_local(
+            clamp_electronics_ui_usb_kicad_fit_envelope_w,
+            clamp_electronics_ui_usb_kicad_fit_envelope_h,
+            panel_outer_z - panel_inner_z + 0.2,
+            clamp_electronics_ui_usb_kicad_fit_radius);
+}
+
+module clamp_electronics_ui_usb_bowl_support_positive_local(
+    panel_inner_z) {
+    // The main insert panel is only 3.4 mm thick.  Extend material inward
+    // around the connector alone. The land starts below the visible floor so
+    // the larger bowl cutter leaves an annular bottom; the smaller fit cutter
+    // removes the centre for the real housing. It never becomes a second USB
+    // model or a boss around the PCB.
+    outer_w = clamp_electronics_ui_usb_kicad_fit_envelope_w +
+        2 * clamp_electronics_ui_usb_bowl_outer_margin_x +
+        2 * clamp_electronics_ui_usb_bowl_support_margin_x;
+    outer_h = clamp_electronics_ui_usb_kicad_fit_envelope_h +
+        2 * clamp_electronics_ui_usb_bowl_outer_margin_y +
+        2 * clamp_electronics_ui_usb_bowl_support_margin_y;
+    support_floor_z = clamp_electronics_ui_usb_bowl_support_floor_local_z;
+    assert(support_floor_z < clamp_electronics_ui_usb_bowl_floor_local_z - 0.001 &&
+           panel_inner_z > support_floor_z,
+           "USB bowl support land has invalid depth");
+    translate([
+        clamp_electronics_ui_usb_shell_center[0],
+        clamp_electronics_ui_usb_shell_center[1],
+        support_floor_z
+    ])
+        clamp_electronics_ui_rounded_rect_prism_local(
+            outer_w, outer_h,
+            panel_inner_z - support_floor_z + 0.1,
+            clamp_electronics_ui_usb_bowl_outer_radius + 0.10);
+}
+
+module clamp_electronics_ui_usb_bowl_negative_local(
+    panel_inner_z, panel_outer_z) {
+    // This is one rounded rectangular prism, not a tapered loft. Its lower
+    // edge stops on the KiCad housing-front plane. The smaller fit cutter
+    // below it leaves the centre open for the real housing, while this larger
+    // cutter leaves the surrounding annular floor. No subtraction continues
+    // past the housing front into the C-clamp wall.
+    outer_w = clamp_electronics_ui_usb_kicad_fit_envelope_w +
+        2 * clamp_electronics_ui_usb_bowl_outer_margin_x;
+    outer_h = clamp_electronics_ui_usb_kicad_fit_envelope_h +
+        2 * clamp_electronics_ui_usb_bowl_outer_margin_y;
+    floor_z = clamp_electronics_ui_usb_bowl_floor_local_z;
+    assert(floor_z < panel_inner_z,
+           "USB bowl floor must reach the KiCad housing front");
+    assert(outer_w >= clamp_electronics_ui_usb_kicad_fit_envelope_w +
+               2 * clamp_electronics_ui_usb_kicad_fit_clearance &&
+           outer_h >= clamp_electronics_ui_usb_kicad_fit_envelope_h +
+               2 * clamp_electronics_ui_usb_kicad_fit_clearance,
+           "USB bowl must surround the housing-fit tunnel");
+    translate([
+        clamp_electronics_ui_usb_shell_center[0],
+        clamp_electronics_ui_usb_shell_center[1],
+        floor_z
+    ])
+        clamp_electronics_ui_rounded_rect_prism_local(
+            outer_w, outer_h,
+            panel_outer_z - floor_z + 0.1,
+            clamp_electronics_ui_usb_bowl_outer_radius);
 }
 
 module clamp_electronics_ui_panel_positive() {
@@ -5175,12 +5380,16 @@ module clamp_electronics_ui_bezel_positive() {
         color("black")
             union() {
                 difference() {
-                    translate([panel_x_min, panel_y_min, panel_inner_z])
-                        cube([
-                            panel_x_max - panel_x_min,
-                            panel_y_max - panel_y_min,
-                            clamp_electronics_ui_insert_panel_t
-                        ]);
+                    union() {
+                        translate([panel_x_min, panel_y_min, panel_inner_z])
+                            cube([
+                                panel_x_max - panel_x_min,
+                                panel_y_max - panel_y_min,
+                                clamp_electronics_ui_insert_panel_t
+                            ]);
+                        clamp_electronics_ui_usb_bowl_support_positive_local(
+                            panel_inner_z);
+                    }
                     // Display window: the cable-fed screen sits behind this
                     // aperture, supported from the cavity side.
                     translate([
@@ -5232,21 +5441,25 @@ module clamp_electronics_ui_bezel_positive() {
                             d = clamp_electronics_ui_speaker_d - 4,
                             h = clamp_electronics_ui_insert_panel_t + 0.2,
                             $fn = 72);
-                    // Type-C is a direct bulkhead opening; no SCAD connector
-                    // proxy or cap is added in front of the KiCad model.
-                    usb_slot_w = 8 +
-                        2 * clamp_electronics_faceplate_usb_clearance;
-                    usb_slot_h = 5 +
-                        2 * clamp_electronics_faceplate_usb_clearance;
-                    translate([
-                        clamp_electronics_ui_usb_center[0] - usb_slot_w / 2,
-                        clamp_electronics_ui_usb_center[1] - usb_slot_h / 2,
-                        panel_inner_z - 0.1
-                    ])
-                        cube([
-                            usb_slot_w, usb_slot_h,
-                            clamp_electronics_ui_insert_panel_t + 0.2
-                        ]);
+                    // The receptacle is inserted from the cavity side.  Its
+                    // rounded envelope is measured from the KiCad housing
+                    // export with a controlled 0.25 mm print fit.  The outer
+                    // tool is a flat-bottom rounded bowl that reaches the
+                    // metal housing front; it is not a tapered shallow ring.
+                    // The outer bowl keeps a real 0.60 mm annular printed
+                    // floor; the smaller KiCad-fit cut remains a through-hole
+                    // so the Type-C model supplies the centre face. No
+                    // generic USB body is authored in SCAD and no large
+                    // square dirt pocket is left around the port.
+                    // The two rounded tools overlap by design; keep them in
+                    // one subtractive union so the exported panel has no
+                    // duplicate coplanar faces.
+                    union() {
+                        clamp_electronics_ui_usb_kicad_fit_negative_local(
+                            panel_inner_z, panel_outer_z);
+                        clamp_electronics_ui_usb_bowl_negative_local(
+                            panel_inner_z, panel_outer_z);
+                    }
                 }
                 // Captive guide stems are fused to the panel's inner membrane;
                 // they land on the 2 mm SMD actuators from the cavity side.
@@ -11794,6 +12007,38 @@ module parameter_probe() {
              clamp_electronics_ui_usb_center[0]));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_y=",
              clamp_electronics_ui_usb_center[1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_shell_x=",
+             clamp_electronics_ui_usb_shell_center[0]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_shell_y=",
+             clamp_electronics_ui_usb_shell_center[1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_profile_w=",
+             clamp_electronics_ui_usb_kicad_profile_w));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_profile_h=",
+             clamp_electronics_ui_usb_kicad_profile_h));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_profile_radius=",
+             clamp_electronics_ui_usb_kicad_profile_radius));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_fit_clearance=",
+             clamp_electronics_ui_usb_kicad_fit_clearance));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_fit_envelope_w=",
+             clamp_electronics_ui_usb_kicad_fit_envelope_w));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_fit_envelope_h=",
+             clamp_electronics_ui_usb_kicad_fit_envelope_h));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_fit_radius=",
+             clamp_electronics_ui_usb_kicad_fit_radius));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_kicad_shell_front_local_z=",
+             clamp_electronics_ui_usb_kicad_shell_front_local_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_floor_local_z=",
+             clamp_electronics_ui_usb_bowl_floor_local_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_bottom_t=",
+             clamp_electronics_ui_usb_bowl_bottom_t));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_support_floor_local_z=",
+             clamp_electronics_ui_usb_bowl_support_floor_local_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_depth_z=",
+             clamp_electronics_ui_usb_bowl_depth_z));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_outer_margin_x=",
+             clamp_electronics_ui_usb_bowl_outer_margin_x));
+    echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_bowl_outer_margin_y=",
+             clamp_electronics_ui_usb_bowl_outer_margin_y));
     echo(str("NETSTAND_PARAM clamp_electronics_faceplate_window_clearance=",
              clamp_electronics_faceplate_window_clearance));
     echo(str("NETSTAND_PARAM clamp_electronics_faceplate_button_clearance=",

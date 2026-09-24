@@ -24,6 +24,7 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "3d" / "v0.2"
 OUTLINE_SCRIPT = HERE / "esp32-control-v0.1" / "generate_board_outline_scad.py"
 OUTLINE_OUTPUT = HERE / "esp32-control-v0.1" / "board-outline.scad"
+USB_SHELL_SCRIPT = HERE / "export_usb_shell_model.py"
 BOARDS = (
     HERE / "esp32-control-v0.1" / "esp32-control-v0.1.kicad_pcb",
     HERE / "daughter-boards-v0.2" / "m6-receiver-carrier-v0.2.kicad_pcb",
@@ -42,6 +43,21 @@ def find_cli() -> str:
         if candidate and Path(candidate).is_file():
             return candidate
     raise RuntimeError("kicad-cli not found; set KICAD_CLI")
+
+
+def find_freecadcmd() -> str:
+    candidates = (
+        os.environ.get("FREECADCMD", ""),
+        shutil.which("freecadcmd") or "",
+        "/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd",
+    )
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return candidate
+    raise RuntimeError(
+        "FreeCADCmd not found; set FREECADCMD to regenerate the KiCad-derived "
+        "USB-C housing STL"
+    )
 
 
 def model_count(board: Path) -> tuple[int, int]:
@@ -121,6 +137,23 @@ def export_mechanical_outline(board: Path) -> None:
     print(result.stdout.strip())
 
 
+def export_usb_housing(output_dir: Path) -> None:
+    """Derive the panel-facing KiCad USB shell and omit solder contacts."""
+    if not USB_SHELL_SCRIPT.is_file():
+        raise RuntimeError(f"missing USB housing exporter: {USB_SHELL_SCRIPT}")
+    output = output_dir / "usb-c-shell-v0.2.stl"
+    result = subprocess.run(
+        [find_freecadcmd(), str(USB_SHELL_SCRIPT), str(output)],
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    if result.returncode != 0 or not output.is_file():
+        raise RuntimeError(f"USB-C housing export failed:\n{result.stdout}")
+    print(result.stdout.strip())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
@@ -131,6 +164,7 @@ def main() -> int:
             raise RuntimeError(f"missing board: {board}")
         export(cli, board, args.output_dir)
     export_mechanical_outline(BOARDS[0])
+    export_usb_housing(args.output_dir)
     print(f"BOARD_MODELS_OK {args.output_dir}")
     return 0
 
