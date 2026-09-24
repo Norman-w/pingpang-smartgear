@@ -17,6 +17,9 @@ OBSOLETE_OUTPUT_NAMES = (
     "net-stand-upper-stand-segment.png",
     "net-stand-post-joint-exploded-right.png",
     "net-stand-post-joint-exploded-left.png",
+    "net-stand-net-clamp-rod-right.png",
+    "net-stand-net-clamp-rod-left.png",
+    "net-stand-post-clamp-carrier-old.png",
 )
 
 
@@ -104,6 +107,22 @@ def main() -> None:
         args.output_dir / "net-stand-post-clamp-carrier.png",
         1200,
         1400,
+    )
+    render(
+        openscad,
+        "post_clamp_carrier_lower",
+        args.output_dir / "net-stand-post-clamp-carrier-lower-right.png",
+        1200,
+        1400,
+        definitions=("SIDE=1",),
+    )
+    render(
+        openscad,
+        "post_clamp_carrier_upper",
+        args.output_dir / "net-stand-post-clamp-carrier-upper-right.png",
+        900,
+        900,
+        definitions=("SIDE=1",),
     )
     render(
         openscad,
@@ -279,16 +298,16 @@ def main() -> None:
     )
     render(
         openscad,
-        "net_clamp_clip",
-        args.output_dir / "net-stand-net-clamp-clip-right.png",
+        "net_clamp_rod",
+        args.output_dir / "net-stand-net-clamp-rod-right.png",
         700,
         1000,
         definitions=("SIDE=1",),
     )
     render(
         openscad,
-        "net_clamp_clip",
-        args.output_dir / "net-stand-net-clamp-clip-left.png",
+        "net_clamp_rod",
+        args.output_dir / "net-stand-net-clamp-rod-left.png",
         700,
         1000,
         definitions=("SIDE=-1",),

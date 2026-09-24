@@ -17,14 +17,14 @@
 
 ## 当前机械结构
 
-网顶不设置轨道。网布从球台中心侧进入两侧立柱的连续 `3 mm` 过道，端部止到立柱外表面；整高 U 形卡网夹从桌外侧沿 `x+ → x−` 推入，夹爪夹住网布。网端附近左右各一个 PVDF 振动传感器，与网架保留 `18 mm` 横向净距。
+网顶不设置轨道。网布侧边空心布套先套到 `Ø10 mm × 152.5 mm` 圆柱插杆，再把这套组件从球台中心侧穿过立柱下段的连续 `3 mm` 网布过道，沿原门洞轴线从 x 侧推入下段的侧开接收腔；安装上段后封住插入口。斜立柱在顶部下 `30 mm` 分成下段和可替换上段，两段用公母定位键和四枚 M3×40 自攻钉连接。网端附近左右各一个 PVDF 振动传感器，与网架保留 `18 mm` 横向净距。
 
-C 形夹按 y=0 分型为 `clamp_body_half_user` 与 `clamp_body_half_opponent` 两半，整根 `post_clamp_carrier` 单独打印；固定夹半体除网/卡夹功能开口外保持实心。立柱底面在 C 夹黄灰交界 `z=16 mm` 共面，一体实心延伸到 `z=260.5 mm`，不向下插入 C 形座；网布/卡夹功能区仍只到 `z=168.5 mm`。网布仍从球台中心侧穿过连续 `3 mm` 过道，U 形卡夹从桌外侧沿 `x+ → x−` 推入；网布张力和绳的拉力负责把卡夹压住，立柱内嵌单一被动止挡只防向外拔出，按开夹爪即可解锁。立柱本体和网布过道没有上下接缝，固定网柱顶端不再设置直连 M8 孔。
+C 形夹按 y=0 分型为 `clamp_body_half_user` 与 `clamp_body_half_opponent` 两半，斜立柱和绿色载体则由 `post_clamp_carrier_lower`、`post_clamp_carrier_upper` 两件打印；固定夹半体除网布 `3 mm` 过道和侧开接收腔外保持实心。立柱底面在 C 夹黄灰交界 `z=16 mm` 共面，分型位于顶部下 `30 mm`，上段带公母键和四枚 M3×40 连接孔；网布/圆柱插杆功能区仍只到 `z=168.5 mm`。网端装配不使用矩形卡夹、keeper 或竖直盲孔：先把边套套在 Ø10 圆柱上，再沿 x 方向推入下段侧开接收腔，最后合上上段。上段保留顶部 M8 支撑孔，四枚立柱连接螺丝只属于立柱上下段。
 
 盒盖、压合边和接口以“装配后严丝合缝、无明显贯穿缝”为目标；这里不宣称防水等级。真实网布、螺纹、张力、线缆弯曲和夹体耐久必须用首样实测。
 
 ## 打印状态
 
-当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json) 为准：`39` 个 STL。256 mm 打印床拼盘见 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：`7` 张板、`39` 个已排版、`0` 个超尺寸件；两件整根立柱/载体使用实际三轴斜放。旧整件 C 夹、电子腔底盖/连续垫、分体立柱、套筒、内芯和圆柱卡网件不再属于当前清单。
+当前正式机械包以 [`cad/print-manifest.zh-CN.md`](cad/print-manifest.zh-CN.md) 和 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json) 为准：`41` 个 STL。256 mm 打印床拼盘见 [`cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json`](cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/print-platter-256/manifest.json)：`7` 张板、`41` 个已排版、`0` 个超尺寸件；斜立柱下段/绿色载体使用实际三轴斜放，上段按分型面平放姿态打印。旧整高 C 夹、电子腔底盖/连续垫、网夹分体、套筒和内芯不再属于当前清单；旧矩形卡条与 keeper 已移除，当前为独立 Ø10 mm 圆柱插杆和下段侧开接收腔。
 
-这是 CAD 包络/封闭 STL/排版证据，不是已切片、已生成 G-code 或已完成实物打印的证明。
+立柱上下段连接螺丝当前按普通盘头或低矮圆头 `M3×40` 自攻钉采购；结构没有 90° 沉头窝，也不使用台阶肩螺丝。这是 CAD 包络/封闭 STL/排版证据，不是已切片、已生成 G-code 或已完成实物打印的证明。

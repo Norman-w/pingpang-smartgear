@@ -28,12 +28,14 @@ DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-sch
 
 
 PART_NAMES_ZH = {
-    "post_segment": "整根立柱（兼容诊断名）",
-    "post_clamp_carrier": "整根立柱 + SKP C 方案整体底座",
-    "lower_stand_segment": "整根立柱（兼容诊断名）",
+    "post_segment": "斜立柱分段（兼容诊断名）",
+    "post_clamp_carrier": "立柱两段装配预览 + SKP C 方案整体底座",
+    "post_clamp_carrier_lower": "斜立柱下段 + SKP C 方案整体底座",
+    "post_clamp_carrier_upper": "斜立柱上段（顶部下 30 mm 分型）",
+    "lower_stand_segment": "斜立柱分段（兼容诊断名）",
     "clamp_body_half_user": "C 形夹操作者侧半体（y-）",
     "clamp_body_half_opponent": "C 形夹对手侧半体（y+）",
-    "upper_stand_segment": "整根立柱（兼容诊断名）",
+    "upper_stand_segment": "斜立柱分段（兼容诊断名）",
     "post_joint_sleeve": "旧版立柱接缝诊断件",
     "post_joint_key": "旧版立柱接缝诊断件",
     "clamp_top_pad": "台面保护软垫",
@@ -54,8 +56,7 @@ PART_NAMES_ZH = {
     "sensor_clamp_lip": "PVDF 薄膜压片",
     "reference_carriage_body": "参考线端座",
     "calibration_gauge": "过网高度标定规",
-    "net_clamp_clip": "全高 U 形滑入卡网夹",
-    "net_clamp_rod": "旧版卡网圆柱（兼容诊断件）",
+    "net_clamp_rod": "球网空心边套圆柱插杆（PETG）",
     "clamp_electronics_ui_panel_mount": "y+ UI 外侧齐平填平固定板（一体件）",
     "m6_detector_body": "M6 十路主体",
     "m6_detector_shell_front": "M6 光学端前盖",
@@ -161,6 +162,17 @@ ASSEMBLY_COMPONENTS = [
         "notes": "灰色 C 夹从下方装入短弹簧和 4 mm 钢珠，绿色整体底座的 Ø6×2 mm 底坑在推到底时定位并给出终点手感；钢珠只负责定位，不承担主承力。",
     },
     {
+        "id": "split-upright-fasteners",
+        "name_zh": "斜立柱两段连接螺钉与定位结构",
+        "name_en": "split upright locating keys and fasteners",
+        "kind": "立柱连接标准件",
+        "status": "外购 / 非打印件",
+        "printable": False,
+        "quantity": "每侧 4 套（左右共 8 套）",
+        "scad_part": "post_clamp_carrier_lower + post_clamp_carrier_upper",
+        "notes": "斜立柱距顶部 30 mm 的恒定截面处分型。下段保留绿色 SKP 底座、网布门洞和两条公燕尾键；上段为可替换 30 mm 段，带对应母槽、4 个 Ø3.4 mm M3 通孔和顶端 M8 支撑孔。四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔；不做 90° 沉头窝，也不用台阶肩螺钉；燕尾键承担剪切和定位，螺钉负责夹紧与防拔出。",
+    },
+    {
         "id": "net-fabric",
         "name_zh": "乒乓球网布",
         "name_en": "table-tennis net fabric",
@@ -169,19 +181,20 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "1 套",
         "scad_part": "net",
-        "notes": "无网顶轨道。装配时先从球台中心侧把网布端部穿过两侧立柱的 3 mm y 向过道，网布端止在立柱外侧面，再从桌外侧沿 x 滑入全高 U 形卡夹；拆卸反向操作。",
+        "notes": "无网顶轨道。装配时先把球网侧边空心布套套到圆柱插杆上，再沿下段立柱外侧的原门洞轴线从 x 方向推入，最后装上 30 mm 上段封住插入口；拆卸按相反顺序进行。",
     },
     {
-        "id": "net-clamp-clips",
-        "name_zh": "全高 U 形滑入卡网夹（PETG 打印）",
-        "name_en": "printed PETG full-height sliding U clips",
+        "id": "net-clamp-rods",
+        "name_zh": "球网空心边套圆柱插杆（PETG）",
+        "name_en": "printed PETG cylindrical net-sleeve rods",
         "kind": "卡网结构件",
-        "status": "PETG 打印件 / 非采购件",
+        "status": "PETG 打印件 / 实际圆杆直径需按网布边套首样复核",
         "printable": True,
         "quantity": "2 件（左右各 1）",
-        "scad_part": "net_clamp_clip",
-        "notes": "先穿网，再从桌外侧沿 x 向球台中心滑入；两片 jaw 的名义间隙 1.8 mm，夹住 1.2 mm 网布，外侧横梁在立柱外面止挡。网布张力和绳的拉力负责把卡夹压在承托面上；立柱内嵌的一处被动止挡只防止卡夹向外拔出，不承担主拉力。卡夹正侧 jaw 自带一体弹性扣舌，斜面允许装入、闭合肩阻止反向脱出；按开对应 jaw 后即可解锁反向滑出。无穿钉、横向销钉或网夹螺钉。平放打印后沿 z 立起安装。",
+        "scad_part": "net_clamp_rod",
+        "notes": "每侧一根连续圆柱插杆，先穿过球网侧边的空心布套，再沿下段立柱原门洞轴线从 x 方向推入侧开接收腔；装入上段后由上段封住插入口。当前参数为 Ø10 mm × 152.5 mm，配 Ø12 mm 外径布套包络，门洞位置和 15.2 mm 横向宽度沿用历史基准；旧的整高矩形 U 形卡夹、外侧长方形卡条和 keeper 均不再使用。网布空心边套的实际内径、插杆材料和首样插入力仍需实物确认。",
     },
+
     {
         "id": "pvdf-film",
         "name_zh": "PVDF 压电薄膜",
@@ -224,7 +237,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "2 套（左右各 1）",
         "scad_part": "m6_ballhead",
-        "notes": "默认采购 13mm球头【M8外牙】；球头保持竖直，商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss。固定网柱从黄灰交界 z=16 mm 一体向上延伸到 z=372.5 mm；网布及卡夹仍只工作到 z=168.5 mm，不切 M6 球头直连孔；M6 光学总成的独立承力支撑待单独定义。偏航、俯仰、旋转微调依靠采购球头锁紧机构。",
+        "notes": "默认采购 13mm球头【M8外牙】；球头保持竖直，商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss。固定网柱下段从黄灰交界 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段继续到 z=260.5 mm；网布及卡夹仍只工作到 z=168.5 mm，M6 顶部支撑由上段承载。偏航、俯仰、旋转微调依靠采购球头锁紧机构。",
     },
     {
         "id": "m6-ballhead-variants",
@@ -365,12 +378,31 @@ def _indexed_side_specs(
 
 
 def _post_clamp_carrier_specs() -> list[ExportSpec]:
-    return _side_specs(
-        "post_clamp_carrier",
-        "post-clamp-carrier",
-        "PETG",
-        "X1C 首样斜放 rx=0°、ry=51°、rz=45°；不切断、不缩放，按清单配置支撑。",
-        "首样左右各一件；整根固定网柱与绿色 SKP 整体底座一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，整体包络约 58.7×58×20 mm；保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。黄色立柱在 z=16 mm 与绿色底座相接，网布/卡夹的 3 mm 过道和接收腔仍只到网顶 z=168.5 mm，主体继续到 z=260.5 mm；不切断、不分段、没有 T 槽、公轨或第二个独立滑靴。灰色夹体必须使用配套让位腔、两枚 Ø4.4 mm 孔和下方钢珠定位孔；当前不切 M6 球头直连孔，M6 光学总成独立支撑待定义。X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放；不缩放，切片器仍需按清单配置支撑。旧的直接共面座打印件与本件不兼容，必须连同配套 C 方案夹体一起换版。",
+    lower_notes = (
+        "首样左右各一件下段；绿色 SKP 整体底座与斜立柱下段一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。"
+        "下段包络从 z=-4 mm 到分型面 z=230.5 mm，含网布 3 mm 过道和原位置侧开圆柱接收腔（容纳 Ø10 mm 插杆及 Ø12 mm 布套包络）；下段分型面带两条公燕尾键和四个 Ø2.4 mm×10 mm 盲导孔。"
+        "X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放，不缩放；切片器仍需按清单配置支撑。绿色底座必须与配套 C 方案夹体、两枚 Ø4.4 mm 孔和下方钢珠定位孔配合。"
+    )
+    upper_notes = (
+        "首样左右各一件上段；这是斜立柱顶部下 30 mm 的可替换段，包络 z=230.5…260.5 mm，分型面朝打印床。"
+        "上段带两条与下段配合的母燕尾槽、四个 Ø3.4 mm M3 通孔和顶端 M8 支撑孔；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔，不使用沉头或台阶肩螺钉。"
+        "上段可换成后续更高的光电头承载段；不包含网夹的分段或螺丝。"
+    )
+    return (
+        _side_specs(
+            "post_clamp_carrier_lower",
+            "post-clamp-carrier-lower",
+            "PETG",
+            "X1C 首样斜放 rx=0°、ry=51°、rz=45°；下段不缩放，按清单配置支撑。",
+            lower_notes,
+        )
+        + _side_specs(
+            "post_clamp_carrier_upper",
+            "post-clamp-carrier-upper",
+            "PETG",
+            "分型面朝床平放；母燕尾槽和 Ø3.4 mm 通孔朝下，顶面 M8 支撑孔朝上；不缩放。",
+            upper_notes,
+        )
     )
 
 
@@ -393,7 +425,7 @@ def build_export_specs() -> list[ExportSpec]:
         "为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间"
         "打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；"
         "每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，"
-        "主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier 配套，"
+        "主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier_lower / post_clamp_carrier_upper 配套，"
         "旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。"
     )
     specs.extend(
@@ -485,11 +517,11 @@ def build_export_specs() -> list[ExportSpec]:
     )
     specs.extend(
         _side_specs(
-            "net_clamp_clip",
-            "net-clamp-clip",
+            "net_clamp_rod",
+            "net-clamp-rod",
             "PETG",
-            "平放打印；宽面贴床；安装时把全高方向沿 z 立起，从立柱外侧沿 x 推入。",
-            "真实全高 U 形滑入卡网夹；两片 jaw 名义间隙 1.8 mm，夹住 1.2 mm 网布；先从球台中心侧穿过立柱 3 mm 过道，再从桌外侧滑入卡夹，网布端止在立柱外边。网布张力和绳的拉力负责压紧卡夹，立柱内嵌单一被动止挡只防反向拔出；正侧 jaw 的一体弹性扣舌让止挡越过并在回拉时闭合肩拦住，无穿钉、横向销钉或网夹螺钉；按开 jaw 才能解锁反向滑出。",
+            "圆柱轴线沿 X 平放打印；两端留出约 2 mm 裙边/帽沿空间，打印后去除毛边；装配时把圆柱轴线保持竖直 Z，连同网布边套沿原门洞方向从 x 侧推入下段接收腔。",
+            "单根 Ø10 mm × 152.5 mm 圆柱插杆；先穿过球网侧边空心布套，再沿历史门洞轴线从 x 侧推入下段的侧开接收腔，随后安装上段完成捕获。门洞宽度仍为 15.2 mm，位置不随圆柱换型改变；旧整高矩形 U 夹、长方形卡条和 keeper 均不再使用；网布边套内径和插杆材料仍需首样实测。",
         )
     )
     specs.extend(

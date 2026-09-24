@@ -6,7 +6,7 @@ The body is the same plain rectangular first article used for PETG; a future
 6061-T6 CNC version can reuse its envelope. The vertical 13 mm ballhead is
 purchased; its downward M8 interface is retained as an independent optical
 support datum. It is intentionally not connected to the fixed full-height
-post (z=16..372.5 mm; net/clip zone z=16..168.5 mm), so no false direct-
+post (z=16..260.5 mm; net/clip zone z=16..168.5 mm), so no false direct-
 support STL or connector is released here.
 """
 
@@ -44,7 +44,7 @@ PREVIEW_PARTS = (
         "m6-detector-body",
         "M6 十路 45° L 型矩形主体（PETG 首样；后续可换 CNC）",
         "主体 x-min、y-min、z-min；当前是 10×56×216 mm 矩形长条，未来 CNC 沿用同一包络",
-        "当前首样用 PETG 打印；后续可换 6061-T6 CNC。主体只有十个 20 mm 节距光学孔、浅 AF8 防转窝、盖件孔和 y± 边槽，不带 T 尾座、M8 接口或主体内线缆槽；后盖另有 PETG 加厚 1/4-20 boss，内藏标准捕获螺母，13 mm 采购球头保持竖直姿态；下端 M8 外牙只保留为独立光学支撑接口，尚未与固定网柱连接。固定网柱从黄灰交界 z=16 mm 共面起一体实心延伸至 z=372.5 mm，不进入 C 形座；网布/卡夹功能区仍只到 z=168.5 mm。检测器/球头总成沿 x 移到立柱中心仅表示空间对准，取消旧版横向承托臂，不使用旧版独立上段外件或旧版独立连接器。",
+        "当前首样用 PETG 打印；后续可换 6061-T6 CNC。主体只有十个 20 mm 节距光学孔、浅 AF8 防转窝、盖件孔和 y± 边槽，不带 T 尾座、M8 接口或主体内线缆槽；后盖另有 PETG 加厚 1/4-20 boss，内藏标准捕获螺母，13 mm 采购球头保持竖直姿态；下端 M8 外牙只保留为独立光学支撑接口，尚未与固定网柱连接。固定网柱从黄灰交界 z=16 mm 共面起分为下段/顶部 30 mm 上段并延伸至 z=260.5 mm，不进入 C 形座；网布/圆柱功能区只到 z=168.5 mm；立柱上下段使用四枚普通盘头/低矮圆头 M3×40 自攻钉连接。检测器/球头总成沿 x 移到立柱中心仅表示空间对准，取消旧版横向承托臂，不使用旧版独立上段外件或旧版独立连接器。",
     ),
 )
 

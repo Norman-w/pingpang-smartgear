@@ -253,9 +253,9 @@ CLAMP_SOLID_BRIDGE_TOP_Z = CLAMP_TOP_PAD_T + CLAMP_PAD_T
 OPTICAL_BEAM_EDGE_OVERLAP = 0.5
 OPTICAL_BEAM_AXIS_X = TABLE_EDGE + OPTICAL_BEAM_EDGE_OVERLAP
 NET_HEIGHT = 152.5
-# The net and the full-height U clip share the fixed C-clamp seat as their
-# lower datum.  Keep the lower/top values explicit so the preview cannot
-# silently draw the clip into the dark lower clamp body again.
+# The net rod and its side-open receiver share the fixed C-clamp seat as their
+# lower datum. Keep the lower/top values explicit so the preview cannot
+# silently draw an obsolete clip into the dark lower clamp body again.
 NET_FIXTURE_BOTTOM_Z = CLAMP_SLIDE_SEAT_Z
 NET_POST_TOP_Z = NET_FIXTURE_BOTTOM_Z + NET_HEIGHT
 # Kept as a source-mirroring legacy value for the parameter coverage test; the
@@ -267,26 +267,25 @@ NET_PASSAGE_WIDTH_Y = 3.0
 # 168.5 mm, and 2 mm clearance. The OpenSCAD source derives this value from
 # those inputs; this lightweight mirror keeps the resulting scalar explicit.
 M6_DETECTOR_MOUNT_RAISE_Z = 29.0
-# Active net retention geometry: a full-height U clip slides into the outboard
-# pocket after the fabric has passed through the 3 mm post passage.  The old
-# cylinder-named values above remain only as compatibility aliases for old
-# preview consumers and are not drawn.
-NET_CLAMP_CLIP_CLEARANCE_X = 0.2
-NET_CLAMP_CLIP_LENGTH_X = 26.1
-NET_CLAMP_CLIP_INNER_X = POST_CENTER + POST_WIDTH / 2 - 21.8
-NET_CLAMP_CLIP_OUTER_X = NET_CLAMP_CLIP_INNER_X + NET_CLAMP_CLIP_LENGTH_X
-NET_CLAMP_CLIP_CROSSBAR_T_X = 3.0
+# Active net retention geometry: one Ø10 mm vertical rod is inserted from the
+# x side into the historical side-open receiver. The old U-clip constants are
+# retained only as compatibility aliases for reports and are not drawn.
+NET_CLAMP_ROD_D = 10.0
+NET_CLAMP_ROD_LENGTH = NET_HEIGHT
+NET_CLAMP_ROD_AXIS_X = 897.6
+NET_CLAMP_CLIP_CLEARANCE_X = 0.2  # legacy alias
+NET_CLAMP_CLIP_LENGTH_X = POST_WIDTH  # legacy alias
+NET_CLAMP_CLIP_INNER_X = NET_CLAMP_ROD_AXIS_X  # legacy alias
+NET_CLAMP_CLIP_OUTER_X = NET_CLAMP_ROD_AXIS_X + NET_CLAMP_ROD_D  # legacy alias
+NET_CLAMP_CLIP_CROSSBAR_T_X = 3.0  # legacy alias
 NET_CLAMP_CHANNEL_DEPTH_X = POST_WIDTH
 NET_CLAMP_CYLINDER_INSERTION_DEPTH_X = POST_WIDTH
 NET_CLAMP_CHANNEL_BACK_WALL_T_X = 3.0
-NET_CLAMP_CYLINDER_INTERFERENCE_D = 14.0
-NET_CLAMP_CYLINDER_ACTUAL_D = NET_CLAMP_CYLINDER_INTERFERENCE_D - 2.0
+NET_CLAMP_CYLINDER_INTERFERENCE_D = 14.0  # historical interference datum
+NET_CLAMP_CYLINDER_ACTUAL_D = NET_CLAMP_ROD_D
 NET_CLAMP_CHANNEL_SIDE_CLEARANCE = 0.6
 NET_CLAMP_CHANNEL_BACK_CLEARANCE = 0.6
-NET_CLAMP_CHANNEL_WIDTH_Y = (
-    NET_CLAMP_CYLINDER_INTERFERENCE_D
-    + 2 * NET_CLAMP_CHANNEL_SIDE_CLEARANCE
-)
+NET_CLAMP_CHANNEL_WIDTH_Y = 15.2
 NET_CLAMP_CHANNEL_BOTTOM_Z = NET_FIXTURE_BOTTOM_Z
 NET_CLAMP_CHANNEL_TOP_Z = NET_FIXTURE_BOTTOM_Z + NET_HEIGHT
 NET_CLAMP_CHANNEL_VOID_MIN_X = (
@@ -296,11 +295,7 @@ NET_CLAMP_CHANNEL_VOID_MIN_X = (
     + NET_CLAMP_CHANNEL_BACK_WALL_T_X
 )
 NET_CLAMP_CHANNEL_VOID_MAX_X = POST_CENTER + POST_WIDTH / 2 + 4.5
-NET_CLAMP_CYLINDER_CENTER_X = (
-    NET_CLAMP_CHANNEL_VOID_MIN_X
-    + NET_CLAMP_CYLINDER_INTERFERENCE_D / 2
-    + NET_CLAMP_CHANNEL_BACK_CLEARANCE
-)
+NET_CLAMP_CYLINDER_CENTER_X = NET_CLAMP_ROD_AXIS_X
 NET_CLAMP_CYLINDER_HEIGHT = NET_CLAMP_CHANNEL_TOP_Z - NET_CLAMP_CHANNEL_BOTTOM_Z
 NET_CLAMP_KEEPER_Z = NET_CLAMP_CHANNEL_BOTTOM_Z + 72.0
 NET_CLAMP_KEEPER_HEIGHT_Z = 8.0
@@ -905,35 +900,16 @@ def draw_front(ax) -> None:
     )
 
     for side in (-1, 1):
-        clip_x = (
-            NET_CLAMP_CLIP_INNER_X
-            if side > 0
-            else -NET_CLAMP_CLIP_OUTER_X
-        )
-        crossbar_x = (
-            NET_CLAMP_CLIP_OUTER_X - NET_CLAMP_CLIP_CROSSBAR_T_X
-            if side > 0
-            else -NET_CLAMP_CLIP_OUTER_X
-        )
+        rod_x = NET_CLAMP_ROD_AXIS_X if side > 0 else -NET_CLAMP_ROD_AXIS_X
         ax.add_patch(
             Rectangle(
-                (clip_x, NET_CLAMP_CHANNEL_BOTTOM_Z),
-                NET_CLAMP_CLIP_LENGTH_X,
-                NET_CLAMP_CYLINDER_HEIGHT,
-                facecolor="#e2a52f",
-                edgecolor="#815b0f",
-                alpha=0.88,
-                label="PETG 整高 U 形卡网夹（张力承力；一体扣舌配内嵌止挡防拔）" if side < 0 else "_nolegend_",
-            )
-        )
-        ax.add_patch(
-            Rectangle(
-                (crossbar_x, NET_CLAMP_CHANNEL_BOTTOM_Z),
-                NET_CLAMP_CLIP_CROSSBAR_T_X,
-                NET_CLAMP_CYLINDER_HEIGHT,
+                (rod_x - NET_CLAMP_ROD_D / 2, NET_CLAMP_CHANNEL_BOTTOM_Z),
+                NET_CLAMP_ROD_D,
+                NET_CLAMP_ROD_LENGTH,
                 facecolor="#b87916",
                 edgecolor="#815b0f",
-                alpha=0.92,
+                alpha=0.88,
+                label="Ø10 mm 圆柱插杆（侧开接收腔；两侧各一根）" if side < 0 else "_nolegend_",
             )
         )
 
@@ -1565,42 +1541,18 @@ def draw_side(ax) -> None:
     )
     ax.add_patch(
         Rectangle(
-            (NET_CLAMP_CLIP_INNER_X - TABLE_EDGE, NET_CLAMP_CHANNEL_BOTTOM_Z),
-            NET_CLAMP_CLIP_LENGTH_X,
-            NET_CLAMP_CYLINDER_HEIGHT,
-            facecolor="#e2a52f",
-            edgecolor="#815b0f",
-            alpha=0.9,
-            label="PETG 整高 U 形卡网夹（外侧 x+ 滑入；张力承力）",
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (
-                NET_CLAMP_CLIP_OUTER_X - TABLE_EDGE - NET_CLAMP_CLIP_CROSSBAR_T_X,
-                NET_CLAMP_CHANNEL_BOTTOM_Z,
-            ),
-            NET_CLAMP_CLIP_CROSSBAR_T_X,
-            NET_CLAMP_CYLINDER_HEIGHT,
+            (NET_CLAMP_ROD_AXIS_X - TABLE_EDGE - NET_CLAMP_ROD_D / 2,
+             NET_CLAMP_CHANNEL_BOTTOM_Z),
+            NET_CLAMP_ROD_D,
+            NET_CLAMP_ROD_LENGTH,
             facecolor="#b87916",
             edgecolor="#815b0f",
-            alpha=0.92,
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (NET_CLAMP_KEEPER_X_MIN - TABLE_EDGE, NET_CLAMP_KEEPER_Z),
-            NET_CLAMP_KEEPER_X_MAX - NET_CLAMP_KEEPER_X_MIN,
-            NET_CLAMP_KEEPER_HEIGHT_Z,
-            facecolor="#8f4f18",
-            edgecolor="#5e3210",
-            linewidth=1.0,
-            alpha=0.95,
-            label="立柱内嵌单一被动止挡（配卡夹一体扣舌；只防拔出；无穿钉）",
+            alpha=0.9,
+            label="Ø10 mm 圆柱插杆（侧开接收腔）",
         )
     )
     ax.annotate(
-        "网布穿过立柱主体的 y 向过道：3 mm\n卡夹由网布/绳张力压住，一体扣舌配内嵌止挡只防拔出",
+        "网布穿过立柱主体的 y 向过道：3 mm\n空心边套套在 Ø10 圆柱插杆上，再沿 x 推入侧开接收腔；上段安装后封住入口",
         xy=(post_x0 + POST_WIDTH / 2,
             NET_FIXTURE_BOTTOM_Z + NET_HEIGHT / 2),
         xytext=(post_x0 - 58, NET_FIXTURE_BOTTOM_Z + NET_HEIGHT / 2 + 18),

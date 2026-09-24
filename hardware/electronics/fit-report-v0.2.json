@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-24T07:40:30.545159+00:00",
+  "generated_at": "2026-09-24T15:55:03.151527+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -1584,7 +1584,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[15:39:45] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[23:54:19] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 210,
     "erc_errors": 119,
@@ -1654,9 +1654,9 @@
   },
   "print_package": {
     "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
-    "printable_stl_count": 39,
-    "closed_count": 39,
-    "positive_volume_count": 39,
+    "printable_stl_count": 41,
+    "closed_count": 41,
+    "positive_volume_count": 41,
     "status": "PASS"
   },
   "interference": {

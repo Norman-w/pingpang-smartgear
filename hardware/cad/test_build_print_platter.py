@@ -146,12 +146,11 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
     data = json.loads(path.read_text(encoding="utf-8"))
     if data["print_bed"]["width_mm"] != 256.0 or data["print_bed"]["depth_mm"] != 256.0:
         raise AssertionError("默认拼盘必须是 256 × 256 mm")
-    # Each 356.5 mm upright occupies its own diagonal plate.  The two large
-    # x-z C-clamp profiles share two plates after rotating their outer y faces
-    # onto the bed; the remaining parts fill three PETG plates and one TPU
-    # plate.
-    if len(data["plates"]) != 7 or sum(p["part_count"] for p in data["plates"]) != 39:
-        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 7/39）")
+    # The long lower upright occupies its own diagonal plate. The 30 mm upper
+    # segment can share a normal PETG plate; the two large x-z C-clamp profiles
+    # share two plates after rotating their outer y faces onto the bed.
+    if len(data["plates"]) != 7 or sum(p["part_count"] for p in data["plates"]) != 41:
+        raise AssertionError("默认拼盘的板数/已排版数量发生变化（当前应为 7/41）")
     groups = [plate.get("material_group") for plate in data["plates"]]
     if groups != ["PETG", "PETG", "PETG", "PETG", "PETG", "PETG", "TPU/柔性"]:
         raise AssertionError(f"默认拼盘材料组发生变化: {groups}")
@@ -162,7 +161,7 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
         entry
         for plate in data["plates"]
         for entry in plate.get("parts", [])
-        if entry.get("part") == "post_clamp_carrier"
+        if entry.get("part") == "post_clamp_carrier_lower"
     ]
     if len(post_entries) != 2 or any(
         entry.get("orientation_label") != "diagonal-rx0-ry51-rz45"
@@ -170,7 +169,20 @@ def validate_default(path: Path, source_manifest_path: Path | None = None) -> No
         or entry.get("edge_margin_mm") != 1.5
         for entry in post_entries
     ):
-        raise AssertionError("整根立柱必须在默认 256 mm 拼盘中使用已验证三轴斜放姿态和专用边缘余量")
+        raise AssertionError("斜立柱下段必须在默认 256 mm 拼盘中使用已验证三轴斜放姿态和专用边缘余量")
+    upper_entries = [
+        entry
+        for plate in data["plates"]
+        for entry in plate.get("parts", [])
+        if entry.get("part") == "post_clamp_carrier_upper"
+    ]
+    if len(upper_entries) != 2 or any(
+        entry.get("orientation_label") != "upper-split-face-down"
+        or entry.get("rotation_euler_deg") != [0.0, 0.0, 0.0]
+        or entry.get("edge_margin_mm") != 5.0
+        for entry in upper_entries
+    ):
+        raise AssertionError("斜立柱上段必须平放并使用普通 5 mm 边缘余量")
     split_entries = [
         entry
         for plate in data["plates"]

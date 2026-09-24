@@ -85,7 +85,7 @@ const PRESETS = {
 
 const COLORS = {
   stand: { label: "立柱 / 夹持", color: "#f6bd67" },
-  net: { label: "网布 / 卡网夹", color: "#e9eef0" },
+  net: { label: "网布 / 圆柱插杆", color: "#e9eef0" },
   rail: { label: "历史网顶轨道（不在当前装配）", color: "#b28cff" },
   optical: { label: "M6 十路光电阵列", color: "#74a7ff" },
   sensor: { label: "PVDF 传感", color: "#62e4d1" },
@@ -95,17 +95,17 @@ const COLORS = {
 
 const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、12 mm 大径/4 mm 螺距 PETG 锥形粗牙螺杆和配套打印螺母固定在球台边缘；牙根和凹槽各约 2 mm，外侧锥尖约 0.4 mm，牙根为连续实体带；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，粗牙压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色整根立柱坐在绿色顶面 z=16 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。固定网柱继续到按球头底座自动计算的顶端 z=260.5 mm；当前正式打印件就是这套接口，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
-  { number: 3, label: "网布/U 夹装入整根立柱", description: "立柱本体没有上下分段接缝，网顶也不设置轨道：真实网布先从球台中心侧穿过每根整根立柱的 3 mm y 向过道，网布端部止在连续立柱本体外侧面；随后把全高 U 形卡夹从连续立柱本体的外侧开口沿 x+ 向 x− 滑入，两片 jaw 夹住 1.2 mm 网布。网布张力和绳的拉力把卡夹压在承托面上；立柱内嵌的一处被动止挡只负责防止卡夹向外拔出，正侧 jaw 的一体弹性扣舌负责让止挡越过并在回拉时闭合肩拦住。解锁时按开对应 jaw 再反向滑出；没有穿钉、横向销钉或网夹螺钉。这里是外侧开口的 U 夹滑入路径，不是圆柱件轴向硬插。" },
+  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色斜立柱下段坐在绿色顶面 z=16 mm，上段在 z=230.5 mm 分型并继续到 z=260.5 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。当前正式打印件是下段、顶部 30 mm 上段和固定 C 夹半体，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
+  { number: 3, label: "网布空心边套与圆柱插杆", description: "立柱分型不属于网夹：顶部下 30 mm 的下段/上段由公母键和四枚 M3×40 连接。先把球网侧边的空心布套套在一根 Ø10 mm 连续圆柱插杆上，再沿原门洞轴线从 x 侧推入下段侧开接收腔；插杆底端落在 z=16 mm，长度覆盖网布的 z=16…168.5 mm 区域，最后把上段滑入并封住插入口。预览中的半透明圆筒只表示网布空心边套，正式打印件只有一根圆柱插杆；门洞横向宽度保持历史 15.2 mm，旧的矩形 U 夹、长方形卡条和 keeper 已移除。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
-  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/卡夹顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和 U 形卡网夹开口畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
+  { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/圆柱插杆顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和圆柱插杆盲孔畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
 ];
 
 const ASSEMBLY_GROUPS = {
   clamp: { label: "台下夹紧", color: "#f6bd67", stage: 1 },
   clamp_fixed: { label: "固定夹体 / 立柱基台", color: "#687985", stage: 1 },
   post: { label: "左右立柱", color: "#f28b50", stage: 2 },
-  net: { label: "网布 / 卡网夹", color: "#e9eef0", stage: 3 },
+  net: { label: "网布 / 圆柱插杆", color: "#e9eef0", stage: 3 },
   rail: { label: "历史网顶轨道（不在当前装配）", color: "#b28cff", stage: 5 },
   optical: { label: "M6 十路光电阵列", color: "#74a7ff", stage: 4 },
   sensor: { label: "PVDF 擦网", color: "#62e4d1", stage: 4 },
@@ -359,13 +359,13 @@ function explosionVector(group, side = 0) {
     case "clamp": return [outward * 118, 0, -74];
     // The inboard shell owns the fixed C-scheme pocket. Keep this datum fixed
     // while covers, pads and knobs are exploded as service items; only the
-    // one-piece yellow/green carrier travels along the real x insertion direction.
+    // lower yellow/green carrier travels along the real x insertion direction.
     case "clamp_fixed": return [0, 0, 0];
     case "clamp_split": return [0, 0, 0];
     case "clamp_reinforced": return [0, 0, 0];
-    // The yellow/green carrier is a true x-direction push-in. Do not lift it
-    // in z during the exploded view: at explode=0 the green base is seated in
-    // the gray pocket and the only separation shown is the real insertion path.
+    // The lower yellow/green carrier is a true x-direction push-in. The upper
+    // 30 mm post lifts from the split plane so the preview exposes the real
+    // male/female keys and four M3 joints instead of implying a clip split.
     case "post": return [outward * 74, 0, 0];
     case "net": return [0, 0, 82];
     case "rail": return [0, 0, 82];
@@ -426,9 +426,13 @@ const M6_PREVIEW_BALLHEAD_BASE_T = 8;
 const M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z = 28;
 
 function deriveAssemblyDatums(entries) {
-  const rightPost = entries.find((entry) => entry.part === "post_clamp_carrier"
+  const rightPost = entries.find((entry) => entry.part === "post_clamp_carrier_lower"
     && sideSign(entry) > 0)
+    || entries.find((entry) => entry.part === "post_clamp_carrier_lower")
     || entries.find((entry) => entry.part === "post_clamp_carrier");
+  const rightPostUpper = entries.find((entry) => entry.part === "post_clamp_carrier_upper"
+    && sideSign(entry) > 0)
+    || entries.find((entry) => entry.part === "post_clamp_carrier_upper");
   const rightRear = entries.find((entry) => entry.part === "m6_detector_shell_rear"
     && sideSign(entry) > 0)
     || entries.find((entry) => entry.part === "m6_detector_shell_rear");
@@ -436,6 +440,7 @@ function deriveAssemblyDatums(entries) {
     && sideSign(entry) > 0)
     || entries.find((entry) => entry.part === "m6_detector_body");
   const postBounds = boundsFromEntry(rightPost);
+  const postUpperBounds = boundsFromEntry(rightPostUpper);
   const rearBounds = boundsFromEntry(rightRear);
   const bodyBounds = boundsFromEntry(rightBody);
 
@@ -445,7 +450,11 @@ function deriveAssemblyDatums(entries) {
   const postCenterX = postBounds
     ? (postBounds.min[0] + postBounds.max[0]) / 2
     : 901;
-  const postTopZ = postBounds?.max?.[2] ?? 260.5;
+  const postTopZ = Math.max(
+    postBounds?.max?.[2] ?? 0,
+    postUpperBounds?.max?.[2] ?? 0,
+    260.5,
+  );
   const rearMaxX = rearBounds?.max?.[0] ?? 796.4;
   const rawBallheadCenterX = rearMaxX
     + (M6_PREVIEW_BALLHEAD_STUD_LENGTH_X - M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X)
@@ -549,15 +558,18 @@ function makePrintableAssemblyItem(entry, assemblyDatums) {
   if (entry.part === "clamp_electronics_ui_panel_mount") explosion = [0, -58, -4];
   if (entry.part === "clamp_body_half_user") explosion = [0, -86, 0];
   if (entry.part === "clamp_body_half_opponent") explosion = [0, 86, 0];
-  if (entry.part === "net_clamp_clip") {
-    // The printable STL is deliberately laid flat: SCAD rotates the installed
-    // x/y/z clip datum onto x/y/z print axes. Restore that transform only in
-    // the assembly viewer so the source STL remains print-friendly.
+  if (entry.part === "post_clamp_carrier_upper") explosion = [0, 0, 56];
+  if (entry.part === "net_clamp_rod") {
+    // The printable STL lies flat with its cylinder axis on local X. Restore
+    // the installed vertical Z axis and place its centreline at the SCAD rod
+    // datum. The net sleeve is a separate translucent preview envelope.
     const side = sideSign(entry);
+    const rodAxisX = 912.8;
+    const rodBaseZ = 16;
     baseMin = side > 0
-      ? [893.2, -3.3, 168.5]
-      : [-919.3, -3.3, 168.5];
-    stlTransform = { rotation: [-Math.PI / 2, 0, 0] };
+      ? [rodAxisX - 1.1, -1.1, rodBaseZ]
+      : [-rodAxisX - 1.1, -1.1, rodBaseZ];
+    stlTransform = { rotation: [0, -Math.PI / 2, 0] };
   }
   if (String(entry.part || "").startsWith("m6_detector_")) {
     // M6 parts are exported in the raw positive/negative coordinate frame,
@@ -1200,7 +1212,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   };
   // The detector/ballhead is installed as one rigid group. Move its raw
   // right-side coordinate chain to the net-post centre so the purchased
-  // ballhead's downward interface lands directly on the one-piece upright socket;
+  // ballhead's downward interface lands directly on the upper segment's socket;
   // this removes the previous horizontal support arm.
   const detectorOffsetX = assemblyDatums.m6OffsetX;
   const absoluteXFields = [
@@ -2297,7 +2309,10 @@ function assemblyVisible(item) {
       && (sourcePart === "clamp_body_half_user" || sourcePart === "clamp_body_half_opponent")) {
     return false;
   }
-  if (state.assembly.showSkpCandidate && sourcePart === "post_clamp_carrier") return false;
+  if (state.assembly.showSkpCandidate
+      && (sourcePart === "post_clamp_carrier"
+        || sourcePart === "post_clamp_carrier_lower"
+        || sourcePart === "post_clamp_carrier_upper")) return false;
   if (item.sourceEntry?.part === "clamp_body_segment" && state.assembly.showSkpFit) return false;
   if (state.assembly.focusM6 && !isM6FocusItem(item)) return false;
   if (state.assembly.focusSkpCandidate && !(isSkpCandidateItem(item) && item.side === 1)) return false;
@@ -2419,13 +2434,13 @@ function rotatedBoundsForMatrix(entry, matrix) {
 }
 
 function printOrientations(entry) {
-  // Keep the browser result identical to build_print_platter.py.  The active
-  // The upright/carrier is one whole active post part; its first-article
-  // contract is the tested rigid diagonal pose, so do not offer upright
-  // candidates that look geometrically possible but are not the locked print
-  // orientation.
-  const rotations = entry?.part === "post_clamp_carrier"
+  // Keep the browser result identical to build_print_platter.py. The long
+  // lower upright uses the locked diagonal pose; the replaceable 30 mm upper
+  // segment prints flat on its split face.
+  const rotations = entry?.part === "post_clamp_carrier_lower"
     ? [{ label: "diagonal-rx0-ry51-rz45", euler: [0, 51, 45] }]
+    : entry?.part === "post_clamp_carrier_upper"
+      ? [{ label: "upper-split-face-down", euler: [0, 0, 0] }]
     : [
         { label: "z0", euler: [0, 0, 0] },
         { label: "z90", euler: [0, 0, 90] },
@@ -2660,8 +2675,8 @@ function renderMode() {
     refs.modelKicker.textContent = state.uiMode === "exploded" ? "三维爆炸检查" : "三维装配检查";
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
-      ? "爆炸距离只沿真实 x 向推入方向改变显示位置；绿色底座在爆炸归零时进入固定灰色 C 夹让位腔，黄色立柱保持原 z 坐标并坐在绿色顶面 z=16 mm。两枚 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位；网布/卡夹功能区到 z=168.5 mm，固定网柱顶面按当前装配基准为 z=260.5 mm，球头下端 M8 与顶面中心孔同轴；从绿色顶面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的整根黄色固定网柱与夹体分开打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入主控 PCB，板形让位来自 KiCad Edge.Cuts，板边由 x−/[ 与 x+/] 两个端部 C 形夹件夹持，不再使用主板底部柱、定位柱或主板螺丝；电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙和 boss 保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱从绿色顶面 z=16 mm 一体延伸到 z=260.5 mm，顶面中心开 M8 攻丝底孔，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/卡夹仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布先穿过立柱 3 mm 过道，再从外侧开口装入全高 U 形卡网夹；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
+      ? "爆炸距离只沿真实 x 向推入方向改变显示位置；绿色底座在爆炸归零时进入固定灰色 C 夹让位腔，黄色立柱保持原 z 坐标并坐在绿色顶面 z=16 mm。两枚 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位；网布/圆柱功能区到 z=168.5 mm，Ø10 圆柱插杆沿原门洞轴线从 x 侧进入下段侧开接收腔，安装上段后封住入口；固定网柱分型面为 z=230.5 mm，顶部上段到 z=260.5 mm，球头下端 M8 与上段顶面中心孔同轴；从绿色顶面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的黄色固定网柱下段与顶部 30 mm 上段分别打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入主控 PCB，板形让位来自 KiCad Edge.Cuts，板边由 x−/[ 与 x+/] 两个端部 C 形夹件夹持，不再使用主板底部柱、定位柱或主板螺丝；电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙和 boss 保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱下段从绿色顶面 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段带 M8 攻丝底孔并闭合到 z=260.5 mm，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/圆柱插杆仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布空心边套先套到圆柱插杆，再沿原门洞轴线从 x 侧推入下段侧开接收腔；四枚 M3×40 只连接立柱上下段；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     if (state.laserEnabled) {
       refs.modelTitle.textContent = state.assembly.focusPreset === "laserArray" ? "裸激光十路夹座 · 原球头粗调"

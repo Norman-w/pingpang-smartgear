@@ -28,12 +28,11 @@ EXPORT_ROOT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme
 SOURCE_MANIFEST = EXPORT_ROOT / "manifest.json"
 DEFAULT_OUTPUT = EXPORT_ROOT / "print-platter-256"
 TRIANGLE = struct.Struct("<12fH")
-# The taller one-piece post is the only part that needs a reduced nominal bed
-# edge margin after the verified diagonal pose is applied.  Its transformed
-# envelope is about 252.5 mm on a 256 mm bed, leaving roughly 1.75 mm per side.
-# All other parts retain the normal 5 mm margin.
+# The taller lower upright segment is the only part that needs a reduced nominal
+# bed edge margin after the verified diagonal pose is applied.  The replaceable
+# 30 mm upper segment prints flat and keeps the normal 5 mm margin.
 PART_EDGE_MARGINS_MM: dict[str, float] = {
-    "post_clamp_carrier": 1.5,
+    "post_clamp_carrier_lower": 1.5,
 }
 
 Matrix3 = tuple[tuple[float, float, float], ...]
@@ -278,13 +277,16 @@ def fit_orientations(
         # Mirror the build direction for the y+ half so its outer y+ face is
         # also the bed face; the two halves remain complementary after assembly.
         rotations = [("y-plus-face-down-rx-90", (-90.0, 0.0, 0.0))]
-    elif part == "post_clamp_carrier":
-        # The complete installed part is intentionally kept whole.  Although
-        # the active post is taller than the 256 mm build height, the complete
-        # carrier stays one piece and uses this rigid 3D tilt.  The post has a
-        # part-specific 1.5 mm nominal edge margin; supports remain a slicer
-        # decision and the source mesh is never cut or scaled.
+    elif part == "post_clamp_carrier_lower":
+        # Only the long lower upright is tilted. It includes the green SKP base,
+        # the net doorway and the male locating keys at its upper split face.
+        # The part-specific 1.5 mm margin is based on the measured transformed
+        # envelope; supports remain a slicer decision.
         rotations = [("diagonal-rx0-ry51-rz45", (0.0, 51.0, 45.0))]
+    elif part == "post_clamp_carrier_upper":
+        # The replaceable 30 mm upper upright is printed flat with its split
+        # face on the bed. No carrier tilt or scaling is applied.
+        rotations = [("upper-split-face-down", (0.0, 0.0, 0.0))]
     for label, euler_deg in rotations:
         matrix = rotation_matrix_xyz(*euler_deg)
         rotated = transform_bounds(mesh.bounds, matrix)
@@ -617,7 +619,7 @@ def build_manifest(
         "parts": parts,
         "notes": [
             "拼盘 STL 由多个互相独立的封闭零件组成，不是装配件，也不改变源零件尺寸。",
-            "整根固定网柱与绿色整体底座是一件；绿色底座从 x+ 侧推入固定 C 夹的让位腔，中央 4 mm 钢珠定位，两枚 M4 对孔锁紧。黄绿一体件从底座 z=-4 mm 延伸至 z=260.5 mm；网布/卡夹的功能通道仍只到 z=168.5 mm。X1C 采用已验证的 rx=0°、ry=51°、rz=45° 三轴斜放，不裁切、不缩放，导入切片器后仍需配置支撑并确认设备实际可用范围。",
+            "斜立柱拆为下段和顶部下 30 mm 的上段：下段与绿色整体底座一体、从 x+ 侧推入 C 夹让位腔，中央 4 mm 钢珠定位、两枚 M4 对孔锁紧；上段带母燕尾槽、四个 Ø3.4 mm M3 通孔，进入下段四个 Ø2.4 mm×10 mm 盲孔。下段从 z=-4 mm 延伸至分型面 z=230.5 mm，上段到 z=260.5 mm；网布/卡夹的功能通道仍只到 z=168.5 mm。X1C 对下段采用已验证的 rx=0°、ry=51°、rz=45° 三轴斜放，上段平放，不裁切、不缩放，导入切片器后仍需配置支撑并确认设备实际可用范围。",
             "STL 不保存切片参数；导入切片器时仍需确认 1:1 单位、支撑、壁数、填充和首层。",
             "不同材料组严格分盘：TPU/柔性件不会与 PETG 零件进入同一张拼盘；混合材料标注的试样按柔性材料盘处理。",
         ],

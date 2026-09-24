@@ -4,10 +4,12 @@
 The OpenSCAD ``parameter_probe`` is the numerical source of truth. The active
 detector body is a printable PETG rectangle that can later be reproduced in
 CNC; the rear cover carries the 1/4-20 interface for the purchased vertical
-13 mm ballhead. The fixed net post is a separate one-piece print from the
-z=16 mm C-clamp seat to the full z=372.5 mm optical-clearance datum; the net
-fabric/clip zone remains z=16..168.5 mm, and the former downward M8-to-post
-interface is disabled until an independent optical support is designed.
+13 mm ballhead. The fixed net post is printed as a lower carrier and a top
+30 mm segment: the lower segment starts on the z=16 mm C-clamp seat and ends
+at z=230.5 mm; the upper segment ends at z=260.5 mm and is joined with four
+M3x40 screws. The net fabric/clip zone remains z=16..168.5 mm, and the
+former downward M8-to-post interface is disabled until an independent optical
+support is designed.
 """
 
 from __future__ import annotations
@@ -25,7 +27,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v1.7-20-mm-pitch-full-height-post"
+SCHEMA_VERSION = "m6-machining-spec-v1.8-20-mm-pitch-split-post"
 
 
 def _r(value: float) -> float | int:
@@ -129,6 +131,17 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "seat_z_global_mm": _r(parameters["clamp_slide_seat_z"]),
             "top_z_global_mm": _r(parameters["net_post_top_z"]),
             "height_mm": _r(parameters["active_post_total_height"]),
+            "split_from_top_z_mm": _r(parameters["post_split_from_top_z"]),
+            "split_z_global_mm": _r(parameters["post_split_z"]),
+            "lower_segment_z_global_mm": _r(parameters["post_lower_segment_z"]),
+            "lower_segment_height_mm": _r(parameters["post_lower_segment_height"]),
+            "upper_segment_z_global_mm": _r(parameters["post_upper_segment_z"]),
+            "upper_segment_height_mm": _r(parameters["post_upper_segment_height"]),
+            "joint_key_clearance_mm": _r(parameters["post_split_key_clearance"]),
+            "upper_screw_clearance_d_mm": _r(parameters["post_split_screw_clearance_d"]),
+            "lower_pilot_d_mm": _r(parameters["post_split_pilot_d"]),
+            "lower_pilot_depth_mm": _r(parameters["post_split_pilot_depth_z"]),
+            "joint_screw_spec": "4×普通盘头或低矮圆头 M3×40 自攻钉；上段 Ø3.4 mm 通孔进入下段 Ø2.4 mm×10 mm 导向盲孔，不用沉头或台阶肩螺钉",
             "net_top_z_global_mm": _r(parameters["net_panel_top_z"]),
             "net_zone_height_mm": _r(parameters["net_height"]),
             "starts_on_c_clamp_seat": True,
@@ -143,7 +156,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "printed_front_covers": 2,
             "printed_rear_covers": 2,
             "printed_bottom_covers": 2,
-            "printed_net_clamp_clips": 2,
+            "printed_net_clamp_rods": 2,
             "purchased_ballheads": 2,
             "integrated_lower_stand_ballhead_seats": 0,
             "independent_m6_supports_pending": 2,
@@ -299,7 +312,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "后盖从 z+ 套入主体，后盖舌片进入同一 y± 边槽的 x+ 半并以 x+ 沉头螺钉固定",
                 "底盖从 z- 贴合并以两枚沉头螺钉固定，统一线缆套管从 Ø12 mm 孔穿出",
             ],
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；固定网柱从黄灰交界 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区仍只到 z=168.5 mm，底端不进入 C 形座；M6 球头下端 M8 接口不与固定网柱直连，独立光学承力支撑待单独定义，取消旧版横向承托臂，当前装配不使用旧版独立上段外件和旧版独立连接器，最终尺寸待真实器件首样复核",
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；固定网柱下段从黄灰交界 z=16 mm 延伸到分型面 z=230.5 mm，上段延伸到 z=260.5 mm，四枚 M3×40（普通盘头或低矮圆头）自攻钉从上段 Ø3.4 mm 通孔拧入下段 Ø2.4×10 mm 导向盲孔，不用沉头或台阶肩螺钉；网布/圆柱功能区仍只到 z=168.5 mm，底端不进入 C 形座；M6 球头下端 M8 接口不与固定网柱直连，独立光学承力支撑待单独定义，取消旧版横向承托臂，当前装配不使用旧版独立上段外件和旧版独立连接器，最终尺寸待真实器件首样复核",
             "support_boss": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
@@ -371,7 +384,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         },
         "support_contract": {
             "type": "purchased 13 mm ballhead/gimbal",
-            "posture": "vertical purchased ballhead on the M6 rear-cover boss; its downward M8 interface is a standalone optical-support envelope and is not connected to the fixed full-height post",
+            "posture": "vertical purchased ballhead on the M6 rear-cover boss; its downward M8 interface is a standalone optical-support envelope and is not connected to the split fixed net post",
             "boss_hole_axis": "x- from the rear cover boss toward the optical side",
             "boss_hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
             "boss_hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
@@ -387,7 +400,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 parameters["m6_detector_assembly_ballhead_center_z"]
             ),
             "mount_raise_z_mm": _r(parameters["m6_detector_mount_raise_z"]),
-            "net_interface": "球头下端 M8 外牙接口朝 z-，当前只保留采购球头的独立光学支撑包络；不进入固定网柱，不切盲 M8 孔；固定网柱从 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区到 z=168.5 mm",
+            "net_interface": "球头下端 M8 外牙接口朝 z-，当前只保留采购球头的独立光学支撑包络；不进入固定网柱，不切盲 M8 孔；固定网柱下段 z=16…230.5 mm、上段 z=230.5…260.5 mm，四枚 M3×40（普通盘头或低矮圆头）连接，网布/圆柱功能区到 z=168.5 mm",
             "load_path": "主体/后盖 boss -> 1/4-20 外牙采购球头上端 -> 球头；固定网柱是独立的网布/网夹承托件，不承接 M6 球头弯矩；独立光学支撑待定义（无旧版横向承托臂、无旧版独立连接器）",
             "direct_mount": {
                 "enabled": bool(parameters["m6_detector_direct_mount_enabled"]),
@@ -455,11 +468,17 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 parameters["net_post_top_z"]
             ),
             "net_top_z_global_mm": _r(parameters["net_panel_top_z"]),
-            "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；俯视保留 U 形承力截面，外侧开口允许整高卡夹滑入",
+            "channel_opening": "右侧外侧 x+、左侧镜像后外侧 x-；保持历史门洞轴线和 15.2 mm 横向宽度，侧开接收腔允许 Ø10 圆柱插杆连同网布边套沿 x 推入",
             "channel_depth_x_mm": _r(parameters["net_clamp_channel_depth_x"]),
-            "clip_receiver_depth_x_mm": _r(
-                parameters["net_clamp_cylinder_insertion_depth_x"]
-            ),
+            "clip_receiver_depth_x_mm": _r(parameters["net_clamp_channel_depth_x"]),
+            "rod_d_mm": _r(parameters["net_clamp_rod_d"]),
+            "rod_axis_x_mm": _r(parameters["net_clamp_rod_axis_x"]),
+            "rod_axis_y_mm": _r(parameters["net_clamp_rod_axis_y"]),
+            "rod_sleeve_outer_d_mm": _r(parameters["net_clamp_rod_sleeve_outer_d"]),
+            "channel_void_x_span_mm": [
+                _r(parameters["net_clamp_channel_void_min_x"]),
+                _r(parameters["net_clamp_channel_void_max_x"]),
+            ],
             "channel_back_wall_t_x_mm": _r(
                 parameters["net_clamp_channel_back_wall_t_x"]
             ),
@@ -481,57 +500,15 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 _r(parameters["net_clamp_channel_top_z"]),
             ],
             "passive_keeper": {
-                "enabled": bool(parameters["net_clamp_keeper_enabled"]),
-                "role": "立柱一体内嵌止挡，仅防止卡夹向外拔出，不承担网布/绳张力主路径",
-                "z_span_mm": [
-                    _r(parameters["net_clamp_keeper_z"]),
-                    _r(
-                        parameters["net_clamp_keeper_z"]
-                        + parameters["net_clamp_keeper_height_z"]
-                    ),
-                ],
-                "x_span_mm": [
-                    _r(parameters["net_clamp_keeper_x_min"]),
-                    _r(parameters["net_clamp_keeper_x_max"]),
-                ],
-                "y_span_mm": [
-                    _r(parameters["net_clamp_keeper_y_min"]),
-                    _r(parameters["net_clamp_keeper_y_max"]),
-                ],
-                "clip_relief_x_span_mm": [
-                    _r(parameters["net_clamp_keeper_relief_min_x"]),
-                    _r(parameters["net_clamp_keeper_relief_max_x"]),
-                ],
-                "clip_relief_y_span_mm": [
-                    _r(parameters["net_clamp_keeper_relief_min_y"]),
-                    _r(parameters["net_clamp_keeper_relief_max_y"]),
-                ],
-                "clip_one_way_latch": {
-                    "type": "卡夹正侧 jaw 一体弹性扣舌；斜面允许装入，闭合肩只阻止向外拔出",
-                    "x_span_mm": [
-                        _r(parameters["net_clamp_keeper_latch_x_min"]),
-                        _r(parameters["net_clamp_keeper_latch_x_max"]),
-                    ],
-                    "y_span_mm": [
-                        _r(parameters["net_clamp_keeper_latch_y_min"]),
-                        _r(parameters["net_clamp_keeper_latch_y_max"]),
-                    ],
-                    "z_span_mm": [
-                        _r(parameters["net_clamp_keeper_latch_z"]),
-                        _r(
-                            parameters["net_clamp_keeper_latch_z"]
-                            + parameters["net_clamp_keeper_latch_height_z"]
-                        ),
-                    ],
-                    "installed_clearance_to_keeper_x_mm": _r(
-                        parameters["net_clamp_keeper_x_min"]
-                        - parameters["net_clamp_keeper_latch_x_max"]
-                    ),
-                },
+                "enabled": False,
+                "role": "不设置独立 keeper；上段立柱安装后封住圆柱插杆入口",
+                "z_span_mm": [],
+                "x_span_mm": [],
+                "y_span_mm": [],
             },
-            "printed_part": "net_clamp_clip",
+            "printed_part": "net_clamp_rod",
             "material": "PETG",
-            "assembly": "网布先沿 x 穿过立柱主体 y 向 3 mm 过道，端部止在立柱外表面；整高 U 形卡夹沿 x 从桌外侧滑入，两片 jaw 夹住网布；网布张力和绳的拉力把卡夹压在承托面上，立柱内嵌单一被动止挡只防向外拔出，无穿钉，按开夹爪即可解锁",
+            "assembly": "网布侧边空心布套先套到 Ø10 mm 圆柱插杆，再沿原门洞轴线从 x 侧推入下段侧开接收腔；门洞横向宽度保持历史 15.2 mm，立柱上段与下段的四枚 M3×40 连接不属于网端插杆；安装上段后封住插入口，拆卸时先拆上段再反向抽出圆柱和网布",
         },
         "ballhead_contract": {
             "ball_d_mm": _r(parameters["m6_ballhead_ball_d"]),
@@ -551,7 +528,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "net_stud_role": "当前选定下端 M8 外牙；z- 仅作独立光学支撑接口包络，当前不进入固定网柱",
             "net_stud_thread_core_d_mm": _r(parameters["m6_ballhead_net_thread_core_d"]),
             "net_stud_thread_pitch_mm": _r(parameters["m6_ballhead_net_thread_pitch"]),
-            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入后盖中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧；下方 M8 竖直接口朝 z- 但当前不进入固定网柱，固定网柱从 z=16 mm 一体延伸到 z=372.5 mm，网布/卡夹功能区到 z=168.5 mm；独立光学支撑、承力路径和防转方式待定义；取消旧版横向承托臂和侧向上返竖向耳；最终承力以首样实测为准",
+            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入后盖中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧；下方 M8 竖直接口朝 z- 但当前不进入固定网柱，固定网柱分为 z=16…230.5 mm 下段和 z=230.5…260.5 mm 上段，四枚 M3×40（普通盘头或低矮圆头）连接，网布/圆柱功能区到 z=168.5 mm；独立光学支撑、承力路径和防转方式待定义；取消旧版横向承托臂和侧向上返竖向耳；最终承力以首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -601,14 +578,14 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         ],
         "release_checks": [
             "收到真实 M6 对射器件后复核 M6x0.75 有效外丝长度、头部六角 AF、六角轴向厚度、光学中心和原配螺帽厚度",
-            "确认固定网柱从黄灰交界 z=16 mm 起一体延伸到 z=372.5 mm，网布/卡夹功能区仍是 z=16..168.5 mm，底端与 C 形座共面且不下插；M6 球头下端 M8 接口不作为固定网柱承力路径，独立光学支撑完成后再核对其高度",
-            "确认网布先沿 x 穿过 PETG 立柱主体 y 向 3 mm 过道，端部止在立柱外表面，再将整高 U 形 PETG 卡网夹从桌外侧沿 x 推入；网布和绳的张力负责压住卡夹，立柱内嵌单一被动止挡只防向外拔出，无穿钉，按开夹爪后反向滑出",
+            "确认固定网柱下段从黄灰交界 z=16 mm 到分型面 z=230.5 mm，上段到 z=260.5 mm；四枚 M3×40（普通盘头或低矮圆头）从上段 Ø3.4 mm 通孔进入下段 Ø2.4×10 mm 导向盲孔，网布/圆柱功能区仍是 z=16..168.5 mm，底端与 C 形座共面且不下插；M6 球头下端 M8 接口不作为固定网柱承力路径，独立光学支撑完成后再核对其高度",
+            "确认网布先沿 x 穿过 PETG 立柱主体 y 向 3 mm 过道，端部止在立柱外表面，再把空心边套套到 Ø10 圆柱插杆并沿原门洞轴线从 x 侧推入下段侧开接收腔；上段安装后封住入口，不设置穿钉、keeper 或独立卡夹；记录插入力、防脱行程和拆下上段后的抽出力",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
             "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧 boss 均位于各自后端面的 y=0、z 中心",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "确认灰色桌下夹体保留桌面夹持开口和压块/螺杆区域，外侧下部为 y 全深 40 mm 到 8 mm 的实心渐变斜底；M8 夹紧丝杆相对原包络加长 12 mm，仍由台底压块承接",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
-            "真实网夹安装面、球网外伸和孔距实测后，核对固定网柱 z=16..372.5 mm 的一体承托路径以及 z=16..168.5 mm 的网布/卡夹功能区；独立光学支撑完成后再核对球头 z- 接口和承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
+            "真实网夹安装面、球网外伸和孔距实测后，核对固定网柱下段 z=16..230.5 mm、上段 z=230.5..260.5 mm 的承托路径以及 z=16..168.5 mm 的网布/圆柱功能区；独立光学支撑完成后再核对球头 z- 接口和承力路径，不把 PETG 薄壳作为唯一弯矩承力件",
             "前盖必须先从 z+ 拆/装，后盖随后从 z+ 拆/装，底盖最后从 z- 拆/装；爆炸图保持三个盖件完整，不使用剖切",
             "从最低/中间/最高通道复核发射端与接收端的偏航、俯仰、滚转微调范围和锁紧后保持性",
             "机加工件不进入 PETG 打印清单；底盖线缆孔是开放孔，不作防水承诺",

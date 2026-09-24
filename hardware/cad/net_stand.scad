@@ -7,21 +7,23 @@
 //   PART="left_stand"         左侧立柱/桌下夹持/STG 托架结构检查件
 //   PART="right_stand"        右侧立柱/桌下夹持/STG 托架结构检查件
 //   PART="post"               单侧立柱主体
-//   PART="post_segment"       当前单段立柱诊断/打印件（由 post_segment_index 选择）
-//   PART="post_clamp_carrier" 整根立柱与桌外侧滑入载体一体打印件
+//   PART="post_segment"       当前分段立柱诊断/打印件（post_segment_index=0/1）
+//   PART="post_clamp_carrier" 两段立柱与桌外侧滑入载体装配预览
+//   PART="post_clamp_carrier_lower" 长下段立柱 + 桌外侧滑入载体打印件
+//   PART="post_clamp_carrier_upper" 顶部 30 mm 立柱打印件
 //   PART="clamp_body_segment"  整件 C 夹兼容诊断入口（不在正式打印矩阵）
 //   PART="clamp_body_half_user" y=0 分型的操作者侧 C 夹半体（M5 圆头沉孔）
 //   PART="clamp_body_half_opponent" y=0 分型的对手侧 C 夹半体（M5 防转螺母窝）
 //   PART="clamp_body_split_fit" 两半合拢的分型接口预览
 //   PART="clamp_body_split_exploded" 两半沿 y 爆炸的分型接口预览
 //   PART="clamp_body_split_electronics_cutaway" y- 半体电子仓大腔与 y=0 分型面装配剖切预览
-//   PART="post_segment"       兼容入口；输出同一整根立柱主体
-//   PART="lower_stand_segment" 兼容入口；输出同一整根立柱+载体
-//   PART="upper_stand_segment" 兼容入口；输出同一整根立柱主体
+//   PART="post_segment"       兼容入口；按 post_segment_index 输出当前一段立柱
+//   PART="lower_stand_segment" 兼容入口；输出当前下段立柱+载体
+//   PART="upper_stand_segment" 兼容入口；输出当前顶部 30 mm 上段立柱
 //   PART="post_joint_sleeve"  旧版立柱接缝兼容诊断（当前不装配）
 //   PART="post_joint_key"     旧版立柱接缝兼容诊断（当前不装配）
-//   PART="post_joint_exploded" 兼容入口；显示整根立柱向夹体滑入
-//   PART="post_clamp_seated"   整根立柱推进到底后坐在夹具基台上的装配预览
+//   PART="post_joint_exploded" 兼容入口；显示下段载体向夹体滑入和上段分型
+//   PART="post_clamp_seated"   两段立柱推进到底后坐在夹具基台上的装配预览
 //   PART="post_clamp_seated_fit_section" 立柱底面/基台/滑靴真实坐定剖面
 //   PART="post_clamp_entry_open_section" x+入口真实材料剖面（诊断件）
 //   PART="post_clamp_slide_interface_exploded" 立柱底部/基台/滑道沿 x 爆炸细节
@@ -90,10 +92,9 @@
 //   PART="m6_detector_bottom_cover" PETG 底盖候选
 //   PART="m6_detector_wiring_reference" 两侧十路线缆汇线/压紧出线参考
 //   PART="m6_detector_bottom_gasket" M6 底盖连续柔性压紧垫（单独打印）
-//   PART="net_clamp_clip"      单侧全高 U 形滑入卡网夹（PETG 打印件）
-//   PART="net_clamp_rod"       旧调用名，输出同一未旋转 U 形卡夹诊断件
-//   PART="net_clamp_fit_probe" 网布穿过 3 mm 过道后插入 U 夹的局部诊断
-//   PART="net_clamp_fit_section" 网布/立柱/卡夹截面（真实装配基准）
+//   PART="net_clamp_rod"       单侧球网空心边套圆柱插杆（打印件）
+//   PART="net_clamp_fit_probe" 网布空心边套与圆柱插杆/立柱局部诊断
+//   PART="net_clamp_fit_section" 网布/立柱/圆柱插杆截面（真实装配基准）
 //   PART="m6_detector_exploded" 右/左侧检测器非剖切爆炸图
 //   PART="m6_detector_net_connector" 历史采购金属 90°连接器占位（不属于当前装配）
 //   PART="m6_detector_mount" 当前主体/器件/完整前后底盖/竖直采购球头装配（固定网柱独立）
@@ -134,7 +135,7 @@
 // 通螺栓/标准 1/4-20 捕获螺母，未来 CNC 时可改金属嵌件。采购球头保持竖直姿态，球头 z- 接口的 M8
 // 直接进入浅黄色立柱顶面的中心 M8 攻丝底孔，球头安装轴心与后盖 boss 的 z 中心一致。网布功能区从黄灰交界 z=16 mm 共面起，向上一个网高至 z=168.5 mm；
 // 固定网柱实体继续向上到 post_top。
-// 整根单独打印并坐在固定 C 夹主体上；不再使用旧版独立 90°连接器或旧版独立上段外件。薄壳只作定位/保护，M6 独立支撑
+// 斜立柱下段载体和顶部 30 mm 上段分别打印后坐在固定 C 夹主体上；不再使用旧版独立 90°连接器或旧版独立上段外件。薄壳只作定位/保护，M6 独立支撑
 // 的承力界面须在真实接口冻结后用固定件验证。M6 器件、球头、PVDF 薄膜、网布、金属螺杆和夹持软垫均为外购/装配边界；
 // 主体、壳体和底盖可作为 PETG 首样打印件。
 // 粗牙打印螺杆和配套螺母只在装配/剖面和 PART 单件预览中显示；STG-120ML 光纤头
@@ -145,12 +146,10 @@
 // 压合面、定位唇、可替换胶条/压紧出线件参考；这里的“水密”只要求盒盖装好后严丝合缝、无明显贯通缝，
 // 不代表 IP 等级或认证。该文件验证机械意图与参数关系，不等同于最终
 // PETG 打印强度、球台兼容性、实物螺纹/光学精度或 NPN 电气验收。
-// 整根立柱外侧共同保留贯穿网高的接收腔；网布先穿过立柱主体的 y 向
-// 3 mm 过道，再把全高 U 形卡夹沿 x 从外侧滑入。卡夹两片 jaw 夹住网布
-// 两面，网布张力/绳拉力把卡夹压向立柱的内端承托面。立柱侧面只做一处
-// 内嵌被动防拔止挡，卡夹一侧 jaw 留有入口让位和一体弹性扣舌；止挡不在网布
-// 主拉力路径中，不使用横向穿钉、螺钉或螺母。装入时扣舌让止挡越过，回拉时
-// 扣舌的闭合肩挡住止挡；拆卸时按开让位侧 jaw，再把卡夹反向滑出。
+// 整根立柱在网高范围保留 3 mm y 向布料过道；球网侧边的空心布套
+// 先套在 Ø10 连续圆柱插杆上，再沿原门洞轴线从 x 侧推入下段的侧开接收腔。
+// 上段安装后封住插入口，圆杆承接网布边缘的定位力，不再使用外侧矩形卡条、U 形卡夹、
+// 竖直盲孔 keeper、横向穿钉或螺母。
 
 // The main-board pocket follows the native KiCad Edge.Cuts contour. This is
 // the same source-to-mechanical pattern used by SmartPaddle's tail-board
@@ -520,108 +519,61 @@ net_panel_top_z = net_panel_bottom_z + net_height;
 // 立柱要高到足以让完整检测器壳体越过网顶。检测器、采购球头和
 // 光学方向预览作为一个刚性总成整体上抬；具体抬高量在 M6 壳体包络
 // 定义完成后自动计算，不能再用网页里的固定 20 mm 假位置。
-// 网端卡持不再使用一根与网布同平面的圆柱。右侧立柱的 outboard x+ 面
-// 留出窄的全高接收腔，网布先从球台中心侧沿 x 穿过 3 mm 过道；随后把
-// 一个带上下夹槽的竖向 U 形卡夹从 x+ 向 x- 滑入，使网布位于两条夹 jaw
-// 之间。左侧由 sided(-1) 镜像，拆卸时反向滑出。这里的宽腔参数保留旧名，
-// 但现在表示 U 形卡夹的滑入接收腔，而不是圆柱孔。
-// Compatibility parameter names retained for the old probe schema.  These
-// now describe the depth/height of the active U-clip receiver pocket, not a
-// cylindrical printed retainer.
-net_clamp_channel_depth_x = 25;
-net_clamp_cylinder_insertion_depth_x = 25;
-net_clamp_channel_back_wall_t_x = 3;
-net_clamp_cylinder_interference_d = 14;
-net_clamp_cylinder_actual_d =
-    net_clamp_cylinder_interference_d - 2;
-net_clamp_channel_side_clearance = 0.6;
-net_clamp_channel_back_clearance = 0.6;
-net_clamp_channel_width_y = 8;
-// The removable clip crossbar sits just beyond the nominal post face.  The
-// channel is intentionally open at x+ so the complete vertical U-clip can be
-// inserted and removed from outside; the fabric terminates at the post face
-// and never has to pass through the crossbar.
-net_clamp_channel_outboard_extension_x = 4.5;
+// 球网侧边保留原来门洞后方的圆柱基准：先把球网空心边套套在一根竖直
+// 圆柱上，再沿 x+（左侧镜像后为 x-）把“圆柱+网套”推入立柱门洞。
+// 这里只把原来矩形条的截面换成圆形，轴线不再向立柱外沿移动。
+// Ø10 mm 取用户要求的 8~10 mm 范围上限，实际首样可在 8~10 mm 之间调整。
+net_clamp_rod_d = 10.0;
+net_clamp_rod_clearance = 0.60;
+net_clamp_rod_length = net_height;
+net_clamp_rod_axis_y = 0;
+net_clamp_channel_depth_x = post_body_width;
+net_clamp_channel_back_wall_t_x = 3.0;
+net_clamp_channel_side_clearance = 0.60;
+net_clamp_channel_back_clearance = 0.60;
 net_clamp_channel_bottom_z = net_fixture_bottom_z;
-net_clamp_channel_top_z = net_fixture_bottom_z + net_height;
+net_clamp_channel_top_z = net_panel_top_z;
 net_clamp_channel_void_min_x =
     post_center_x + post_body_width / 2 -
     net_clamp_channel_depth_x +
     net_clamp_channel_back_wall_t_x;
 net_clamp_channel_void_max_x =
-    post_center_x + post_body_width / 2 +
-    net_clamp_channel_outboard_extension_x;
-net_clamp_cylinder_center_x =
+    post_center_x + post_body_width / 2 + 0.2;
+// Keep the historical cylindrical-bar axis. The old Ø14 interference
+// envelope placed the axis here; changing to Ø10 changes only the section,
+// not the world-space position that the user already approved.
+net_clamp_rod_reference_d = 14.0;
+net_clamp_rod_axis_x =
     net_clamp_channel_void_min_x +
-    net_clamp_cylinder_interference_d / 2 +
+    net_clamp_rod_reference_d / 2 +
     net_clamp_channel_back_clearance;
-net_clamp_cylinder_height =
-    net_clamp_channel_top_z - net_clamp_channel_bottom_z;
-// 当前主线不在网顶设置轨道或承载横梁；下面的旧 net_rail_* 参数和模块只
-// 为历史布局/回归诊断保留，不能被 assembly 或正式打印清单调用。
+// Compatibility aliases retained for downstream probes; the active receiver
+// is a side-open channel, not a vertical drilled bore.
+net_clamp_rod_bore_d =
+    net_clamp_rod_d + 2 * net_clamp_rod_clearance;
+net_clamp_rod_bore_bottom_z = net_clamp_channel_bottom_z;
+net_clamp_rod_bore_top_z = net_clamp_channel_top_z;
+// Preview-only hollow cloth edge sleeve: 10.8 mm inner diameter around the
+// Ø10 rod, 12 mm outside diameter, and a 0.6 mm side allowance in the slot.
+net_clamp_rod_sleeve_outer_d = 12.0;
+net_clamp_rod_sleeve_clearance = 0.40;
+// Keep the historical door width unchanged: the old Ø14 interference
+// envelope plus 0.6 mm on each side was 15.2 mm.  The new Ø10 rod and Ø12
+// sleeve fit inside this same opening; only the inserted round section changes.
+net_clamp_channel_width_y =
+    net_clamp_rod_reference_d +
+    2 * net_clamp_channel_side_clearance;
+net_clamp_rod_sleeve_passage_clearance_y =
+    net_clamp_channel_side_clearance;
+net_clamp_rod_print_fn = 48;
+// The old rectangular U-clip/keeper is gone. The active fixed opening is a
+// rounded-rod receiving recess at the same historical datum.
 net_top_rail_required = 0;
 net_rail_height = 10;
 net_rail_depth = 18;
 net_sheet_t = 1.2;
-// The printed U clip is a vertical part that slides along x. Its two jaws
-// straddle the 1.2 mm net edge; the outer crossbar joins them. The fit is
-// replaceable and the net/rope tension is carried into the post's inboard
-// support. One embedded side keeper only prevents accidental reverse pull-out;
-// it is not a screw hole and it is not the working tension path.
-net_clamp_clip_clearance_x = 0.2;
-net_clamp_clip_length_x =
-    net_clamp_channel_void_max_x - net_clamp_channel_void_min_x -
-    2 * net_clamp_clip_clearance_x;
-net_clamp_clip_inner_x =
-    net_clamp_channel_void_min_x + net_clamp_clip_clearance_x;
-net_clamp_clip_outer_x =
-    net_clamp_clip_inner_x + net_clamp_clip_length_x;
-net_clamp_clip_jaw_t_y = 2.4;
-net_clamp_clip_jaw_clearance_y = 0.6;
-net_clamp_clip_jaw_gap_y = net_sheet_t + net_clamp_clip_jaw_clearance_y;
-net_clamp_clip_jaw_center_y =
-    net_clamp_clip_jaw_gap_y / 2 + net_clamp_clip_jaw_t_y / 2;
-net_clamp_clip_outer_half_y =
-    net_clamp_clip_jaw_center_y + net_clamp_clip_jaw_t_y / 2;
-net_clamp_clip_crossbar_t_x = 3;
-// One fixed keeper is integrated into the post's positive-y channel wall. The
-// clip's positive-y jaw has a short relief open at its inner sliding tip. When
-// the clip is fully seated, the keeper sits inside that relief; reversing the
-// slide brings the jaw against the keeper after only a small service stroke.
-// The keeper itself remains a solid post anchored 0.4 mm into the channel wall.
-// The lead-in is now supplied by the clip's own one-way spring tongue, so the
-// fixed post has no extra nose that could collide with that tongue at full seat.
-net_clamp_keeper_enabled = true;
-net_clamp_keeper_z_offset = 72;
-net_clamp_keeper_height_z = 8;
-net_clamp_keeper_x_min = net_clamp_clip_inner_x + 1.5;
-net_clamp_keeper_x_max = net_clamp_clip_inner_x + 2.5;
-net_clamp_keeper_lead_in_x = 0;
-net_clamp_keeper_y_min =
-    net_clamp_clip_jaw_center_y + net_clamp_clip_jaw_t_y / 2 - 0.9;
-net_clamp_keeper_y_max =
-    net_clamp_channel_width_y / 2 + 0.4;
-net_clamp_keeper_z =
-    net_clamp_channel_bottom_z + net_clamp_keeper_z_offset;
-net_clamp_keeper_relief_min_x = net_clamp_clip_inner_x - 0.2;
-net_clamp_keeper_relief_max_x = net_clamp_clip_inner_x + 4.2;
-net_clamp_keeper_relief_min_y = net_clamp_keeper_y_min - 0.15;
-net_clamp_keeper_relief_max_y = net_clamp_clip_outer_half_y + 0.15;
-net_clamp_keeper_relief_clearance_z = 0.2;
-// The clip-side anti-withdrawal feature is a short spring tongue fused to the
-// positive-y jaw.  Its sloped x- nose lets the fixed keeper pass while the clip
-// slides inward (x+ -> x-); its x+ shoulder is closed, so a reverse pull makes
-// the keeper stop against it.  The 0.3 mm installed gap is intentional and is
-// the visual/print clearance between the tongue and the fixed keeper.
-net_clamp_keeper_latch_x_min = net_clamp_keeper_relief_min_x + 0.4;
-net_clamp_keeper_latch_x_max = net_clamp_keeper_relief_min_x + 1.4;
-net_clamp_keeper_latch_y_min = net_clamp_keeper_relief_min_y - 0.2;
-net_clamp_keeper_latch_y_max = net_clamp_keeper_latch_y_min + 1.0;
-net_clamp_keeper_latch_z = net_clamp_keeper_z + 0.4;
-net_clamp_keeper_latch_height_z = net_clamp_keeper_height_z - 0.8;
-// 网布位于 x-z 平面，厚度沿 y；在立柱实体和局部顶部加厚块中都切出
-// 3 mm 的贯穿过道，使网布能从球台中心方向穿到外侧卡夹腔。这里的 x
-// 范围含局部顶部加厚块；卡夹腔的内端止挡不切穿这条过道。
+// The net sheet itself still passes through the thin x tunnel; the larger
+// sleeve/rod assembly occupies the separate outboard receiving recess.
 net_passage_width_y = 3;
 net_passage_bottom_z = net_fixture_bottom_z;
 net_passage_top_z = net_fixture_bottom_z + net_height;
@@ -1054,14 +1006,14 @@ m6_detector_net_connector_socket_overlap_z = 0.2;
 m6_detector_net_connector_post_bolt_d = 6.5;
 m6_detector_net_connector_post_bolt_y = m6_post_mount_hole_y;
 
-// 当前固定网柱顶面是平顶直连面：球头 z- M8 进入顶面中心的 M8 攻丝底孔。
-// 不做圆柱 boss、六角螺母窝、侧向承力耳或独立 90°连接器；球头金属件
-// 的弯矩通过这一个平顶孔直接传入同一根 PETG/CNC 立柱。
+// 当前固定网柱上段顶面是平顶直连面：球头 z- M8 进入上段顶面中心的 M8 攻丝底孔。
+// 不做圆柱 boss、六角螺母窝、侧向承力耳或独立 90°连接器；下段与上段
+// 通过分型公母键和四枚 M3×40 连接后，球头金属件的弯矩沿连续实体传入两段立柱。
 m6_detector_direct_mount_arm_width_y = 0;
 m6_detector_direct_mount_arm_t_z = 0;
 // Compatibility echoes retained for older parameter consumers. The active
 // fixed-net post has no horizontal seat/arm or side-return web; it is a
-// one-piece upright from z=16 to the direct ballhead seating plane. The old
+// two-piece upright from z=16 to the direct ballhead seating plane. The old
 // slide/shoe experiment is disabled and contributes no current assembly geometry.
 m6_detector_direct_mount_web_width_y = 0;
 m6_detector_direct_mount_web_t_x = 0;
@@ -1283,7 +1235,7 @@ clamp_top_pad_t = 2;
 clamp_slide_seat_z = clamp_top_pad_t + clamp_pad_t;
 post_bottom = clamp_slide_seat_z;
 // The 30 mm transition starts exactly at the C-clamp's upper contact plane.
-// The net fabric and U-clip still stop at net_panel_top_z = 168.5 mm. The
+// The net fabric and cylindrical sleeve/rod still stop at net_panel_top_z = 168.5 mm. The
 // upright then continues as one solid piece to the flat ballhead seating plane;
 // the top is derived from the installed M8 base, not from a separate bridge.
 post_interface_transition_start_z = clamp_slide_seat_z;
@@ -1782,13 +1734,17 @@ clamp_printed_screw_head_flat_h = 3.4;
 post_top =
     m6_detector_raw_ballhead_base_bottom_z + m6_detector_mount_raise_z;
 // The active upright is one continuous print from the gray/yellow seat to the
-// installed ballhead base seating plane. The net passage and U-clip receiving
-// channel end at the net top; the material above them remains a solid 28 x 38 mm
-// support section with one central M8 tap pilot in its flat top.
+// installed ballhead base seating plane. The net passage and rod receiving recess
+// end at the net top; the material above them remains a solid 28 x 38 mm support section with
+// one central M8 tap pilot in its flat top.
 net_post_top_z = post_top;
 post_above_net_height_z = net_post_top_z - net_panel_top_z;
-post_segment_count = 1;
-// Compatibility echo for old readers.  A one-piece upright has no post seam.
+// The tall optical/net upright is split 30 mm below its top so each printable
+// segment fits the X1C.  The split is in the constant 28×38 mm section, well
+// above the net doorway and the sloped transition; the green C-clamp carrier
+// stays with the lower segment.
+post_segment_count = 2;
+post_split_from_top_z = 30;
 post_joint_gap = 0;
 // Diagnostic views separate otherwise coincident faces by this amount so the
 // load path and the clearance are legible. It is never applied to printable
@@ -1802,28 +1758,41 @@ preview_slide_out_offset_x = clamp_slide_receiver_length_x + 1;
 // the zero installed datum.  This lets validation test the actual x-only
 // insertion path at several positions without introducing a second part.
 fit_probe_offset_x = 0;
-// Retained as a compatibility datum for old diagnostics.  It is deliberately
-// not used to split the active print; the complete upright remains one piece.
+// The old name is retained for diagnostics; it now means the clearance above
+// the net doorway before the active post split.
 post_joint_above_net_clearance_z = 18;
-// Legacy post-joint dimensions remain available only for old diagnostic PARTs.
-// The active load path uses the clamp carrier's x-direction broad slideways instead.
-post_joint_rail_height_z = 30;
-post_joint_rail_root_overlap_z = 14;
-post_joint_rail_x_base_width = 14;
-post_joint_rail_x_neck_width = 9;
-post_joint_rail_y_depth = 6;
-post_joint_rail_y_positions = [-12, 12];
-post_joint_rail_clearance = 0.35;
-// Legacy sleeve/key dimensions remain available to old diagnostic PART calls;
-// they are no longer part of the active assembly or print matrix.
+// These are the active two-rail dovetail dimensions.  The rails sit away from
+// the central M8 support pilot and from the four corner screw holes.
+post_split_key_height_z = 10;
+post_split_key_root_overlap_z = 0.2;
+post_split_key_x_base_width = 12;
+post_split_key_x_neck_width = 8;
+post_split_key_y_depth = 5.5;
+post_split_key_y_positions = [-11.5, 11.5];
+post_split_key_clearance = 0.35;
+post_split_hole_x_offsets = [-9.5, 9.5];
+post_split_hole_y_offsets = [-14.5, 14.5];
+post_split_screw_clearance_d = 3.4;
+post_split_pilot_d = 2.4;
+post_split_pilot_depth_z = 10;
+post_split_screw_length = 40;
+// 上下段连接：普通盘头或低矮圆头 M3×40 自攻钉；不做 90° 沉头窝，也不用台阶肩螺钉。
+// Compatibility aliases for old diagnostic PARTs.
+post_joint_rail_height_z = post_split_key_height_z;
+post_joint_rail_root_overlap_z = post_split_key_root_overlap_z;
+post_joint_rail_x_base_width = post_split_key_x_base_width;
+post_joint_rail_x_neck_width = post_split_key_x_neck_width;
+post_joint_rail_y_depth = post_split_key_y_depth;
+post_joint_rail_y_positions = post_split_key_y_positions;
+post_joint_rail_clearance = post_split_key_clearance;
 post_joint_sleeve_h = 24;
 post_joint_clearance = 0.6;
 post_segment_index = 0;
 post_total_height = post_top - post_bottom;
-// post_segment_length/post_joint_z are assigned with the active one-piece
-// height below, after the direct-mount datum has been resolved.
-// 网布延伸到两侧立柱外边界；立柱实体保留连续过道，网布端部由 U 形卡夹
-// 从桌外侧压在立柱外表面。这对应网布从网柱上端一直固定到下端的装配关系。
+// post_segment_length/post_joint_z are assigned with the active split datums
+// below, after the direct-mount datum has been resolved.
+// 网布延伸到两侧立柱外边界；立柱实体保留连续过道，网布端部由圆柱插杆
+// 从分型面捕获在立柱内部。这对应网布从网柱上端一直固定到下端的装配关系。
 net_span = 2 * (post_center_x + post_body_width / 2);
 net_rail_segment_count = 3;
 net_rail_splice_overlap = 20;
@@ -2203,9 +2172,9 @@ m6_receiver_carrier_clearance_to_body_x =
     m6_receiver_carrier_board_x - m6_receiver_carrier_component_depth_x -
     m6_detector_body_max_x;
 
-// The active direct M6-to-net-post interface is the flat top of the one-piece
-// upright. The purchased downward M8 stud enters this central tap pilot; no
-// separate gray/yellow bridge, round boss, hex nut pocket, or side ear is used.
+// The active direct M6-to-net-post interface is the flat top of the upper
+// upright segment. The purchased downward M8 stud enters this central tap
+// pilot; no separate gray/yellow bridge, round boss, hex nut pocket, or side ear is used.
 m6_detector_direct_mount_enabled = true;
 // Compatibility optical-interface datums are also the active post-top support
 // datums. They are computed from the installed ballhead and the same post axis.
@@ -2248,10 +2217,10 @@ m6_detector_direct_mount_arm_bottom_z =
     m6_detector_direct_mount_thread_top_z;
 m6_detector_direct_mount_arm_top_z =
     m6_detector_direct_mount_arm_bottom_z;
-// The compatibility alias names the actual fixed-net post top, which is the
-// ballhead base seating plane.
+// The compatibility alias now names the lower segment's top split plane. The
+// upper segment continues from this plane to the ballhead seating surface.
 m6_detector_direct_mount_lower_post_top_z =
-    net_post_top_z;
+    m6_detector_direct_mount_thread_bottom_z;
 // Legacy diagnostic echoes: zero-width/zero-height means no active side web.
 m6_detector_direct_mount_web_min_x =
     m6_detector_direct_mount_post_inner_face_x;
@@ -2261,29 +2230,31 @@ m6_detector_direct_mount_web_min_z =
     m6_detector_direct_mount_lower_post_top_z;
 m6_detector_direct_mount_web_max_z =
     m6_detector_direct_mount_lower_post_top_z;
-// Active printable upright: one continuous body from the gray/yellow seat to
-// the ballhead seating post_top datum. The same print also owns the outboard clamp
-// carrier; the complete piece is seated against the separate gray C-clamp.
+// Active printable upright: two segments from the gray/yellow seat to the
+// ballhead seating datum. The lower segment owns the outboard clamp carrier;
+// the upper 30 mm segment is the replaceable top piece. The split sits exactly
+// at the lower edge of the central M8 pilot so the purchased stud still has a
+// continuous cylindrical support when the two pieces are assembled.
 active_post_top_z = net_post_top_z;
 active_post_total_height = active_post_top_z - post_bottom;
-// Legacy readers now receive the actual continuous printable height, rather
-// than a nominal envelope that includes the unused optical-clearance margin.
-post_segment_length = active_post_total_height;
-post_joint_z = active_post_top_z;
-// Legacy split aliases are terminal sentinels, never active parting surfaces.
-post_split_z = active_post_top_z;
+post_split_z = active_post_top_z - post_split_from_top_z;
 post_lower_segment_z = post_bottom;
-post_lower_segment_height = active_post_total_height;
-post_upper_segment_z = active_post_top_z;
-post_upper_segment_height = 0;
-post_segment_zs = [post_bottom];
-post_segment_heights = [active_post_total_height];
-active_post_segment_length = active_post_total_height;
-active_post_joint_z = active_post_top_z;
-post_joint_rail_z0 = active_post_top_z;
-post_joint_lock_z = active_post_top_z;
-m4_joint_bolt_clearance_d = 4.4;
-m4_joint_bolt_length = 40;
+post_lower_segment_height = post_split_z - post_bottom;
+post_upper_segment_z = post_split_z;
+post_upper_segment_height = active_post_top_z - post_split_z;
+post_segment_length = post_upper_segment_height;
+// The upper segment remains above the net receiving recess; it does not
+// change the historical rod-entry position.
+post_joint_z = post_split_z;
+post_segment_zs = [post_lower_segment_z, post_upper_segment_z];
+post_segment_heights = [post_lower_segment_height, post_upper_segment_height];
+active_post_segment_length = max(post_lower_segment_height,
+                                 post_upper_segment_height);
+active_post_joint_z = post_split_z;
+post_joint_rail_z0 = post_split_z - post_split_key_root_overlap_z;
+post_joint_lock_z = post_split_z + post_split_key_height_z / 2;
+m4_joint_bolt_clearance_d = post_split_screw_clearance_d;
+m4_joint_bolt_length = post_split_screw_length;
 m4_joint_bolt_z_offset = 7;
 sensor_x =
     post_center_x - post_body_width / 2 - sensor_post_clearance_x -
@@ -2333,7 +2304,8 @@ clamp_reinforcement_outer_bottom_z =
     clamp_reinforcement_top_z - clamp_reinforcement_outer_thickness_z;
 // The electronics cavity ends before the clamp slide shoulder. The complete
 // gray C-frame remains one fixed printable body; the orange carrier contributes
-// only the one-piece upright, its full-length male runners and the heavy U-foot.
+// the lower upright segment, the top 30 mm segment, full-length male runners
+// and the heavy U-foot.
 clamp_slide_lock_y_positions = clamp_slide_rail_y_positions;
 function clamp_reinforcement_bottom_z_at(x) =
     clamp_reinforcement_near_table_bottom_z +
@@ -2753,23 +2725,29 @@ assert(beam_last_height == 100,
        "first optical window ends at +100 mm above the net top");
 assert(post_top > net_height + beam_last_height + optical_module_height / 2,
        "legacy optical-post envelope must clear the highest optical module");
-assert(post_segment_count == 1 && post_joint_gap == 0 &&
+assert(post_segment_count == 2 && post_joint_gap == 0 &&
            post_bottom == clamp_slide_seat_z &&
            active_post_top_z == net_post_top_z &&
            active_post_total_height == net_post_top_z - post_bottom &&
            net_post_top_z == post_top &&
            net_post_top_z > net_panel_top_z &&
-           active_post_segment_length == active_post_total_height &&
-           post_segment_length == active_post_total_height &&
+           post_split_from_top_z == 30 &&
+           post_split_z == active_post_top_z - post_split_from_top_z &&
+           post_split_z > post_interface_transition_top_z &&
+           post_split_z > net_panel_top_z &&
+           post_upper_segment_height == post_split_from_top_z &&
+           post_lower_segment_height == post_split_z - post_bottom &&
+           active_post_segment_length ==
+               max(post_lower_segment_height, post_upper_segment_height) &&
+           post_segment_length == post_upper_segment_height &&
            post_lower_segment_z == post_bottom &&
-           post_lower_segment_height == active_post_total_height &&
-           post_upper_segment_z == active_post_top_z &&
-           post_upper_segment_height == 0 &&
-           post_split_z == active_post_top_z &&
-           len(post_segment_zs) == 1 && len(post_segment_heights) == 1 &&
+           post_upper_segment_z == post_split_z &&
+           len(post_segment_zs) == 2 && len(post_segment_heights) == 2 &&
            post_segment_zs[0] == post_bottom &&
-           post_segment_heights[0] == active_post_total_height,
-       "the active upright must be one continuous printable piece with no post seam");
+           post_segment_zs[1] == post_split_z &&
+           post_segment_heights[0] == post_lower_segment_height &&
+           post_segment_heights[1] == post_upper_segment_height,
+       "the active upright must be two printable segments with the 30 mm split above the doorway");
 assert(!clamp_slide_interface_enabled ||
            (clamp_slide_receiver_length_x > clamp_slide_length_x &&
            clamp_slide_shoe_deepening_x >= 8 &&
@@ -2926,11 +2904,13 @@ assert(!clamp_slide_interface_enabled ||
            post_interface_transition_height_z == 0 &&
            post_interface_transition_outer_max_x ==
                post_center_x + post_body_width / 2 &&
-           post_interface_transition_outer_max_x <
-               net_clamp_channel_void_max_x &&
-           net_clamp_clip_outer_x >
-               post_interface_transition_outer_max_x),
-       "the fixed gray body must own the full outboard envelope and the carrier shoe must embrace the post from first contact");
+           net_clamp_rod_axis_x - net_clamp_rod_bore_d / 2 >
+               post_center_x - post_body_width / 2 &&
+           net_clamp_rod_axis_x + net_clamp_rod_bore_d / 2 <
+               post_center_x + post_body_width / 2 &&
+           net_clamp_rod_axis_x + net_clamp_rod_bore_d / 2 <
+               post_interface_transition_outer_max_x + 0.01),
+       "the fixed post must contain the complete cylindrical rod recess with a printable outer wall");
 assert(!clamp_slide_interface_enabled &&
            post_bottom == clamp_slide_seat_z &&
            post_c_clamp_overlap_depth_z == 0 &&
@@ -3411,7 +3391,7 @@ assert(!m6_detector_direct_mount_enabled ||
            m6_detector_direct_mount_arm_top_z ==
                m6_detector_direct_mount_arm_bottom_z &&
            m6_detector_direct_mount_lower_post_top_z ==
-               m6_detector_direct_mount_thread_top_z &&
+               m6_detector_direct_mount_thread_bottom_z &&
            m6_detector_direct_mount_lower_post_top_z > post_bottom &&
            m6_detector_direct_mount_lower_post_top_z - post_bottom < 270 &&
            m6_detector_direct_mount_nut_loading_depth_z == 0 &&
@@ -3425,75 +3405,42 @@ assert(!m6_detector_direct_mount_enabled ||
            m6_detector_direct_mount_web_t_x == 0),
        "the optional M6 direct-mount datum is internally consistent when explicitly enabled");
 assert(m6_detector_direct_mount_enabled &&
-           m6_detector_direct_mount_lower_post_top_z == net_post_top_z &&
+           m6_detector_direct_mount_lower_post_top_z == post_split_z &&
            active_post_top_z == net_post_top_z &&
            active_post_total_height == net_post_top_z - post_bottom &&
            net_post_top_z > net_panel_top_z &&
            m6_detector_direct_mount_socket_top_z == net_post_top_z &&
            m6_detector_direct_mount_socket_top_z == post_top &&
+           post_split_z == m6_detector_direct_mount_thread_bottom_z &&
+           post_upper_segment_height ==
+               m6_detector_direct_mount_thread_depth_z &&
            m6_detector_shell_bottom_z + m6_detector_mount_raise_z >=
                net_panel_top_z + m6_detector_mount_net_clearance_z &&
            m6_detector_direct_mount_socket_bottom_z <
                m6_detector_direct_mount_socket_top_z,
-       "the one-piece fixed-net post must end at the flat ballhead seating plane and carry the central M8 tap pilot");
-assert(net_clamp_channel_depth_x > net_clamp_channel_back_wall_t_x &&
-           net_clamp_cylinder_insertion_depth_x == net_clamp_channel_depth_x &&
-           net_clamp_channel_back_wall_t_x > 0 &&
-           net_clamp_channel_back_wall_t_x < net_clamp_channel_depth_x &&
-           net_clamp_cylinder_interference_d >
-               net_clamp_cylinder_actual_d &&
-           net_clamp_cylinder_actual_d ==
-               net_clamp_cylinder_interference_d - 2 &&
-           net_clamp_channel_width_y > 2 * net_clamp_clip_outer_half_y &&
-           net_clamp_channel_void_min_x ==
-               post_center_x + post_body_width / 2 -
-                   net_clamp_channel_depth_x +
-                   net_clamp_channel_back_wall_t_x &&
-           net_clamp_channel_void_max_x >
-               post_interface_transition_outer_max_x &&
-           net_fixture_bottom_z == post_bottom &&
+       "the split upright must leave the central M8 pilot in the 30 mm upper segment");
+assert(net_clamp_rod_d >= 8 &&
+           net_clamp_rod_d <= 10 &&
+           net_clamp_rod_clearance >= 0.4 &&
+           net_clamp_rod_bore_d ==
+               net_clamp_rod_d + 2 * net_clamp_rod_clearance &&
+           net_clamp_rod_length == net_height &&
            net_clamp_channel_bottom_z == net_fixture_bottom_z &&
            net_clamp_channel_top_z == net_panel_top_z &&
-           net_clamp_cylinder_height ==
-               net_clamp_channel_top_z - net_clamp_channel_bottom_z &&
-           net_clamp_clip_length_x > 15 &&
-           net_clamp_clip_inner_x > net_clamp_channel_void_min_x &&
-           net_clamp_clip_outer_x >
-               post_interface_transition_outer_max_x &&
-           net_clamp_clip_outer_x < net_clamp_channel_void_max_x &&
-           net_clamp_clip_jaw_gap_y > net_sheet_t &&
-           net_clamp_clip_jaw_t_y > 1 &&
-           net_clamp_clip_crossbar_t_x > 2 &&
-           net_clamp_keeper_enabled &&
-           net_clamp_keeper_height_z >= 6 &&
-           net_clamp_keeper_x_min > net_clamp_clip_inner_x &&
-           net_clamp_keeper_x_max > net_clamp_keeper_x_min &&
-           net_clamp_keeper_x_max < net_clamp_keeper_relief_max_x &&
-           net_clamp_keeper_y_min > net_clamp_clip_jaw_center_y &&
-           net_clamp_keeper_y_min <
-               net_clamp_clip_jaw_center_y + net_clamp_clip_jaw_t_y / 2 &&
-           net_clamp_keeper_y_max > net_clamp_channel_width_y / 2 &&
-           net_clamp_keeper_z > net_clamp_channel_bottom_z &&
-           net_clamp_keeper_z + net_clamp_keeper_height_z <
-               net_clamp_channel_top_z &&
-           net_clamp_keeper_relief_min_x < net_clamp_clip_inner_x &&
-           net_clamp_keeper_relief_max_x > net_clamp_keeper_x_max &&
-           net_clamp_keeper_relief_min_y < net_clamp_clip_outer_half_y &&
-           net_clamp_keeper_relief_max_y > net_clamp_clip_outer_half_y &&
-           net_clamp_keeper_latch_x_min >= net_clamp_keeper_relief_min_x &&
-           net_clamp_keeper_latch_x_max < net_clamp_keeper_x_min &&
-           net_clamp_keeper_x_min - net_clamp_keeper_latch_x_max >= 0.2 &&
-           net_clamp_keeper_latch_y_min < net_clamp_keeper_y_min &&
-           net_clamp_keeper_latch_y_max > net_clamp_keeper_y_min &&
-           net_clamp_keeper_latch_y_max <= net_clamp_keeper_relief_max_y &&
-           net_clamp_keeper_latch_z >= net_clamp_keeper_z &&
-           net_clamp_keeper_latch_z + net_clamp_keeper_latch_height_z <=
-               net_clamp_keeper_z + net_clamp_keeper_height_z &&
-           net_clamp_channel_outboard_extension_x >=
-               net_clamp_clip_crossbar_t_x + net_clamp_clip_clearance_x &&
-           m6_detector_direct_mount_lower_post_top_z >=
-               net_clamp_channel_top_z,
-       "outboard net pocket must accept a full-height sliding U clip with a net-sized jaw gap and one passive embedded anti-withdrawal keeper");
+           net_clamp_rod_axis_y == 0 &&
+           net_clamp_channel_void_min_x < net_clamp_rod_axis_x &&
+           net_clamp_rod_axis_x < net_clamp_channel_void_max_x &&
+           net_clamp_rod_axis_x - net_clamp_rod_sleeve_outer_d / 2 >=
+               net_clamp_channel_void_min_x - 0.01 &&
+           net_clamp_rod_axis_x + net_clamp_rod_sleeve_outer_d / 2 <=
+               net_clamp_channel_void_max_x + 0.01 &&
+           net_clamp_channel_width_y >=
+               net_clamp_rod_sleeve_outer_d +
+               2 * net_clamp_channel_side_clearance &&
+           net_clamp_rod_sleeve_outer_d > net_clamp_rod_d &&
+           net_clamp_rod_sleeve_clearance > 0 &&
+           net_clamp_rod_print_fn >= 32,
+       "the historical side-open rod recess must fit one Ø8–10 vertical rod and its hollow sleeve");
 assert(net_passage_width_y == 3 &&
            net_passage_width_y > net_sheet_t &&
            net_passage_side_clearance_y > 0 &&
@@ -3507,7 +3454,7 @@ assert(net_passage_width_y == 3 &&
            net_passage_top_z > net_passage_bottom_z &&
            net_passage_top_z <=
                m6_detector_direct_mount_lower_post_top_z,
-       "net must have a 3 mm y-direction passage through the complete post envelope");
+       "the thin x tunnel must remain a separate cloth passage from the larger rod recess");
 assert(m6_yaw_stage_radius > m6_yaw_slot_radius +
            m6_stage_bolt_d &&
            m6_yaw_slot_radius > m6_stage_bolt_d &&
@@ -6866,7 +6813,7 @@ module clamp_slide_post_foot_raw_post_cut_test_positive() {
             clamp_slide_post_foot_positive();
         }
         net_passage_negative_positive();
-        net_clamp_channel_negative_positive();
+        net_clamp_rod_recess_negative_positive();
         for (y_position = [-m6_post_mount_hole_y,
                            m6_post_mount_hole_y]) {
             m6_slot_x_z_span(
@@ -6895,7 +6842,7 @@ module clamp_slide_post_foot_raw_post_single_cut_test_positive(cut_kind = 0) {
         if (cut_kind == 0)
             net_passage_negative_positive();
         if (cut_kind == 1)
-            net_clamp_channel_negative_positive();
+            net_clamp_rod_recess_negative_positive();
         if (cut_kind == 2)
             for (y_position = [-m6_post_mount_hole_y,
                                m6_post_mount_hole_y])
@@ -6990,7 +6937,7 @@ module clamp_slide_post_foot_relief_negative_positive() {
     }
     // The low full-depth crotch also needs an unobstructed x+ entry. It is
     // below the net lower edge, so this opening does not cut the 3 mm net
-    // passage or the removable U-clip path above z=0.
+    // passage or the cylindrical rod path above z=0.
     translate([
         clamp_slide_post_foot_bridge_min_x - clamp_slide_clearance,
         -clamp_pad_depth / 2 - clamp_slide_clearance,
@@ -7346,9 +7293,8 @@ module table_clamp_section_positive() {
 }
 
 // The thin net passage crosses the complete post envelope in x.  The 3 mm
-// y-width is intentionally separate from the wider outboard U-slot: the net
-// passes through the post first, then the printed U clip closes the pocket
-// around its exposed edge.
+// y-width is intentionally only the cloth passage: the net passes through the
+// post first, then its hollow edge sleeve is carried by the independent rod.
 module net_passage_negative_positive() {
     translate([net_passage_min_x,
                -net_passage_width_y / 2,
@@ -7358,18 +7304,10 @@ module net_passage_negative_positive() {
               net_passage_top_z - net_passage_bottom_z + 0.4]);
 }
 
-// The receiving pocket is a narrow full-height slot open at the outboard x
-// face. The net first passes through the central 3 mm tunnel; the removable
-// U clip then slides into this pocket from outside and its two jaws straddle
-// the net edge. The pocket has an inboard stop, so the clip cannot be pushed
-// through the post.
-module net_clamp_channel_negative_positive() {
-    // The U-clip is a full-height part starting at the table-top/net datum.
-    // Keep this functional receiving pocket open through the solid taper as
-    // well; otherwise the clip would genuinely collide with the post between
-    // z=16 and z=40 instead of entering from the outboard face. This is one of
-    // the two intentional openings in the otherwise solid transition, along
-    // with the 3 mm net passage.
+// The rod receiver is the old side-open door, resized for the real round
+// sleeve. It is open at the outboard x face, so the rod+sleeve is pushed in
+// along x while its cylinder axis remains vertical (Z).
+module net_clamp_rod_recess_negative_positive() {
     translate([net_clamp_channel_void_min_x,
                -net_clamp_channel_width_y / 2,
                net_clamp_channel_bottom_z - 0.2])
@@ -7378,156 +7316,80 @@ module net_clamp_channel_negative_positive() {
               net_clamp_channel_top_z - net_clamp_channel_bottom_z + 0.4]);
 }
 
-// One solid keeper is part of the post, not a loose pin. It is fused into the
-// positive-y channel wall and projects only into the outer edge of the
-// positive-y jaw. The net/rope load still seats the U clip against the
-// inboard stop; this small feature only blocks an accidental reverse pull.
-module net_clamp_keeper_positive() {
-    if (net_clamp_keeper_enabled)
-        color("darkorange")
-            translate([net_clamp_keeper_x_min,
-                       net_clamp_keeper_y_min,
-                       net_clamp_keeper_z])
-                cube([net_clamp_keeper_x_max - net_clamp_keeper_x_min,
-                      net_clamp_keeper_y_max - net_clamp_keeper_y_min,
-                      net_clamp_keeper_height_z]);
-}
-
-module net_clamp_keeper_relief_negative_positive() {
-    // The relief is open at the clip's inner sliding tip. The fixed keeper
-    // enters this window during insertion; the separate clip-side latch tongue
-    // closes the window behind the keeper for the reverse-pull stop.
-    if (net_clamp_keeper_enabled)
-        translate([net_clamp_keeper_relief_min_x,
-                   net_clamp_keeper_relief_min_y,
-                   net_clamp_keeper_z - net_clamp_keeper_relief_clearance_z])
-            cube([net_clamp_keeper_relief_max_x -
-                      net_clamp_keeper_relief_min_x,
-                  net_clamp_keeper_relief_max_y -
-                      net_clamp_keeper_relief_min_y,
-                  net_clamp_keeper_height_z +
-                      2 * net_clamp_keeper_relief_clearance_z]);
-}
-
-// The fixed keeper is blocked on reverse pull by this clip-side spring tongue.
-// The tongue is part of the positive-y jaw, not a separate pin: its x- edge is
-// chamfered as the insertion lead-in and its x+ edge is the closed shoulder.
-// Pressing the same jaw outward flexes the tongue clear of the keeper so the
-// entire full-height clip can be slid back out.
-module net_clamp_keeper_latch_positive() {
-    if (net_clamp_keeper_enabled)
-        translate([0, 0, net_clamp_keeper_latch_z])
-            linear_extrude(height = net_clamp_keeper_latch_height_z)
-                polygon(points = [
-                    [net_clamp_keeper_latch_x_min,
-                     net_clamp_keeper_latch_y_min],
-                    [net_clamp_keeper_latch_x_max,
-                     net_clamp_keeper_latch_y_min],
-                    [net_clamp_keeper_latch_x_max,
-                     net_clamp_keeper_latch_y_max],
-                    [net_clamp_keeper_latch_x_min + 0.35,
-                     net_clamp_keeper_latch_y_max],
-                    [net_clamp_keeper_latch_x_min,
-                     net_clamp_keeper_latch_y_min + 0.3]
-                ]);
-}
-
-module net_clamp_clip_positive() {
-    // This is a real PETG print part, not a purchased hardware placeholder.
-    // It is a vertical U-shaped slide clip: the two parallel jaws grip the
-    // fabric faces and the outer crossbar gives a positive insertion stop.
-    // It enters from the outboard x face, so the full net never needs to be
-    // threaded through a closed post after the clip is installed. The
-    // crossbar is outside the post face; the net fabric ends at that face and
-    // therefore cannot collide with the crossbar. The positive-y jaw carries
-    // one open-ended keeper relief and one fused one-way spring tongue; there
-    // are no transverse fastener holes.
-    color("goldenrod")
-        union() {
-            difference() {
-                union() {
-                    translate([net_clamp_clip_inner_x,
-                               -net_clamp_clip_jaw_center_y -
-                               net_clamp_clip_jaw_t_y / 2,
-                               net_clamp_channel_bottom_z])
-                        cube([net_clamp_clip_length_x,
-                              net_clamp_clip_jaw_t_y,
-                              net_clamp_cylinder_height]);
-                    translate([net_clamp_clip_inner_x,
-                               net_clamp_clip_jaw_center_y -
-                               net_clamp_clip_jaw_t_y / 2,
-                               net_clamp_channel_bottom_z])
-                        cube([net_clamp_clip_length_x,
-                              net_clamp_clip_jaw_t_y,
-                              net_clamp_cylinder_height]);
-                    translate([net_clamp_clip_outer_x - net_clamp_clip_crossbar_t_x,
-                               -net_clamp_clip_outer_half_y,
-                               net_clamp_channel_bottom_z])
-                        cube([net_clamp_clip_crossbar_t_x,
-                              2 * net_clamp_clip_outer_half_y,
-                              net_clamp_cylinder_height]);
-                }
-                net_clamp_keeper_relief_negative_positive();
-            }
-            net_clamp_keeper_latch_positive();
-        }
-}
-
-// Compatibility name for old preview callers. The active print name is
-// net_clamp_clip, while this alias deliberately keeps the real assembly datum.
 module net_clamp_rod_positive() {
-    net_clamp_clip_positive();
+    // Installed rod: a Ø10 vertical cylinder inside the historical side-open
+    // door. The rod and hollow sleeve slide in along x; the rod axis stays at
+    // the previously approved world-space datum.
+    color("silver")
+        translate([net_clamp_rod_axis_x,
+                   net_clamp_rod_axis_y,
+                   net_clamp_channel_bottom_z])
+            cylinder(
+                d = net_clamp_rod_d,
+                h = net_clamp_channel_top_z - net_clamp_channel_bottom_z,
+                $fn = net_clamp_rod_print_fn);
 }
 
-module net_clamp_clip_printable_positive() {
-    // Print the tall clip flat on its broad side. In the installed datum z is
-    // the net height; for FDM export it becomes the y footprint, while the
-    // jaw/crossbar thickness becomes the printable z thickness (~6.6 mm).
-    translate([
-        -net_clamp_clip_inner_x,
-        net_clamp_channel_top_z,
-        net_clamp_clip_outer_half_y
-    ])
-        rotate([90, 0, 0])
-            net_clamp_clip_positive();
+module net_clamp_net_sleeve_preview_positive() {
+    // The cloth sleeve is a preview-only envelope, not a printable part.  It
+    // surrounds the real rod and is kept translucent so the rod/entry datum is
+    // unambiguous in the assembly view.
+    color("lightgray", 0.48)
+        translate([net_clamp_rod_axis_x,
+                   net_clamp_rod_axis_y,
+                   net_clamp_channel_bottom_z])
+            difference() {
+                cylinder(
+                    d = net_clamp_rod_sleeve_outer_d,
+                    h = net_clamp_channel_top_z - net_clamp_channel_bottom_z,
+                    $fn = net_clamp_rod_print_fn);
+                translate([0, 0, -0.1])
+                    cylinder(
+                        d = net_clamp_rod_d +
+                            2 * net_clamp_rod_sleeve_clearance,
+                        h = net_clamp_channel_top_z - net_clamp_channel_bottom_z + 0.2,
+                        $fn = net_clamp_rod_print_fn);
+            }
+}
+
+module net_clamp_rod_printable_positive() {
+    // Flat print orientation: the cylinder axis lies along X on the bed.  The
+    // export has no installed-world offset and produces one simple rod STL.
+    translate([0, 0, net_clamp_rod_d / 2])
+        rotate([0, 90, 0])
+            cylinder(
+                d = net_clamp_rod_d,
+                h = net_clamp_rod_length,
+                $fn = net_clamp_rod_print_fn);
 }
 
 module net_clamp_fit_probe_positive() {
-    // Preview-only gauge: display the post-side receiving pocket and the
-    // separate U clip together, with a thin net strip between its jaws.
-    color("red", 0.22)
-        translate([net_clamp_channel_void_min_x,
-                   -net_clamp_channel_width_y / 2,
-                   net_clamp_channel_bottom_z])
-            cube([net_clamp_channel_void_max_x - net_clamp_channel_void_min_x,
-                  net_clamp_channel_width_y,
-                  net_clamp_channel_top_z - net_clamp_channel_bottom_z]);
-    // The keeper is an integral feature of the fixed post, shown separately
-    // here so the otherwise translucent pocket makes the anti-withdrawal path
-    // readable in the close-up preview.
-    net_clamp_keeper_positive();
-    // Display-only +0.1 mm lateral separation normal to the jaw/slot faces
-    // avoids a co-planar red/gold overlay. The exported clip and the real
-    // assembly remain unshifted.
-    translate([0, preview_fit_display_gap, 0])
-        net_clamp_clip_positive();
+    // Preview-only assembly gauge: the thin cloth passage, the real vertical
+    // rod, and the translucent hollow edge sleeve. No rectangular clip is
+    // rendered; the sleeve is only a visual net-fabric envelope.
+    color("red", 0.18)
+        translate([net_passage_min_x,
+                   -net_passage_width_y / 2,
+                   net_passage_bottom_z])
+            cube([net_passage_max_x - net_passage_min_x,
+                  net_passage_width_y,
+                  net_passage_top_z - net_passage_bottom_z]);
+    color("tomato", 0.16)
+        net_clamp_rod_recess_negative_positive();
+    net_clamp_rod_positive();
+    net_clamp_net_sleeve_preview_positive();
     color("lightgray", 0.65)
-        translate([net_clamp_clip_inner_x - 6,
+        translate([-net_span / 2,
                    -net_sheet_t / 2,
-                   net_clamp_channel_bottom_z])
-            cube([post_center_x + post_body_width / 2 -
-                      (net_clamp_clip_inner_x - 6),
-                  net_sheet_t,
-                  net_clamp_cylinder_height]);
+                   net_panel_bottom_z])
+            cube([net_span, net_sheet_t,
+                  net_panel_top_z - net_panel_bottom_z]);
 }
 
 module net_clamp_fit_section_positive() {
-    // A real z-section through the installed net edge.  This is intentionally
-    // taken from the active post and active U clip, not from a schematic proxy:
-    // the gray net ends at the post outer face, while both gold jaws remain
-    // inside the red receiving pocket and the crossbar stays outboard.
-    section_x = post_center_x - post_body_width / 2 - 12;
-    section_width = net_clamp_channel_void_max_x - section_x + 10;
+    // A real z-section through the installed cylindrical rod and sleeve.
+    section_x = net_clamp_rod_axis_x - 7;
+    section_width = net_clamp_rod_sleeve_outer_d + 14;
     section_y = -6;
     section_z = 72;
     section_height = 10;
@@ -7537,29 +7399,15 @@ module net_clamp_fit_section_positive() {
             translate([section_x, section_y, section_z])
                 cube([section_width, 12, section_height]);
         }
-    color("tomato", 0.16)
-        intersection() {
-            net_clamp_channel_negative_positive();
-            translate([section_x, section_y, section_z])
-                cube([section_width, 12, section_height]);
-        }
-    color("goldenrod", 0.94)
-        intersection() {
-            // Display-only +0.1 mm lateral separation avoids co-planar faces.
-            translate([0, preview_fit_display_gap, 0])
-                net_clamp_clip_positive();
-            translate([section_x, section_y, section_z])
-                cube([section_width, 12, section_height]);
-        }
     color("lightgray", 0.9)
         intersection() {
-            translate([net_clamp_clip_inner_x - 6,
-                       -net_sheet_t / 2,
-                       net_clamp_channel_bottom_z])
-                cube([post_center_x + post_body_width / 2 -
-                          (net_clamp_clip_inner_x - 6),
-                      net_sheet_t,
-                      net_clamp_cylinder_height]);
+            net_clamp_net_sleeve_preview_positive();
+            translate([section_x, section_y, section_z])
+                cube([section_width, 12, section_height]);
+        }
+    color("silver", 0.95)
+        intersection() {
+            net_clamp_rod_positive();
             translate([section_x, section_y, section_z])
                 cube([section_width, 12, section_height]);
         }
@@ -7654,12 +7502,20 @@ module post_interface_transition_positive() {
     );
 }
 
-module post_continuous_envelope_positive() {
-    // Keep the broad 35 x 58 mm footprint, its 30 mm taper and the constant
-    // 28 x 38 mm upper section as OpenSCAD-native solids.  A previous hand
-    // written polyhedron rendered with an apparent sliver in WebGL and was
-    // sensitive to face winding in CGAL.  linear_extrude creates the same
-    // four-sided frustum while keeping the generated STL closed.
+module post_constant_section_positive(z_min, z_max) {
+    assert(z_max > z_min, "post constant section must have positive height");
+    translate([
+        post_center_x - post_body_width / 2,
+        -post_body_depth / 2,
+        z_min
+    ])
+        cube([post_body_width, post_body_depth, z_max - z_min]);
+}
+
+module post_continuous_envelope_lower_positive() {
+    // The lower printable segment owns the C-clamp carrier and the 30 mm
+    // tapered transition. The split is above the net doorway in the constant
+    // 28×38 mm section, so no doorway wall is divided between prints.
     union() {
         translate([post_center_x, 0, post_bottom])
             linear_extrude(
@@ -7676,54 +7532,127 @@ module post_continuous_envelope_positive() {
                     post_interface_transition_bottom_width_x,
                     post_interface_transition_bottom_depth_y
                 ], center = true);
-        translate([
-            post_center_x - post_body_width / 2,
-            -post_body_depth / 2,
-            post_interface_transition_top_z
-        ])
-            cube([
-                post_body_width,
-                post_body_depth,
-                active_post_top_z - post_interface_transition_top_z
-            ]);
+        post_constant_section_positive(
+            post_interface_transition_top_z,
+            post_split_z);
     }
 }
 
-module post_body_positive() {
-    // The active upright is one continuous PETG body. It starts on the fixed
-    // C-clamp seat, tapers for 30 mm from that plane, and ends at post_top. The
-    // net passage and wider U-clip receiving pocket are cut only through the
-    // net-height zone from this solid; the upper section remains solid.
-    // this solid; there is no shoe, pants/crotch part, external ring, or lower
-    // insertion into the C-clamp.
+module post_continuous_envelope_upper_positive() {
+    // The short replaceable top segment carries the purchased ballhead/M8
+    // seating plane and the female key sockets.
+    post_constant_section_positive(post_split_z, active_post_top_z);
+}
+
+module post_continuous_envelope_positive() {
+    // Full assembly envelope used by diagnostics; formal exports use the two
+    // segment modules below.
+    post_continuous_envelope_lower_positive();
+    post_continuous_envelope_upper_positive();
+}
+
+module post_split_male_keys_positive() {
+    // Two dovetail keys are fused to the lower part and enter the upper
+    // segment from its split face. Their y offsets keep the central M8 pilot
+    // and the four corner screw holes clear.
+    for (y_position = post_split_key_y_positions)
+        dovetail_prism_z(
+            post_split_z - post_split_key_root_overlap_z,
+            post_split_key_height_z + post_split_key_root_overlap_z,
+            post_center_x,
+            y_position,
+            post_split_key_y_depth,
+            post_split_key_x_base_width,
+            post_split_key_x_neck_width
+        );
+}
+
+module post_split_female_pockets_negative_positive() {
+    // Matching pockets are cut upward from the lower face of the upper part;
+    // 0.35 mm is the explicit XY printing clearance.
+    for (y_position = post_split_key_y_positions)
+        dovetail_prism_z(
+            post_split_z - 0.2,
+            post_split_key_height_z + 0.4,
+            post_center_x,
+            y_position,
+            post_split_key_y_depth + 2 * post_split_key_clearance,
+            post_split_key_x_base_width + 2 * post_split_key_clearance,
+            post_split_key_x_neck_width + 2 * post_split_key_clearance
+        );
+}
+
+module post_split_upper_clearance_holes_negative_positive() {
+    // Four Ø3.4 mm vertical M3 clearance holes are located near the four
+    // corners of the upper 28×38 mm segment.
+    for (x_offset = post_split_hole_x_offsets)
+        for (y_offset = post_split_hole_y_offsets)
+            translate([
+                post_center_x + x_offset,
+                y_offset,
+                post_split_z - 0.1
+            ])
+                cylinder(
+                    d = post_split_screw_clearance_d,
+                    h = post_upper_segment_height + 0.2,
+                    $fn = 32);
+}
+
+module post_split_lower_pilots_negative_positive() {
+    // The lower segment receives four Ø2.4 mm blind pilots. They stop 10 mm
+    // below the split face, leaving a closed bottom wall and usable M3 bite.
+    for (x_offset = post_split_hole_x_offsets)
+        for (y_offset = post_split_hole_y_offsets)
+            translate([
+                post_center_x + x_offset,
+                y_offset,
+                post_split_z - post_split_pilot_depth_z
+            ])
+                cylinder(
+                    d = post_split_pilot_d,
+                    h = post_split_pilot_depth_z + 0.1,
+                    $fn = 32);
+}
+
+module post_body_lower_positive() {
     color("goldenrod")
         union() {
             difference() {
-                post_continuous_envelope_positive();
-                // These two voids are continuous through the full post body.
-                // The net is inserted before the separate U-shaped clip is
-                // slid on. The keeper is added below, after the channel cut,
-                // because it must occupy the channel as fused post material.
+                post_continuous_envelope_lower_positive();
+                // The thin cloth passage and side-open rod recess remain wholly
+                // in the lower part; the rod+sleeve is inserted before the upper
+                // segment is seated.
                 net_passage_negative_positive();
-                net_clamp_channel_negative_positive();
-                // The central M8 tap pilot is cut from the flat post top. It is
-                // the only optical-support interface: the purchased downward
-                // M8 stud enters this hole, while the whole load path remains
-                // in the same printed/CNC post. No external boss or bridge is
-                // emitted here.
-                if (m6_detector_direct_mount_enabled)
-                    m6_cylinder_z(
-                        m6_detector_direct_mount_thread_tap_d,
-                        m6_detector_direct_mount_thread_depth_z,
-                        m6_detector_direct_mount_socket_center_x,
-                        m6_detector_body_center_y,
-                        m6_detector_direct_mount_socket_center_z);
+                net_clamp_rod_recess_negative_positive();
+                post_split_lower_pilots_negative_positive();
             }
-            // A single integrated passive keeper is the only anti-withdrawal
-            // feature. It is not a separate printed part and does not carry
-            // the net/rope tension load.
-            net_clamp_keeper_positive();
+            post_split_male_keys_positive();
         }
+}
+
+module post_body_upper_positive() {
+    color("goldenrod")
+        difference() {
+            post_continuous_envelope_upper_positive();
+            post_split_female_pockets_negative_positive();
+            post_split_upper_clearance_holes_negative_positive();
+            // The purchased downward M8 stud enters the top of the upper
+            // segment. The pilot reaches the split face, where the lower
+            // segment provides the flat mate; no side boss or bridge is added.
+            if (m6_detector_direct_mount_enabled)
+                m6_cylinder_z(
+                    m6_detector_direct_mount_thread_tap_d,
+                    m6_detector_direct_mount_thread_depth_z,
+                    m6_detector_direct_mount_socket_center_x,
+                    m6_detector_body_center_y,
+                    m6_detector_direct_mount_socket_center_z);
+        }
+}
+
+module post_body_positive() {
+    // Assembly/diagnostic view of the two correctly split upright segments.
+    post_body_lower_positive();
+    post_body_upper_positive();
 }
 
 module post_down_extension_stage1_raw_positive() {
@@ -8286,34 +8215,45 @@ module post_skp_leg_foot_stage1_exploded_positive() {
 }
 
 module post_segment_positive(index = 0) {
-    // Compatibility entry point: index 0 is now the complete upright.  Any
-    // second index is intentionally rejected so old split exports cannot be
-    // mistaken for active printable geometry.
-    assert(index == 0, "the active upright has one printable segment only");
-    post_body_positive();
+    // Diagnostic/export entry point for the real two-piece upright.
+    assert(index == 0 || index == 1,
+           "active upright segment index must be 0 (lower) or 1 (upper)");
+    if (index == 0)
+        post_body_lower_positive();
+    else
+        post_body_upper_positive();
 }
 
-module post_clamp_carrier_positive() {
-    // Formal printable assembly part: the complete yellow upright and the
-    // SKP-derived green base are one print.  The green base extends 15 mm
-    // toward x- and is the portion that slides into the gray C-clamp pocket;
-    // its two holes and underside Ø6 mm pocket remain real features.  There
-    // are no T-slot runners, loose shoes, or hidden third carrier parts.
+module post_clamp_carrier_lower_positive() {
+    // Formal lower print: the green SKP C-scheme base remains attached to the
+    // long lower post segment. Its two M4 holes and steel-ball locator remain
+    // exactly where they were; only the tall yellow post is split above.
     union() {
-        post_body_positive();
+        post_body_lower_positive();
         post_skp_leg_foot_c_positive();
     }
 }
 
+module post_clamp_carrier_upper_positive() {
+    // Formal upper print: the replaceable 30 mm yellow top segment carries
+    // the female dovetails, four M3 clearance holes and the M8 support pilot.
+    post_body_upper_positive();
+}
+
+module post_clamp_carrier_positive() {
+    // Installed assembly view of the two formal post prints.
+    post_clamp_carrier_lower_positive();
+    post_clamp_carrier_upper_positive();
+}
+
 module lower_stand_segment_positive() {
-    // Legacy name retained for old callers; the active replacement is the
-    // complete one-piece upright.
-    post_clamp_carrier_positive();
+    // Compatibility entry point now resolves to the actual lower print.
+    post_clamp_carrier_lower_positive();
 }
 
 module upper_stand_segment_positive() {
-    // Legacy name retained for old callers; no upper printable segment exists.
-    post_body_positive();
+    // Compatibility entry point now resolves to the actual 30 mm upper print.
+    post_clamp_carrier_upper_positive();
 }
 
 module post_joint_sleeve_positive() {
@@ -8361,14 +8301,14 @@ module post_joint_key_positive() {
 }
 
 module post_positive() {
-    // Standalone view of the complete one-piece upright.  The outboard carrier
+    // Standalone view of the complete assembled two-segment upright.  The outboard carrier
     // is intentionally omitted here so PART="post" remains a clean post-body
     // diagnostic; PART="post_clamp_carrier" is the formal print part.
     post_body_positive();
 }
 
 module post_clamp_slide_exploded_positive() {
-    // Visual-only installation proof for the real one-piece part. The gray
+    // Visual-only installation proof for the real two-segment carrier. The gray
     // inboard clamp body and its fixed seat stay at their datum. A translucent
     // home-position carrier shows the post bottom returning onto that seat;
     // the opaque carrier is then pulled only in +x to show the real slide-out
@@ -11100,7 +11040,7 @@ module net_rail_saddle_positive() {
     base_x = inner_face_x - net_rail_saddle_overlap;
     base_z = net_height - net_rail_height - net_rail_saddle_height;
     color("lightgray") {
-        // 历史诊断承托座向内伸入网顶承载条；当前 U 形网夹不使用此模块。
+        // 历史诊断承托座向内伸入网顶承载条；当前圆柱插杆网夹不使用此模块。
         translate([base_x, -net_rail_saddle_depth / 2, base_z])
             cube([net_rail_saddle_width, net_rail_saddle_depth,
                   net_rail_saddle_height]);
@@ -11240,7 +11180,8 @@ module stg120_reference_line() {
 module stand(side = 1) {
     sided(side) {
         table_clamp_positive();
-        net_clamp_clip_positive();
+        net_clamp_rod_positive();
+        net_clamp_net_sleeve_preview_positive();
         if (bare_laser_enabled) {
             if(side<0) laser_micro_detector_positive();
             else receiver_detector_positive();
@@ -11260,48 +11201,28 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM net_fixture_bottom_z=", net_fixture_bottom_z));
     echo(str("NETSTAND_PARAM net_height=", net_height));
     echo(str("NETSTAND_PARAM m6_detector_mount_raise_z=", m6_detector_mount_raise_z));
+    echo(str("NETSTAND_PARAM net_clamp_rod_d=", net_clamp_rod_d));
+    echo(str("NETSTAND_PARAM net_clamp_rod_clearance=", net_clamp_rod_clearance));
+    echo(str("NETSTAND_PARAM net_clamp_rod_bore_d=", net_clamp_rod_bore_d));
+    echo(str("NETSTAND_PARAM net_clamp_rod_length=", net_clamp_rod_length));
+    echo(str("NETSTAND_PARAM net_clamp_rod_axis_x=", net_clamp_rod_axis_x));
+    echo(str("NETSTAND_PARAM net_clamp_rod_axis_y=", net_clamp_rod_axis_y));
+    echo(str("NETSTAND_PARAM net_clamp_rod_reference_d=", net_clamp_rod_reference_d));
     echo(str("NETSTAND_PARAM net_clamp_channel_depth_x=", net_clamp_channel_depth_x));
-    echo(str("NETSTAND_PARAM net_clamp_cylinder_insertion_depth_x=", net_clamp_cylinder_insertion_depth_x));
     echo(str("NETSTAND_PARAM net_clamp_channel_back_wall_t_x=", net_clamp_channel_back_wall_t_x));
-    echo(str("NETSTAND_PARAM net_clamp_cylinder_interference_d=", net_clamp_cylinder_interference_d));
-    echo(str("NETSTAND_PARAM net_clamp_cylinder_actual_d=", net_clamp_cylinder_actual_d));
     echo(str("NETSTAND_PARAM net_clamp_channel_side_clearance=", net_clamp_channel_side_clearance));
     echo(str("NETSTAND_PARAM net_clamp_channel_back_clearance=", net_clamp_channel_back_clearance));
     echo(str("NETSTAND_PARAM net_clamp_channel_width_y=", net_clamp_channel_width_y));
-    echo(str("NETSTAND_PARAM net_clamp_channel_outboard_extension_x=", net_clamp_channel_outboard_extension_x));
     echo(str("NETSTAND_PARAM net_clamp_channel_bottom_z=", net_clamp_channel_bottom_z));
     echo(str("NETSTAND_PARAM net_clamp_channel_top_z=", net_clamp_channel_top_z));
     echo(str("NETSTAND_PARAM net_clamp_channel_void_min_x=", net_clamp_channel_void_min_x));
     echo(str("NETSTAND_PARAM net_clamp_channel_void_max_x=", net_clamp_channel_void_max_x));
-    echo(str("NETSTAND_PARAM net_clamp_cylinder_center_x=", net_clamp_cylinder_center_x));
-    echo(str("NETSTAND_PARAM net_clamp_cylinder_height=", net_clamp_cylinder_height));
-    echo(str("NETSTAND_PARAM net_clamp_clip_clearance_x=", net_clamp_clip_clearance_x));
-    echo(str("NETSTAND_PARAM net_clamp_clip_length_x=", net_clamp_clip_length_x));
-    echo(str("NETSTAND_PARAM net_clamp_clip_inner_x=", net_clamp_clip_inner_x));
-    echo(str("NETSTAND_PARAM net_clamp_clip_outer_x=", net_clamp_clip_outer_x));
-    echo(str("NETSTAND_PARAM net_clamp_clip_jaw_t_y=", net_clamp_clip_jaw_t_y));
-    echo(str("NETSTAND_PARAM net_clamp_clip_jaw_center_y=", net_clamp_clip_jaw_center_y));
-    echo(str("NETSTAND_PARAM net_clamp_clip_jaw_clearance_y=", net_clamp_clip_jaw_clearance_y));
-    echo(str("NETSTAND_PARAM net_clamp_clip_jaw_gap_y=", net_clamp_clip_jaw_gap_y));
-    echo(str("NETSTAND_PARAM net_clamp_clip_outer_half_y=", net_clamp_clip_outer_half_y));
-    echo(str("NETSTAND_PARAM net_clamp_clip_crossbar_t_x=", net_clamp_clip_crossbar_t_x));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_enabled=", net_clamp_keeper_enabled ? 1 : 0));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_x_min=", net_clamp_keeper_x_min));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_x_max=", net_clamp_keeper_x_max));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_y_min=", net_clamp_keeper_y_min));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_y_max=", net_clamp_keeper_y_max));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_z=", net_clamp_keeper_z));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_height_z=", net_clamp_keeper_height_z));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_relief_min_x=", net_clamp_keeper_relief_min_x));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_relief_max_x=", net_clamp_keeper_relief_max_x));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_relief_min_y=", net_clamp_keeper_relief_min_y));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_relief_max_y=", net_clamp_keeper_relief_max_y));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_x_min=", net_clamp_keeper_latch_x_min));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_x_max=", net_clamp_keeper_latch_x_max));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_y_min=", net_clamp_keeper_latch_y_min));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_y_max=", net_clamp_keeper_latch_y_max));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_z=", net_clamp_keeper_latch_z));
-    echo(str("NETSTAND_PARAM net_clamp_keeper_latch_height_z=", net_clamp_keeper_latch_height_z));
+    echo(str("NETSTAND_PARAM net_clamp_rod_bore_bottom_z=", net_clamp_rod_bore_bottom_z));
+    echo(str("NETSTAND_PARAM net_clamp_rod_bore_top_z=", net_clamp_rod_bore_top_z));
+    echo(str("NETSTAND_PARAM net_clamp_rod_sleeve_outer_d=", net_clamp_rod_sleeve_outer_d));
+    echo(str("NETSTAND_PARAM net_clamp_rod_sleeve_clearance=", net_clamp_rod_sleeve_clearance));
+    echo(str("NETSTAND_PARAM net_clamp_rod_sleeve_passage_clearance_y=", net_clamp_rod_sleeve_passage_clearance_y));
+    echo(str("NETSTAND_PARAM net_clamp_rod_print_fn=", net_clamp_rod_print_fn));
     echo(str("NETSTAND_PARAM net_top_rail_required=", net_top_rail_required));
     echo(str("NETSTAND_PARAM net_panel_bottom_z=", net_panel_bottom_z));
     echo(str("NETSTAND_PARAM net_panel_top_z=", net_panel_top_z));
@@ -11379,6 +11300,7 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM net_post_top_z=", net_post_top_z));
     echo(str("NETSTAND_PARAM net_span=", net_span));
     echo(str("NETSTAND_PARAM post_segment_count=", post_segment_count));
+    echo(str("NETSTAND_PARAM post_split_from_top_z=", post_split_from_top_z));
     echo(str("NETSTAND_PARAM post_segment_length=", post_segment_length));
     echo(str("NETSTAND_PARAM post_joint_gap=", post_joint_gap));
     echo(str("NETSTAND_PARAM preview_fit_display_gap=", preview_fit_display_gap));
@@ -11392,6 +11314,15 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM post_lower_segment_height=", post_lower_segment_height));
     echo(str("NETSTAND_PARAM post_upper_segment_z=", post_upper_segment_z));
     echo(str("NETSTAND_PARAM post_upper_segment_height=", post_upper_segment_height));
+    echo(str("NETSTAND_PARAM post_split_key_height_z=", post_split_key_height_z));
+    echo(str("NETSTAND_PARAM post_split_key_x_base_width=", post_split_key_x_base_width));
+    echo(str("NETSTAND_PARAM post_split_key_x_neck_width=", post_split_key_x_neck_width));
+    echo(str("NETSTAND_PARAM post_split_key_y_depth=", post_split_key_y_depth));
+    echo(str("NETSTAND_PARAM post_split_key_clearance=", post_split_key_clearance));
+    echo(str("NETSTAND_PARAM post_split_screw_clearance_d=", post_split_screw_clearance_d));
+    echo(str("NETSTAND_PARAM post_split_pilot_d=", post_split_pilot_d));
+    echo(str("NETSTAND_PARAM post_split_pilot_depth_z=", post_split_pilot_depth_z));
+    echo(str("NETSTAND_PARAM post_split_screw_length=", post_split_screw_length));
     echo(str("NETSTAND_PARAM m4_joint_bolt_clearance_d=", m4_joint_bolt_clearance_d));
     echo(str("NETSTAND_PARAM m4_joint_bolt_length=", m4_joint_bolt_length));
     echo(str("NETSTAND_PARAM m4_joint_bolt_z_offset=", m4_joint_bolt_z_offset));
@@ -12509,6 +12440,10 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) post_segment_positive(post_segment_index);
 } else if (PART == "post_clamp_carrier") {
     sided(default_side) post_clamp_carrier_positive();
+} else if (PART == "post_clamp_carrier_lower") {
+    sided(default_side) post_clamp_carrier_lower_positive();
+} else if (PART == "post_clamp_carrier_upper") {
+    sided(default_side) post_clamp_carrier_upper_positive();
 } else if (PART == "lower_stand_segment") {
     sided(default_side) lower_stand_segment_positive();
 } else if (PART == "clamp_body_segment") {
@@ -12766,10 +12701,8 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) m6_detector_cable_gland_positive();
 } else if (PART == "m6_detector_bottom_gasket") {
     sided(default_side) m6_detector_bottom_gasket_positive();
-} else if (PART == "net_clamp_clip") {
-    sided(default_side) net_clamp_clip_printable_positive();
 } else if (PART == "net_clamp_rod") {
-    sided(default_side) net_clamp_rod_positive();
+    net_clamp_rod_printable_positive();
 } else if (PART == "net_clamp_fit_probe") {
     sided(default_side) {
         net_clamp_fit_probe_positive();
