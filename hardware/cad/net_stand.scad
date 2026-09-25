@@ -281,6 +281,15 @@ clamp_electronics_emitter_clip_top_clearance_z = 0;
 clamp_electronics_battery_rail_t = 2;
 clamp_electronics_battery_rail_h = 8;
 clamp_electronics_battery_rail_clearance_y = 1.5;
+// The pouch-cell side stops sit on two narrow, x-end-anchored shelf rails.
+// They are intentionally below the cell's side edges rather than spanning
+// the whole bay: the y+ UI board starts just outside the 30 mm battery
+// envelope, so a full-width shelf would collide with that board. The rails
+// overlap the cavity end walls and the side stops by 0.5 mm, making every
+// printed retention feature one connected solid instead of a floating island.
+clamp_electronics_battery_shelf_t = 2;
+clamp_electronics_battery_shelf_width_y = 2.5;
+clamp_electronics_battery_shelf_end_overlap_x = 0.2;
 // UI 交互子板与面板器件的首样占位。当前方案取消 UI 底盖：C 夹 y+ 侧壁
 // 开一个矩形窗口，打印的 UI 封口板从电子腔 y- 侧穿入，最后由内侧止挡定位；
 // 外表面与 C 夹外壁齐平。PCB/板载器件仍以 KiCad STL 为唯一干涉基准，
@@ -4335,10 +4344,32 @@ module clamp_electronics_ui_side_mount_pilots_negative() {
 }
 
 module clamp_electronics_battery_rails_positive() {
-    // Replace the two long side rails with four short end stops. The pouch
-    // cell is now on the shelf above the main-board component envelope; the
-    // stops are raised with it and only prevent x drift, leaving both broad
-    // cell faces free of printed bosses.
+    // Two narrow shelf rails support the pouch cell from below while staying
+    // clear of the vertical y+ UI board. They run into both cavity end walls,
+    // so the side stops below are fused to the shell rather than floating in
+    // the bay. The pouch cell rests on the rail tops; the two stops prevent
+    // x drift and leave both broad cell faces free of printed bosses.
+    shelf_z = clamp_electronics_battery_stack_floor_z -
+        clamp_electronics_battery_shelf_t;
+    shelf_y = clamp_electronics_battery_width_y / 2 -
+        clamp_electronics_battery_shelf_width_y;
+    for (y_side = [-1, 1]) {
+        shelf_y_min = y_side > 0
+            ? shelf_y
+            : -clamp_electronics_battery_width_y / 2;
+        translate([
+            clamp_electronics_cavity_x_min -
+                clamp_electronics_battery_shelf_end_overlap_x,
+            shelf_y_min,
+            shelf_z
+        ])
+            cube([
+                clamp_electronics_cavity_length_x +
+                    2 * clamp_electronics_battery_shelf_end_overlap_x,
+                clamp_electronics_battery_shelf_width_y,
+                clamp_electronics_battery_shelf_t
+            ]);
+    }
     stop_length_x = 5;
     stop_width_y = 2.0;
     stop_y = clamp_electronics_battery_width_y / 2 +
@@ -5721,6 +5752,25 @@ module clamp_split_boss_reinforcement_positive(
         cube([
             clamp_split_boss_rib_t,
             clamp_split_boss_depth_y,
+            clamp_pad_t - 2
+        ], center = true);
+    // The lower cavity-edge barrel starts at the split face. Its short
+    // cylinder is intentionally inside the cavity, so add thin load-path
+    // webs from that barrel to the cavity side wall. Without this bridge the
+    // barrel only touches the split face coplanarly and exports as a
+    // disconnected floating shell (which the slicer correctly rejects).
+    bridge_depth_y = clamp_electronics_cavity_y_half - seam_half_gap + 0.4;
+    bridge_center_y = y_side * (seam_half_gap + bridge_depth_y / 2);
+    translate([x_center, bridge_center_y, z_center])
+        cube([
+            boss_d + 4,
+            bridge_depth_y,
+            clamp_split_boss_rib_t
+        ], center = true);
+    translate([x_center, bridge_center_y, z_center])
+        cube([
+            clamp_split_boss_rib_t,
+            bridge_depth_y,
             clamp_pad_t - 2
         ], center = true);
 }
