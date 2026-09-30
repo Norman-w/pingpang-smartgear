@@ -29,6 +29,7 @@ data/exports/
 hardware/cad/exports/
 hardware/cad/rendered/
 hardware/prints/
+/result.json
 
 # Electronics generated models, reports, and KiCad local session state
 hardware/electronics/3d/v0.2/
