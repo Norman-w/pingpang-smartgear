@@ -45,8 +45,8 @@ DEFAULT_OUTPUT_DIR = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c
 DEFAULT_TEMPLATE = (
     HERE
     / "exports"
-    / "desktop-clamp-one-side-x1c-v0.5-net-structure"
-    / "right-net-structure-X1C-PETG.gcode.3mf"
+    / "desktop-clamp-one-side-x1c-v0.7-split-c-scheme-3mf"
+    / "right-split-c-scheme-X1C-PETG.3mf"
 )
 IDENTITY = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
 
@@ -318,7 +318,10 @@ def main() -> int:
             if path.is_file():
                 path.unlink()
         for path in output_dir.glob("*-c-scheme*"):
-            if path.is_file():
+            # The current v0.7 3MF also supplies the X1C/PETG settings
+            # template. Preserve it until copy_template_settings() has read
+            # it; otherwise --clean would delete its own default template.
+            if path.is_file() and path.resolve() != template:
                 path.unlink()
         for path in output_dir.glob("*.gcode.3mf"):
             path.unlink()
@@ -339,6 +342,8 @@ def main() -> int:
         for path in output_dir.glob("*-net-clamp-rod-lower.stl"):
             path.unlink()
         for path in output_dir.glob("*-net-clamp-rod-upper.stl"):
+            path.unlink()
+        for path in output_dir.glob("*-net-clamp-clip*.stl"):
             path.unlink()
         # Remove every stale electronics STL variant before copying the one
         # current panel-mount object back in build_side(). This also clears

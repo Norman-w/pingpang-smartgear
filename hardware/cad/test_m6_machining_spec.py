@@ -99,7 +99,7 @@ def main() -> None:
         or direct_mount["ballhead_interface_bottom_z_global_mm"] != 232.5
         or direct_mount["assembly_z_raise_mm"] != 29
         or direct_mount["print_status"]
-        != "not integrated into post_clamp_carrier; fixed net post has no M8 optical hole; independent M6 support is pending and no direct-mount STL is released"
+        != "已集成到 post_clamp_carrier_upper；上段中心 Ø6.8 mm 攻丝底孔，打印后攻 M8×1.25 或安装金属嵌件；不另设适配桥/连接器"
     ):
         raise AssertionError("direct ballhead-to-same-material-PETG-upper-post contract changed")
 
@@ -132,11 +132,11 @@ def main() -> None:
         or ballhead["sensor_stud_d_mm"] != 6.35
         or ballhead["net_stud_d_mm"] != 8
         or ballhead["net_stud_role"]
-        != "当前选定下端 M8 外牙；z- 仅作独立光学支撑接口包络，当前不进入固定网柱"
+        != "当前选定下端 M8×1.25 外牙；z- 直接进入固定网柱上段中心 M8×1.25 攻丝座"
     ):
         raise AssertionError("ballhead default variant changed")
 
-    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body, split fixed post, independent M6 support pending, 10 rolled L-sensor channels at 20 mm pitch)")
+    print("M6_MACHINING_SPEC_TEST_OK (rectangular PETG body, split fixed post, direct M8 upper-post seat, 10 rolled L-sensor channels at 20 mm pitch)")
 
 
 if __name__ == "__main__":

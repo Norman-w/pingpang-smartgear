@@ -75,7 +75,6 @@ PARTS = (
     "net_clamp_fit_probe",
     "net_clamp_fit_section",
     "net_clamp_rod",
-    "m6_detector_net_connector",
     "m6_detector_mount",
     "m6_ballhead",
     "m6_gimbal",
@@ -116,7 +115,6 @@ PREVIEW_ONLY_PARTS = {
     "m6_detector_fit_probe",
     "m6_detector_fit_body",
     "m6_detector_mount",
-    "m6_detector_net_connector",
     "net_clamp_fit_probe",
     "net_clamp_fit_section",
     "m6_ballhead",
@@ -1092,16 +1090,6 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_shell_support_nut_pocket_center_x",
         "m6_detector_detector_ballhead_gap_x",
         "m6_detector_sensor_head_y_offset",
-        "m6_detector_net_connector_arm_width_y",
-        "m6_detector_net_connector_arm_t_z",
-        "m6_detector_net_connector_leg_width_y",
-        "m6_detector_net_connector_leg_t_x",
-        "m6_detector_net_connector_post_overlap_x",
-        "m6_detector_net_connector_socket_outer_d",
-        "m6_detector_net_connector_socket_clearance_d",
-        "m6_detector_net_connector_socket_overlap_z",
-        "m6_detector_net_connector_post_bolt_d",
-        "m6_detector_net_connector_post_bolt_y",
         "m6_detector_body_min_x",
         "m6_detector_body_max_x",
         "m6_detector_body_bottom_z",
@@ -1159,22 +1147,6 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_detector_assembly_ballhead_base_center_z",
         "m6_detector_assembly_ballhead_net_stud_center_z",
         "m6_detector_assembly_ballhead_net_interface_bottom_z",
-        "m6_detector_net_connector_interface_height_z",
-        "m6_detector_net_connector_socket_bottom_z",
-        "m6_detector_net_connector_socket_top_z",
-        "m6_detector_net_connector_socket_height_z",
-        "m6_detector_net_connector_socket_center_z",
-        "m6_detector_net_connector_arm_min_x",
-        "m6_detector_net_connector_post_inner_face_x",
-        "m6_detector_net_connector_arm_max_x",
-        "m6_detector_net_connector_arm_bottom_z",
-        "m6_detector_net_connector_arm_top_z",
-        "m6_detector_net_connector_leg_min_x",
-        "m6_detector_net_connector_leg_max_x",
-        "m6_detector_net_connector_leg_bottom_z",
-        "m6_detector_net_connector_leg_top_z",
-        "m6_detector_net_connector_leg_height_z",
-        "m6_detector_net_connector_mount_height_z",
         "m6_detector_direct_mount_socket_bottom_z",
         "m6_detector_direct_mount_socket_top_z",
         "m6_detector_direct_mount_socket_height_z",
@@ -2501,7 +2473,6 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
     wiring_module = module_text("m6_detector_cable_routing_reference_positive()")
     bottom_gasket_module = module_text("m6_detector_bottom_gasket_positive()")
-    direct_mount_module = module_text("m6_detector_direct_mount_positive()")
     table_clamp_body_module = module_text("table_clamp_body_positive()")
     cavity_module = module_text("clamp_electronics_cavity_negative()")
     table_clamp_raw_module = module_text("table_clamp_raw_positive()")
@@ -2573,7 +2544,6 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             r"m6_cylinder_z\(\s*m6_detector_cable_exit_d,",
             bottom_cover_module,
         )
-        or "Compatibility hook retained" not in direct_mount_module
         or "post_body_positive();" not in post_module
         or "net_passage_negative_positive();" not in post_body_module
         or "net_clamp_rod_recess_negative_positive();" not in post_body_module
@@ -2615,12 +2585,9 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "net_clamp_rod_positive();" not in stand_module
         or "net_clamp_lock_hardware_positive();" in source_text
         or "net_clamp_clip_lock" in source_text
-        or "cube([" in direct_mount_module
         or "m6_detector_mount_x_offset" not in assembly_module
         or "m6_detector_mount_x_offset" not in exploded_assembly_module
         or "m6_detector_assembly_positive();" not in gimbal_module
-        or "m6_detector_net_connector_positive();" in mount_module
-        or "m6_detector_net_connector_positive();" in exploded_module
         or "intersection(" in exploded_module
         or "m6_mount_adapter_positive();" in mount_module
         or "m6_post_mount_hardware_positive();" in mount_module
@@ -3558,7 +3525,6 @@ def main() -> None:
             "m6_detector_cable_gland",
             "m6_detector_wiring_reference",
             "m6_detector_bottom_gasket",
-            "m6_detector_net_connector",
             "m6_detector_mount",
             "stg120_outer_carrier",
             "sensor_mount",

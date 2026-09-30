@@ -17,8 +17,6 @@ const refs = {
   showTable: $("#show-table"),
   showNonPrinted: $("#show-nonprinted"),
   showElectronics: $("#show-electronics"),
-  showSkpCandidate: $("#show-skp-candidate"),
-  showSkpFit: $("#show-skp-fit"),
   showReinforcedClamp: $("#show-reinforced-clamp"),
   bedPreset: $("#bed-preset"),
   bedWidth: $("#bed-width"),
@@ -55,7 +53,6 @@ const refs = {
   assemblySelectionBadge: $("#assembly-selection-badge"),
   focusPresetButtons: Array.from(document.querySelectorAll("#focus-presets [data-focus-preset]")),
   fitM6: $("#fit-m6"),
-  fitSkp: $("#fit-skp"),
   viewPresetButtons: Array.from(document.querySelectorAll("#view-presets [data-view-preset]")),
   assemblyHoverLabel: $("#assembly-hover-label"),
   assemblyGuideCard: $("#assembly-guide-card"),
@@ -95,7 +92,7 @@ const COLORS = {
 
 const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、12 mm 大径/4 mm 螺距 PETG 锥形粗牙螺杆和配套打印螺母固定在球台边缘；牙根和凹槽各约 2 mm，外侧锥尖约 0.4 mm，牙根为连续实体带；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，粗牙压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
-  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 SKP 整体底座从 x+ 水平推入灰色腔体，黄色斜立柱下段坐在绿色顶面 z=16 mm，上段在 z=230.5 mm 分型并继续到 z=260.5 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。当前正式打印件是下段、顶部 30 mm 上段和固定 C 夹半体，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
+  { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框直接提供屏幕、按键、LED、扬声器和 USB-C 的外部开口；两半合拢后，绿色 C 方案整体底座从 x+ 水平推入灰色腔体，黄色斜立柱下段坐在绿色顶面 z=16 mm，上段在 z=230.5 mm 分型并继续到 z=260.5 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。当前正式打印件是下段、顶部 30 mm 上段和固定 C 夹半体，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
   { number: 3, label: "网布空心边套与圆柱插杆", description: "立柱分型不属于网夹：顶部下 30 mm 的下段/上段由公母键和四枚 M3×40 连接。先把球网侧边的空心布套套在一根 Ø10 mm 连续圆柱插杆上，再沿原门洞轴线从 x 侧推入下段侧开接收腔；插杆底端落在 z=16 mm，长度覆盖网布的 z=16…168.5 mm 区域，最后把上段滑入并封住插入口。预览中的半透明圆筒只表示网布空心边套，正式打印件只有一根圆柱插杆；门洞横向宽度保持历史 15.2 mm，旧的矩形 U 夹、长方形卡条和 keeper 已移除。" },
   { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/圆柱插杆顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和圆柱插杆盲孔畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
@@ -113,15 +110,13 @@ const ASSEMBLY_GROUPS = {
   hardware: { label: "标准件 / 占位", color: "#d99bff", stage: 5 },
   electronics: { label: "线路板 / 电子腔", color: "#2bbbad", stage: 1 },
   clamp_split: { label: "C 夹分型半体 / M5 boss", color: "#8296a1", stage: 1 },
-  clamp_reinforced: { label: "C 夹加固候选", color: "#7f9099", stage: 1 },
-  skp_candidate: { label: "C 方案接口细节（审查辅助）", color: "#43d34d", stage: 2 },
   context: { label: "球台背景", color: "#75858b", stage: 0 },
 };
 
 const ASSEMBLY_DEFAULT_EXPLODE = 0.72;
 // Keep the manifest/iframe cache key stable for the preview-consistency
 // contract; the app bundle itself is cache-busted by index.html.
-const PREVIEW_CACHE_BUSTER = "split-c-scheme-v11";
+const PREVIEW_CACHE_BUSTER = "split-c-scheme-v12";
 
 const getVersionedUrl = (path, key = "v") => {
   const target = new URL(path, window.location.href);
@@ -173,17 +168,11 @@ const state = {
     selectedId: null,
     hoveredId: null,
     focusM6: false,
-    focusSkpCandidate: false,
     focusPreset: "global",
     viewPreset: "iso",
     showTable: true,
     showNonPrinted: true,
     showElectronics: true,
-    // The current split-C STL is the default truth. Legacy SKP review meshes
-    // stay available through the explicit checkboxes but must not be overlaid
-    // on the formal parts at startup.
-    showSkpCandidate: false,
-    showSkpFit: false,
     showReinforcedClamp: true,
     items: [],
     loaded: false,
@@ -374,18 +363,14 @@ function explosionVector(group, side = 0) {
     case "reference": return [outward * 142, -78, 48];
     case "hardware": return [outward * 128, -32, -70];
     case "electronics": return [0, 0, 12];
-    // Keep the C-scheme interface detail visually separate from the formal carrier
-    // in the exploded view. Its installed position remains directly under the
-    // post when amount=0; the larger x offset is only a review aid.
-    case "skp_candidate": return [outward * 154, 0, -12];
     default: return [0, 0, 0];
   }
 }
 
 function sourcePrintableEntries() {
   const entries = state.sourceManifest?.parts || state.manifest?.parts || [];
-  // Filter retired split-post/seam parts so an old cached manifest cannot
-  // resurrect them before the regenerated split C-clamp package is loaded.
+  // Filter retired split-post/seam and old optical-preview parts so an old
+  // cached manifest cannot resurrect them beside the current formal package.
   const removedActiveParts = new Set([
     "post_segment",
     "lower_stand_segment",
@@ -395,8 +380,29 @@ function sourcePrintableEntries() {
     "net_rail_segment",
     "net_rail_splice",
     "net_rail_saddle",
-    "net_clamp_rod",
-    "m6_detector_net_connector",
+    // The current net rod is formal and must remain visible; only the old
+    // segmented/rail alternatives below are retired.
+    "net_rail",
+    "optical_rail",
+    "optical_strip",
+    "optical_module_carrier",
+    "stg120_outer_carrier",
+    "stg120_center_bridge",
+    "m6_sensor_rail",
+    "m6_sensor_test_coupon",
+    "post_down_extension_stage1",
+    "post_down_extension_stage1_raw",
+    "post_down_extension_stage1_exploded",
+    "post_skp_leg_foot_stage1",
+    "post_skp_leg_foot_stage1_raw",
+    "post_skp_leg_foot_stage1_exploded",
+    "post_skp_leg_foot_c_wear_pad",
+    "clamp_body_skp_leg_foot_c_fit",
+    "post_skp_leg_foot_c_clamp_fit",
+    "post_skp_leg_foot_c_clamp_fit_exploded",
+    "post_skp_leg_foot_c_clamp_fit_detail",
+    "post_skp_leg_foot_fit_tool",
+    "clamp_body_skp_leg_foot_fit",
     // Retired C-clamp/electronics bodies are still present in older export
     // directories. Never let an old source manifest reintroduce them beside
     // the current split-C source package.
@@ -536,10 +542,6 @@ function makeAssemblyItem(options) {
     sourcePath: options.sourcePath || null,
     stlTransform: options.stlTransform || null,
     reviewPlacement: options.reviewPlacement || null,
-    candidate: Boolean(options.candidate),
-    fitCandidate: Boolean(options.fitCandidate),
-    reviewOnly: Boolean(options.reviewOnly),
-    reinforcedClamp: Boolean(options.reinforcedClamp),
     side: options.side || 0,
     object: null,
   };
@@ -766,98 +768,12 @@ const REINFORCED_CLAMP_LAYOUT = Object.freeze({
   wallSideWidthY: 7,
 });
 
-function makeReinforcedClampItems(entries) {
-  const layout = REINFORCED_CLAMP_LAYOUT;
-  const items = [];
-
-  for (const sideLabel of ["right", "left"]) {
-    const side = sideLabel === "right" ? 1 : -1;
-    const sideName = side > 0 ? "右侧" : "左侧";
-    const knob = firstEntry(entries, (entry) => entry.part === "clamp_knob" && entry.side === sideLabel);
-    const pressurePad = firstEntry(entries, (entry) => entry.part === "clamp_pressure_pad" && entry.side === sideLabel);
-    const knobBounds = boundsFromEntry(knob);
-    const padBounds = boundsFromEntry(pressurePad);
-    if (!knobBounds || !padBounds) continue;
-    const centerX = knobBounds.min[0] + knobBounds.size[0] / 2;
-    const rodExtension = layout.wallTopZ - layout.wallBottomAtStartZ;
-    const knobBottomZ = knobBounds.min[2] - rodExtension;
-    const knobTopZ = knobBottomZ + layout.knobHeight;
-    const rodMinZ = knobBottomZ + 4.4;
-    const rodHeight = Math.max(12, padBounds.min[2] - rodMinZ);
-
-    items.push(makeAssemblyItem({
-      id: `candidate:reinforced-clamp-rod:${sideLabel}`,
-      name_zh: `PETG 粗牙加长螺杆（${sideName}，辅助包络）`,
-      name_en: `lengthened PETG coarse-thread rod (${sideLabel})`,
-      kind: "浏览器审查候选",
-      material: "PETG（打印）",
-      material_group: "候选件",
-      group: "clamp",
-      stage: 1,
-      color: "#b8bec2",
-      nonPrinted: true,
-      reviewOnly: true,
-      reinforcedClamp: true,
-      shape: "threaded-stud",
-      shapeOptions: { outer_d: 12, core_d: 9.6, pitch: 4, axis: "z" },
-      base_min: [centerX - 4, -4, rodMinZ],
-      size: [8, 8, rodHeight],
-      side,
-      explosion: explosionVector("clamp", side),
-      notes: "辅助包络按锥形粗牙打印螺杆的 12 mm 大径、9.6 mm 芯径、4 mm 螺距、2 mm 牙根和 0.4 mm 锥尖显示；上端仍顶住压块，旋钮位于螺杆末端。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `candidate:reinforced-clamp-knob:${sideLabel}`,
-      name_zh: `Ø40 手拧旋钮（${sideName}，20 mm 厚，螺杆末端）`,
-      name_en: `Ø40 end handwheel (${sideLabel}, 20 mm thick)`,
-      kind: "浏览器审查候选",
-      material: "PETG（候选）",
-      material_group: "候选件",
-      group: "clamp",
-      stage: 1,
-      color: "#d19b35",
-      nonPrinted: false,
-      reviewOnly: true,
-      reinforcedClamp: true,
-      shape: "hand-knob",
-      shapeOptions: { root_d: 34, tooth_d: 5, tooth_count: 18, axis: "z" },
-      base_min: [centerX - layout.knobDiameter / 2, -layout.knobDiameter / 2, knobBottomZ],
-      size: [layout.knobDiameter, layout.knobDiameter, layout.knobHeight],
-      side,
-      explosion: explosionVector("clamp", side),
-      notes: "旋钮只将直径从原 Ø36 放大到 Ø40 便于手拧；厚度保持原 20 mm，整体下移到加长螺杆末端。",
-    }));
-    items.push(makeAssemblyItem({
-      id: `candidate:reinforced-clamp-jam-nuts:${sideLabel}`,
-      name_zh: `PETG 粗牙对锁螺母组（${sideName}，旋钮末端）`,
-      name_en: `PETG coarse-thread jam-nut pair at handwheel end (${sideLabel})`,
-      kind: "浏览器审查候选",
-      material: "PETG（打印）",
-      material_group: "候选件",
-      group: "clamp",
-      stage: 1,
-      color: "#b8bec2",
-      nonPrinted: true,
-      reviewOnly: true,
-      reinforcedClamp: true,
-      shape: "hex-stack",
-      shapeOptions: { radius: 9.24, axis: "z" },
-      base_min: [centerX - 6.5, -6.5, knobTopZ - 13.4],
-      size: [13, 13, 13.4],
-      side,
-      explosion: explosionVector("clamp", side),
-      notes: "两枚 AF16 粗牙打印螺母先对锁，再随旋钮整体安装到粗牙螺杆末端。",
-    }));
-  }
-  return items;
-}
-
 function makeProxyAssemblyItems(entries, assemblyDatums) {
   const items = [];
   // Include the real KiCad-exported board/component solids in the same
   // assembly scene as the mechanical STL parts.  They remain non-printable
   // service items and are controlled independently from the mechanical
-  // candidate switches below.
+  // Visibility is controlled by the current assembly controls below.
   items.push(...makeElectronicsBoardItems(assemblyDatums));
   // The current source manifest contains the actual coarse PETG screw, body
   // nut, drive-nut pair, and handwheel STLs. Do not add the retired metal/M8
@@ -873,17 +789,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       .map((entry) => entry.part),
   );
   const hasSourceM6Part = (part) => sourceM6Parts.has(part);
-  const stgHead = {
-    length: 130,
-    activeLength: 120,
-    width: 19,
-    thickness: 6,
-    bottomZ: 147.5,
-    pitch: 3.87,
-    count: 32,
-  };
-  // The active net has no top rail. These are the direct cloth datum values;
-  // legacy rail entries are filtered before this proxy is built.
+  // The active net has no top rail. These are the direct cloth datum values.
   const netMinX = -915;
   const netMaxX = 915;
   const netBottomZ = 16;
@@ -931,133 +837,6 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     explosion: [0, -78, 48],
     notes: "只用于核对十路机械高度和两侧阵列平行度；电子高度输出必须以 M6 器件接口证据为准。",
   }));
-
-  // The gray C-clamp fit candidate is a separate STL made by subtracting the
-  // yellow/green seating envelope of the corrected integrated SKP base. It
-  // also carries the two matching screw-hole clearances and the detent bore.
-  // Its knob-side reinforcement walls are already unioned into this same
-  // gray mesh; only the detachable hardware remains separate.
-  const skpFitClampAssets = [
-    {
-      sideLabel: "right",
-      side: 1,
-      name: "右侧",
-      file: "right-clamp-body-skp-leg-foot-c-fit-integrated.stl",
-      baseMin: [680.5, -29, -87.9345088],
-    },
-    {
-      sideLabel: "left",
-      side: -1,
-      name: "左侧",
-      file: "left-clamp-body-skp-leg-foot-c-fit-integrated.stl",
-      baseMin: [-918.5, -29, -87.9345088],
-    },
-  ];
-  for (const asset of skpFitClampAssets) {
-    items.push(makeAssemblyItem({
-      id: `candidate:skp-fit-clamp:${asset.sideLabel}`,
-      name_zh: `灰色 C 型夹接口细节（${asset.name}）`,
-      name_en: `gray C-clamp C-scheme interface detail (${asset.sideLabel})`,
-      kind: "C 方案接口审查件",
-      material: "PETG（正式接口同源审查）",
-      material_group: "候选件",
-      group: "clamp_fixed",
-      stage: 1,
-      color: "#687985",
-      nonPrinted: false,
-      fitCandidate: true,
-      shape: "stl",
-      sourcePath: new URL(
-        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-fit-integrated-v3`,
-        state.manifestUrl,
-      ).href,
-      base_min: asset.baseMin,
-      size: [238, 58, 103.9345088],
-      side: asset.side,
-      explosion: [0, 0, 0],
-      notes: "灰色 C 型夹由黄色立柱与绿色 SKP 整体底座外形做让位差集，保留两枚 Ø4.4 mm 夹体孔和中央定位孔；旋钮两侧加固斜墙已并入同一打印件。正式源 manifest 现在直接导出这套接口；这里仅保留旧路径下的网页审查细节。",
-    }));
-  }
-
-  // The C-scheme lower-device detail is loaded only when the review switch is
-  // enabled. The formal print manifest already contains the same integrated
-  // yellow/green carrier; these legacy paths remain a visual cross-check.
-  const skpCandidateAssets = [
-    {
-      sideLabel: "right",
-      side: 1,
-      name: "右侧",
-      file: "right-post-skp-leg-foot-c-v0.2.stl",
-      baseMin: [859.8, -23, -4],
-    },
-    {
-      sideLabel: "left",
-      side: -1,
-      name: "左侧",
-      file: "left-post-skp-leg-foot-c-v0.2.stl",
-      baseMin: [-918.5, -23, -4],
-    },
-  ];
-  for (const asset of skpCandidateAssets) {
-    items.push(makeAssemblyItem({
-      id: `candidate:skp-leg-foot:${asset.sideLabel}`,
-      name_zh: `C 方案绿色整体底座细节（${asset.name}，含孔和末端倒角）`,
-      name_en: `integrated C-scheme base detail (${asset.sideLabel}, holed and chamfered)`,
-      kind: "C 方案接口审查件",
-      material: "待定（显示/验证用）",
-      material_group: "候选件",
-      group: "skp_candidate",
-      stage: 2,
-      color: "#43d34d",
-      nonPrinted: false,
-      candidate: true,
-      shape: "stl",
-      sourcePath: new URL(
-        `../../post-skp-leg-foot-c-v0.2/${asset.file}?preview=skp-leg-foot-c-v2`,
-        state.manifestUrl,
-      ).href,
-      base_min: asset.baseMin,
-      size: [58.7, 46, 20],
-      side: asset.side,
-      explosion: explosionVector("skp_candidate", asset.side),
-      notes: "按 779f046 的 SKP ROOT 实现：绿色整体底座从 x+ 推入灰色让位腔，15 mm 两侧外伸、两个 Ø4 mm 贯穿孔和一个 Ø6 mm 深 2 mm 底坑，末端保留 3×3 mm 倒角。正式打印 manifest 已包含同一 carrier；这里只用于网页接口细节/爆炸检查。",
-    }));
-  }
-
-  const skpDetentAssets = [
-    { sideLabel: "right", side: 1, name: "右侧", baseMinX: 905.75 },
-    { sideLabel: "left", side: -1, name: "左侧", baseMinX: -911.25 },
-  ];
-  for (const asset of skpDetentAssets) {
-    items.push(makeAssemblyItem({
-      id: `candidate:skp-c-detent:${asset.sideLabel}`,
-      name_zh: `C 方案“咯噔”定位球/弹簧/压盖（${asset.name}）`,
-      name_en: `C-scheme spring-ball detent stack (${asset.sideLabel})`,
-      kind: "候选装配占位",
-      material: "钢球 + 弹簧 + 压盖",
-      material_group: "候选件",
-      group: "skp_candidate",
-      stage: 2,
-      color: "#d8dde2",
-      candidate: true,
-      shape: "detent",
-      base_min: [asset.baseMinX, -2.75, -14],
-      size: [5.5, 5.5, 12],
-      side: asset.side,
-      explosion: [asset.side * 154, 0, -42],
-      shapeOptions: {
-        ball_d: 4,
-        ball_center_z: 10,
-        spring_d: 3,
-        spring_h: 6.6,
-        spring_bottom_z: 1.4,
-        retainer_d: 5.5,
-        retainer_h: 1.2,
-        retainer_center_z: 0.6,
-      },
-      notes: "定位球位于绿色整体底座的 Ø6 mm 底坑下方，只负责到位触感和定位，不承担立柱的竖向或侧向承力；正式标准件尺寸仍需按实物复核。",
-    }));
-  }
 
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
   // the rear PETG cover has the visible thickened 1/4-20 boss. The purchased
@@ -1746,7 +1525,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: `采购球头下端选择 M8 外牙，朝 z- 插入浅黄色立柱顶面中心的 M8 攻丝底孔；安装顶面 z=${formatNumber(assemblyDatums.postTopZ)} mm，孔轴 x=${formatNumber(assemblyDatums.postCenterX)}、y=0，与球头底座及后盖 boss 同轴。不设置外露圆形承座、六角螺母窝、侧向承力耳或旧版独立连接器。`,
+      notes: `采购球头下端选择 M8×1.25 外牙，朝 z- 插入浅黄色立柱顶面中心的 M8 攻丝底孔；安装顶面 z=${formatNumber(assemblyDatums.postTopZ)} mm，孔轴 x=${formatNumber(assemblyDatums.postCenterX)}、y=0，与球头底座及后盖 boss 同轴。不设置外露圆形承座、六角螺母窝或侧向承力耳。`,
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -1992,84 +1771,6 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     const side = sideSign(entry);
     const bounds = boundsFromEntry(entry);
     if (!bounds) continue;
-    if (entry.part === "stg120_outer_carrier") {
-      const headMinX = side > 0
-        ? bounds.min[0] + 3
-        : bounds.max[0] - stgHead.thickness - 3;
-      const outerFaceX = side > 0 ? headMinX : headMinX + stgHead.thickness;
-      const segmentMinX = side > 0 ? 0 : outerFaceX;
-      const segmentMaxX = side > 0 ? outerFaceX : 0;
-      items.push(makeAssemblyItem({
-        id: `hardware:stg120-head:outer:${entry.file}`,
-        name_zh: `STG-120ML 光纤头（${side < 0 ? "左外侧" : "右外侧"}）`,
-        name_en: "STG-120ML opposed fiber head",
-        kind: "外购光学器件占位",
-        material: "金属光纤头",
-        group: "optical",
-        shape: "stg120-head",
-        shapeOptions: { face_direction: side > 0 ? -1 : 1 },
-        base_min: [headMinX, -stgHead.width / 2, stgHead.bottomZ],
-        size: [stgHead.thickness, stgHead.width, stgHead.length],
-        side,
-        explosion: explosionVector("optical", side),
-        notes: "历史 STG-120ML 金属光纤头兼容占位；不属于当前 M6 采购主线，只保留用于旧 manifest 回溯。",
-      }));
-      items.push(makeAssemblyItem({
-        id: `hardware:stg120-window:${entry.file}`,
-        name_zh: `STG-120ML ${side < 0 ? "左" : "右"}段检测窗口（32 点 × 3.87 mm）`,
-        name_en: "STG-120ML detection segment proxy",
-        kind: "光路占位",
-        material: "光学占位",
-        group: "optical",
-        shape: "stg120-beam-window",
-        shapeOptions: { count: stgHead.count, pitch: stgHead.pitch },
-        base_min: [segmentMinX, -0.4, stgHead.bottomZ + 5],
-        size: [Math.abs(segmentMaxX - segmentMinX), 0.8, stgHead.activeLength],
-        side,
-        explosion: explosionVector("optical", side),
-        notes: "历史 STG-120ML 两段光路兼容占位；不作为当前 M6 逐通道输出或精度证据。",
-      }));
-    }
-    if (entry.part === "stg120_center_bridge") {
-      const centerHeads = [
-        { minX: bounds.min[0] + 4, face: 1, label: "右段中央" },
-        { minX: bounds.max[0] - 10, face: -1, label: "左段中央" },
-      ];
-      centerHeads.forEach((head, index) => {
-        items.push(makeAssemblyItem({
-          id: `hardware:stg120-head:center:${index}`,
-          name_zh: `STG-120ML 光纤头（${head.label}）`,
-          name_en: "STG-120ML center fiber head",
-          kind: "外购光学器件占位",
-          material: "金属光纤头",
-          group: "optical",
-          shape: "stg120-head",
-          shapeOptions: { face_direction: head.face },
-          base_min: [head.minX, -stgHead.width / 2, stgHead.bottomZ],
-          size: [stgHead.thickness, stgHead.width, stgHead.length],
-          side: 0,
-          explosion: explosionVector("optical", 0),
-          notes: "历史中央桥背靠背 STG-120ML 兼容占位；当前 M6 主线不使用。",
-        }));
-      });
-    }
-    if (entry.part === "optical_module_carrier") {
-      const center = bounds.min.map((value, index) => value + bounds.size[index] / 2);
-      items.push(makeAssemblyItem({
-        id: `hardware:optical-module:${entry.file}`,
-        name_zh: `调制红外光学模块 ${entry.name_zh?.match(/\+\d+ mm/)?.[0] || "占位"}（${side < 0 ? "左" : "右"}）`,
-        name_en: "modulated IR emitter / receiver module proxy",
-        kind: "光学器件占位",
-        material: "外购模块",
-        group: "optical",
-        shape: "optical-module",
-        base_min: [center[0] - 6, -9, center[2] - 3],
-        size: [12, 18, 6],
-        side,
-        explosion: explosionVector("optical", side),
-        notes: "旧版离散红外发射/接收模块兼容占位；当前主线使用 M6 直角对射器件。",
-      }));
-    }
     if (entry.part === "sensor_mount_body") {
       const centerX = bounds.min[0] + bounds.size[0] / 2;
       items.push(makeAssemblyItem({
@@ -2089,28 +1790,6 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     }
   }
 
-  const carriageEntries = entries.filter((entry) => entry.part === "reference_carriage_body");
-  for (const entry of carriageEntries) {
-    const bounds = boundsFromEntry(entry);
-    if (!bounds) continue;
-    const side = sideSign(entry);
-    const center = bounds.min.map((value, index) => value + bounds.size[index] / 2);
-    items.push(makeAssemblyItem({
-      id: `hardware:reference-pin:${entry.file}`,
-      name_zh: `Ø3 弹簧定位销（${side < 0 ? "左" : "右"}）`,
-      name_en: "spring locating pin",
-      kind: "外购标准件",
-      material: "金属",
-      group: "reference",
-      shape: "cylinder",
-      shapeOptions: { radius: 1.5, axis: "y" },
-      base_min: [center[0] - 1.5, center[1] - 15, center[2] - 1.5],
-      size: [3, 30, 3],
-      side,
-      explosion: explosionVector("reference", side),
-      notes: "仅保留为历史参考 carriage 的兼容诊断对象；当前 M6 结构不使用这套旧版定位销。",
-    }));
-  }
   return items;
 }
 
@@ -2215,14 +1894,6 @@ function isM6FocusItem(item) {
   return key.includes("m6");
 }
 
-function isSkpCandidateItem(item) {
-  if (!item || item.side !== 1) return false;
-  if (item.reinforcedClamp) return true;
-  if (item.candidate && item.group === "skp_candidate") return true;
-  if (item.fitCandidate) return true;
-  return false;
-}
-
 function isRightPcbFocusItem(item) {
   if (!item || item.side !== 1 || item.group !== "electronics") return false;
   // The M6 carrier PCB is a separate vertical board; keep this preset on the
@@ -2237,12 +1908,17 @@ function isRightUiFocusItem(item) {
 }
 
 function isRightConnectionFocusItem(item) {
-  return Boolean(item && item.side === 1 && item.candidate && item.group === "skp_candidate");
+  if (!item || item.side !== 1) return false;
+  const part = String(item.sourceEntry?.part || "");
+  return part === "post_clamp_carrier_lower"
+    || part === "post_clamp_carrier_upper"
+    || part === "clamp_body_half_user"
+    || part === "clamp_body_half_opponent"
+    || part === "clamp_electronics_ui_panel_mount";
 }
 
 function isRightKnobFocusItem(item) {
   if (!item || item.side !== 1) return false;
-  if (item.reinforcedClamp) return true;
   return ["clamp_printed_screw", "clamp_body_nut", "clamp_knob_nut", "clamp_knob"]
     .includes(item.sourceEntry?.part);
 }
@@ -2290,7 +1966,6 @@ function assemblyVisible(item) {
   if (item.context && !state.assembly.showTable) return false;
   if (item.nonPrinted && !item.context && !state.assembly.showNonPrinted) return false;
   if (item.group === "electronics" && !state.assembly.showElectronics) return false;
-  if (item.reinforcedClamp && !state.assembly.showReinforcedClamp) return false;
   const coarseClampParts = new Set([
     "clamp_printed_screw",
     "clamp_body_nut",
@@ -2298,24 +1973,7 @@ function assemblyVisible(item) {
     "clamp_knob",
   ]);
   if (!state.assembly.showReinforcedClamp && coarseClampParts.has(item.sourceEntry?.part)) return false;
-  if (item.candidate && !state.assembly.showSkpCandidate) return false;
-  if (item.fitCandidate && !state.assembly.showSkpFit) return false;
-  // The v0.2 SKP review meshes use the same installed envelope as the current
-  // formal parts. They are useful for an isolated interface audit, but showing
-  // them together makes coplanar faces fight in WebGL. When either review
-  // overlay is enabled, hide only its corresponding current source part.
-  const sourcePart = item.sourceEntry?.part;
-  if (state.assembly.showSkpFit
-      && (sourcePart === "clamp_body_half_user" || sourcePart === "clamp_body_half_opponent")) {
-    return false;
-  }
-  if (state.assembly.showSkpCandidate
-      && (sourcePart === "post_clamp_carrier"
-        || sourcePart === "post_clamp_carrier_lower"
-        || sourcePart === "post_clamp_carrier_upper")) return false;
-  if (item.sourceEntry?.part === "clamp_body_segment" && state.assembly.showSkpFit) return false;
   if (state.assembly.focusM6 && !isM6FocusItem(item)) return false;
-  if (state.assembly.focusSkpCandidate && !(isSkpCandidateItem(item) && item.side === 1)) return false;
   return true;
 }
 
@@ -3224,13 +2882,11 @@ function setFocusPresetActive(preset) {
 
 function assemblyCameraFilter() {
   if (state.assembly.focusM6) return isM6FocusItem;
-  if (state.assembly.focusSkpCandidate) return isSkpCandidateItem;
   return FOCUS_PRESETS[state.assembly.focusPreset]?.filter || null;
 }
 
 function assemblyCameraFitScale() {
   if (state.assembly.focusM6) return FOCUS_PRESETS.m6.distanceScale;
-  if (state.assembly.focusSkpCandidate) return FOCUS_PRESETS.connection.distanceScale;
   return FOCUS_PRESETS[state.assembly.focusPreset]?.distanceScale || FOCUS_PRESETS.global.distanceScale;
 }
 
@@ -3282,19 +2938,16 @@ function fitThreeCamera(filter = null, preset = null, distanceScale = 1.9, optio
 function applyViewPreset(preset) {
   if (!VIEW_PRESETS[preset]) return;
   if (state.uiMode !== "assembly" && state.uiMode !== "exploded") return;
-  // The quick view should respect an already selected M6 or SKP close-up, but
+  // The quick view should respect an already selected M6 close-up, but
   // otherwise frame all currently visible objects, including the explosion.
   fitThreeCamera(assemblyCameraFilter(), preset, assemblyCameraFitScale(), {force: true});
 }
 
 function clearLegacyFocusModes() {
   state.assembly.focusM6 = false;
-  state.assembly.focusSkpCandidate = false;
   setM6FocusVisuals(false);
   refs.fitM6.textContent = "M6 右侧近景";
   refs.fitM6.classList.remove("active");
-  refs.fitSkp.textContent = "C 方案近景";
-  refs.fitSkp.classList.remove("active");
 }
 
 function applyFocusPreset(preset) {
@@ -3320,12 +2973,6 @@ function applyFocusPreset(preset) {
     refs.showNonPrinted.checked = true;
     refs.showElectronics.checked = true;
   }
-  if (preset === "connection") {
-    state.assembly.showSkpCandidate = true;
-    state.assembly.showSkpFit = true;
-    refs.showSkpCandidate.checked = true;
-    refs.showSkpFit.checked = true;
-  }
   if (preset === "m6") {
     state.assembly.showNonPrinted = true;
     state.assembly.showElectronics = true;
@@ -3344,11 +2991,6 @@ function applyFocusPreset(preset) {
 
 function fitM6OrientationCamera() {
   state.assembly.focusM6 = !state.assembly.focusM6;
-  if (state.assembly.focusM6) {
-    state.assembly.focusSkpCandidate = false;
-    refs.fitSkp.textContent = "C 方案近景";
-    refs.fitSkp.classList.remove("active");
-  }
   if (state.assembly.focusM6) {
     state.assembly.showTable = false;
     refs.showTable.checked = false;
@@ -3387,52 +3029,6 @@ function fitM6OrientationCamera() {
     );
     state.three.camera.zoom=1/0.68;
     state.three.camera.updateProjectionMatrix();
-    state.three.controls.update();
-    setViewPresetActive(null);
-  }
-}
-
-function fitSkpCandidateCamera() {
-  const nextFocus = !state.assembly.focusSkpCandidate;
-  if (nextFocus && state.assembly.focusM6) {
-    state.assembly.focusM6 = false;
-    setM6FocusVisuals(false);
-    refs.fitM6.textContent = "M6 右侧近景";
-    refs.fitM6.classList.remove("active");
-  }
-  state.assembly.focusSkpCandidate = nextFocus;
-  if (nextFocus) {
-    state.assembly.showSkpCandidate = true;
-    refs.showSkpCandidate.checked = true;
-    state.assembly.focusPreset = "connection";
-    setFocusPresetActive("connection");
-    refs.fitSkp.textContent = "恢复完整装配";
-    refs.fitSkp.classList.add("active");
-  } else {
-    state.assembly.focusPreset = "global";
-    state.assembly.viewPreset = "iso";
-    setFocusPresetActive("global");
-    refs.fitSkp.textContent = "C 方案近景";
-    refs.fitSkp.classList.remove("active");
-  }
-  updateAssemblyScene();
-  render();
-  fitThreeCamera(
-    nextFocus ? isSkpCandidateItem : null,
-    nextFocus ? "connection" : "iso",
-    nextFocus ? FOCUS_PRESETS.connection.distanceScale : FOCUS_PRESETS.global.distanceScale,
-    {force: true},
-  );
-  if (nextFocus && state.three.camera && state.three.controls) {
-    // The side elevation makes the candidate's x-direction 15 mm extension,
-    // flat bottom and terminal chamfer readable before the user orbits it.
-    const target = state.three.controls.target.clone();
-    const distance = state.three.camera.position.distanceTo(target);
-    state.three.camera.position.set(
-      target.x + distance * 0.12,
-      target.y - distance,
-      target.z + distance * 0.18,
-    );
     state.three.controls.update();
     setViewPresetActive(null);
   }
@@ -3892,36 +3488,6 @@ function createAssemblyProxy(THREE, item) {
         metalness: 0.08,
       });
     }
-  } else if (item.shape === "detent") {
-    const ballD = number(options.ball_d, 4);
-    const ball = new THREE.SphereGeometry(ballD / 2, 24, 16);
-    addProxyPart(THREE, group, item, ball,
-      place([width / 2, depth / 2, number(options.ball_center_z, height * 0.85)]), {
-        color: "#d8dde2",
-        roughness: 0.18,
-        metalness: 0.92,
-      });
-    const springD = number(options.spring_d, 3);
-    const springH = number(options.spring_h, 8.5);
-    const spring = new THREE.CylinderGeometry(springD / 2, springD / 2, springH, 16);
-    spring.rotateX(Math.PI / 2);
-    addProxyPart(THREE, group, item, spring,
-      place([width / 2, depth / 2, number(options.spring_bottom_z, 1.2) + springH / 2]), {
-        color: "#b8bec4",
-        roughness: 0.24,
-        metalness: 0.85,
-        opacity: 0.7,
-      });
-    const retainerD = number(options.retainer_d, 5.5);
-    const retainerH = number(options.retainer_h, 1.5);
-    const retainer = new THREE.CylinderGeometry(retainerD / 2, retainerD / 2, retainerH, 24);
-    retainer.rotateX(Math.PI / 2);
-    addProxyPart(THREE, group, item, retainer,
-      place([width / 2, depth / 2, number(options.retainer_center_z, retainerH / 2)]), {
-        color: "#4b535b",
-        roughness: 0.32,
-        metalness: 0.72,
-      });
   } else if (item.shape === "cylinder" || item.shape === "hex") {
     const radius = number(options.radius, Math.min(width, depth) / 2);
     const radialSegments = item.shape === "hex" ? 6 : 24;
@@ -3943,33 +3509,10 @@ function createAssemblyProxy(THREE, item) {
     }
   } else {
     const geometry = new THREE.BoxGeometry(width, depth, height);
-    const isBeamWindow = item.shape === "stg120-beam-window";
     addProxyPart(THREE, group, item, geometry, place([width / 2, depth / 2, height / 2]), {
-      color: isBeamWindow ? "#fb817c" : undefined,
-      opacity: isBeamWindow ? 0.18 : ((item.group === "rail" || item.group === "net") && item.nonPrinted ? 0.34 : undefined),
-      depthWrite: isBeamWindow ? false : ((item.group !== "rail" && item.group !== "net") || !item.nonPrinted),
+      opacity: ((item.group === "rail" || item.group === "net") && item.nonPrinted ? 0.34 : undefined),
+      depthWrite: (item.group !== "rail" && item.group !== "net") || !item.nonPrinted,
     });
-    if (item.shape === "stg120-head") {
-      const slit = new THREE.BoxGeometry(0.35, Math.max(1, depth - 2), Math.min(height - 10, 120));
-      const faceDirection = number(options.face_direction, 1);
-      const slitX = faceDirection < 0 ? width - 0.18 : 0.18;
-      addProxyPart(THREE, group, item, slit, place([slitX, depth / 2, Math.min(height - 5, 125) / 2 + 5]), {
-        color: "#fb817c",
-        roughness: 0.22,
-        metalness: 0.18,
-        opacity: 0.96,
-      });
-    }
-    if (item.shape === "optical-module") {
-      const lens = new THREE.CylinderGeometry(2, 2, 3, 24);
-      lens.rotateZ(Math.PI / 2);
-      addProxyPart(THREE, group, item, lens, place([1.5, depth / 2, height / 2]), {
-        color: "#fb817c",
-        roughness: 0.22,
-        metalness: 0.2,
-        opacity: 0.96,
-      });
-    }
   }
   markAssemblyObject(group, item);
   state.three.modelRoot.add(group);
@@ -4365,23 +3908,16 @@ async function loadManifest() {
     state.assembly.selectedId = null;
     state.assembly.hoveredId = null;
     state.assembly.focusM6 = false;
-    state.assembly.focusSkpCandidate = false;
     state.assembly.focusPreset = "global";
     state.assembly.viewPreset = "iso";
     state.assembly.showTable = true;
     state.assembly.showNonPrinted = true;
     state.assembly.showElectronics = true;
-    state.assembly.showSkpCandidate = false;
-    state.assembly.showSkpFit = false;
     state.assembly.showReinforcedClamp = true;
     refs.fitM6.textContent = "M6 右侧近景";
     refs.fitM6.classList.remove("active");
-    refs.showSkpCandidate.checked = false;
-    refs.showSkpFit.checked = false;
     refs.showElectronics.checked = true;
     refs.showReinforcedClamp.checked = true;
-    refs.fitSkp.textContent = "C 方案近景";
-    refs.fitSkp.classList.remove("active");
     refs.showTable.checked = true;
     refs.showNonPrinted.checked = true;
     setViewPresetActive("iso");
@@ -4497,7 +4033,6 @@ refs.showLabels.addEventListener("change", drawBed);
 refs.showSafeArea.addEventListener("change", drawBed);
 refs.fitModel.addEventListener("click", () => fitThreeCamera(null, null, 1.9, {force: true}));
 refs.fitM6?.addEventListener("click", fitM6OrientationCamera);
-refs.fitSkp?.addEventListener("click", fitSkpCandidateCamera);
 refs.focusPresetButtons.forEach((button) => {
   button.addEventListener("click", () => applyFocusPreset(button.dataset.focusPreset));
 });
@@ -4552,21 +4087,6 @@ refs.showNonPrinted.addEventListener("change", () => {
 });
 refs.showElectronics?.addEventListener("change", () => {
   state.assembly.showElectronics = refs.showElectronics.checked;
-  updateAssemblyScene();
-  renderAssemblyGuide();
-});
-refs.showSkpCandidate?.addEventListener("change", () => {
-  state.assembly.showSkpCandidate = refs.showSkpCandidate.checked;
-  if (!state.assembly.showSkpCandidate && state.assembly.focusSkpCandidate) {
-    state.assembly.focusSkpCandidate = false;
-  refs.fitSkp.textContent = "C 方案近景";
-    refs.fitSkp.classList.remove("active");
-  }
-  updateAssemblyScene();
-  renderAssemblyGuide();
-});
-refs.showSkpFit?.addEventListener("change", () => {
-  state.assembly.showSkpFit = refs.showSkpFit.checked;
   updateAssemblyScene();
   renderAssemblyGuide();
 });

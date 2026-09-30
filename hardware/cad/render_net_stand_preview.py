@@ -179,60 +179,6 @@ def main() -> None:
     )
     render(
         openscad,
-        "post_skp_leg_foot_stage1",
-        args.output_dir / "net-stand-post-skp-leg-foot-stage1-right.png",
-        1200,
-        900,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "post_skp_leg_foot_stage1",
-        args.output_dir / "net-stand-post-skp-leg-foot-stage1-section-right.png",
-        1200,
-        700,
-        definitions=("SIDE=1",),
-        # Side cut view: x is horizontal and z is vertical, so the 15 mm
-        # inboard terminal chamfer is directly visible.
-        camera="900,0,6,90,0,0,100",
-    )
-    render(
-        openscad,
-        "post_skp_leg_foot_stage1",
-        args.output_dir / "net-stand-post-skp-leg-foot-stage1-front-right.png",
-        900,
-        700,
-        definitions=("SIDE=1",),
-        # Front view along x: the two symmetric y-side groups and the central
-        # opening remain visible as one lower-device silhouette.
-        camera="898,0,6,90,0,90,100",
-    )
-    render(
-        openscad,
-        "post_skp_leg_foot_stage1_exploded",
-        args.output_dir / "net-stand-post-skp-leg-foot-stage1-exploded-right.png",
-        1500,
-        1100,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "clamp_body_skp_leg_foot_fit",
-        args.output_dir / "net-stand-clamp-body-skp-leg-foot-fit-right.png",
-        1400,
-        1000,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "post_skp_leg_foot_clamp_fit",
-        args.output_dir / "net-stand-post-skp-leg-foot-clamp-fit-right.png",
-        1600,
-        1200,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
         "post_clamp_seated",
         args.output_dir / "net-stand-post-clamp-seated-right.png",
         1500,
@@ -475,36 +421,6 @@ def main() -> None:
         args.output_dir / "net-stand-clamp-knob-nut.png",
         600,
         600,
-    )
-    render(
-        openscad,
-        "stg120_outer_carrier",
-        args.output_dir / "net-stand-stg120-outer-carrier-right.png",
-        900,
-        1200,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "stg120_outer_carrier",
-        args.output_dir / "net-stand-stg120-outer-carrier-left.png",
-        900,
-        1200,
-        definitions=("SIDE=-1",),
-    )
-    render(
-        openscad,
-        "stg120_center_bridge",
-        args.output_dir / "net-stand-stg120-center-bridge.png",
-        700,
-        1200,
-    )
-    render(
-        openscad,
-        "stg120_preview",
-        args.output_dir / "net-stand-stg120-preview.png",
-        1800,
-        900,
     )
     render(
         openscad,

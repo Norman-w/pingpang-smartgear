@@ -29,8 +29,8 @@ DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.7-split-c-sch
 
 PART_NAMES_ZH = {
     "post_segment": "斜立柱分段（兼容诊断名）",
-    "post_clamp_carrier": "立柱两段装配预览 + SKP C 方案整体底座",
-    "post_clamp_carrier_lower": "斜立柱下段 + SKP C 方案整体底座",
+    "post_clamp_carrier": "立柱两段装配预览 + C 方案整体底座",
+    "post_clamp_carrier_lower": "斜立柱下段 + C 方案整体底座",
     "post_clamp_carrier_upper": "斜立柱上段（顶部下 30 mm 分型）",
     "lower_stand_segment": "斜立柱分段（兼容诊断名）",
     "clamp_body_half_user": "C 形夹操作者侧半体（y-）",
@@ -170,7 +170,7 @@ ASSEMBLY_COMPONENTS = [
         "printable": False,
         "quantity": "每侧 4 套（左右共 8 套）",
         "scad_part": "post_clamp_carrier_lower + post_clamp_carrier_upper",
-        "notes": "斜立柱距顶部 30 mm 的恒定截面处分型。下段保留绿色 SKP 底座、网布门洞和两条公燕尾键；上段为可替换 30 mm 段，带对应母槽、4 个 Ø3.4 mm M3 通孔和顶端 M8 支撑孔。四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔；不做 90° 沉头窝，也不用台阶肩螺钉；燕尾键承担剪切和定位，螺钉负责夹紧与防拔出。",
+        "notes": "斜立柱距顶部 30 mm 的恒定截面处分型。下段保留绿色 C 方案整体底座、网布门洞和两条公燕尾键；上段为可替换 30 mm 段，带对应母槽、4 个 Ø3.4 mm M3 通孔和中心 Ø6.8 mm M8 攻丝底孔。球头下端 M8×1.25 直接进入该座；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔；不做 90° 沉头窝，也不用台阶肩螺钉；燕尾键承担剪切和定位，螺钉负责夹紧与防拔出。",
     },
     {
         "id": "net-fabric",
@@ -379,13 +379,13 @@ def _indexed_side_specs(
 
 def _post_clamp_carrier_specs() -> list[ExportSpec]:
     lower_notes = (
-        "首样左右各一件下段；绿色 SKP 整体底座与斜立柱下段一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。"
+        "首样左右各一件下段；绿色 C 方案整体底座与斜立柱下段一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。"
         "下段包络从 z=-4 mm 到分型面 z=230.5 mm，含网布 3 mm 过道和原位置侧开圆柱接收腔（容纳 Ø10 mm 插杆及 Ø12 mm 布套包络）；下段分型面带两条公燕尾键和四个 Ø2.4 mm×10 mm 盲导孔。"
         "X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放，不缩放；切片器仍需按清单配置支撑。绿色底座必须与配套 C 方案夹体、两枚 Ø4.4 mm 孔和下方钢珠定位孔配合。"
     )
     upper_notes = (
         "首样左右各一件上段；这是斜立柱顶部下 30 mm 的可替换段，包络 z=230.5…260.5 mm，分型面朝打印床。"
-        "上段带两条与下段配合的母燕尾槽、四个 Ø3.4 mm M3 通孔和顶端 M8 支撑孔；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔，不使用沉头或台阶肩螺钉。"
+        "上段带两条与下段配合的母燕尾槽、四个 Ø3.4 mm M3 通孔和中心 Ø6.8 mm M8 攻丝底孔；球头下端 M8×1.25 直接进入该座；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔，不使用沉头或台阶肩螺钉。"
         "上段可换成后续更高的光电头承载段；不包含网夹的分段或螺丝。"
     )
     return (
@@ -400,7 +400,7 @@ def _post_clamp_carrier_specs() -> list[ExportSpec]:
             "post_clamp_carrier_upper",
             "post-clamp-carrier-upper",
             "PETG",
-            "分型面朝床平放；母燕尾槽和 Ø3.4 mm 通孔朝下，顶面 M8 支撑孔朝上；不缩放。",
+            "分型面朝床平放；母燕尾槽和 Ø3.4 mm 通孔朝下，中心 M8 攻丝底孔朝上；不缩放。",
             upper_notes,
         )
     )

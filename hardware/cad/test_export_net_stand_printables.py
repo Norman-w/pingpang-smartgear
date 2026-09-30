@@ -62,7 +62,6 @@ REMOVED_ACTIVE_PARTS = {
     "net_rail_segment",
     "net_rail_splice",
     "net_rail_saddle",
-    "m6_detector_net_connector",
     "post_joint_sleeve",
     "post_joint_key",
     "lower_stand_segment",
@@ -99,7 +98,7 @@ def validate_export_specs() -> None:
     upper_specs = [spec for spec in EXPORT_SPECS if spec.part == "post_clamp_carrier_upper"]
     if len(lower_specs) != 2 or any(
         "下段" not in spec.notes
-        or "绿色 SKP 整体底座" not in spec.notes
+        or "绿色 C 方案整体底座" not in spec.notes
         or "z=230.5 mm" not in spec.notes
         or "Ø2.4 mm×10 mm" not in spec.notes
         or "公燕尾键" not in spec.notes

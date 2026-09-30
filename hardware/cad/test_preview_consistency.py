@@ -317,7 +317,7 @@ def main() -> None:
         "显示网布、M6 光电器件、线路板、PVDF 和标准件",
         "按步骤检查网架、M6 阵列和擦网传感器",
         "M6 45° L 型主体、x 向分体壳与竖直球头",
-        "绿色 SKP 整体底座从 x+ 水平推入灰色腔体",
+        "绿色 C 方案整体底座从 x+ 水平推入灰色腔体",
         "y=0 分为操作者侧/对手侧两半",
         "9 个横向 M5 连接点",
         "M6 球头下端 M8 直接进入固定网柱顶面中心孔",
@@ -353,25 +353,26 @@ def main() -> None:
     if stale_hits:
         raise AssertionError(f"browser preview still exposes stale current copy: {stale_hits}")
 
-    # Legacy SKP fit meshes share the formal split-C installation envelope and
-    # must remain an explicit, isolated review overlay. If they are enabled by
-    # default, WebGL renders coplanar duplicate faces and the model shimmers.
-    overlay_guards = (
-        "showSkpCandidate: false",
-        "showSkpFit: false",
-        "state.assembly.showSkpFit",
-        "sourcePart === \"clamp_body_half_user\"",
-        "sourcePart === \"clamp_body_half_opponent\"",
-        "sourcePart === \"post_clamp_carrier\"",
+    # The preview must load only the current formal manifest. Retired SKP
+    # candidate/fit meshes used to be loaded from a parallel v0.2 directory;
+    # keeping those paths around made coplanar faces shimmer and let obsolete
+    # geometry reappear in later reviews.
+    retired_preview_refs = (
+        "showSkpCandidate",
+        "showSkpFit",
+        "fitSkp",
+        "focusSkpCandidate",
+        "skp_candidate",
+        "post-skp-leg-foot-c-v0.2",
         "split-c-scheme-v11",
     )
-    missing_overlay_guards = [text for text in overlay_guards if text not in app_text]
-    if missing_overlay_guards:
-        raise AssertionError(f"preview coplanar overlay guard missing: {missing_overlay_guards}")
-    if 'id="show-skp-candidate" type="checkbox" checked' in index_text:
-        raise AssertionError("legacy SKP candidate overlay is still enabled in HTML")
-    if 'id="show-skp-fit" type="checkbox" checked' in index_text:
-        raise AssertionError("legacy SKP fit overlay is still enabled in HTML")
+    stale_preview_refs = [text for text in retired_preview_refs if text in app_text + index_text]
+    if stale_preview_refs:
+        raise AssertionError(f"retired preview geometry still referenced: {stale_preview_refs}")
+    if 'id="show-skp-candidate"' in index_text or 'id="show-skp-fit"' in index_text:
+        raise AssertionError("retired SKP preview controls are still present in HTML")
+    if "split-c-scheme-v12" not in app_text:
+        raise AssertionError("current preview cache key is missing")
 
     print(f"PREVIEW_CONSISTENCY_OK ({len(PARAMETER_MAP)} direct parameters + current M6 copy)")
 

@@ -19,7 +19,7 @@
 
 - `assembly`：完整球台截面、网布、两侧立柱/夹体、无网顶轨道的网端圆柱插杆、PVDF、左右十路 M6 发射/接收器件、M6 分体壳、球头和电子腔体装配预览；
 - `left_stand` / `right_stand`：单侧装配预览；
-- `post_clamp_carrier`：两段斜立柱与绿色整体底座的装配预览，不直接作为一件打印；正式打印件为 `post_clamp_carrier_lower` 和 `post_clamp_carrier_upper`。下段沿 x 方向进入灰色 C 夹让位腔，含两枚 `Ø4 mm` 孔、`Ø6×2 mm` 底坑、网布门洞和原位置侧开圆柱接收腔；上段为顶部下 `30 mm` 的可替换件，带公母键、四枚 `Ø3.4 mm` M3 通孔和顶部 M8 支撑孔；
+- `post_clamp_carrier`：两段斜立柱与绿色整体底座的装配预览，不直接作为一件打印；正式打印件为 `post_clamp_carrier_lower` 和 `post_clamp_carrier_upper`。下段沿 x 方向进入灰色 C 夹让位腔，含两枚 `Ø4 mm` 孔、`Ø6×2 mm` 底坑、网布门洞和原位置侧开圆柱接收腔；上段为顶部下 `30 mm` 的可替换件，带公母键、四枚 `Ø3.4 mm` M3 通孔和中心 `Ø6.8 mm` 攻丝底孔，供球头下端 M8×1.25 直接拧入；
 - `post_clamp_seated`：绿色底座推进到底、黄色立柱坐在其 `z=16 mm` 接口上的装配证据；
 - `post_clamp_seated_fit_section`：沿 C 方案底座和中央定位坑截取的坐定剖面，直接查看灰色让位腔、绿色底座、黄色渐变和钢珠定位的关系；
 - `post_clamp_carrier_lower` / `post_clamp_carrier_upper`：正式打印的下段/上段；`post_segment` / `lower_stand_segment` / `upper_stand_segment` 是兼容诊断入口，不替代这两个正式 STL；
@@ -73,7 +73,7 @@ python3 -m http.server 8000
 
 浏览器装配页位于 [`preview/index.html`](preview/index.html)，可以切换装配、爆炸、打印拼盘和零件清单；真实打印件按 manifest 加载，电子腔专页加载包含 PCB 直装按键/LED/USB-C 模型的 KiCad 板级 STL，并把屏幕/扬声器等 SCAD 线束实体作为装配件检查。重点查看：
 
-网页装配页现在直接加载正式 C 方案夹体半件和黄绿连接件；SKP 腿脚不再作为“候选件”叠加到另一套共面模型上。三维工具栏仍保留 C 方案近景，并增加 y=0 分型合拢/爆炸检查，便于检查 M5 boss、螺母窝、电子腔和底座让位腔。
+网页装配页现在只加载正式 manifest 中的 C 方案夹体半件和黄绿连接件；旧候选腿脚和让位审查网格已从预览入口移除，不会再与正式模型叠加。三维工具栏的“立柱/C夹”重点视角直接查看当前正式零件，并支持 y=0 分型合拢/爆炸检查，便于检查 M5 boss、螺母窝、电子腔和底座让位腔。
 
 - 网页爆炸视图中 `clamp_body_half_user` / `clamp_body_half_opponent` 沿 y 方向分开，`post_clamp_carrier_lower` 沿 `x+ → x−` 滑入/拉出，`post_clamp_carrier_upper` 沿 z 方向从分型面抬起；爆炸状态会把分型面、M5 boss、电子腔和立柱公母键打开，不把承座误显示成随载体移动的平台；
 

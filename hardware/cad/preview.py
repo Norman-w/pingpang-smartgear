@@ -1311,7 +1311,7 @@ def draw_side(ax) -> None:
         [ballhead_interface_bottom, ballhead_base_bottom],
         color="#c7cdd2",
         linewidth=3.0,
-        label="采购球头下端 M8 外牙（独立光学支撑接口）",
+            label="采购球头下端 M8×1.25 → 固定网柱上段中心攻丝座",
     )
     ax.plot(
         [boss_max_x - TABLE_EDGE,
@@ -1344,7 +1344,7 @@ def draw_side(ax) -> None:
         color="#b04a3a",
         linewidth=1.2,
         linestyle=(0, (4, 3)),
-        label="M6 独立支撑待定义（与固定网柱断开）",
+        label="M6 球头下端 M8×1.25 → 固定网柱上段中心攻丝座",
     )
     ax.scatter(
         [post_top_x, optical_support_x],
