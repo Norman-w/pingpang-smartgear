@@ -41,6 +41,7 @@ PARTS = [
     ("retention_screw", "激光头限位顶丝", "钢", "#b8c6cf", False, True, [-14,-10,9]),
     ("retention_nut", "激光头限位捕获螺母", "钢", "#b8c6cf", False, True, [-14,-10,9]),
     ("rear_pusher_screw", "激光头后段径向防退顶丝 / M3×3", "钢（平头机米螺丝）", "#aebbc4", False, True, [-14,-10,9]),
+    ("rear_retainer_cap", "激光头尾部粗牙空心防脱挡环", "PETG", "#d89d4f", True, False, [18,0,0]),
     ("mount_hardware", "通道安装螺钉与螺母", "钢", "#b8c6cf", False, False, [0,0,0]),
     ("rail", "十路小夹座承载条", "PETG", "#526f89", True, False, [0,0,0]),
     ("front_cover", "裸激光光学前盖（端部固定孔）", "PETG", "#728394", True, False, [-24,0,0]),
@@ -50,7 +51,7 @@ PARTS = [
     ("front_bolts", "前盖 M3×30 沉头螺钉", "钢", "#b8c6cf", False, False, [-34,45,0]),
     ("front_nuts", "前盖捕获螺母", "钢", "#b8c6cf", False, False, [0,0,0]),
 ]
-ARRAY_PARTS={"rail","front_cover","rear_cover","bottom_cover","bottom_gasket","front_bolts","front_nuts"}
+ARRAY_PARTS={"rail","front_cover","rear_cover","bottom_cover","bottom_gasket","front_bolts","front_nuts","rear_retainer_cap"}
 
 def read_motion(metadata, label):
     return [dict(progress=float(e),values=json.loads(values))

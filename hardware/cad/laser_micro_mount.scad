@@ -1,6 +1,7 @@
 // Individual bare-laser kinematic cassette. Included by net_stand.scad.
 // Units: mm. Prototype contract: PETG rigid parts, split TPU spherical liner,
-// purchased steel spring and M2 hardware. No printed threads or sealing claim.
+// purchased steel spring and M2 hardware. The rear retaining ring uses a
+// deliberately coarse PETG thread; it is a retention aid, not a sealing claim.
 // Front is -x. Pitch is +rotation about y; yaw is +rotation about z.
 // The two 45-degree adjusters are A/B, NOT independent pitch/yaw screws.
 // Their common/differential travel sets the two angular degrees of freedom.
@@ -45,6 +46,52 @@ laser_micro_rear_pusher_boss_width = 2.6;
 laser_micro_rear_pusher_boss_height = 4.2;
 laser_micro_rear_pusher_drive_af = 2.0;
 laser_micro_rear_pusher_withdraw = 3.0;
+// Rear retaining ring. The carrier gets a short shoulder ahead of its narrow
+// tail. The cap slides over the narrow tail and its front shoulder captures
+// the larger carrier shoulder after the cassette is seated. This lets the
+// carrier keep its full +/-3 degree motion without asking a fixed cap to
+// surround the moving wide shoulder.
+laser_micro_rear_retainer_carrier_collar_x = 12.6;
+laser_micro_rear_retainer_carrier_collar_len = 1.2;
+laser_micro_rear_retainer_carrier_collar_d = 10.6;
+laser_micro_rear_retainer_socket_x = 14.0;
+laser_micro_rear_retainer_socket_len = 6.4;
+laser_micro_rear_retainer_socket_outer_d = 19.6;
+laser_micro_rear_retainer_socket_core_d = 16.9;
+laser_micro_rear_retainer_socket_thread_major_d = 18.0;
+laser_micro_rear_retainer_cap_body_root_d = 14.6;
+laser_micro_rear_retainer_cap_body_major_d = 16.2;
+laser_micro_rear_retainer_thread_pitch = 2.0;
+laser_micro_rear_retainer_thread_lead_in = 0.5;
+laser_micro_rear_retainer_thread_len = 4.4;
+laser_micro_rear_retainer_thread_root_width = 1.0;
+laser_micro_rear_retainer_thread_tip_width = 0.45;
+laser_micro_rear_retainer_thread_tangent_width = 0.8;
+laser_micro_rear_retainer_thread_segments_per_turn = 32;
+// Extra radial running clearance keeps the tapered thread crests from
+// becoming a fused surface after PETG elephant-foot and slicer rounding.
+laser_micro_rear_retainer_thread_clearance_r = 0.50;
+laser_micro_rear_retainer_cap_front_x = 13.8;
+laser_micro_rear_retainer_cap_capture_bore_d = 10.4;
+laser_micro_rear_retainer_cap_lip_d = 12.6;
+laser_micro_rear_retainer_cap_flange_d = 19.2;
+// Six wrench flats are cut into the broad rear flange.  The 17 mm across-flat
+// interface is large enough for a thin open-end wrench, but stays inside the
+// 19.2 mm circular envelope and leaves the cap usable as a hand-grip during
+// first assembly.
+laser_micro_rear_retainer_cap_drive_af = 17.0;
+// The front capture lip is only the 0.2 mm transition from the narrow
+// carrier-tail bore to the threaded cavity.  Keeping this short makes the
+// cap shoulder stop at x=13.8 while the threaded shell starts at x=14.0;
+// a 1 mm lip would overlap the host boss before the thread can engage.
+laser_micro_rear_retainer_cap_lip_len = 0.2;
+laser_micro_rear_retainer_cap_flange_x = 20.4;
+laser_micro_rear_retainer_cap_flange_t = 2.8;
+laser_micro_rear_retainer_cap_bore_d = 13.0;
+laser_micro_rear_retainer_cap_thread_x =
+    laser_micro_rear_retainer_cap_front_x +
+    laser_micro_rear_retainer_cap_lip_len +
+    laser_micro_rear_retainer_thread_lead_in;
 laser_micro_spring_turns = 4;
 laser_micro_spring_free_height = 4.6; // candidate; force/rate still needs measurement
 laser_micro_spring_floor = -7.6;
@@ -94,9 +141,86 @@ assert(laser_micro_rear_pusher_tap_d < laser_micro_rear_pusher_d,
 assert((-laser_module_d/2)-(laser_micro_rear_pusher_axis_y+
        laser_micro_rear_pusher_boss_width) >= laser_micro_rear_pusher_clearance-1e-6,
        "Rear pusher boss must leave the specified rear insertion clearance");
+function lm_rear_retainer_tail_sweep_d() =
+    laser_micro_tail_d +
+    2 * laser_micro_rear_retainer_cap_front_x * sin(laser_micro_range_deg);
+function lm_rear_retainer_collar_sweep_d() =
+    laser_micro_rear_retainer_carrier_collar_d +
+    2 * (laser_micro_rear_retainer_carrier_collar_x +
+         laser_micro_rear_retainer_carrier_collar_len) *
+        sin(laser_micro_range_deg);
+assert(laser_micro_rear_retainer_thread_pitch >= 2 &&
+       laser_micro_rear_retainer_thread_root_width >=
+           laser_micro_rear_retainer_thread_pitch / 2 &&
+       laser_micro_rear_retainer_thread_tip_width >= 0.4,
+       "Rear retaining thread must stay coarse and single-line-printable");
+assert(laser_micro_rear_retainer_socket_core_d >
+           laser_micro_rear_retainer_cap_body_major_d + 0.5,
+       "Rear retaining socket must clear the cap thread crest");
+assert(laser_micro_rear_retainer_cap_capture_bore_d >
+           lm_rear_retainer_tail_sweep_d() + 0.2 &&
+       laser_micro_rear_retainer_cap_capture_bore_d <
+           laser_micro_rear_retainer_carrier_collar_d,
+       "Retaining cap must pass the narrow tail and capture the carrier shoulder");
+assert(laser_micro_rear_retainer_cap_flange_d < m6_sensor_center_pitch,
+       "Retaining cap flange must leave clearance to the adjacent channel");
+assert(laser_micro_rear_retainer_socket_outer_d -
+           laser_micro_rear_retainer_socket_thread_major_d > 1.0,
+       "Rear threaded socket must retain a printable annular wall");
+assert(laser_micro_rear_retainer_cap_drive_af + 1.0 <
+           laser_micro_rear_retainer_cap_flange_d,
+       "Rear retaining cap must leave material outside the wrench flats");
 
 module lm_xcyl(d, h, x=0, y=0, z=0, facets=48) {
     translate([x,y,z]) rotate([0,90,0]) cylinder(d=d,h=h,$fn=facets);
+}
+module lm_xcone(d1, d2, h, x=0, y=0, z=0, facets=48) {
+    translate([x,y,z]) rotate([0,90,0]) cylinder(d1=d1,d2=d2,h=h,$fn=facets);
+}
+module lm_x_flatted_cyl(d, h, x, drive_af, facets=48) {
+    // Cut six axial flats in the circular flange.  The x-axis remains the
+    // thread axis, so an open-end wrench can react on the rear face without
+    // asking the printed thread crest to carry the tightening torque.
+    difference() {
+        lm_xcyl(d, h, x, facets=facets);
+        for (a=[0:60:300])
+            rotate([a,0,0])
+                translate([x-1,drive_af/2,-d])
+                    cube([h+2,2*d,2*d]);
+    }
+}
+module lm_x_thread_band(root_d, major_d, pitch, length, start_x,
+                        root_width, tip_width, tangent_width, segments_per_turn) {
+    translate([start_x,0,0]) rotate([0,90,0])
+        clamp_printed_thread_band(
+            root_d, major_d, pitch, length, 0, root_width, tip_width,
+            segments_per_turn, tangent_width);
+}
+module lm_rear_retainer_socket_outer() {
+    // The socket is part of the frame envelope, so the printed half remains
+    // one connected solid.  Its OD stays just under the 20 mm cassette pitch;
+    // the 0.8 mm radial wall left behind the female thread is intentional.
+    lm_xcyl(laser_micro_rear_retainer_socket_outer_d,
+            laser_micro_rear_retainer_socket_len,
+            laser_micro_rear_retainer_socket_x);
+}
+module lm_rear_retainer_socket_void() {
+    // Female relief for the cap's coarse external thread.  The smooth core
+    // clears the cap crest; the second tapered band makes the female valley.
+    lm_xcyl(laser_micro_rear_retainer_socket_core_d,
+            laser_micro_rear_retainer_socket_len + .4,
+            laser_micro_rear_retainer_socket_x - .2);
+    lm_x_thread_band(
+        laser_micro_rear_retainer_socket_core_d,
+        laser_micro_rear_retainer_socket_thread_major_d,
+        laser_micro_rear_retainer_thread_pitch,
+        laser_micro_rear_retainer_thread_len,
+        laser_micro_rear_retainer_socket_x +
+            laser_micro_rear_retainer_thread_lead_in,
+        laser_micro_rear_retainer_thread_root_width,
+        laser_micro_rear_retainer_thread_tip_width,
+        laser_micro_rear_retainer_thread_tangent_width,
+        laser_micro_rear_retainer_thread_segments_per_turn);
 }
 module lm_half(top=true) {
     intersection() {
@@ -172,6 +296,9 @@ module lm_frame_envelope() {
         translate([10,0,0]) rotate([0,90,0]) linear_extrude(7)
             polygon([[-9,-8],[-9,8],[-3,14],[3,14],
                      [9,8],[9,-8],[3,-14],[-3,-14]]);
+        // Rear threaded socket: its outer shell overlaps the reaction block
+        // over x=14..17 and continues rearward as an integrated load path.
+        lm_rear_retainer_socket_outer();
         // Front-access M2.5 mounting ears land on the unchanged carrier face.
         for(s=[-1,1]) hull() {
             lm_xcyl(8,4,-4,s*laser_micro_mount_y,0);
@@ -184,8 +311,10 @@ module lm_frame_voids() {
     lm_xcyl(9.6,12,-6);      // front aperture and swinging neck clearance
     translate([4,-9,-5.4]) cube([6.1,18,11.5]);
     translate([9.9,-6,-5.4]) cube([8,12,11.5]);
-    // Wire outlet through the rear, below/above the spring reaction floor.
-    lm_xcyl(10.8,5,15);
+    // Rear retaining socket and wire outlet. The female core clears the
+    // carrier shoulder; the helical relief accepts the cap's coarse male
+    // thread while preserving a printable annular wall.
+    lm_rear_retainer_socket_void();
     for(s=[-1,1]) {
         // Counterbores enter from z+, nuts insert from z- into the lower half.
         translate([0,s*10,-10]) cylinder(d=2.3,h=20,$fn=28);
@@ -269,6 +398,11 @@ module lm_carrier() {
             sphere(d=laser_micro_ball_d,$fn=64);
             lm_front_retract_collar();
             lm_xcyl(laser_micro_tail_d,15,0);
+            // Captured retaining shoulder. It is ahead of the narrow rear
+            // tail, so the cap can pass the tail and stop against this collar.
+            lm_xcyl(laser_micro_rear_retainer_carrier_collar_d,
+                    laser_micro_rear_retainer_carrier_collar_len,
+                    laser_micro_rear_retainer_carrier_collar_x);
             lm_rear_pusher_boss();
             // A 4.4 mm wide bearing land supports the entire OD3.2 spring.
             // Cutting a flat from the cylinder alone left only a 1.82 mm land.
@@ -286,6 +420,67 @@ module lm_carrier() {
         translate([10,-6,-8]) cube([5,12,3.9]);
     }
 }
+module laser_micro_rear_retainer_cap() {
+    // An external-thread, broad-flange PETG retaining cap. The x-axis thread
+    // is coarse enough for an X1C-class FDM print: 2 mm pitch, 1 mm root
+    // band and a 0.45 mm tapered crest. The front bore passes the narrow
+    // tail; its shoulder at x=13.8 captures the larger carrier collar.
+    difference() {
+        union() {
+            lm_xcyl(laser_micro_rear_retainer_cap_lip_d,
+                    laser_micro_rear_retainer_cap_lip_len,
+                    laser_micro_rear_retainer_cap_front_x);
+            // Taper the capture lip into the male thread root.
+            lm_xcone(
+                laser_micro_rear_retainer_cap_lip_d,
+                laser_micro_rear_retainer_cap_body_root_d,
+                .2,
+                laser_micro_rear_retainer_cap_front_x);
+            lm_xcyl(
+                laser_micro_rear_retainer_cap_body_root_d,
+                laser_micro_rear_retainer_cap_flange_x -
+                    (laser_micro_rear_retainer_cap_front_x +
+                     laser_micro_rear_retainer_cap_lip_len),
+                laser_micro_rear_retainer_cap_front_x +
+                    laser_micro_rear_retainer_cap_lip_len);
+            lm_x_thread_band(
+                laser_micro_rear_retainer_cap_body_root_d,
+                laser_micro_rear_retainer_cap_body_major_d,
+                laser_micro_rear_retainer_thread_pitch,
+                laser_micro_rear_retainer_thread_len,
+                laser_micro_rear_retainer_cap_thread_x,
+                laser_micro_rear_retainer_thread_root_width,
+                laser_micro_rear_retainer_thread_tip_width,
+                laser_micro_rear_retainer_thread_tangent_width,
+                laser_micro_rear_retainer_thread_segments_per_turn);
+            lm_x_flatted_cyl(
+                laser_micro_rear_retainer_cap_flange_d,
+                laser_micro_rear_retainer_cap_flange_t,
+                laser_micro_rear_retainer_cap_flange_x,
+                laser_micro_rear_retainer_cap_drive_af);
+        }
+        // The narrow front bore stops against the carrier collar.
+        lm_xcyl(laser_micro_rear_retainer_cap_capture_bore_d,
+                laser_micro_rear_retainer_cap_lip_len + .1,
+                laser_micro_rear_retainer_cap_front_x - .05);
+        // After the capture shoulder the bore opens for the carrier tail and
+        // exits through the flange; this is a through opening, not a plug.
+        lm_xcone(
+            laser_micro_rear_retainer_cap_capture_bore_d,
+            laser_micro_rear_retainer_cap_bore_d,
+            .2,
+            laser_micro_rear_retainer_cap_front_x);
+        lm_xcyl(laser_micro_rear_retainer_cap_bore_d,
+                laser_micro_rear_retainer_cap_flange_x +
+                    laser_micro_rear_retainer_cap_flange_t + .4 -
+                    (laser_micro_rear_retainer_cap_front_x +
+                     laser_micro_rear_retainer_cap_lip_len),
+                laser_micro_rear_retainer_cap_front_x +
+                    laser_micro_rear_retainer_cap_lip_len);
+    }
+}
+function lm_rear_retainer_move(e) =
+    [8 * lm_phase(e,.16,.24),0,0];
 module lm_laser() {
     difference() {
         lm_xcyl(laser_module_d,laser_module_length,-3);
@@ -378,6 +573,8 @@ module laser_micro_assembly(e=laser_micro_explode) {
         color("silver") translate(lm_carrier_move(e))
             lm_rear_pusher_hardware(lm_rear_pusher_withdraw(e));
     }
+    color("#d89d4f") translate(lm_rear_retainer_move(e))
+        laser_micro_rear_retainer_cap();
     color("silver") {
         translate(lm_cap_move(e)) for(s=[-1,1]) {
             lm_adjust_screw(s,lm_screw_withdraw(e)); lm_adjust_nut(s); lm_adjust_nut(s,true,lm_lock_withdraw(e));
@@ -716,6 +913,16 @@ module laser_micro_metadata() {
     echo(str("LASER_PARAM rear_pusher_boss_height=",laser_micro_rear_pusher_boss_height));
     echo(str("LASER_PARAM rear_pusher_drive_af=",laser_micro_rear_pusher_drive_af));
     echo(str("LASER_PARAM rear_pusher_withdraw=",laser_micro_rear_pusher_withdraw));
+    echo(str("LASER_PARAM rear_retainer_socket_outer_d=",laser_micro_rear_retainer_socket_outer_d));
+    echo(str("LASER_PARAM rear_retainer_socket_core_d=",laser_micro_rear_retainer_socket_core_d));
+    echo(str("LASER_PARAM rear_retainer_socket_thread_major_d=",laser_micro_rear_retainer_socket_thread_major_d));
+    echo(str("LASER_PARAM rear_retainer_cap_body_root_d=",laser_micro_rear_retainer_cap_body_root_d));
+    echo(str("LASER_PARAM rear_retainer_cap_body_major_d=",laser_micro_rear_retainer_cap_body_major_d));
+    echo(str("LASER_PARAM rear_retainer_thread_pitch=",laser_micro_rear_retainer_thread_pitch));
+    echo(str("LASER_PARAM rear_retainer_thread_len=",laser_micro_rear_retainer_thread_len));
+    echo(str("LASER_PARAM rear_retainer_cap_capture_bore_d=",laser_micro_rear_retainer_cap_capture_bore_d));
+    echo(str("LASER_PARAM rear_retainer_cap_flange_d=",laser_micro_rear_retainer_cap_flange_d));
+    echo(str("LASER_PARAM rear_retainer_cap_drive_af=",laser_micro_rear_retainer_cap_drive_af));
 }
 
 // Rigid solid interference probe. The TPU liner and metal threaded interfaces

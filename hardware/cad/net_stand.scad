@@ -92,6 +92,7 @@
 //   PART="m6_detector_bottom_cover" PETG 底盖候选
 //   PART="m6_detector_wiring_reference" 两侧十路线缆汇线/压紧出线参考
 //   PART="m6_detector_bottom_gasket" M6 底盖连续柔性压紧垫（单独打印）
+//   PART="laser_micro_rear_retainer_cap" 裸激光夹筒尾部粗牙防脱挡环（PETG）
 //   PART="net_clamp_rod"       单侧球网空心边套圆柱插杆（打印件）
 //   PART="net_clamp_fit_probe" 网布空心边套与圆柱插杆/立柱局部诊断
 //   PART="net_clamp_fit_section" 网布/立柱/圆柱插杆截面（真实装配基准）
@@ -12436,6 +12437,7 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
 } else if (PART == "laser_micro_retention_screw") { lm_retention_screw();
 } else if (PART == "laser_micro_retention_nut") { lm_retention_nut();
 } else if (PART == "laser_micro_rear_pusher_screw") { lm_rear_pusher_screw();
+} else if (PART == "laser_micro_rear_retainer_cap") { laser_micro_rear_retainer_cap();
 } else if (PART == "laser_micro_mount_hardware") { lm_mount_hardware();
 } else if (PART == "laser_micro_assembly") { laser_micro_assembly();
 } else if (PART == "laser_micro_rail") { laser_micro_rail_positive();

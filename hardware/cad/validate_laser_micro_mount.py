@@ -126,6 +126,48 @@ def main():
             f"Rear pusher boss blocks laser insertion: {pusher_boss_insertion_overlap} mm3")
         assert p["rear_pusher_tap_d"] < p["rear_pusher_d"], (
             "Rear pusher boss pilot must be smaller than the screw OD")
+        # The rear retainer is a real assembled interface: the frame socket
+        # remains part of the frame solid, the male cap occupies its female
+        # thread void, and the cap's outside wall must not fuse into the
+        # socket wall at the nominal thread phase. CGAL can leave a tiny
+        # coplanar sliver at the carrier shoulder, so use a 1e-3 mm3 gate for
+        # these zero-volume probes rather than pretending mesh precision is a
+        # physical tolerance.
+        retainer_cap_frame_lower = probe_intersection(
+            "rear-retainer-cap-frame-lower",
+            "laser_micro_rear_retainer_cap(); lm_frame(false);")
+        retainer_cap_frame_upper = probe_intersection(
+            "rear-retainer-cap-frame-upper",
+            "laser_micro_rear_retainer_cap(); lm_frame(true);")
+        retainer_cap_socket_void = probe_intersection(
+            "rear-retainer-cap-socket-void",
+            "laser_micro_rear_retainer_cap(); lm_rear_retainer_socket_void();")
+        retainer_cap_socket_wall = probe_intersection(
+            "rear-retainer-cap-socket-wall",
+            "laser_micro_rear_retainer_cap(); difference() { "
+            "lm_rear_retainer_socket_outer(); lm_rear_retainer_socket_void(); }")
+        retainer_cap_carrier_nominal = probe_intersection(
+            "rear-retainer-cap-carrier-nominal",
+            "laser_micro_rear_retainer_cap(); lm_carrier();")
+        retainer_cap_carrier_plus3 = probe_intersection(
+            "rear-retainer-cap-carrier-plus3",
+            "laser_micro_rear_retainer_cap(); "
+            "rotate([0,0,3]) rotate([3,0,0]) lm_carrier();")
+        retainer_cap_carrier_minus3 = probe_intersection(
+            "rear-retainer-cap-carrier-minus3",
+            "laser_micro_rear_retainer_cap(); "
+            "rotate([0,0,-3]) rotate([-3,0,0]) lm_carrier();")
+        for name, volume in {
+            "cap/frame lower": retainer_cap_frame_lower,
+            "cap/frame upper": retainer_cap_frame_upper,
+            "cap/socket wall": retainer_cap_socket_wall,
+            "cap/carrier nominal": retainer_cap_carrier_nominal,
+            "cap/carrier +3 deg": retainer_cap_carrier_plus3,
+            "cap/carrier -3 deg": retainer_cap_carrier_minus3,
+        }.items():
+            assert abs(volume) < 1e-3, f"Rear retainer interference ({name}): {volume} mm3"
+        assert retainer_cap_socket_void > 100, (
+            "Rear retainer cap is not seated inside the female thread void")
         def check_install(distance):
             wrapper=Path(directory)/f"cover-install-{distance}.scad"
             wrapper.write_text(f'include <{SOURCE}>\nintersection() {{ translate([-{distance},0,0]) laser_micro_front_cover(); '
@@ -178,6 +220,23 @@ def main():
                     nominal_tip_clearance_mm=(-p["module_d"]/2)-(
                         p["rear_pusher_axis_y"]-p["rear_pusher_tip_setback"]+
                         p["rear_pusher_length"])),
+                rear_retainer=dict(
+                    thread_pitch_mm=p["rear_retainer_thread_pitch"],
+                    thread_length_mm=p["rear_retainer_thread_len"],
+                    socket_outer_d_mm=p["rear_retainer_socket_outer_d"],
+                    socket_core_d_mm=p["rear_retainer_socket_core_d"],
+                    socket_thread_major_d_mm=p["rear_retainer_socket_thread_major_d"],
+                    cap_body_root_d_mm=p["rear_retainer_cap_body_root_d"],
+                    cap_body_major_d_mm=p["rear_retainer_cap_body_major_d"],
+                    cap_capture_bore_d_mm=p["rear_retainer_cap_capture_bore_d"],
+                    cap_flange_d_mm=p["rear_retainer_cap_flange_d"],
+                    cap_frame_lower_mm3=retainer_cap_frame_lower,
+                    cap_frame_upper_mm3=retainer_cap_frame_upper,
+                    cap_socket_void_mm3=retainer_cap_socket_void,
+                    cap_socket_wall_mm3=retainer_cap_socket_wall,
+                    cap_carrier_nominal_mm3=retainer_cap_carrier_nominal,
+                    cap_carrier_plus3_mm3=retainer_cap_carrier_plus3,
+                    cap_carrier_minus3_mm3=retainer_cap_carrier_minus3),
                 front_cover=dict(minimum_wall_mm=p["front_wall"],skin_sections=sections,
                     cavity_clearance_mm=.5,installation_samples=installation),
                 nominal_2mm_beam_front_aperture_margin_mm=round(optical_margin,4),
@@ -191,6 +250,6 @@ def main():
                 physical_validation="not performed")
     (OUTPUT/"validation.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n")
     printed=sum(part["printable"] for part in manifest["parts"])
-    print(f"LASER_MICRO_OK: {len(parts)} closed meshes; {printed} connected printable parts; {len(poses)} poses; {len(access)} tool-access cases; {len(sections)} closed skin sections; {len(installation)} insertion positions; aperture margin {optical_margin:.3f} mm")
+    print(f"LASER_MICRO_OK: {len(parts)} closed meshes; {printed} connected printable parts; {len(poses)} poses; {len(access)} tool-access cases; {len(sections)} closed skin sections; {len(installation)} insertion positions; rear retainer checked; aperture margin {optical_margin:.3f} mm")
 
 if __name__=="__main__":main()
