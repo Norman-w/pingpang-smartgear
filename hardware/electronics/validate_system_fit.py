@@ -565,6 +565,74 @@ def check_connector_net_contract(pcbnew: Any, board_path: Path,
     return {"status": "PASS", "connectors": records}
 
 
+def check_main_esp32_orientation(pcbnew: Any) -> Dict[str, Any]:
+    """Keep the native ESP32 footprint, model and antenna zone in one datum."""
+
+    board = pcbnew.LoadBoard(str(MOTHER))
+    footprint = next(
+        (item for item in board.GetFootprints()
+         if str(item.GetReference()) == "U1"),
+        None,
+    )
+    if footprint is None:
+        raise RuntimeError("main board is missing ESP32 footprint U1")
+    models = list(footprint.Models())
+    esp_model = next(
+        (model for model in models
+         if "ESP32-S3-WROOM-1.step" in str(model.m_Filename)),
+        None,
+    )
+    if esp_model is None:
+        raise RuntimeError("U1 is missing the ESP32-S3-WROOM-1 KiCad model")
+    model_rotation = tuple(float(value) for value in esp_model.m_Rotation)
+    if any(abs(actual - expected) > 0.01
+           for actual, expected in zip(model_rotation, (0.0, 0.0, 0.0))):
+        raise RuntimeError(
+            "U1 ESP32 model must retain the native 0-degree local rotation: %s"
+            % (model_rotation,)
+        )
+    footprint_rotation = float(footprint.GetOrientationDegrees())
+    if abs(footprint_rotation - 90.0) > 0.01:
+        raise RuntimeError(
+            "U1 native ESP32 footprint must be assembled at +90 degrees so the antenna points to board -X: %s"
+            % (footprint_rotation,)
+        )
+    local_pads = {}
+    for pad in footprint.Pads():
+        number = str(pad.GetPadName())
+        if number in {"1", "14", "15", "26", "27", "40"}:
+            position = pad.GetFPRelativePosition()
+            local_pads[number] = (
+                round(position.x / MM, 3),
+                round(position.y / MM, 3),
+            )
+    expected_pads = {
+        "1": (-8.750, -5.260),
+        "14": (-8.750, 11.250),
+        "15": (-6.985, 12.500),
+        "26": (6.985, 12.500),
+        "27": (8.750, 11.250),
+        "40": (8.750, -5.260),
+    }
+    if local_pads != expected_pads:
+        raise RuntimeError(
+            "U1 native pad datum does not match KiCad RF_Module: actual=%s expected=%s"
+            % (local_pads, expected_pads)
+        )
+    native_zones = list(footprint.Zones())
+    if not native_zones or not any(zone.HasKeepoutParametersSet()
+                                   for zone in native_zones):
+        raise RuntimeError("U1 is missing the native KiCad antenna keepout zone")
+    return {
+        "status": "PASS",
+        "antenna_direction": "board -X",
+        "footprint_rotation_deg": footprint_rotation,
+        "model_rotation_deg": list(model_rotation),
+        "checked_local_pads": local_pads,
+        "keepout": "native KiCad ESP32-S3-WROOM-1 antenna zone at board -X",
+    }
+
+
 def check_charge_only_path(pcbnew: Any) -> Dict[str, Any]:
     """Prove that the one external Type-C port reaches the charger by VBUS/GND.
 
@@ -1201,6 +1269,8 @@ def check_boards(pcbnew: Any) -> List[Dict[str, Any]]:
         record["connector_net_contract"] = check_connector_net_contract(
             pcbnew, path, CONNECTOR_NET_CONTRACTS[path]
         )
+        if path == MOTHER:
+            record["esp32_orientation"] = check_main_esp32_orientation(pcbnew)
         if path.name == "ui-panel-v0.2.kicad_pcb":
             record["ui_direct_part_contract"] = check_ui_direct_parts(pcbnew, path)
         records.append(record)
@@ -1726,6 +1796,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "The PCB files and board STL/STEP exports are real KiCad artifacts. The main board still has an open copper gate (`%d` unconnected items); it is not a fabrication/Gerber release." % boards[0]["unconnected"],
             "",
+            "- ESP32 native assembly contract: **%s**; the KiCad `.kicad_mod` pads, exposed GND pad, STEP model and antenna keepout share one datum, assembled at +90° so the antenna points to board `-X`, while J7 remains on the `+Y` UI edge." % boards[0]["esp32_orientation"]["status"],
             "- Physical cable connectors pass the generated `MX1.25`/1.25 mm pad-pitch contract, and every such PCB connector has a matching MX1.25 schematic instance; USB-C and button footprints are separate interfaces.",
             "- Ordered connector pin-to-net contracts pass for the mother board, receiver 3-wire inputs, emitter 2-wire outputs and UI harnesses.",
             "- Native PCB DRC aggregate: `%s`; errors, expected isolated-copper warnings and unconnected airwires are reported separately below." % report["pcb_drc"]["status"],

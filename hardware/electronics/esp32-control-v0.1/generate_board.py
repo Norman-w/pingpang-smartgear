@@ -11,6 +11,7 @@ connected through J4.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 
@@ -21,7 +22,6 @@ BOARD_W = 86.0
 BOARD_H = 32.0
 
 
-MODEL_ESP32 = "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1.step"
 MODEL_IP5305 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/HTSOP-8-1EP_3.9x4.9mm_P1.27mm.step"
 MODEL_TPS62162 = "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm.step"
 MX125_PITCH = 1.25
@@ -35,6 +35,30 @@ MODEL_MX125_1X8 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM08B-GH
 MODEL_MX125_1X4 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X2 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal.step"
 MODEL_0603 = "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+
+
+def kicad_footprint_library_root() -> Path:
+    """Locate the installed KiCad footprint library used for native models.
+
+    The ESP32 footprint is deliberately loaded from KiCad's own library rather
+    than recreated from a hand-written pad sketch.  That keeps the pad datum,
+    exposed pad, courtyard and native antenna keepout tied to the same
+    ``.kicad_mod`` that owns the 3D model.
+    """
+    candidates = []
+    env_root = os.environ.get("KICAD10_FOOTPRINT_DIR")
+    if env_root:
+        candidates.append(Path(env_root))
+    candidates.extend([
+        Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"),
+        Path("/usr/share/kicad/footprints"),
+    ])
+    for root in candidates:
+        if (root / "RF_Module.pretty" / "ESP32-S3-WROOM-1.kicad_mod").exists():
+            return root
+    raise FileNotFoundError(
+        "KiCad RF_Module.pretty/ESP32-S3-WROOM-1.kicad_mod was not found"
+    )
 
 
 def add_3d_model(pcbnew, fp, filename: str, rotation=(0.0, 0.0, 0.0)):
@@ -307,17 +331,12 @@ def add_mount_hole(board, pcbnew, ref: str, x: float, y: float):
 
 
 def add_esp32(board, pcbnew, nets: dict[str, object]):
-    # Rotated ESP32-S3-WROOM-1-N16R8 reference placement.  The local pad
-    # coordinates are the same orientation documented by the SmartPaddle
-    # reference: antenna toward board -X.
-    pad_xy = {}
-    for pad in range(1, 15):
-        pad_xy[pad] = (-5.26 + (pad - 1) * 1.27, 9.20)
-    for pad in range(15, 27):
-        pad_xy[pad] = (13.00, 6.985 - (pad - 15) * 1.27)
-    for pad in range(27, 41):
-        pad_xy[pad] = (11.25 - (pad - 27) * 1.27, -9.20)
-
+    # Use the native KiCad footprint instead of approximating the module with
+    # a hand-written pad table.  The previous approximation put the 40 signal
+    # pads on a different datum than the ESP32-S3-WROOM-1 STEP model, so the
+    # rendered metal legs visibly missed the PCB lands.  Loading the official
+    # .kicad_mod brings in the exact pad sizes/pitches, exposed GND pad,
+    # courtyard and antenna keepout together with the official 3D model.
     pad_net_names = {
         1: "gnd", 2: "3v3", 3: "esp_en", 4: "ui_btn_mode",
         5: "carrier_reset_n", 7: "ui_spk_bclk", 8: "ui_spk_ws",
@@ -329,18 +348,38 @@ def add_esp32(board, pcbnew, nets: dict[str, object]):
         25: "user_button_future", 27: "boot", 36: "uart_rx",
         37: "uart_tx", 38: "pvdf_adc_r", 39: "pvdf_adc_l", 40: "gnd",
     }
-    fp = new_fp(board, pcbnew, "U1", "ESP32-S3-WROOM-1-N16R8", 25, 16)
+    fp = pcbnew.FootprintLoad(
+        str(kicad_footprint_library_root() / "RF_Module.pretty"),
+        "ESP32-S3-WROOM-1",
+    )
+    if fp is None:
+        raise RuntimeError("failed to load KiCad RF_Module:ESP32-S3-WROOM-1")
+    fp.SetReference("U1")
+    fp.SetValue("ESP32-S3-WROOM-1-N16R8")
+    fp.Reference().SetLayer(pcbnew.F_Fab)
+    fp.Value().SetLayer(pcbnew.F_Fab)
+    fp.SetPosition(xy(pcbnew, 25, 16))
+    # The library datum has the antenna at local -Y.  KiCad's +90-degree
+    # assembly orientation maps that complete native footprint and its model
+    # to board -X; there is no independent model translation, scale or pad
+    # correction hiding an offset.
+    fp.SetOrientationDegrees(90.0)
+
     pad_refs = {}
-    for number, (px, py) in pad_xy.items():
-        net_name = pad_net_names.get(number)
-        pad_refs[str(number)] = add_smd_pad(
-            pcbnew, fp, str(number), px, py, 1.0, 1.0,
-            nets.get(net_name) if net_name else None)
+    for pad in fp.Pads():
+        number = str(pad.GetNumber())
+        if number == "41":
+            # All native exposed-pad sub-pads are the module GND land.
+            pad.SetNet(nets["gnd"])
+            continue
+        net_name = pad_net_names.get(int(number)) if number.isdigit() else None
+        if net_name:
+            pad.SetNet(nets[net_name])
+            pad_refs[number] = pad
     board.Add(fp)
-    add_rect(board, pcbnew, pcbnew.F_Fab, 25, 16, 25.5, 18.0, 0.12)
-    add_text(board, pcbnew, "U1 ESP32-S3", 25, 27.2, 0.80)
+    # The native footprint already carries its own Fab outline and local
+    # antenna keepout.  Only add a readable board-level orientation marker.
     add_text(board, pcbnew, "ANT -X", 12.5, 16, 0.65)
-    add_3d_model(pcbnew, fp, MODEL_ESP32, (0.0, 0.0, 90.0))
     return fp, pad_refs
 
 
@@ -394,25 +433,6 @@ def add_tps62162(board, pcbnew, nets):
     add_text(board, pcbnew, "U3 TPS62162", 67, 11.8, 0.75)
     add_3d_model(pcbnew, fp, MODEL_TPS62162)
     return fp, refs
-
-
-def add_keepout(board, pcbnew, name: str, points):
-    zone = pcbnew.ZONE(board)
-    zone.SetIsRuleArea(True)
-    zone.SetDoNotAllowZoneFills(True)
-    zone.SetDoNotAllowTracks(True)
-    zone.SetDoNotAllowVias(True)
-    zone.SetDoNotAllowPads(False)
-    zone.SetDoNotAllowFootprints(False)
-    layers = pcbnew.LSET()
-    layers.AddLayer(pcbnew.F_Cu)
-    layers.AddLayer(pcbnew.B_Cu)
-    zone.SetLayerSet(layers)
-    zone.SetZoneName(name)
-    for x, y in points:
-        zone.AppendCorner(xy(pcbnew, x, y), -1)
-    board.Add(zone)
-    return zone
 
 
 def add_ground_zone(board, pcbnew, net):
@@ -495,13 +515,6 @@ def build_board():
     )
     nets = {name: ensure_net(board, pcbnew, name) for name in net_names}
     add_board_outline(board, pcbnew)
-
-    # The antenna end is toward -X.  The native rule area is intentionally
-    # larger than the module outline and blocks copper/tracks/vias while still
-    # allowing the module footprint itself to overlap the edge of the area.
-    add_keepout(board, pcbnew, "ESP32_ANTENNA_KEEP_OUT", [
-        (1.0, 7.0), (12.0, 7.0), (12.0, 27.0), (1.0, 27.0)
-    ])
 
     # Mechanical mounting is deliberately outside the RF keepout and follows
     # the compact 86 x 32 mm board envelope used by the SCAD clamp cavity.

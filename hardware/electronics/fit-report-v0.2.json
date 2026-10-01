@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-10-01T00:45:11.524122+00:00",
+  "generated_at": "2026-10-01T11:01:06.847934+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -576,20 +576,20 @@
         "U3"
       ],
       "connector_pad_counts": {
-        "J6": 4,
         "J4": 10,
-        "J7": 16,
-        "J2": 4,
-        "J3": 4,
-        "J8": 4,
         "J5": 6,
-        "SW1": 2
+        "J7": 16,
+        "J3": 4,
+        "J2": 4,
+        "SW1": 2,
+        "J6": 4,
+        "J8": 4
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/esp32-control-v0.1.stl",
         "step": "hardware/electronics/3d/v0.2/esp32-control-v0.1.step",
         "stl_bytes": 4696708,
-        "step_bytes": 4444161,
+        "step_bytes": 4444049,
         "stl_bounds": {
           "min": [
             0.0,
@@ -768,6 +768,43 @@
             "2": "gnd"
           }
         }
+      },
+      "esp32_orientation": {
+        "status": "PASS",
+        "antenna_direction": "board -X",
+        "footprint_rotation_deg": 90.0,
+        "model_rotation_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "checked_local_pads": {
+          "1": [
+            -8.75,
+            -5.26
+          ],
+          "14": [
+            -8.75,
+            11.25
+          ],
+          "15": [
+            -6.985,
+            12.5
+          ],
+          "26": [
+            6.985,
+            12.5
+          ],
+          "27": [
+            8.75,
+            11.25
+          ],
+          "40": [
+            8.75,
+            -5.26
+          ]
+        },
+        "keepout": "native KiCad ESP32-S3-WROOM-1 antenna zone at board -X"
       }
     },
     {
@@ -1626,7 +1663,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[08:44:30] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[19:00:23] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 199,
     "erc_errors": 110,
@@ -1638,14 +1675,16 @@
     "boards": [
       {
         "path": "hardware/electronics/esp32-control-v0.1/esp32-control-v0.1.kicad_pcb",
-        "violations": 0,
-        "severity_counts": {},
-        "errors": 0,
+        "violations": 16,
+        "severity_counts": {
+          "error": 16
+        },
+        "errors": 16,
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
         "unconnected": 54,
-        "status": "PASS"
+        "status": "FAIL"
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb",
@@ -1745,7 +1784,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 7953952,
+        "bytes": 7969025,
         "manifold_reported": true
       },
       {
@@ -1759,7 +1798,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 7763010,
+        "bytes": 7778155,
         "manifold_reported": true
       },
       {
@@ -1773,7 +1812,7 @@
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 37348691,
+        "bytes": 37363836,
         "manifold_reported": true
       },
       {
@@ -1781,7 +1820,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 24563308,
+        "bytes": 24579094,
         "manifold_reported": true
       },
       {
@@ -1789,7 +1828,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 24870456,
+        "bytes": 24887172,
         "manifold_reported": true
       },
       {

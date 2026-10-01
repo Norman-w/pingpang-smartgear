@@ -1,7 +1,7 @@
 # Pingpang SmartGear electronics system fit report v0.2
 
 - Overall mechanical/package status: **PASS**
-- Generated: `2026-10-01T00:45:11.524122+00:00`
+- Generated: `2026-10-01T11:01:06.847934+00:00`
 - Mechanical source: `hardware/cad/net_stand.scad`
 - Native KiCad status: `PASS`
 - Native KiCad projects: `4` `.kicad_pcb` / `4` `.kicad_pro`; schematic PDF export: `PASS`
@@ -20,6 +20,7 @@
 
 The PCB files and board STL/STEP exports are real KiCad artifacts. The main board still has an open copper gate (`54` unconnected items); it is not a fabrication/Gerber release.
 
+- ESP32 native assembly contract: **PASS**; the KiCad `.kicad_mod` pads, exposed GND pad, STEP model and antenna keepout share one datum, assembled at +90° so the antenna points to board `-X`, while J7 remains on the `+Y` UI edge.
 - Physical cable connectors pass the generated `MX1.25`/1.25 mm pad-pitch contract, and every such PCB connector has a matching MX1.25 schematic instance; USB-C and button footprints are separate interfaces.
 - Ordered connector pin-to-net contracts pass for the mother board, receiver 3-wire inputs, emitter 2-wire outputs and UI harnesses.
 - Native PCB DRC aggregate: `FAIL`; errors, expected isolated-copper warnings and unconnected airwires are reported separately below.
@@ -55,7 +56,7 @@ Mother-board retention is the native `esp32-control-v0.1.kicad_pcb` Edge.Cuts co
 
 | board | DRC status | errors | warnings | unconnected |
 |---|---|---:|---:|---:|
-| `esp32-control-v0.1.kicad_pcb` | **PASS** | 0 | 0 | 54 |
+| `esp32-control-v0.1.kicad_pcb` | **FAIL** | 16 | 0 | 54 |
 | `m6-receiver-carrier-v0.2.kicad_pcb` | **PASS_WITH_EXPECTED_WARNINGS** | 0 | 1 | 38 |
 | `emitter-power-v0.2.kicad_pcb` | **PASS_WITH_EXPECTED_WARNINGS** | 0 | 2 | 6 |
 | `ui-panel-v0.2.kicad_pcb` | **FAIL** | 20 | 0 | 22 |
