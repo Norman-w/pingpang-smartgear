@@ -342,7 +342,7 @@ async function addUiBoard() {
     side: 1,
     role: "ui",
     explosion: [0, 34, 0],
-    detail: "真实 KiCad 板级 STL；包含 PCB、板侧线束连接器，以及 KiCad 封装中的按键、LED、USB-C 3D 模型。",
+    detail: "真实 KiCad 板级 STL；包含 PCB、板侧线束连接器，以及 KiCad 封装中的按键、LED、唯一 Type-C 充电口 3D 模型。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
   // STLLoader normalizes the raw KiCad y=-28..0 range to 0..28. Reflect it
@@ -369,7 +369,7 @@ async function addUiPhysicalItems() {
     side: 1,
     role: "ui-components",
     explosion: [0, 34, 0],
-    detail: "来自 net_stand.scad 的 clamp_electronics_ui_physical_items：仅挂载通过线束连接的屏幕和扬声器；PCB 按键、LED、USB-C 已由 KiCad 板 STL 提供。",
+    detail: "来自 net_stand.scad 的 clamp_electronics_ui_physical_items：仅挂载通过线束连接的屏幕和扬声器；PCB 按键、LED、唯一 Type-C 充电口已由 KiCad 板 STL 提供。",
     visibleWhen: () => sideVisible("right") && state.showUi,
   });
 }

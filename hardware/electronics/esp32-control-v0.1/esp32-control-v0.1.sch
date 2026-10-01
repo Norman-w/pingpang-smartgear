@@ -13,7 +13,7 @@ Title "Pingpang SmartGear ESP32-S3 Control + 1S Power"
 Date "2026-08-28"
 Rev "v0.2"
 Comp "Pingpang SmartGear"
-Comment1 "Connectorized field wiring; 1S battery, USB-C, M6 carrier and UI daughter"
+Comment1 "Legacy snapshot; active Type-C charge input is on UI panel via J7 14P"
 Comment2 "Schematic contract for the generated KiCad PCB first article"
 Comment3 "Power/current and final component SKUs require bench validation"
 Comment4 "Mechanical source: hardware/cad/net_stand.scad"
@@ -27,17 +27,6 @@ F 1 "ESP32-S3-WROOM-1-N16R8" H 5050 5290 50 0000 C CNN
 F 2 "RF_Module:ESP32-S3-WROOM-1" H 5050 2100 50 0001 C CNN
 F 3 "" H 4700 2150 50 0001 C CNN
 	1    5050 3600
-	1    0    0    -1
-$EndComp
-$Comp
-L Connector:USB_C_Receptacle_USB2.0_16P J1
-U 1 1 2
-P 1700 2050
-F 0 "J1" H 1807 2917 50 0000 C CNN
-F 1 "USB-C POWER + DATA" H 1807 2826 50 0000 C CNN
-F 2 "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal" H 1850 2050 50 0001 C CNN
-F 3 "" H 1850 2050 50 0001 C CNN
-	1    1700 2050
 	1    0    0    -1
 $EndComp
 $Comp
@@ -113,12 +102,12 @@ F 2 "Connector_JST:JST_GH_SM08B-GHS-TB_1x08-1MP_P1.25mm_Horizontal" H 8200 2600 
 	1    0    0    -1
 $EndComp
 $Comp
-L Connector_Generic:Conn_01x12 J7
+L Connector_Generic:Conn_01x14 J7
 U 1 1 7
 P 8200 4500
 F 0 "J7" H 8280 4492 50 0000 L CNN
-F 1 "UI PANEL MX1.25 LOCK 12P" H 8280 4401 50 0000 L CNN
-F 2 "Connector_JST:JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal" H 8200 4500 50 0001 C CNN
+F 1 "UI PANEL MX1.25 LOCK 14P / CHARGE VBUS" H 8280 4401 50 0000 L CNN
+F 2 "Connector_JST:JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal" H 8200 4500 50 0001 C CNN
 	1    8200 4500
 	1    0    0    -1
 $EndComp
@@ -152,7 +141,7 @@ F 1 "IP5305 POWER KEY" H 1900 6094 50 0000 C CNN
 	1    0    0    -1
 $EndComp
 Text Notes 1150 1200 0    100  ~ 20
-USB-C input / CC pull-downs / ESD and PTC are on the mother board
+Legacy note: the active UI-panel Type-C is charge-only; J7 pins 13/14 carry VBUS/GND to the mother board
 Text Notes 2700 1200 0    100  ~ 20
 ESP32-S3 signal budget: M6 SPI + IRQ, UI I2C/I2S/buttons/LEDs, PVDF ADC
 Text Notes 7600 1200 0    100  ~ 20
@@ -166,15 +155,15 @@ All board-side field connectors are MX1.25 / 1.25 mm; the native .kicad_sch is t
 Wire Wire Line
 	2300 2250 3000 2250
 Text Label 2400 2250 0    50   ~ 0
-USB_VBUS
+VBUS_FROM_UI_TYPEC
 Wire Wire Line
 	2300 2350 3000 2350
 Text Label 2400 2350 0    50   ~ 0
-USB_D+
+NC_USB_D+
 Wire Wire Line
 	2300 2450 3000 2450
 Text Label 2400 2450 0    50   ~ 0
-USB_D-
+NC_USB_D-
 Wire Wire Line
 	2300 2550 3000 2550
 Text Label 2400 2550 0    50   ~ 0

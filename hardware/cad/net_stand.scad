@@ -394,6 +394,10 @@ clamp_electronics_ui_led_centers = [[29, 3], [32, 25]];
 clamp_electronics_ui_speaker_center = [52.2, 8];
 // PCB footprint datum from ui-panel-v0.2.kicad_pcb.
 clamp_electronics_ui_usb_center = [47, 26];
+// External power interface contract: the only shell-facing power opening is
+// this UI Type-C receptacle.  J3 (sensor rail) and J_EXT (emitter fallback)
+// stay as internal board/service connectors and do not create extra shell cuts.
+clamp_electronics_external_charge_port_count = 1;
 // The UI footprint's G-Switch .kicad_mod F.Fab drawing contains the actual
 // panel-facing Type-C outer contour: two horizontal segments from x=-2.89..+
 // 2.89 at y=+/-1.58 and two semicircular arcs with x=+/-4.47.  This is the
@@ -412,15 +416,13 @@ clamp_electronics_ui_usb_kicad_profile_h = 3.16;
 clamp_electronics_ui_usb_kicad_profile_radius = 1.58;
 clamp_electronics_ui_proxy_clearance = 0.8;
 clamp_electronics_ui_speaker_d = 16;
-clamp_electronics_ui_gland_d = 12;
-// 发射端放在零件较少的左侧，内置受保护 1S 电池；子板同时保留外接输入。
+// 发射端放在零件较少的左侧，内置受保护 1S 电池；J_EXT 只作腔内维护/后备输入。
 clamp_electronics_emitter_board_length_x = 68;
 clamp_electronics_emitter_board_width_y = 32;
 clamp_electronics_emitter_board_t = 1.6;
 clamp_electronics_emitter_battery_length_x = 65;
 clamp_electronics_emitter_battery_width_y = 30;
 clamp_electronics_emitter_battery_thickness_z = 7;
-clamp_electronics_emitter_external_gland_d = 12;
 // KiCad-generated board/component exports.  These are deliberately referenced
 // by the mechanical source instead of being redrawn as anonymous boxes.  The
 // generator writes the four files under hardware/electronics/3d/v0.2.
@@ -5523,7 +5525,7 @@ module clamp_electronics_exploded_positive() {
 
 module clamp_electronics_emitter_exploded_positive() {
     // Exploded left-side service view, including the internal emitter power
-    // board, protected battery and the optional external power connector path.
+    // board, protected battery and its service-only fallback connector.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_emitter_board_positive();
@@ -11652,6 +11654,8 @@ module parameter_probe() {
              clamp_electronics_ui_usb_center[0]));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_y=",
              clamp_electronics_ui_usb_center[1]));
+    echo(str("NETSTAND_PARAM clamp_electronics_external_charge_port_count=",
+             clamp_electronics_external_charge_port_count));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_shell_x=",
              clamp_electronics_ui_usb_shell_center[0]));
     echo(str("NETSTAND_PARAM clamp_electronics_ui_usb_shell_y=",

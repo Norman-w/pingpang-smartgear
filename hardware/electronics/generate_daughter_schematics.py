@@ -298,9 +298,11 @@ def ui_schematic() -> None:
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x07"),
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x16"),
         ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x12"),
+        ("Connector_Generic", "Connector_Generic.kicad_sym", "Conn_01x14"),
         ("Device", "Device.kicad_sym", "LED"),
         ("Device", "Device.kicad_sym", "Buzzer"),
         ("Device", "Device.kicad_sym", "Speaker"),
+        ("Device", "Device.kicad_sym", "R"),
         ("Switch", "Switch.kicad_sym", "SW_Push"),
         ("power", "power.kicad_sym", "GND"),
         ("power", "power.kicad_sym", "+3V3"),
@@ -309,8 +311,8 @@ def ui_schematic() -> None:
     project_uuid = uid()
     placed = [
         placed_symbol(
-            "Connector_Generic:Conn_01x12", definitions["Connector_Generic:Conn_01x12"], "J_MOTHER",
-            "MOTHER UI MX1.25 LOCK 12P", "Connector_JST:JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal",
+            "Connector_Generic:Conn_01x14", definitions["Connector_Generic:Conn_01x14"], "J_MOTHER",
+            "MOTHER UI MX1.25 LOCK 14P / CHARGE VBUS", "Connector_JST:JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal",
             34, 75, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(
@@ -350,8 +352,18 @@ def ui_schematic() -> None:
         ),
         placed_symbol(
             "Connector_Generic:Conn_01x16", definitions["Connector_Generic:Conn_01x16"], "J_USB_PANEL",
-            "USB-C VERTICAL 16P DIRECT / SILICONE CAP", "Connector_USB:USB_C_Receptacle_G-Switch_GT-USB-7051x",
+            "USB-C VERTICAL CHARGE-ONLY / SILICONE CAP", "Connector_USB:USB_C_Receptacle_G-Switch_GT-USB-7051x",
             245, 110, project_uuid, "ui-panel-v0.2",
+        ),
+        placed_symbol(
+            "Device:R", definitions["Device:R"], "R_CC1",
+            "USB-C CC1 Rd 5k1", "Resistor_SMD:R_0603_1608Metric",
+            205, 155, project_uuid, "ui-panel-v0.2",
+        ),
+        placed_symbol(
+            "Device:R", definitions["Device:R"], "R_CC2",
+            "USB-C CC2 Rd 5k1", "Resistor_SMD:R_0603_1608Metric",
+            205, 180, project_uuid, "ui-panel-v0.2",
         ),
     ]
     wires = [
@@ -369,13 +381,16 @@ def ui_schematic() -> None:
         label("BUZZER", 80, 137),
         label("START / MODE", 164, 47),
         label("STATUS / BATTERY LED", 164, 137),
-        label("USB VBUS / D+ / D- / CC1 / CC2", 214, 101),
+        label("USB VBUS / GND ONLY", 214, 101),
+        label("CC1 -> 5k1 Rd -> GND", 185, 151),
+        label("CC2 -> 5k1 Rd -> GND", 185, 176),
     ]
     notes = [
-        note("PINGPANG / SEALED UI PANEL / OLED + BUTTONS + AUDIO + USB-C", 14, 12, 1.8),
-        note("The 12-pin mother-board cable carries power, I2C, two buttons, buzzer, I2S speaker and two status LEDs", 14, 20),
+        note("PINGPANG / SEALED UI PANEL / OLED + BUTTONS + AUDIO + CHARGE-ONLY USB-C", 14, 12, 1.8),
+        note("The 14-pin mother-board cable carries VBUS/GND, I2C, two buttons, buzzer, I2S speaker and two status LEDs", 14, 20),
         note("Faceplate has a display window, two direct PCB button bores, two direct LED bores, acoustic membrane opening and capped USB-C slot", 14, 27),
-        note("The screen remains cable-connected; buttons, LEDs and USB-C are mounted on the UI PCB and share the faceplate datum", 14, 215),
+        note("The screen remains cable-connected; buttons, LEDs and the sole Type-C charge receptacle are mounted on the UI PCB and share the faceplate datum", 14, 215),
+        note("USB data pins/SBU are intentionally NC; CC1/CC2 use local 5.1k Rd pull-downs", 14, 222),
     ]
     schematic(
         HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",

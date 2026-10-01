@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-24T15:55:03.151527+00:00",
+  "generated_at": "2026-10-01T00:45:11.524122+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -271,6 +271,26 @@
     },
     "all_pass": true
   },
+  "charge_path": {
+    "status": "PASS",
+    "external_port": "J_USB_PANEL",
+    "path": [
+      "J_USB_PANEL VBUS",
+      "J_MOTHER 13",
+      "J7 13",
+      "F1 PTC",
+      "IP5305 VIN"
+    ],
+    "return": [
+      "J_USB_PANEL GND",
+      "J_MOTHER 14",
+      "J7 14",
+      "mother ground plane"
+    ],
+    "data_pads": "NC",
+    "second_external_port": "absent",
+    "shell_port_count": 1
+  },
   "ui_interface": {
     "status": "PASS",
     "pcb_to_faceplate_centers": {
@@ -510,11 +530,11 @@
         32.05
       ],
       "copper_layer_count": 2,
-      "footprints": 43,
-      "models": 31,
-      "nets": 51,
+      "footprints": 38,
+      "models": 26,
+      "nets": 45,
       "tracks": 2,
-      "unconnected": 65,
+      "unconnected": 54,
       "references": [
         "C1",
         "C2",
@@ -530,7 +550,6 @@
         "H2",
         "H3",
         "H4",
-        "J1",
         "J2",
         "J3",
         "J4",
@@ -540,10 +559,6 @@
         "J8",
         "L1",
         "L2",
-        "R1",
-        "R2",
-        "R3",
-        "R4",
         "R5",
         "R6",
         "R7",
@@ -561,21 +576,20 @@
         "U3"
       ],
       "connector_pad_counts": {
-        "J7": 14,
-        "J5": 6,
-        "J2": 4,
-        "J8": 4,
-        "J1": 20,
-        "SW1": 2,
         "J6": 4,
         "J4": 10,
-        "J3": 4
+        "J7": 16,
+        "J2": 4,
+        "J3": 4,
+        "J8": 4,
+        "J5": 6,
+        "SW1": 2
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/esp32-control-v0.1.stl",
         "step": "hardware/electronics/3d/v0.2/esp32-control-v0.1.step",
-        "stl_bytes": 6182324,
-        "step_bytes": 5482349,
+        "stl_bytes": 4696708,
+        "step_bytes": 4444161,
         "stl_bounds": {
           "min": [
             0.0,
@@ -656,9 +670,11 @@
             ]
           },
           "J7": {
-            "value": "MX1.25_UI_PANEL_LOCK_12P",
-            "signal_pad_count": 12,
+            "value": "MX1.25_UI_PANEL_LOCK_14P_CHARGE",
+            "signal_pad_count": 14,
             "pitch_mm": [
+              1.25,
+              1.25,
               1.25,
               1.25,
               1.25,
@@ -672,7 +688,7 @@
               1.25
             ],
             "models": [
-              "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal.step"
+              "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal.step"
             ]
           },
           "J8": {
@@ -696,7 +712,7 @@
           "J4": "M6 CARRIER HOST MX1.25 LOCK 8P",
           "J5": "PVDF ADC AUX MX1.25",
           "J6": "PVDF COMPARATOR AUX MX1.25 2P DNP",
-          "J7": "UI PANEL MX1.25 LOCK 12P",
+          "J7": "UI PANEL MX1.25 LOCK 14P / CHARGE VBUS",
           "J8": "M6 SENSOR RAIL MX1.25 2P"
         }
       },
@@ -743,7 +759,9 @@
             "9": "ui_spk_ws",
             "10": "ui_spk_dout",
             "11": "ui_led_status",
-            "12": "ui_led_battery"
+            "12": "ui_led_battery",
+            "13": "usb_vbus",
+            "14": "gnd"
           },
           "J8": {
             "1": "sensor_fused",
@@ -1229,11 +1247,11 @@
         28.05
       ],
       "copper_layer_count": 2,
-      "footprints": 13,
-      "models": 9,
-      "nets": 20,
+      "footprints": 15,
+      "models": 11,
+      "nets": 16,
       "tracks": 0,
-      "unconnected": 32,
+      "unconnected": 36,
       "references": [
         "D_BAT",
         "D_STATUS",
@@ -1246,23 +1264,25 @@
         "J_OLED",
         "J_SPK",
         "J_USB_PANEL",
+        "R_CC1",
+        "R_CC2",
         "SW_MODE",
         "SW_START"
       ],
       "connector_pad_counts": {
-        "SW_START": 2,
-        "J_SPK": 7,
-        "J_OLED": 6,
-        "J_MOTHER": 14,
         "J_BUZ": 4,
+        "J_USB_PANEL": 22,
+        "J_SPK": 7,
         "SW_MODE": 2,
-        "J_USB_PANEL": 22
+        "J_MOTHER": 16,
+        "J_OLED": 6,
+        "SW_START": 2
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/ui-panel-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/ui-panel-v0.2.step",
-        "stl_bytes": 2888264,
-        "step_bytes": 3140142,
+        "stl_bytes": 3070424,
+        "step_bytes": 3292472,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1295,9 +1315,11 @@
             ]
           },
           "J_MOTHER": {
-            "value": "MX1.25_MOTHER_UI_LOCK_12P",
-            "signal_pad_count": 12,
+            "value": "MX1.25_MOTHER_UI_LOCK_14P_CHARGE",
+            "signal_pad_count": 14,
             "pitch_mm": [
+              1.25,
+              1.25,
               1.25,
               1.25,
               1.25,
@@ -1311,7 +1333,7 @@
               1.25
             ],
             "models": [
-              "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal.step"
+              "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal.step"
             ]
           },
           "J_OLED": {
@@ -1346,7 +1368,7 @@
         "schematic": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",
         "references": {
           "J_BUZ": "BUZZER MX1.25 LOCK 2P",
-          "J_MOTHER": "MOTHER UI MX1.25 LOCK 12P",
+          "J_MOTHER": "MOTHER UI MX1.25 LOCK 14P / CHARGE VBUS",
           "J_OLED": "OLED I2C FPC CABLE MX1.25 4P",
           "J_SPK": "I2S SPEAKER MX1.25 LOCK 5P"
         }
@@ -1370,7 +1392,9 @@
             "9": "ui_spk_ws",
             "10": "ui_spk_dout",
             "11": "ui_led_status",
-            "12": "ui_led_battery"
+            "12": "ui_led_battery",
+            "13": "usb_vbus",
+            "14": "gnd"
           },
           "J_OLED": {
             "1": "3v3",
@@ -1484,15 +1508,6 @@
               "A5": [
                 "cc1"
               ],
-              "A6": [
-                "usb_dp"
-              ],
-              "A7": [
-                "usb_dn"
-              ],
-              "A8": [
-                "usb_sbu2"
-              ],
               "A9": [
                 "usb_vbus"
               ],
@@ -1508,19 +1523,46 @@
               "B5": [
                 "cc2"
               ],
-              "B6": [
-                "usb_dp"
-              ],
-              "B7": [
-                "usb_dn"
-              ],
-              "B8": [
-                "usb_sbu1"
-              ],
               "B9": [
                 "usb_vbus"
               ],
               "SH": [
+                "gnd"
+              ]
+            }
+          },
+          "R_CC1": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+            ],
+            "model_source": "kicad_board_export",
+            "center_mm": [
+              37.0,
+              3.0
+            ],
+            "pad_nets": {
+              "1": [
+                "cc1"
+              ],
+              "2": [
+                "gnd"
+              ]
+            }
+          },
+          "R_CC2": {
+            "models": [
+              "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+            ],
+            "model_source": "kicad_board_export",
+            "center_mm": [
+              41.0,
+              3.0
+            ],
+            "pad_nets": {
+              "1": [
+                "cc2"
+              ],
+              "2": [
                 "gnd"
               ]
             }
@@ -1535,9 +1577,9 @@
       {
         "path": "hardware/electronics/esp32-control-v0.1/esp32-control-v0.1.kicad_sch",
         "pdf_export": "PASS",
-        "erc_violations": 210,
-        "erc_errors": 119,
-        "erc_warnings": 91
+        "erc_violations": 199,
+        "erc_errors": 110,
+        "erc_warnings": 89
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_sch",
@@ -1556,9 +1598,9 @@
       {
         "path": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_sch",
         "pdf_export": "PASS",
-        "erc_violations": 86,
-        "erc_errors": 58,
-        "erc_warnings": 28
+        "erc_violations": 96,
+        "erc_errors": 66,
+        "erc_warnings": 30
       }
     ],
     "native_pcb_count": 4,
@@ -1584,11 +1626,11 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[23:54:19] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[08:44:30] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
-    "erc_violations": 210,
-    "erc_errors": 119,
-    "erc_warnings": 91,
+    "erc_violations": 199,
+    "erc_errors": 110,
+    "erc_warnings": 89,
     "erc_release": "OPEN: schematic still has unconnected/placeholder nets"
   },
   "pcb_drc": {
@@ -1602,7 +1644,7 @@
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
-        "unconnected": 65,
+        "unconnected": 54,
         "status": "PASS"
       },
       {
@@ -1637,15 +1679,15 @@
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb",
-        "violations": 18,
+        "violations": 20,
         "severity_counts": {
-          "error": 18
+          "error": 20
         },
-        "errors": 18,
+        "errors": 20,
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
-        "unconnected": 21,
+        "unconnected": 22,
         "status": "FAIL"
       }
     ],
@@ -1703,7 +1745,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 9159334,
+        "bytes": 7953952,
         "manifold_reported": true
       },
       {
@@ -1717,7 +1759,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 8995698,
+        "bytes": 7763010,
         "manifold_reported": true
       },
       {
@@ -1731,7 +1773,7 @@
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 38581379,
+        "bytes": 37348691,
         "manifold_reported": true
       },
       {
@@ -1739,7 +1781,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 25768789,
+        "bytes": 24563308,
         "manifold_reported": true
       },
       {
@@ -1747,7 +1789,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 26091001,
+        "bytes": 24870456,
         "manifold_reported": true
       },
       {

@@ -1,6 +1,6 @@
 # M6 / 发射电源 / UI 子板首样 v0.2
 
-这些是母板之外的原生 KiCad `.kicad_pcb/.kicad_pro` 首样项目，另有 KiCad 导出的 STL/STEP。它们用于验证装配包络、端子数量和线束方向；板框和板侧连接器模型是真实文件，但尚未完成铜箔布线，因此还不是生产板。UI 的按键、0603 LED 和 USB-C 直接器件保留 KiCad 封装及其 3D 模型，并随 UI 板 STL 导出；屏幕、扬声器和电池等线束件才由 SCAD 装配层挂载。
+这些是母板之外的原生 KiCad `.kicad_pcb/.kicad_pro` 首样项目，另有 KiCad 导出的 STL/STEP。它们用于验证装配包络、端子数量和线束方向；板框和板侧连接器模型是真实文件，但尚未完成铜箔布线，因此还不是生产板。UI 的按键、0603 LED 和唯一外部 Type-C 充电器件保留 KiCad 封装及其 3D 模型，并随 UI 板 STL 导出；屏幕、扬声器和电池等线束件才由 SCAD 装配层挂载。
 
 ## 板级分工
 
@@ -8,7 +8,7 @@
 | --- | ---: | --- | --- |
 | `m6-receiver-carrier-v0.2.kicad_pcb` | `80 × 32 mm` | 右侧接收端十路光耦/采集载板占位 | `J_RX00…J_RX09` 每路三芯，`J_HOST` 8 芯，`J_PWR` 2 芯，均为 MX1.25 候选 |
 | `emitter-power-v0.2.kicad_pcb` | `68 × 32 mm` | 左侧发射端内置电源与升压占位 | `J_BAT/J_EXT` 2 芯，`J_TX_A/J_TX_B` 各 10 芯，均为 MX1.25 候选 |
-| `ui-panel-v0.2.kicad_pcb` | `58 × 28 mm` | 盖面交互器件和面板线束 | `J_MOTHER` 12 芯、OLED 排线 4 芯、扬声器 5 芯、蜂鸣器 2 芯；START/MODE 贴片按键、2 个 0603 单色 LED、16 针 USB-C 为板上真实器件 |
+| `ui-panel-v0.2.kicad_pcb` | `58 × 28 mm` | 盖面交互器件和面板线束 | `J_MOTHER` 14 芯（含 VBUS/GND）、OLED 排线 4 芯、扬声器 5 芯、蜂鸣器 2 芯；START/MODE 贴片按键、2 个 0603 单色 LED、16 针 USB-C 充电口为板上真实器件 |
 
 三块子板均有对应原生 KiCad 原理图：[`m6-receiver-carrier-v0.2.kicad_sch`](m6-receiver-carrier-v0.2.kicad_sch)、[`emitter-power-v0.2.kicad_sch`](emitter-power-v0.2.kicad_sch)、[`ui-panel-v0.2.kicad_sch`](ui-panel-v0.2.kicad_sch)，审查 PDF 在 [`../output/pdf/`](../output/pdf/)；它们把 10 路 M6、内置电池/外接后备电源、UI/按钮/屏/音频/USB-C 的接口关系画成可打开的 KiCad 文件。
 
@@ -22,8 +22,8 @@
 - M6 发射端：每路 `TX_V / TX_GND` 两芯锁扣线，在线束侧汇线后分成 `J_TX_A`（TX00…TX04）和 `J_TX_B`（TX05…TX09）两个 10 芯 MX1.25 候选接口；发射器默认使用子板上的内置受保护 1S 电池和独立升压/限流模块。
 - M6 接收端：每路 `BN / BU / BK` 三芯线仍按 `J_RX00…J_RX09` 独立编号；线束汇聚后在紧凑接收板上插接，接收板排列不代表光学头的物理间距。
 - 本目录的接口候选统一锁定为 `MX1.25` 节距；JST-GH 模型只是当前仓库可用的 1.25 mm 锁扣外观代理，准确 MX1.25 厂家/料号、线径和额定电流仍需首样冻结，不使用 2.54 mm 物理连接器。
-- `J_EXT` 是可插拔螺钉/压接端子形式的外部后备输入，不能与电池裸并联；最终反接、保险/TVS 和升压电流按实物模块冻结。
-- UI 子板的母板、OLED、扬声器和蜂鸣器仍使用锁扣线束；START/MODE 使用库存 3.9×3.0×2.0 mm 两脚 SMD 按键，状态/电量使用 0603 单色 LED，USB-C 使用 KiCad 16 针库模型直接焊在 UI PCB 上，并与 y+ 一体式填平固定板开口共用坐标。面板在按键位置做浅凹面和腔内一体 1.6 mm 导向柱，直接顶到 KiCad 按键模型；LED 对准 2.2 mm 直孔；屏幕保留为排线连接的独立件，不把屏幕玻璃强行固定到 PCB，USB-C 端口配硅胶帽。按键、LED、USB-C 的机械实体只来自 KiCad 板模型；屏幕、扬声器和电池等非贴板件由 `hardware/cad/electronics_components.scad` 定义并在装配世界坐标中挂载；最终 USB-C 厂家/料号仍需首样冻结。
+- `J_EXT` 是发射端板上的腔内维护/后备输入，不是 C 夹外壳上的第二个充电口，不能与电池裸并联；最终反接、保险/TVS 和升压电流按实物模块冻结。
+- UI 子板的母板、OLED、扬声器和蜂鸣器仍使用锁扣线束；START/MODE 使用库存 3.9×3.0×2.0 mm 两脚 SMD 按键，状态/电量使用 0603 单色 LED，Type-C 使用 KiCad 16 针库模型直接焊在 UI PCB 上，并与 y+ 一体式填平固定板开口共用坐标。UI Type-C 只接 VBUS/GND/CC，D+/D−/SBU 留空；`J_MOTHER` 的 13/14 脚把 VBUS/GND 带回主控板。面板在按键位置做浅凹面和腔内一体 1.6 mm 导向柱，直接顶到 KiCad 按键模型；LED 对准 2.2 mm 直孔；屏幕保留为排线连接的独立件，不把屏幕玻璃强行固定到 PCB，Type-C 端口配硅胶帽。按键、LED、Type-C 的机械实体只来自 KiCad 板模型；屏幕、扬声器和电池等非贴板件由 `hardware/cad/electronics_components.scad` 定义并在装配世界坐标中挂载；最终 Type-C 厂家/料号仍需首样冻结。
 
 ## 重生成与检查
 

@@ -54,7 +54,7 @@ BOARD_SPECS = {
         "model": "esp32-control-v0.1",
         "mx125_refs": {"J2", "J3", "J4", "J5", "J6", "J7", "J8"},
         "refs": {
-            "H1", "H2", "H3", "H4", "U1", "U2", "U3", "J1", "J2",
+            "H1", "H2", "H3", "H4", "U1", "U2", "U3", "J2",
             "J3", "J4", "J5", "J6", "J7", "J8", "SW1",
         },
     },
@@ -85,7 +85,7 @@ BOARD_SPECS = {
         "refs": {
             "H1", "H2", "H3", "H4", "J_MOTHER", "J_OLED", "J_SPK",
             "J_BUZ", "SW_START", "SW_MODE", "D_STATUS", "D_BAT",
-            "J_USB_PANEL",
+            "J_USB_PANEL", "R_CC1", "R_CC2",
         },
     },
 }
@@ -98,7 +98,7 @@ CONNECTOR_NET_CONTRACTS = {
         "J4": ("3v3", "gnd", "carrier_sck", "carrier_mosi", "carrier_miso", "carrier_cs_n", "carrier_irq_n", "carrier_reset_n"),
         "J5": ("pvdf_adc_l", "gnd", "pvdf_adc_r", "gnd"),
         "J6": ("pvdf_cmp_aux_l", "pvdf_cmp_aux_r"),
-        "J7": ("3v3", "gnd", "ui_sda", "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "ui_led_status", "ui_led_battery"),
+        "J7": ("3v3", "gnd", "ui_sda", "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "ui_led_status", "ui_led_battery", "usb_vbus", "gnd"),
         "J8": ("sensor_fused", "gnd"),
     },
     HERE / "daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb": {
@@ -126,7 +126,7 @@ CONNECTOR_NET_CONTRACTS = {
         ),
     },
     HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb": {
-        "J_MOTHER": ("3v3", "gnd", "ui_sda", "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "ui_led_status", "ui_led_battery"),
+        "J_MOTHER": ("3v3", "gnd", "ui_sda", "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "ui_led_status", "ui_led_battery", "usb_vbus", "gnd"),
         "J_OLED": ("3v3", "gnd", "ui_sda", "ui_scl"),
         "J_SPK": ("ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "3v3", "gnd"),
         "J_BUZ": ("ui_buzzer", "gnd"),
@@ -158,13 +158,22 @@ UI_DIRECT_PARTS = {
     "J_USB_PANEL": {
         "model_token": "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step",
         "pad_nets": {
-            "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
-            "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",
-            "A12": "gnd", "B1": "gnd", "B4": "usb_vbus", "B5": "cc2",
-            "B6": "usb_dp", "B7": "usb_dn", "B8": "usb_sbu1",
-            "B9": "usb_vbus", "B12": "gnd", "SH": "gnd",
+            "A1": "gnd", "A4": "usb_vbus", "A5": "cc1",
+            "A9": "usb_vbus", "A12": "gnd", "B1": "gnd",
+            "B4": "usb_vbus", "B5": "cc2", "B9": "usb_vbus",
+            "B12": "gnd", "SH": "gnd",
         },
         "center": (47.0, 26.0),
+    },
+    "R_CC1": {
+        "model_token": "Resistor_SMD.3dshapes/R_0603_1608Metric.step",
+        "pad_nets": {"1": "cc1", "2": "gnd"},
+        "center": (37.0, 3.0),
+    },
+    "R_CC2": {
+        "model_token": "Resistor_SMD.3dshapes/R_0603_1608Metric.step",
+        "pad_nets": {"1": "cc2", "2": "gnd"},
+        "center": (41.0, 3.0),
     },
 }
 
@@ -554,6 +563,65 @@ def check_connector_net_contract(pcbnew: Any, board_path: Path,
             )
         records[reference] = actual
     return {"status": "PASS", "connectors": records}
+
+
+def check_charge_only_path(pcbnew: Any) -> Dict[str, Any]:
+    """Prove that the one external Type-C port reaches the charger by VBUS/GND.
+
+    The receptacle is on the UI daughter board.  Pins 13/14 of the keyed UI
+    harness carry only VBUS/GND to the mother board; USB data/SBU are
+    intentionally unassigned and the mother board has no second J1 socket.
+    """
+    main_board = pcbnew.LoadBoard(str(MOTHER))
+    ui_path = HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb"
+    ui_board = pcbnew.LoadBoard(str(ui_path))
+
+    def footprint(board: Any, reference: str) -> Any:
+        match = next(
+            (item for item in board.GetFootprints()
+             if str(item.GetReference()) == reference),
+            None,
+        )
+        if match is None:
+            raise RuntimeError("missing charge-path footprint %s" % reference)
+        return match
+
+    def numeric_nets(fp: Any) -> Dict[str, str]:
+        result: Dict[str, str] = {}
+        for pad in fp.Pads():
+            number = str(pad.GetPadName())
+            if number.isdigit():
+                result[number] = str(pad.GetNetname())
+        return result
+
+    if any(str(item.GetReference()) == "J1" for item in main_board.GetFootprints()):
+        raise RuntimeError("active mother board still contains retired second USB J1")
+    main_j7 = numeric_nets(footprint(main_board, "J7"))
+    ui_mother = numeric_nets(footprint(ui_board, "J_MOTHER"))
+    for name, actual in (("mother J7", main_j7), ("UI J_MOTHER", ui_mother)):
+        if actual.get("13") != "usb_vbus" or actual.get("14") != "gnd":
+            raise RuntimeError("%s charge pins mismatch: %s" % (name, actual))
+
+    ui_usb = footprint(ui_board, "J_USB_PANEL")
+    usb_pads = {
+        str(pad.GetPadName()): str(pad.GetNetname())
+        for pad in ui_usb.Pads()
+        if str(pad.GetPadName()) in {"A4", "A9", "B4", "B9", "A5", "B5", "A6", "A7", "B6", "B7", "A8", "B8"}
+    }
+    expected_usb = {
+        "A4": "usb_vbus", "A9": "usb_vbus", "B4": "usb_vbus", "B9": "usb_vbus",
+        "A5": "cc1", "B5": "cc2", "A6": "", "A7": "", "B6": "", "B7": "", "A8": "", "B8": "",
+    }
+    if usb_pads != expected_usb:
+        raise RuntimeError("UI Type-C charge-only pad contract mismatch: %s" % usb_pads)
+    return {
+        "status": "PASS",
+        "external_port": "J_USB_PANEL",
+        "path": ["J_USB_PANEL VBUS", "J_MOTHER 13", "J7 13", "F1 PTC", "IP5305 VIN"],
+        "return": ["J_USB_PANEL GND", "J_MOTHER 14", "J7 14", "mother ground plane"],
+        "data_pads": "NC",
+        "second_external_port": "absent",
+    }
 
 
 def check_ui_direct_parts(pcbnew: Any, board_path: Path) -> Dict[str, Any]:
@@ -1697,6 +1765,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "## UI panel direct interface",
             "",
             "- Direct datum status: **%s**. START/MODE and both 0603 LEDs use their footprint centers; USB-C uses the measured component-model front-profile datum from the KiCad export." % report["ui_interface"]["status"],
+            "- Power interface contract: **%s**. The shell exposes `%d` external charge port (y+ UI Type-C); VBUS/GND cross J_MOTHER/J7 pins 13/14, local CC1/CC2 Rd pull-downs are present, and the mother board has no second USB socket." % (report["charge_path"]["status"], report["charge_path"]["shell_port_count"]),
             "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C fit tunnel `%.1f × %.1f mm` from the G-Switch `.kicad_mod` F.Fab rounded metal-shell profile (solder/contact legs and F.CrtYd rectangle excluded), with the larger rounded bowl ending at the placed KiCad housing front; a `%.1f mm` annular printed floor remains around that bowl, while the smaller KiCad-fit tunnel is open through the centre for the Type-C housing; no subtraction widens through the C-clamp wall; board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][1],
@@ -1782,6 +1851,16 @@ def run_with_kicad_python() -> int:
     cli = find_kicad_cli()
     parameters = probe_scad(openscad)
     boards = check_boards(pcbnew)
+    charge_path = check_charge_only_path(pcbnew)
+    shell_port_count = number(
+        parameters, "clamp_electronics_external_charge_port_count"
+    )
+    if abs(shell_port_count - 1.0) > 0.01:
+        raise RuntimeError(
+            "mechanical shell must expose exactly one external charge port, got %.3f"
+            % shell_port_count
+        )
+    charge_path["shell_port_count"] = int(round(shell_port_count))
     ui_interface = check_ui_interface_alignment(
         pcbnew,
         HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb",
@@ -1800,6 +1879,7 @@ def run_with_kicad_python() -> int:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "status": "PASS",
         "mechanical_fit": mechanical,
+        "charge_path": charge_path,
         "ui_interface": ui_interface,
         "boards": boards,
         "native_kicad": native_kicad,

@@ -24,12 +24,12 @@ BOARD_H = 32.0
 MODEL_ESP32 = "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1.step"
 MODEL_IP5305 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/HTSOP-8-1EP_3.9x4.9mm_P1.27mm.step"
 MODEL_TPS62162 = "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm.step"
-MODEL_USB_C = "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step"
 MX125_PITCH = 1.25
 # The exact purchased MX1.25 manufacturer/SKU is not present in the
 # repository.  The installed JST-GH models provide a real keyed 1.25 mm
 # visual envelope for this review candidate; replace only the model/land
 # pattern after the user's exact connector is frozen.
+MODEL_MX125_1X14 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X12 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X8 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM08B-GHS-TB_1x08-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X4 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal.step"
@@ -60,6 +60,7 @@ def connector_model(ref: str, count: int, pitch: float, horizontal: bool):
     """Return a library model and XY rotation for a connector envelope."""
     if abs(pitch - MX125_PITCH) < 0.02:
         models = {
+            14: MODEL_MX125_1X14,
             12: MODEL_MX125_1X12,
             8: MODEL_MX125_1X8,
             4: MODEL_MX125_1X4,
@@ -288,41 +289,6 @@ def add_connector(board, pcbnew, pads: dict[str, str], ref: str, value: str,
     return netpads
 
 
-def add_usb_c_receptacle(board, pcbnew, pads: dict[str, str], ref: str,
-                         value: str, x: float, y: float):
-    """Add the native 16-contact USB-C model instead of a fake pin row."""
-    fp = new_fp(board, pcbnew, ref, value, x, y, pcbnew.FP_SMD)
-    usb_pads = (
-        ("A1", -3.20, -3.68, 0.6, 1.15, "gnd"),
-        ("A4", -2.40, -3.68, 0.6, 1.15, "usb_vbus"),
-        ("A5", -1.25, -3.68, 0.3, 1.15, "cc1"),
-        ("A6", -0.25, -3.68, 0.3, 1.15, "usb_dp"),
-        ("A7", 0.25, -3.68, 0.3, 1.15, "usb_dn"),
-        ("A8", 1.25, -3.68, 0.3, 1.15, None),
-        ("A9", 2.40, -3.68, 0.6, 1.15, "usb_vbus"),
-        ("A12", 3.20, -3.68, 0.6, 1.15, "gnd"),
-        ("B1", 3.20, -3.68, 0.6, 1.15, "gnd"),
-        ("B4", 2.40, -3.68, 0.6, 1.15, "usb_vbus"),
-        ("B5", 1.75, -3.68, 0.3, 1.15, "cc2"),
-        ("B6", 0.75, -3.68, 0.3, 1.15, "usb_dp"),
-        ("B7", -0.75, -3.68, 0.3, 1.15, "usb_dn"),
-        ("B8", -1.75, -3.68, 0.3, 1.15, None),
-        ("B9", -2.40, -3.68, 0.6, 1.15, "usb_vbus"),
-        ("B12", -3.20, -3.68, 0.6, 1.15, "gnd"),
-    )
-    for number, px, py, w, h, net_name in usb_pads:
-        add_smd_pad(pcbnew, fp, number, px, py, w, h,
-                    pads.get(number) if net_name else None)
-    for px, py in ((-4.32, -3.105), (-4.32, 1.075),
-                   (4.32, -3.105), (4.32, 1.075)):
-        add_pth_pad(pcbnew, fp, "SH", px, py, 1.0, 0.6)
-    board.Add(fp)
-    add_rect(board, pcbnew, pcbnew.F_Fab, x, y - 0.29, 10.64, 8.94, 0.10)
-    add_text(board, pcbnew, ref, x, y - 5.6, 0.70)
-    add_3d_model(pcbnew, fp, MODEL_USB_C)
-    return {number: fp.FindPadByNumber(number) for number, *_ in usb_pads}
-
-
 def add_test_point(board, pcbnew, net, ref: str, x: float, y: float):
     fp = new_fp(board, pcbnew, ref, "TEST_POINT", x, y,
                 pcbnew.FP_THROUGH_HOLE)
@@ -356,11 +322,11 @@ def add_esp32(board, pcbnew, nets: dict[str, object]):
         1: "gnd", 2: "3v3", 3: "esp_en", 4: "ui_btn_mode",
         5: "carrier_reset_n", 7: "ui_spk_bclk", 8: "ui_spk_ws",
         9: "ui_scl", 10: "ui_sda", 11: "ui_spk_dout",
-        12: "ui_led_status", 13: "ui_buzzer", 14: "usb_dn_mcu",
+        12: "ui_led_status", 13: "ui_buzzer",
         16: "ui_btn_start", 17: "bat_sense", 18: "carrier_sck",
         19: "carrier_mosi", 20: "carrier_miso", 21: "carrier_cs_n",
         22: "carrier_irq_n", 23: "ui_led_battery", 24: "power_latch_future",
-        15: "usb_dp_mcu", 25: "user_button_future", 27: "boot", 36: "uart_rx",
+        25: "user_button_future", 27: "boot", 36: "uart_rx",
         37: "uart_tx", 38: "pvdf_adc_r", 39: "pvdf_adc_l", 40: "gnd",
     }
     fp = new_fp(board, pcbnew, "U1", "ESP32-S3-WROOM-1-N16R8", 25, 16)
@@ -511,14 +477,13 @@ def build_board():
     board.SetGenerator("Pingpang SmartGear ESP32 control v0.2")
     board.GetTitleBlock().SetTitle("Pingpang SmartGear ESP32-S3 control + 1S power v0.2")
     board.GetTitleBlock().SetComment(1, "Placement/net assignment first article; not fabrication release")
-    board.GetTitleBlock().SetComment(2, "J4/J8 connect the receiver carrier; J7 connects the UI daughter board")
+    board.GetTitleBlock().SetComment(2, "UI panel Type-C is the sole external charge input; J7 carries VBUS/GND")
     board.GetTitleBlock().SetComment(3, "Protected 1S battery only; sensor rail remains external")
 
     net_names = (
         "gnd", "usb_vbus", "vbus_limited", "bat_p", "bat_sense", "sys_5v",
         "boost_sw", "3v3", "buck_sw", "buck_en", "pg_3v3", "power_key",
-        "led_charge", "ip_led2_nc", "ip_led3_nc", "usb_dp", "usb_dn",
-        "usb_dp_mcu", "usb_dn_mcu", "cc1", "cc2", "sensor_ext",
+        "led_charge", "ip_led2_nc", "ip_led3_nc", "sensor_ext",
         "sensor_fused", "carrier_sck", "carrier_mosi", "carrier_miso",
         "carrier_cs_n", "carrier_irq_n", "carrier_reset_n", "pvdf_adc_l",
         "pvdf_adc_r", "pvdf_cmp_aux_l", "pvdf_cmp_aux_r", "ui_sda",
@@ -565,28 +530,11 @@ def build_board():
             board, pcbnew, padmap, ref, value, x, y, horizontal, body)
         component_pads[ref] = p
 
-    # USB-C input and CC resistors.  VBUS is current-limited before IP5305 VIN.
-    component_pads["J1"] = add_usb_c_receptacle(
-        board, pcbnew,
-        {"A1": nets["gnd"], "A4": nets["usb_vbus"],
-         "A5": nets["cc1"], "A6": nets["usb_dp"],
-         "A7": nets["usb_dn"], "A9": nets["usb_vbus"],
-         "A12": nets["gnd"], "B1": nets["gnd"],
-         "B4": nets["usb_vbus"], "B5": nets["cc2"],
-         "B6": nets["usb_dp"], "B7": nets["usb_dn"],
-         "B9": nets["usb_vbus"], "B12": nets["gnd"]},
-        "J1", "USB-C-POWER-DATA", 6.2, 4.8)
+    # The physical USB-C receptacle lives on the y+ UI panel.  This mother
+    # board has no second USB/power socket: VBUS/GND arrive through J7 pins
+    # 13/14 and then pass through the local PTC before IP5305 VIN.
     two("F1", "PTC 1.1A", 15.0, 3.8,
         {"1": nets["usb_vbus"], "2": nets["vbus_limited"]})
-    two("R1", "22R USB_DP", 20.5, 3.8,
-        {"1": nets["usb_dp"], "2": nets["usb_dp_mcu"]})
-    two("R2", "22R USB_DN", 26.0, 3.8,
-        {"1": nets["usb_dn"], "2": nets["usb_dn_mcu"]})
-    two("R3", "5k1 CC1", 44.0, 19.0,
-        {"1": nets["cc1"], "2": nets["gnd"]})
-    two("R4", "5k1 CC2", 48.0, 19.0,
-        {"1": nets["cc2"], "2": nets["gnd"]})
-
     # Battery connector, sense divider, and bulk capacitors.
     component_pads["J2"] = add_connector(
         board, pcbnew,
@@ -690,8 +638,9 @@ def build_board():
          "6": nets["ui_btn_mode"], "7": nets["ui_buzzer"],
          "8": nets["ui_spk_bclk"], "9": nets["ui_spk_ws"],
          "10": nets["ui_spk_dout"], "11": nets["ui_led_status"],
-         "12": nets["ui_led_battery"]},
-        "J7", "MX1.25_UI_PANEL_LOCK_12P", 31.0, 29.0, 12, MX125_PITCH,
+         "12": nets["ui_led_battery"], "13": nets["usb_vbus"],
+         "14": nets["gnd"]},
+        "J7", "MX1.25_UI_PANEL_LOCK_14P_CHARGE", 31.0, 29.0, 14, MX125_PITCH,
         horizontal=True)
 
     for ref, net_name, x, y in (
@@ -713,7 +662,7 @@ def build_board():
              1.0, pcbnew.Dwgs_User, 0.18)
     add_text(board, pcbnew, "J4: 3V3 GND SCK MOSI MISO CS IRQ RESET", 68, 33.0,
              0.62, pcbnew.Dwgs_User, 0.12)
-    add_text(board, pcbnew, "J7: UI LOCK 12P", 39, 33.0,
+    add_text(board, pcbnew, "J7: UI LOCK 14P / VBUS GND", 39, 33.0,
              0.62, pcbnew.Dwgs_User, 0.12)
     add_text(board, pcbnew, "J8: SENSOR_RAIL", 52, 21.2,
              0.62, pcbnew.Dwgs_User, 0.12)

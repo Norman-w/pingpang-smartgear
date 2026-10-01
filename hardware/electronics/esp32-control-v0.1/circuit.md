@@ -6,8 +6,8 @@
 
 | 区块 | 连接 | 备注 |
 | --- | --- | --- |
-| USB-C | `usb_vbus → F1 → vbus_limited → U2.1 VIN` | F1 候选 PTC 1.1 A |
-| USB-C 数据 | `USB_DP → R1 22R → usb_dp_mcu → U1.GPIO20`；`USB_DN → R2 22R → usb_dn_mcu → U1.GPIO19` | CC1/CC2 各 5.1 kΩ 到 GND |
+| UI 面板 Type-C（唯一外部充电口） | `J_USB_PANEL VBUS → J_MOTHER/J7 pin13 usb_vbus → F1 → vbus_limited → U2.1 VIN`；pin14 `gnd` 返回 | F1 候选 PTC 1.1 A；充电专用，D+/D−/SBU 不接 |
+| Type-C CC | UI 板 `CC1/CC2 → 各 5.1 kΩ Rd → gnd` | 让标准 USB-C 供电源识别为受电端 |
 | 1S 电池 | `J2.1 bat_p → U2.6 BAT`；`J2.2 → gnd` | 仅带保护 1S 包 |
 | 电池检测 | `bat_p → R5 1 MΩ → bat_sense → R6 1 MΩ → gnd`；`bat_sense → C1 100 nF → gnd` | GPIO9，估算用途 |
 | 5 V | `U2.7 boost_sw ↔ L1 2.2 µH ↔ U2.8 sys_5v` | IP5305T 升压环路 |
@@ -37,6 +37,7 @@ J8 是 J3 保护后的两芯 MX1.25 可插拔电源 hand-off，和 J4 的 3.3 V 
 | 7 | `ui_buzzer` | GPIO8 | 蜂鸣器驱动 |
 | 8 / 9 / 10 | `ui_spk_bclk / ui_spk_ws / ui_spk_dout` | GPIO6 / GPIO7 / GPIO17 | I2S 扬声器模块 |
 | 11 / 12 | `ui_led_status / ui_led_battery` | GPIO18 / GPIO21 | UI PCB 上的 0603 单色直装指示灯 |
+| 13 / 14 | `usb_vbus / gnd` | — | UI 面板 Type-C 的充电电源回路 |
 
 ## ESP32-S3 关键焊盘
 
@@ -46,7 +47,6 @@ J8 是 J3 保护后的两芯 MX1.25 可插拔电源 hand-off，和 J4 的 3.3 V 
 | 2 | `3v3` | 主电源 |
 | 3 | `esp_en` | CHIP_PU |
 | 5 | `carrier_reset_n` | GPIO5 |
-| 14 / 15 | `usb_dn_mcu / usb_dp_mcu` | GPIO19/20 |
 | 4 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 16 / 23 | `ui_btn_mode / ui_spk_bclk / ui_spk_ws / ui_scl / ui_sda / ui_spk_dout / ui_led_status / ui_buzzer / ui_btn_start / ui_led_battery` | GPIO4 / GPIO6 / GPIO7 / GPIO15 / GPIO16 / GPIO17 / GPIO18 / GPIO8 / GPIO3 / GPIO21 |
 | 17 | `bat_sense` | GPIO9 / ADC1_CH8 |
 | 18…22 | `carrier_sck/mosi/miso/cs_n/irq_n` | GPIO10…14 |
@@ -58,7 +58,7 @@ GPIO35…37 的 OPI PSRAM/模块专用限制、GPIO0/45/46 启动约束和 USB/U
 
 ## 放行顺序
 
-1. 在 KiCad 中把 `U1/U2/U3/J1/J2/J3/J4/J7/J8` 换成已经核对过的厂商库封装；逐焊盘对照本表和数据手册。
+1. 在 KiCad 中把 `U1/U2/U3/J2/J3/J4/J7/J8` 换成已经核对过的厂商库封装；逐焊盘对照本表和数据手册。
 2. 先布 USB/电池/5 V/3.3 V 电源环路，再布 J4 SPI/IRQ；天线禁布区保持原生 rule area。
 3. ERC/DRC 关闭真实违规后，限流电源、空载/低电量/Wi-Fi/LED 工况逐项测量。
 4. 电源与主控稳定后，再接独立 M6 载板，测 CS/IRQ/RESET 方向、1 MHz 首样事务和四时间戳同步。

@@ -3,7 +3,7 @@
 
 The PCB generators remain the source of truth for the board outline, pads,
 nets and every PCB-mounted library 3D model, including the UI buttons, LEDs
-and USB-C receptacle. Off-board wire-connected parts such as the screen and
+and the sole charge-only USB-C receptacle. Off-board wire-connected parts such as the screen and
 speaker are supplied by the OpenSCAD mechanical assembly and are intentionally
 not part of a PCB export. This adapter creates stable STL/STEP artifacts for
 the OpenSCAD mechanical assembly and refuses to silently accept a board with

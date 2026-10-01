@@ -3,7 +3,8 @@
 
 The boards intentionally keep copper routing at the first-article review
 gate, but they are real KiCad boards.  Board-specific connector/IC models and
-the PCB-mounted panel parts (buttons, LEDs and USB-C) stay attached to the
+the PCB-mounted panel parts (buttons, LEDs and the sole charge-only USB-C)
+stay attached to the
 board export, so the KiCad board STL is the single source for those solids.
 Off-board, wire-connected parts such as the screen and speaker are mounted by
 the SCAD assembly.  Board size, connector count and mounting-hole datums
@@ -27,6 +28,7 @@ MX125_PITCH = 1.25
 # reviewable 1.25 mm keyed-locking envelope; the footprint contract and pad
 # pitch stay at 1.25 mm so a later exact MX1.25 model can be swapped in.
 MODEL_MX125_1X12 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM12B-GHS-TB_1x12-1MP_P1.25mm_Horizontal.step"
+MODEL_MX125_1X14 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM14B-GHS-TB_1x14-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X10 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM10B-GHS-TB_1x10-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X8 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM08B-GHS-TB_1x08-1MP_P1.25mm_Horizontal.step"
 MODEL_MX125_1X7 = "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_GH_SM07B-GHS-TB_1x07-1MP_P1.25mm_Horizontal.step"
@@ -69,6 +71,7 @@ def add_3d_model(pcbnew, fp, filename: str, rotation=(0.0, 0.0, 0.0)):
 
 def connector_model(count: int, pitch: float, horizontal: bool):
     models = {
+        14: MODEL_MX125_1X14,
         12: MODEL_MX125_1X12,
         10: MODEL_MX125_1X10,
         8: MODEL_MX125_1X8,
@@ -248,12 +251,14 @@ def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
     # axis instead of silently dropping the connector model.
     fp.Models().clear()
     add_3d_model(pcbnew, fp, MODEL_USB_C_PANEL, rotation=(90.0, 0.0, 0.0))
+    # This is intentionally a USB-C charge-only port.  D+/D-/SBU are left
+    # unassigned, while the two CC pins are terminated locally by R_CC1/R_CC2
+    # so a standard source advertises a valid sink connection.
     assign_pad_nets(fp, nets, {
-        "A1": "gnd", "A4": "usb_vbus", "A5": "cc1", "A6": "usb_dp",
-        "A7": "usb_dn", "A8": "usb_sbu2", "A9": "usb_vbus",
-        "A12": "gnd", "B1": "gnd", "B4": "usb_vbus", "B5": "cc2",
-        "B6": "usb_dp", "B7": "usb_dn", "B8": "usb_sbu1",
-        "B9": "usb_vbus", "B12": "gnd", "SH": "gnd",
+        "A1": "gnd", "A4": "usb_vbus", "A5": "cc1",
+        "A9": "usb_vbus", "A12": "gnd", "B1": "gnd",
+        "B4": "usb_vbus", "B5": "cc2", "B9": "usb_vbus",
+        "B12": "gnd", "SH": "gnd",
     })
     # Keep the 0.79 mm vertical-receptacle pitch while using a 0.65 mm review pad.  It
     # leaves the board's normal 0.20 mm copper-clearance rule intact and still
@@ -611,11 +616,10 @@ def build_ui(pcbnew):
     net_names = ["gnd", "3v3", "ui_sda", "ui_scl", "ui_btn_start",
                  "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws",
                  "ui_spk_dout", "ui_led_status", "ui_led_battery",
-                 "usb_vbus", "usb_dp", "usb_dn", "cc1", "cc2",
-                 "usb_sbu1", "usb_sbu2"]
+                 "usb_vbus", "cc1", "cc2"]
     board, nets = make_board(
         pcbnew,
-        "Pingpang sealed UI daughter / direct controls USB-C v0.2",
+        "Pingpang sealed UI daughter / direct controls charge-only USB-C v0.2",
         "Pingpang SmartGear UI daughter v0.2",
         width, height, tuple(net_names),
     )
@@ -627,15 +631,16 @@ def build_ui(pcbnew):
          "6": nets["ui_btn_mode"], "7": nets["ui_buzzer"],
          "8": nets["ui_spk_bclk"], "9": nets["ui_spk_ws"],
          "10": nets["ui_spk_dout"], "11": nets["ui_led_status"],
-         "12": nets["ui_led_battery"]},
-        # Keep the 12-pin mother-board cable on the lower interior band.  The
+         "12": nets["ui_led_battery"], "13": nets["usb_vbus"],
+         "14": nets["gnd"]},
+        # Keep the 14-pin mother-board cable on the lower interior band.  The
         # left column is reserved for the two real tactile switches so their
         # actuator bodies and panel bores cannot be hidden under a connector.
         # Shift the keyed harness body 2 mm left.  The old centre put its
         # left mechanical pad under the right pad of the MODE tactile switch
         # once the real 3.9 x 3.0 mm SMD footprint was loaded.  This is a
         # placement-only correction: no PCB copper is routed or changed.
-        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_12P", 18.0, 17.0, 12,
+        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_14P_CHARGE", 18.0, 17.0, 14,
         MX125_PITCH,
         horizontal=True,
     )
@@ -682,11 +687,15 @@ def build_ui(pcbnew):
         "ui_led_battery", MODEL_PANEL_LED,
     )
     add_panel_usb_c(
-        board, pcbnew, nets, "J_USB_PANEL", "USB-C_VERTICAL_16P_DIRECT",
+        board, pcbnew, nets, "J_USB_PANEL", "USB-C_VERTICAL_CHARGE_ONLY",
         47.0, 26.0,
     )
-    add_text(board, pcbnew, "SEALED PANEL: OLED CABLE / DIRECT BTN / LED / USB-C", 29, 2.0, 0.60)
-    add_text(board, pcbnew, "USB-C 16P / PORT TO y+ BEZEL", 47, 27.0, 0.54)
+    add_two_pad(board, pcbnew, {"1": nets["cc1"], "2": nets["gnd"]},
+                "R_CC1", "5k1 USB-C CC1 Rd", 37.0, 3.0)
+    add_two_pad(board, pcbnew, {"1": nets["cc2"], "2": nets["gnd"]},
+                "R_CC2", "5k1 USB-C CC2 Rd", 41.0, 3.0)
+    add_text(board, pcbnew, "SEALED PANEL: OLED CABLE / DIRECT BTN / LED / CHARGE-ONLY USB-C", 29, 2.0, 0.52)
+    add_text(board, pcbnew, "USB-C CHARGE / VBUS-GND VIA J_MOTHER 14P", 47, 27.0, 0.50)
     add_ground_zone(board, pcbnew, nets["gnd"], width, height)
     return board, width, height
 
