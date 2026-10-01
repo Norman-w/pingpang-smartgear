@@ -231,7 +231,7 @@ SENSOR_FUSED
 Wire Wire Line
 	7750 1800 7400 1800
 Text Label 7400 1800 2    50   ~ 0
-GND
+0V_SENSOR
 Wire Wire Line
 	8000 2100 7600 2100
 Text Label 7600 2100 2    50   ~ 0
@@ -239,7 +239,7 @@ SENSOR_EXT_10-30V
 Wire Wire Line
 	8000 2200 7600 2200
 Text Label 7600 2200 2    50   ~ 0
-GND
+0V_SENSOR
 Wire Wire Line
 	7750 4500 7400 4500
 Text Label 7400 4500 2    50   ~ 0

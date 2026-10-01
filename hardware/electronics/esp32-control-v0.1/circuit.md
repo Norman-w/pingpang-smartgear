@@ -18,14 +18,14 @@
 
 | 连接器 | 1 | 2 | 3 | 4 |
 | --- | --- | --- | --- | --- |
-| J3 传感器电源 | `sensor_ext` | `gnd` | — | — |
-| J8 接收载板电源 | `sensor_fused` | `gnd` | — | — |
+| J3 传感器电源 | `sensor_ext` | `sensor_gnd` (`0V_SENSOR`) | — | 传感器域回路，不接 MCU `gnd` |
+| J8 接收载板电源 | `sensor_fused` | `sensor_gnd` (`0V_SENSOR`) | — | 与接收载板 `J_PWR` pin1/pin2 一一对应 |
 | J5 PVDF ADC | `pvdf_adc_l` | `gnd` | `pvdf_adc_r` | `gnd` |
 | J6 PVDF 比较器辅助 | `pvdf_cmp_aux_l` | `pvdf_cmp_aux_r` | — | — |
 
-J3 后面预留 F2 PTC 与 D2 33 V TVS。它只是 10–30 V 外部电源入口；当前板没有把外部传感器黑线引到 ESP32。J6 明确是辅助/DNP 接口，因为 GPIO14 已给 M6 载板 IRQ，不能在板上偷偷复用。
+J3 后面预留 F2 PTC 与 D2 33 V TVS。它只是 10–30 V 外部电源入口；`sensor_gnd`/`0V_SENSOR` 是独立的传感器回路，当前板没有把外部传感器黑线引到 ESP32 的 MCU `gnd`。J6 明确是辅助/DNP 接口，因为 GPIO14 已给 M6 载板 IRQ，不能在板上偷偷复用。
 
-J8 是 J3 保护后的两芯 MX1.25 可插拔电源 hand-off，和 J4 的 3.3 V 逻辑线分开。接收载板上的十路 `J_RX00…J_RX09` 均为三芯 MX1.25 锁扣接口，发射端另有独立电源子板，并以 `J_TX_A/J_TX_B` 两个 10 芯 MX1.25 接口承接十路两线线束；现场线束不采用裸焊盘或飞线。这里的线束汇聚与插接位置不改变光学头的 20 mm 机械间距。
+J8 是 J3 保护后的两芯 MX1.25 可插拔电源 hand-off，pin1/pin2 直接映射接收载板 `J_PWR` 的 `sensor_v`/`sensor_gnd`，和 J4 的 3.3 V 逻辑线分开。`sensor_gnd` 不应在主控板、线束或接收载板上误接 MCU `gnd`；是否采用真正隔离的 DC/DC 与屏蔽接地仍是首样电气放行门。接收载板上的十路 `J_RX00…J_RX09` 均为三芯 MX1.25 锁扣接口，发射端另有独立电源子板，并以 `J_TX_A/J_TX_B` 两个 10 芯 MX1.25 接口承接十路两线线束；现场线束不采用裸焊盘或飞线。这里的线束汇聚与插接位置不改变光学头的 20 mm 机械间距。
 
 ## J7 UI 子板
 

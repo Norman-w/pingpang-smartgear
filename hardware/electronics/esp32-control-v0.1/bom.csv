@@ -3,12 +3,12 @@ U1,1,ESP32-S3-WROOM-1-N16R8,主控,候选,按模块官方 land pattern 与 N16R8
 U2,1,IP5305T-HSOP8-1EP,1S 充电/5V 升压,候选,按现有 SmartPaddle 电源架构复核 VIN/BAT/SW/VOUT/EP
 U3,1,TPS62162-QFN8-EP,3V3 降压,候选,固定 3.3V；FB 接地；PG 保留测试点
 J2,1,MX1.25_PROTECTED_1S_LOCK_2P,受保护 1S 电池,候选,物理节距锁定 1.25 mm；禁止裸电芯；确认极性与线束防呆
-J3,1,MX1.25_SENSOR_10-30V_IN,外部 M6 电源,首样,物理节距锁定 1.25 mm；与电池/5V 分离
+J3,1,MX1.25_SENSOR_10-30V_IN,外部 M6 电源,首样,物理节距锁定 1.25 mm；pin2 为 sensor_gnd/0V_SENSOR，与 MCU GND 分离
 J4,1,MX1.25_M6_CARRIER_HOST_8P,STM32G031 载板,接口已落板,物理节距锁定 1.25 mm；3V3/GND/SCK/MOSI/MISO/CS/IRQ/RESET
 J5,1,MX1.25_PVDF_ADC_AUX_4P,PVDF ADC,辅助,物理节距锁定 1.25 mm；GPIO1/2；AFE 仍待设计
 J6,1,MX1.25_PVDF_CMP_AUX_DNP_2P,PVDF 比较器辅助,不装,物理节距锁定 1.25 mm；GPIO14 给载板 IRQ；避免隐式复用
 J7,1,MX1.25_UI_PANEL_LOCK_14P_CHARGE,UI 子板 14 芯对插,候选,物理节距锁定 1.25 mm；1-12 为 UI 控制，13/14 为 Type-C VBUS/GND；按真实锁扣座核对
-J8,1,MX1.25_M6_SENSOR_RAIL_LINK_2P,接收载板传感器电源,候选,物理节距锁定 1.25 mm；仅接 F2/PTC/TVS 后的 sensor_fused 与 GND
+J8,1,MX1.25_M6_SENSOR_RAIL_LINK_2P,接收载板传感器电源,候选,物理节距锁定 1.25 mm；pin1/pin2 映射 sensor_fused/sensor_gnd 到接收载板 J_PWR
 F1,1,PTC 1.1A,UI Type-C 充电输入限流,候选,实测 UI 面板 Type-C 输入峰值和温升
 F2,1,PTC SENSOR,传感器电源保护,候选,电流按 M6 实物确认
 D2,1,TVS 33V SENSOR,传感器电源 TVS,候选,型号随外部 10–30V 瞬态记录冻结

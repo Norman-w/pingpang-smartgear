@@ -352,7 +352,7 @@ def ui_schematic() -> None:
         ),
         placed_symbol(
             "Connector_Generic:Conn_01x16", definitions["Connector_Generic:Conn_01x16"], "J_USB_PANEL",
-            "USB-C VERTICAL CHARGE-ONLY / SILICONE CAP", "Connector_USB:USB_C_Receptacle_G-Switch_GT-USB-7051x",
+            "USB-C VERTICAL CHARGE-ONLY / SILICONE CAP", "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
             245, 110, project_uuid, "ui-panel-v0.2",
         ),
         placed_symbol(

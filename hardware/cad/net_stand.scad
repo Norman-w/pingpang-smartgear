@@ -370,10 +370,10 @@ clamp_electronics_ui_panel_mount_screw_nominal_d = 2.0;
 clamp_electronics_ui_panel_mount_boss_height = 0;
 clamp_electronics_ui_screen_length_x = 25;
 clamp_electronics_ui_screen_width_y = 14;
-// The cable-fed screen is shifted 0.8 mm toward the lower local-y edge so
+// The cable-fed screen is shifted 1.0 mm toward the lower local-y edge so
 // the rounded USB-C bowl keeps a measurable non-overlap margin in the
 // faceplate packing check without changing the PCB or its wiring.
-clamp_electronics_ui_screen_offset_x = 0;
+clamp_electronics_ui_screen_offset_x = -1.0;
 clamp_electronics_ui_screen_offset_y = -0.8;
 // The stocked panel switch is the 3.9 x 3.0 x 2.0 mm, two-pad SMD tactile
 // shown in the user's reference.  The faceplate uses a shallow 4.9 mm
@@ -393,24 +393,24 @@ clamp_electronics_ui_button_centers = [[10, 8], [10, 20]];
 clamp_electronics_ui_led_centers = [[29, 3], [32, 25]];
 clamp_electronics_ui_speaker_center = [52.2, 8];
 // PCB footprint datum from ui-panel-v0.2.kicad_pcb.
-clamp_electronics_ui_usb_center = [47, 26];
+clamp_electronics_ui_usb_center = [47.2, 24.75];
 // External power interface contract: the only shell-facing power opening is
 // this UI Type-C receptacle.  J3 (sensor rail) and J_EXT (emitter fallback)
 // stay as internal board/service connectors and do not create extra shell cuts.
 clamp_electronics_external_charge_port_count = 1;
-// The UI footprint's G-Switch .kicad_mod F.Fab drawing contains the actual
+// The UI footprint's native GCT USB4105 .kicad_mod F.Fab drawing contains the actual
 // panel-facing Type-C outer contour: two horizontal segments from x=-2.89..+
 // 2.89 at y=+/-1.58 and two semicircular arcs with x=+/-4.47.  This is the
 // rounded metal-shell profile; the F.CrtYd rectangle, copper pads, and four
 // SH/solder legs are not the panel opening.  The profile is 8.94 x 3.16 mm,
-// with a 1.58 mm end radius.  The GCT STEP is only the available review model
-// for the missing G-Switch STEP; its KiCad-exported mating profile is offset
-// from the footprint anchor, so use the measured exported model datum below
-// rather than translating the body until it visually fits the opening.
+// with a 1.58 mm end radius.  The GCT STEP is the installed KiCad review
+// model; its KiCad-exported mating profile is offset from the footprint
+// anchor, so use the measured exported model datum below rather than
+// translating the body until it visually fits the opening.
 // The exact J_USB_PANEL component-only KiCad export puts the front profile at
-// raw z=5.27 and raw y=-25.85..-22.69.  The UI side datum mirrors raw y, so
-// the panel-local profile center is [47,24.27].
-clamp_electronics_ui_usb_shell_center = [47, 24.27];
+// raw z=5.27 and raw y=-24.60..-21.44.  The UI side datum mirrors raw y, so
+// the panel-local profile center is [47.2,23.02].
+clamp_electronics_ui_usb_shell_center = [47.2, 23.02];
 clamp_electronics_ui_usb_kicad_profile_w = 8.94;
 clamp_electronics_ui_usb_kicad_profile_h = 3.16;
 clamp_electronics_ui_usb_kicad_profile_radius = 1.58;
@@ -469,10 +469,10 @@ clamp_electronics_ui_usb_kicad_fit_radius =
 // .kicad_mod F.Fab profile above.
 clamp_electronics_ui_usb_kicad_shell_model =
     "../electronics/3d/v0.2/usb-c-shell-v0.2.stl";
-clamp_electronics_ui_usb_kicad_crop_x_min = 42.53;
-clamp_electronics_ui_usb_kicad_crop_x_max = 51.47;
-clamp_electronics_ui_usb_kicad_crop_raw_y_min = -26.95;
-clamp_electronics_ui_usb_kicad_crop_raw_y_max = -22.69;
+clamp_electronics_ui_usb_kicad_crop_x_min = 42.73;
+clamp_electronics_ui_usb_kicad_crop_x_max = 51.67;
+clamp_electronics_ui_usb_kicad_crop_raw_y_min = -25.70;
+clamp_electronics_ui_usb_kicad_crop_raw_y_max = -21.44;
 clamp_electronics_ui_usb_kicad_crop_z_min = -2.06;
 clamp_electronics_ui_usb_kicad_crop_z_max = 5.27;
 // The component-only KiCad export puts the selected housing/shield mating

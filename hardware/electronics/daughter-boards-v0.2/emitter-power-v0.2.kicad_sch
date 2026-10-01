@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "fed21132-1c1a-46c0-ab33-854481ccf2e3")
+	(uuid "d9983c35-f6fd-484a-9210-8c7c1daba45d")
 	(paper "A4")
 	(title_block
 		(title "Emitter internal battery and boost power daughter")
@@ -1709,61 +1709,61 @@
 		(exclude_from_sim no)
 		(at 14 12 0)
 		(effects (font (size 1.8 1.8)) (justify left bottom))
-		(uuid "2f64bbfa-846b-41ed-8ef7-503780feb8a4")
+		(uuid "22f4c171-3d07-4658-ae5e-760b5e96daca")
 	)
 	(text "Default source is the protected 1S pouch battery in the low-component end of the left clamp cavity"
 		(exclude_from_sim no)
 		(at 14 20 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "80187952-0698-4c2c-8786-c63d6fb4271b")
+		(uuid "3cc76e41-38b9-4b91-825f-bdb04aa52c82")
 	)
 	(text "J_EXT is a serviceable screw/crimp fallback input; never parallel an unprotected cell or bypass the protection path"
 		(exclude_from_sim no)
 		(at 14 27 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "c256b8bb-b977-41be-be78-9cf204faba37")
+		(uuid "fd7a70b1-8f0c-49b1-b7f4-bed631f0d7bf")
 	)
 	(text "U_BOOST, fuse/TVS values and peak TX current remain first-article selection gates"
 		(exclude_from_sim no)
 		(at 14 220 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "0e09e932-ea5b-45c4-b7d8-30bf2bca1330")
+		(uuid "e9bb7371-a212-4a18-be0e-c41d1fe26737")
 	)
 	(text "J_TX_A and J_TX_B are two keyed 1.25 mm 10-pin sections: TX00..TX04 and TX05..TX09"
 		(exclude_from_sim no)
 		(at 14 227 0)
 		(effects (font (size 1.27 1.27)) (justify left bottom))
-		(uuid "7aef3640-5026-4a63-9aac-6caea2fb9910")
+		(uuid "9b10b00b-85e3-4c8f-b81d-252938fd37f4")
 	)
 	(wire
 		(pts (xy 45 70) (xy 100 116))
 		(stroke (width 0) (type solid))
-		(uuid "16d365dd-26fa-4e54-b411-ead417ae30da")
+		(uuid "c1f49f39-0870-44e7-a88b-2a3e98874170")
 	)
 	(wire
 		(pts (xy 45 105) (xy 100 116))
 		(stroke (width 0) (type solid))
-		(uuid "41a0a44e-6bd9-4efc-a7cd-77bff89742dd")
+		(uuid "79b9bc9d-98d4-4672-b2b6-186c508cb295")
 	)
 	(wire
 		(pts (xy 45 145) (xy 78 150))
 		(stroke (width 0) (type solid))
-		(uuid "4a04c3e5-1681-4347-a8db-ad3576c19306")
+		(uuid "83ae1faf-6691-4e7c-acb4-fe663f21d809")
 	)
 	(wire
 		(pts (xy 85 150) (xy 100 150))
 		(stroke (width 0) (type solid))
-		(uuid "38738296-2e7e-43c0-9190-06267ea36953")
+		(uuid "6a7858f0-5a50-4c28-bf51-2cb54bbfcf15")
 	)
 	(wire
 		(pts (xy 100 150) (xy 112 125))
 		(stroke (width 0) (type solid))
-		(uuid "f54fc887-db9c-4857-97bd-ee18c7fe557f")
+		(uuid "f45b43ac-c902-4d77-8a73-77c78ea13760")
 	)
 	(wire
 		(pts (xy 125 116) (xy 180 116))
 		(stroke (width 0) (type solid))
-		(uuid "e4df39df-e4c5-479a-ac30-94cd35aeb04e")
+		(uuid "2b9238e6-ebbd-497e-9501-a008865c0377")
 	)
 	(label "BAT_P / BAT_GND"
 		(at 48 70 0)
@@ -1771,7 +1771,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "917edcb9-4126-4d9f-9224-329ccac008cf")
+		(uuid "3b1dfee2-e0ba-4c5f-96cb-d0b16a289437")
 	)
 	(label "EXT_TX_IN / EXT_TX_GND"
 		(at 48 145 0)
@@ -1779,7 +1779,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "2e93dd78-cc1c-40bd-ba62-b3eb3a4ade9e")
+		(uuid "d54e42ea-615a-4cea-89f5-182fff42654e")
 	)
 	(label "TX_RAIL / TX_GND"
 		(at 128 116 0)
@@ -1787,7 +1787,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "8b8f88af-21c0-4aa4-afc8-75c7afe6d1f5")
+		(uuid "e2f7177d-4e4e-46dc-9af0-7638e64db70c")
 	)
 	(label "TX00..TX04 / TX05..TX09"
 		(at 182 88 0)
@@ -1795,7 +1795,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "e1b1c47c-69b2-42e3-bb10-205245a35264")
+		(uuid "7c78e251-1584-40d4-b2bb-c72f0eede420")
 	)
 	(symbol
 		(lib_id "Device:Battery")
@@ -1805,7 +1805,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "8540a1c8-c291-467a-abe8-d5aa5fb7e993")
+		(uuid "e9deae2f-5744-4d0c-9415-7aae4f669121")
 		(property "Reference" "BT1"
 			(at 0 -3.81 0)
 			(effects
@@ -1855,14 +1855,14 @@
 		)
 
 		(pin "1"
-			(uuid "4c62a728-f403-4dea-a447-4c82d43eeb79")
+			(uuid "61ece303-bfa7-41bc-aef9-0ed5cf612038")
 		)
 		(pin "2"
-			(uuid "e2e14924-80b8-4edf-9d1e-009df4710a4e")
+			(uuid "f088a87c-aa85-4271-9b9f-4bdd28f1055f")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "BT1")
 					(unit 1)
 				)
@@ -1877,7 +1877,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7a33f788-8bba-45f4-8542-0209f281875b")
+		(uuid "99e96fcf-ee28-4436-a8cd-e3b45508b9d3")
 		(property "Reference" "J_BAT"
 			(at 0 -3.81 0)
 			(effects
@@ -1927,14 +1927,14 @@
 		)
 
 		(pin "1"
-			(uuid "cc227807-f4f5-4fe1-96ea-c486bd8a1ae7")
+			(uuid "22e02a44-b0ca-4473-817c-5ad90f4cae1f")
 		)
 		(pin "2"
-			(uuid "457d597b-8b30-45d5-aef0-c2eeaaed45be")
+			(uuid "2d4fe8ac-62fa-4570-a083-5d05b4d8e2f6")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "J_BAT")
 					(unit 1)
 				)
@@ -1949,7 +1949,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "50b3ded8-d58e-4daa-a587-f537a4dfcd8c")
+		(uuid "4d9b9a91-cb5f-4ffe-a6b1-77e7e5ec2b4e")
 		(property "Reference" "J_EXT"
 			(at 0 -3.81 0)
 			(effects
@@ -1999,14 +1999,14 @@
 		)
 
 		(pin "1"
-			(uuid "ead2b54e-c9c6-468e-a1d8-f1eaa34e0a51")
+			(uuid "a301b80f-2bc8-4215-83ad-b877bda3a635")
 		)
 		(pin "2"
-			(uuid "3e44b2dc-70b5-4f06-baeb-7e75e3d6b944")
+			(uuid "98c47e87-8485-482b-bab5-192eb1e16df4")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "J_EXT")
 					(unit 1)
 				)
@@ -2021,7 +2021,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6bccd461-ced4-416f-b955-d634aa896d14")
+		(uuid "b610e3fe-7b1a-4a87-b124-32cd4b8b6975")
 		(property "Reference" "U_BOOST"
 			(at 0 -3.81 0)
 			(effects
@@ -2071,26 +2071,26 @@
 		)
 
 		(pin "1"
-			(uuid "c27d4954-ab5f-49ad-bd80-396f7c7d7760")
+			(uuid "d96086dc-859c-407c-a09a-a0fec5d7b703")
 		)
 		(pin "2"
-			(uuid "b821b020-0ef6-4c07-a029-aa6891442076")
+			(uuid "8c9e7deb-b334-4968-bf9e-88b121349701")
 		)
 		(pin "3"
-			(uuid "a4e54464-18aa-4f8a-a69f-0e30b1e3fbe4")
+			(uuid "881584df-59c3-46fe-b8d6-432b393fd624")
 		)
 		(pin "4"
-			(uuid "27f0e119-cbba-4432-a6df-1ac1783441bd")
+			(uuid "50c061a4-df9c-4703-8b38-88e3d5540fe0")
 		)
 		(pin "5"
-			(uuid "746947ae-ff4c-4d6b-b162-87f374fb0691")
+			(uuid "bd742155-3cbb-406b-a27d-c6ccccbf82a3")
 		)
 		(pin "6"
-			(uuid "524c83b7-9ef2-4cac-9ab5-5953144b9843")
+			(uuid "dbb69b08-c469-429f-8e50-13d87aec22a5")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "U_BOOST")
 					(unit 1)
 				)
@@ -2105,7 +2105,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "1dfcc382-8974-4b18-b3f0-aebc5e7a9af9")
+		(uuid "c7b63d7f-ad0b-4179-bd65-d274cb3b4ba2")
 		(property "Reference" "J_TX_A"
 			(at 0 -3.81 0)
 			(effects
@@ -2155,38 +2155,38 @@
 		)
 
 		(pin "1"
-			(uuid "987b98b6-6ff5-4c2b-b558-a08b0f871b1e")
+			(uuid "ae03dddd-1c59-4fc2-9a04-36a4f55ce996")
 		)
 		(pin "2"
-			(uuid "9c44f32b-062b-487a-8837-19099193ab1b")
+			(uuid "fdb2e703-92d1-43e8-a772-fc2af6859ae4")
 		)
 		(pin "3"
-			(uuid "c4f5f132-602a-4f77-b779-8ac854826ba9")
+			(uuid "54be0162-62ad-4ea1-b1e0-5377d348a307")
 		)
 		(pin "4"
-			(uuid "806f3be7-455d-409f-a81b-0cfb4a7fc088")
+			(uuid "6df7b3e7-ec36-4d7e-adaf-21e1e502bfa7")
 		)
 		(pin "5"
-			(uuid "e116692b-5345-4cfa-a0de-bf8c64672775")
+			(uuid "b64eed11-ea87-4ec8-8ab9-e52252775acc")
 		)
 		(pin "6"
-			(uuid "76ce7c8e-1c19-4b5d-a626-27d4b77626dd")
+			(uuid "59134487-3249-4be5-ab80-97ea75b3574d")
 		)
 		(pin "7"
-			(uuid "5df19db9-98fa-43ed-ad8f-735a045f8ba3")
+			(uuid "50608f2b-be0c-433d-8135-4a2039df3ecc")
 		)
 		(pin "8"
-			(uuid "02af18f3-ce19-4bf4-88b8-84b94600f5d6")
+			(uuid "1174d315-66f4-461d-a1ae-492cb272a4a3")
 		)
 		(pin "9"
-			(uuid "d7351412-62aa-4545-af82-b1537c064eb7")
+			(uuid "263bd4f1-cb1b-43f1-a4bc-08525036d060")
 		)
 		(pin "10"
-			(uuid "217e0e0f-14a2-4fd0-a027-deb7f84f21f2")
+			(uuid "94d8cd7f-dcc6-4e8c-ab1d-2c8be157ee16")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "J_TX_A")
 					(unit 1)
 				)
@@ -2201,7 +2201,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "56b59865-e140-4d6a-9205-e26d1ae6e058")
+		(uuid "a0e57f85-8db2-4f3d-b872-1e82a7754fc2")
 		(property "Reference" "J_TX_B"
 			(at 0 -3.81 0)
 			(effects
@@ -2251,38 +2251,38 @@
 		)
 
 		(pin "1"
-			(uuid "b0e7a9b8-8c86-46ef-b85c-cbfb96189aa9")
+			(uuid "2e27cfff-7314-45ed-bc91-c5cfe2461c22")
 		)
 		(pin "2"
-			(uuid "00d79a51-437a-49e8-9af1-0ce6aebc9998")
+			(uuid "cae56cab-9433-4c78-9af8-282906b9d9e9")
 		)
 		(pin "3"
-			(uuid "fa64c01a-a00a-471b-b357-6a0463c627ee")
+			(uuid "bb443dee-6c69-4bf9-8042-07dbed5358ae")
 		)
 		(pin "4"
-			(uuid "d907e806-115a-454b-a31f-15c883350f47")
+			(uuid "c538b4b7-b681-4b72-936e-c76979893cf8")
 		)
 		(pin "5"
-			(uuid "4f4d5da9-34dd-4189-b261-e9a3bdc2061a")
+			(uuid "b8dbd77c-d57f-47ac-9c32-a8e9bcdb180d")
 		)
 		(pin "6"
-			(uuid "520f1115-b386-488b-abe7-b2846c85991a")
+			(uuid "666777ec-0f72-4cc4-866f-9c09f3c6848f")
 		)
 		(pin "7"
-			(uuid "1be00a4a-18d6-4516-8e74-5ba729e328cc")
+			(uuid "5e60b73f-ba8d-4312-8eaa-3bee8149feb1")
 		)
 		(pin "8"
-			(uuid "1b9695c5-3fa2-449b-ac30-0871a45c8afa")
+			(uuid "2fe3c7d1-ba18-42a5-9e26-f269d6cb9cea")
 		)
 		(pin "9"
-			(uuid "adaa06f0-0f3f-4ca1-9cac-b587fe645950")
+			(uuid "eaf76aa4-e141-448b-a684-7f594f97daaf")
 		)
 		(pin "10"
-			(uuid "988ddbe7-6f63-4504-93cc-b0789335b011")
+			(uuid "272e81d5-0253-4be3-8f1d-cc30a599dbe2")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "J_TX_B")
 					(unit 1)
 				)
@@ -2297,7 +2297,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6b7d70b5-f3bb-43f1-ae2a-09c228fc93e2")
+		(uuid "97b57d9f-2148-4959-8aa9-905372d4acec")
 		(property "Reference" "F_TX"
 			(at 0 -3.81 0)
 			(effects
@@ -2347,14 +2347,14 @@
 		)
 
 		(pin "1"
-			(uuid "88041a57-314c-4593-852b-2755429305b0")
+			(uuid "58fd562a-42b6-467a-95d1-e663774f6d22")
 		)
 		(pin "2"
-			(uuid "956f10ad-a07f-4611-806f-40420e2a5070")
+			(uuid "b5d1be44-7445-4c14-9469-0a9fa5eff5b5")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "F_TX")
 					(unit 1)
 				)
@@ -2369,7 +2369,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d7d33eea-eb1a-4a79-b650-c9b6a55e217a")
+		(uuid "b8292171-1ab2-4c4f-8cbc-191dfbb94393")
 		(property "Reference" "D_TVS"
 			(at 0 -3.81 0)
 			(effects
@@ -2419,14 +2419,14 @@
 		)
 
 		(pin "1"
-			(uuid "7a431c42-42ea-4b39-8344-7c8d4a06c83c")
+			(uuid "c67c14b7-d73f-4eaf-b780-bb0d1e53aa07")
 		)
 		(pin "2"
-			(uuid "cee0c08d-2dbe-4604-902b-641a843adefe")
+			(uuid "d4362dd2-3727-4115-bbdb-6fe0b91e890a")
 		)
 		(instances
 			(project "emitter-power-v0.2"
-				(path "/ab0af698-1311-4b57-b5ba-af36ebcefe53"
+				(path "/e2cd96e6-6357-4692-97ae-1f31bd5450a1"
 					(reference "D_TVS")
 					(unit 1)
 				)

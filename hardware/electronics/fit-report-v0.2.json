@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-10-01T11:01:06.847934+00:00",
+  "generated_at": "2026-10-01T17:42:08.518991+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -291,6 +291,124 @@
     "second_external_port": "absent",
     "shell_port_count": 1
   },
+  "cross_board_harness": {
+    "status": "PASS",
+    "harnesses": [
+      {
+        "name": "mother J4 -> receiver J_HOST",
+        "pins": {
+          "1": {
+            "source": "3v3",
+            "target": "3v3"
+          },
+          "2": {
+            "source": "gnd",
+            "target": "gnd"
+          },
+          "3": {
+            "source": "carrier_sck",
+            "target": "carrier_sck"
+          },
+          "4": {
+            "source": "carrier_mosi",
+            "target": "carrier_mosi"
+          },
+          "5": {
+            "source": "carrier_miso",
+            "target": "carrier_miso"
+          },
+          "6": {
+            "source": "carrier_cs_n",
+            "target": "carrier_cs_n"
+          },
+          "7": {
+            "source": "carrier_irq_n",
+            "target": "carrier_irq_n"
+          },
+          "8": {
+            "source": "carrier_reset_n",
+            "target": "carrier_reset_n"
+          }
+        }
+      },
+      {
+        "name": "mother J8 -> receiver J_PWR",
+        "pins": {
+          "1": {
+            "source": "sensor_fused",
+            "target": "sensor_v"
+          },
+          "2": {
+            "source": "sensor_gnd",
+            "target": "sensor_gnd"
+          }
+        }
+      },
+      {
+        "name": "mother J7 -> UI J_MOTHER",
+        "pins": {
+          "1": {
+            "source": "3v3",
+            "target": "3v3"
+          },
+          "2": {
+            "source": "gnd",
+            "target": "gnd"
+          },
+          "3": {
+            "source": "ui_sda",
+            "target": "ui_sda"
+          },
+          "4": {
+            "source": "ui_scl",
+            "target": "ui_scl"
+          },
+          "5": {
+            "source": "ui_btn_start",
+            "target": "ui_btn_start"
+          },
+          "6": {
+            "source": "ui_btn_mode",
+            "target": "ui_btn_mode"
+          },
+          "7": {
+            "source": "ui_buzzer",
+            "target": "ui_buzzer"
+          },
+          "8": {
+            "source": "ui_spk_bclk",
+            "target": "ui_spk_bclk"
+          },
+          "9": {
+            "source": "ui_spk_ws",
+            "target": "ui_spk_ws"
+          },
+          "10": {
+            "source": "ui_spk_dout",
+            "target": "ui_spk_dout"
+          },
+          "11": {
+            "source": "ui_led_status",
+            "target": "ui_led_status"
+          },
+          "12": {
+            "source": "ui_led_battery",
+            "target": "ui_led_battery"
+          },
+          "13": {
+            "source": "usb_vbus",
+            "target": "usb_vbus"
+          },
+          "14": {
+            "source": "gnd",
+            "target": "gnd"
+          }
+        }
+      }
+    ],
+    "sensor_return_isolation_boundary": "PASS: sensor_gnd/0V_SENSOR is separate from MCU gnd",
+    "optical_channel_contract": "PASS: ten receiver 3-wire and ten emitter 2-wire channels are checked by board-local contracts"
+  },
   "ui_interface": {
     "status": "PASS",
     "pcb_to_faceplate_centers": {
@@ -344,12 +462,12 @@
       },
       "J_USB_PANEL": {
         "pcb_center_mm": [
-          47.0,
-          26.0
+          47.2,
+          24.75
         ],
         "faceplate_center_mm": [
-          47.0,
-          26.0
+          47.2,
+          24.75
         ],
         "max_error_mm": 0.0,
         "status": "PASS"
@@ -474,7 +592,7 @@
         "width": 8.94,
         "height": 3.16,
         "radius": 1.58,
-        "source": "Connector_USB.pretty/USB_C_Receptacle_G-Switch_GT-USB-7051x.kicad_mod F.Fab"
+        "source": "Connector_USB.pretty/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.kicad_mod F.Fab"
       },
       "usb_bowl_outer_mm": [
         10.54,
@@ -485,14 +603,14 @@
       "usb_bowl_support_floor_local_z_mm": 4.67,
       "usb_bowl_depth_local_mm": 4.53,
       "usb_shell_center_mm": [
-        47.0,
-        24.27
+        47.2,
+        23.02
       ],
       "board_to_faceplate_gap_mm": 0.56,
       "opening_clearances_mm": {
         "screen_to_faceplate_edge_mm": 8.0,
-        "usb_to_screen_mm": 1.04,
-        "buttons_to_screen_mm": 3.2
+        "usb_to_screen_mm": 0.78,
+        "buttons_to_screen_mm": 2.2
       },
       "status": "PASS"
     },
@@ -532,9 +650,9 @@
       "copper_layer_count": 2,
       "footprints": 38,
       "models": 26,
-      "nets": 45,
+      "nets": 46,
       "tracks": 2,
-      "unconnected": 54,
+      "unconnected": 56,
       "references": [
         "C1",
         "C2",
@@ -576,20 +694,20 @@
         "U3"
       ],
       "connector_pad_counts": {
-        "J4": 10,
-        "J5": 6,
-        "J7": 16,
-        "J3": 4,
         "J2": 4,
+        "J3": 4,
+        "J5": 6,
         "SW1": 2,
+        "J4": 10,
+        "J8": 4,
         "J6": 4,
-        "J8": 4
+        "J7": 16
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/esp32-control-v0.1.stl",
         "step": "hardware/electronics/3d/v0.2/esp32-control-v0.1.step",
-        "stl_bytes": 4696708,
-        "step_bytes": 4444049,
+        "stl_bytes": 5000308,
+        "step_bytes": 4465458,
         "stl_bounds": {
           "min": [
             0.0,
@@ -725,7 +843,7 @@
           },
           "J3": {
             "1": "sensor_ext",
-            "2": "gnd"
+            "2": "sensor_gnd"
           },
           "J4": {
             "1": "3v3",
@@ -765,7 +883,7 @@
           },
           "J8": {
             "1": "sensor_fused",
-            "2": "gnd"
+            "2": "sensor_gnd"
           }
         }
       },
@@ -849,24 +967,24 @@
         "U_OP09"
       ],
       "connector_pad_counts": {
+        "J_RX02": 5,
         "J_RX00": 5,
         "J_RX05": 5,
-        "J_RX04": 5,
-        "J_RX07": 5,
-        "J_RX01": 5,
-        "J_PWR": 4,
         "J_RX09": 5,
-        "J_RX08": 5,
         "J_HOST": 10,
-        "J_RX06": 5,
-        "J_RX02": 5,
-        "J_RX03": 5
+        "J_RX01": 5,
+        "J_RX07": 5,
+        "J_PWR": 4,
+        "J_RX03": 5,
+        "J_RX08": 5,
+        "J_RX04": 5,
+        "J_RX06": 5
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/m6-receiver-carrier-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/m6-receiver-carrier-v0.2.step",
         "stl_bytes": 2463224,
-        "step_bytes": 1378417,
+        "step_bytes": 1378310,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1140,16 +1258,16 @@
         "U_BOOST"
       ],
       "connector_pad_counts": {
-        "J_TX_A": 12,
-        "J_BAT": 4,
+        "J_TX_B": 12,
         "J_EXT": 4,
-        "J_TX_B": 12
+        "J_TX_A": 12,
+        "J_BAT": 4
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/emitter-power-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/emitter-power-v0.2.step",
         "stl_bytes": 1542304,
-        "step_bytes": 1251787,
+        "step_bytes": 1251867,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1288,7 +1406,7 @@
       "models": 11,
       "nets": 16,
       "tracks": 0,
-      "unconnected": 36,
+      "unconnected": 32,
       "references": [
         "D_BAT",
         "D_STATUS",
@@ -1307,19 +1425,19 @@
         "SW_START"
       ],
       "connector_pad_counts": {
-        "J_BUZ": 4,
-        "J_USB_PANEL": 22,
-        "J_SPK": 7,
-        "SW_MODE": 2,
-        "J_MOTHER": 16,
         "J_OLED": 6,
-        "SW_START": 2
+        "J_BUZ": 4,
+        "SW_START": 2,
+        "SW_MODE": 2,
+        "J_SPK": 7,
+        "J_MOTHER": 16,
+        "J_USB_PANEL": 22
       },
       "model_files": {
         "stl": "hardware/electronics/3d/v0.2/ui-panel-v0.2.stl",
         "step": "hardware/electronics/3d/v0.2/ui-panel-v0.2.step",
-        "stl_bytes": 3070424,
-        "step_bytes": 3292472,
+        "stl_bytes": 3106856,
+        "step_bytes": 3303077,
         "stl_bounds": {
           "min": [
             0.0,
@@ -1529,8 +1647,8 @@
             ],
             "model_source": "kicad_board_export",
             "center_mm": [
-              47.0,
-              26.0
+              47.2,
+              24.75
             ],
             "pad_nets": {
               "A1": [
@@ -1614,8 +1732,8 @@
       {
         "path": "hardware/electronics/esp32-control-v0.1/esp32-control-v0.1.kicad_sch",
         "pdf_export": "PASS",
-        "erc_violations": 199,
-        "erc_errors": 110,
+        "erc_violations": 201,
+        "erc_errors": 112,
         "erc_warnings": 89
       },
       {
@@ -1663,10 +1781,10 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[19:00:23] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[01:41:18] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
-    "erc_violations": 199,
-    "erc_errors": 110,
+    "erc_violations": 201,
+    "erc_errors": 112,
     "erc_warnings": 89,
     "erc_release": "OPEN: schematic still has unconnected/placeholder nets"
   },
@@ -1675,16 +1793,14 @@
     "boards": [
       {
         "path": "hardware/electronics/esp32-control-v0.1/esp32-control-v0.1.kicad_pcb",
-        "violations": 16,
-        "severity_counts": {
-          "error": 16
-        },
-        "errors": 16,
+        "violations": 0,
+        "severity_counts": {},
+        "errors": 0,
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
-        "unconnected": 54,
-        "status": "FAIL"
+        "unconnected": 56,
+        "status": "PASS"
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb",
@@ -1718,19 +1834,17 @@
       },
       {
         "path": "hardware/electronics/daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb",
-        "violations": 20,
-        "severity_counts": {
-          "error": 20
-        },
-        "errors": 20,
+        "violations": 0,
+        "severity_counts": {},
+        "errors": 0,
         "warnings": 0,
         "warning_types": [],
         "unexpected_warning_types": [],
-        "unconnected": 22,
-        "status": "FAIL"
+        "unconnected": 18,
+        "status": "PASS"
       }
     ],
-    "status": "FAIL",
+    "status": "PASS",
     "release": "OPEN until all unconnected items are routed and expected zone warnings are reviewed"
   },
   "print_package": {
@@ -1784,7 +1898,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 7969025,
+        "bytes": 8269762,
         "manifold_reported": true
       },
       {
@@ -1798,7 +1912,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 7778155,
+        "bytes": 8124683,
         "manifold_reported": true
       },
       {
@@ -1806,13 +1920,13 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 1539480,
+        "bytes": 1539366,
         "manifold_reported": true
       },
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 37363836,
+        "bytes": 37710250,
         "manifold_reported": true
       },
       {
@@ -1820,7 +1934,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 24579094,
+        "bytes": 24881227,
         "manifold_reported": true
       },
       {
@@ -1828,7 +1942,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 24887172,
+        "bytes": 25192771,
         "manifold_reported": true
       },
       {

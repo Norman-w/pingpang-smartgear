@@ -370,6 +370,10 @@ def add_esp32(board, pcbnew, nets: dict[str, object]):
         number = str(pad.GetNumber())
         if number == "41":
             # All native exposed-pad sub-pads are the module GND land.
+            # KiCad's native thermal-via drill is 0.20 mm.  This board's
+            # current fabrication rule is 0.30 mm minimum, so preserve the
+            # native pad positions/model while enlarging only these drills.
+            pad.SetDrillSize(xy(pcbnew, 0.30, 0.30))
             pad.SetNet(nets["gnd"])
             continue
         net_name = pad_net_names.get(int(number)) if number.isdigit() else None
@@ -504,7 +508,7 @@ def build_board():
         "gnd", "usb_vbus", "vbus_limited", "bat_p", "bat_sense", "sys_5v",
         "boost_sw", "3v3", "buck_sw", "buck_en", "pg_3v3", "power_key",
         "led_charge", "ip_led2_nc", "ip_led3_nc", "sensor_ext",
-        "sensor_fused", "carrier_sck", "carrier_mosi", "carrier_miso",
+        "sensor_fused", "sensor_gnd", "carrier_sck", "carrier_mosi", "carrier_miso",
         "carrier_cs_n", "carrier_irq_n", "carrier_reset_n", "pvdf_adc_l",
         "pvdf_adc_r", "pvdf_cmp_aux_l", "pvdf_cmp_aux_r", "ui_sda",
         "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer",
@@ -523,9 +527,10 @@ def build_board():
     # datum is the Edge.Cuts contour; the enclosure retains it with two
     # opposing x-end C-brackets.
     for ref, x, y in (
-        # The RF module and edge connectors occupy the nominal corners, so
-        # the four bosses use the nearest clear pockets on this compact board.
-        ("H1", 13.5, 28.0),
+        # H1 used to sit inside the native ESP32 antenna keepout.  Move it to
+        # the clear right-hand service pocket instead of suppressing that
+        # keepout with a DRC exception.
+        ("H1", 55.0, 16.0),
         ("H2", 45.0, 28.0),
         ("H3", 75.0, 3.5),
         ("H4", 75.0, 28.0),
@@ -546,7 +551,9 @@ def build_board():
     # The physical USB-C receptacle lives on the y+ UI panel.  This mother
     # board has no second USB/power socket: VBUS/GND arrive through J7 pins
     # 13/14 and then pass through the local PTC before IP5305 VIN.
-    two("F1", "PTC 1.1A", 15.0, 3.8,
+    # Keep the UI VBUS PTC on the same electrical path, but outside the
+    # native ESP32 antenna keepout that occupied the former x=15 placement.
+    two("F1", "PTC 1.1A", 35.0, 3.8,
         {"1": nets["usb_vbus"], "2": nets["vbus_limited"]})
     # Battery connector, sense divider, and bulk capacitors.
     component_pads["J2"] = add_connector(
@@ -591,17 +598,18 @@ def build_board():
         horizontal=True, body_w=7.0)
 
     # External 10–30 V sensor rail.  It is a passthrough to the future M6
-    # carrier; it is not derived from BAT_P or SYS_5V.
+    # carrier; it is not derived from BAT_P or SYS_5V.  Both conductors stay
+    # in the sensor domain: the return is sensor_gnd, never MCU gnd.
     component_pads["J3"] = add_connector(
         board, pcbnew,
-        {"1": nets["sensor_ext"], "2": nets["gnd"]},
+        {"1": nets["sensor_ext"], "2": nets["sensor_gnd"]},
         "J3", "MX1.25_SENSOR_10-30V_IN", 82.0, 11.0, 2, MX125_PITCH,
         horizontal=False)
     two("F2", "PTC SENSOR", 76.0, 13.0,
         {"1": nets["sensor_ext"], "2": nets["sensor_fused"]})
     _d2_fp, component_pads["D2"] = add_two_pad_chip(
         board, pcbnew,
-        {"1": nets["sensor_fused"], "2": nets["gnd"]},
+        {"1": nets["sensor_fused"], "2": nets["sensor_gnd"]},
         "D2", "TVS 33V SENSOR", 82.0, 16.0,
         horizontal=True, body=(3.0, 2.0))
 
@@ -618,10 +626,11 @@ def build_board():
 
     # The sensor rail is kept separate from the logic harness so an external
     # 10–30 V field supply never enters the ESP32/UI cable.  J8 is the
-    # pluggable two-pin hand-off to the receiver carrier.
+    # pluggable two-pin hand-off to the receiver carrier; pin 2 remains the
+    # isolated sensor return.
     component_pads["J8"] = add_connector(
         board, pcbnew,
-        {"1": nets["sensor_fused"], "2": nets["gnd"]},
+        {"1": nets["sensor_fused"], "2": nets["sensor_gnd"]},
         "J8", "MX1.25_M6_SENSOR_RAIL_LINK", 54.0, 22.0, 2, MX125_PITCH,
         horizontal=False)
 

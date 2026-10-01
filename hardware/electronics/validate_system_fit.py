@@ -94,12 +94,12 @@ BOARD_SPECS = {
 CONNECTOR_NET_CONTRACTS = {
     MOTHER: {
         "J2": ("bat_p", "gnd"),
-        "J3": ("sensor_ext", "gnd"),
+        "J3": ("sensor_ext", "sensor_gnd"),
         "J4": ("3v3", "gnd", "carrier_sck", "carrier_mosi", "carrier_miso", "carrier_cs_n", "carrier_irq_n", "carrier_reset_n"),
         "J5": ("pvdf_adc_l", "gnd", "pvdf_adc_r", "gnd"),
         "J6": ("pvdf_cmp_aux_l", "pvdf_cmp_aux_r"),
         "J7": ("3v3", "gnd", "ui_sda", "ui_scl", "ui_btn_start", "ui_btn_mode", "ui_buzzer", "ui_spk_bclk", "ui_spk_ws", "ui_spk_dout", "ui_led_status", "ui_led_battery", "usb_vbus", "gnd"),
-        "J8": ("sensor_fused", "gnd"),
+        "J8": ("sensor_fused", "sensor_gnd"),
     },
     HERE / "daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb": {
         "J_HOST": ("3v3", "gnd", "carrier_sck", "carrier_mosi", "carrier_miso", "carrier_cs_n", "carrier_irq_n", "carrier_reset_n"),
@@ -163,7 +163,7 @@ UI_DIRECT_PARTS = {
             "B4": "usb_vbus", "B5": "cc2", "B9": "usb_vbus",
             "B12": "gnd", "SH": "gnd",
         },
-        "center": (47.0, 26.0),
+        "center": (47.20, 24.75),
     },
     "R_CC1": {
         "model_token": "Resistor_SMD.3dshapes/R_0603_1608Metric.step",
@@ -563,6 +563,123 @@ def check_connector_net_contract(pcbnew: Any, board_path: Path,
             )
         records[reference] = actual
     return {"status": "PASS", "connectors": records}
+
+
+def check_cross_board_harness_contract(pcbnew: Any) -> Dict[str, Any]:
+    """Check the ordered pin mapping at every board-to-board harness.
+
+    Board-local net names deliberately differ at the isolated sensor boundary:
+    mother ``sensor_fused``/``sensor_gnd`` feeds receiver ``sensor_v``/
+    ``sensor_gnd``.  The mapping is explicit here so a future generator edit
+    cannot silently tie the sensor return to MCU ``gnd`` or swap a UI/SPI pin.
+    """
+
+    receiver = HERE / "daughter-boards-v0.2/m6-receiver-carrier-v0.2.kicad_pcb"
+    ui = HERE / "daughter-boards-v0.2/ui-panel-v0.2.kicad_pcb"
+    boards = {
+        MOTHER: pcbnew.LoadBoard(str(MOTHER)),
+        receiver: pcbnew.LoadBoard(str(receiver)),
+        ui: pcbnew.LoadBoard(str(ui)),
+    }
+
+    def connector_nets(board_path: Path, reference: str) -> Dict[str, str]:
+        board = boards[board_path]
+        footprint = next(
+            (item for item in board.GetFootprints()
+             if str(item.GetReference()) == reference),
+            None,
+        )
+        if footprint is None:
+            raise RuntimeError(
+                "%s missing cross-board harness connector %s"
+                % (board_path.name, reference)
+            )
+        return {
+            str(pad.GetNumber()): str(pad.GetNetname())
+            for pad in footprint.Pads()
+            if str(pad.GetNumber()).isdigit()
+        }
+
+    harnesses = (
+        {
+            "name": "mother J4 -> receiver J_HOST",
+            "source": (MOTHER, "J4"),
+            "target": (receiver, "J_HOST"),
+            "mapping": {
+                "1": ("3v3", "3v3"), "2": ("gnd", "gnd"),
+                "3": ("carrier_sck", "carrier_sck"),
+                "4": ("carrier_mosi", "carrier_mosi"),
+                "5": ("carrier_miso", "carrier_miso"),
+                "6": ("carrier_cs_n", "carrier_cs_n"),
+                "7": ("carrier_irq_n", "carrier_irq_n"),
+                "8": ("carrier_reset_n", "carrier_reset_n"),
+            },
+        },
+        {
+            "name": "mother J8 -> receiver J_PWR",
+            "source": (MOTHER, "J8"),
+            "target": (receiver, "J_PWR"),
+            "mapping": {
+                "1": ("sensor_fused", "sensor_v"),
+                "2": ("sensor_gnd", "sensor_gnd"),
+            },
+        },
+        {
+            "name": "mother J7 -> UI J_MOTHER",
+            "source": (MOTHER, "J7"),
+            "target": (ui, "J_MOTHER"),
+            "mapping": {
+                "1": ("3v3", "3v3"), "2": ("gnd", "gnd"),
+                "3": ("ui_sda", "ui_sda"), "4": ("ui_scl", "ui_scl"),
+                "5": ("ui_btn_start", "ui_btn_start"),
+                "6": ("ui_btn_mode", "ui_btn_mode"),
+                "7": ("ui_buzzer", "ui_buzzer"),
+                "8": ("ui_spk_bclk", "ui_spk_bclk"),
+                "9": ("ui_spk_ws", "ui_spk_ws"),
+                "10": ("ui_spk_dout", "ui_spk_dout"),
+                "11": ("ui_led_status", "ui_led_status"),
+                "12": ("ui_led_battery", "ui_led_battery"),
+                "13": ("usb_vbus", "usb_vbus"),
+                "14": ("gnd", "gnd"),
+            },
+        },
+    )
+    records = []
+    for harness in harnesses:
+        source_path, source_ref = harness["source"]
+        target_path, target_ref = harness["target"]
+        source = connector_nets(source_path, source_ref)
+        target = connector_nets(target_path, target_ref)
+        actual = {}
+        for pin, (expected_source, expected_target) in harness["mapping"].items():
+            actual_source = source.get(pin)
+            actual_target = target.get(pin)
+            if actual_source != expected_source or actual_target != expected_target:
+                raise RuntimeError(
+                    "%s pin %s mismatch: source=%s/%s target=%s/%s"
+                    % (
+                        harness["name"], pin,
+                        actual_source, expected_source,
+                        actual_target, expected_target,
+                    )
+                )
+            actual[pin] = {"source": actual_source, "target": actual_target}
+        records.append({"name": harness["name"], "pins": actual})
+
+    # This guard is intentionally separate from the pin-map checks: a future
+    # edit could make both sides use the same accidental ``gnd`` name while
+    # still passing a superficial source/target equality test.
+    mother_j8 = connector_nets(MOTHER, "J8")
+    receiver_pwr = connector_nets(receiver, "J_PWR")
+    if mother_j8.get("2") == "gnd" or receiver_pwr.get("2") == "gnd":
+        raise RuntimeError("sensor return is incorrectly tied to MCU gnd")
+
+    return {
+        "status": "PASS",
+        "harnesses": records,
+        "sensor_return_isolation_boundary": "PASS: sensor_gnd/0V_SENSOR is separate from MCU gnd",
+        "optical_channel_contract": "PASS: ten receiver 3-wire and ten emitter 2-wire channels are checked by board-local contracts",
+    }
 
 
 def check_main_esp32_orientation(pcbnew: Any) -> Dict[str, Any]:
@@ -1143,7 +1260,7 @@ def check_ui_interface_alignment(
                 "width": round(usb_profile_w, 3),
                 "height": round(usb_profile_h, 3),
                 "radius": round(usb_profile_radius, 3),
-                "source": "Connector_USB.pretty/USB_C_Receptacle_G-Switch_GT-USB-7051x.kicad_mod F.Fab",
+                "source": "Connector_USB.pretty/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.kicad_mod F.Fab",
             },
             "usb_bowl_outer_mm": [
                 round(usb_bowl_outer_w, 3), round(usb_bowl_outer_h, 3)
@@ -1799,6 +1916,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "- ESP32 native assembly contract: **%s**; the KiCad `.kicad_mod` pads, exposed GND pad, STEP model and antenna keepout share one datum, assembled at +90° so the antenna points to board `-X`, while J7 remains on the `+Y` UI edge." % boards[0]["esp32_orientation"]["status"],
             "- Physical cable connectors pass the generated `MX1.25`/1.25 mm pad-pitch contract, and every such PCB connector has a matching MX1.25 schematic instance; USB-C and button footprints are separate interfaces.",
             "- Ordered connector pin-to-net contracts pass for the mother board, receiver 3-wire inputs, emitter 2-wire outputs and UI harnesses.",
+            "- Cross-board harness contract: **%s**; J4↔J_HOST and J7↔J_MOTHER are pin-for-pin, while J8↔J_PWR explicitly maps `sensor_fused/sensor_gnd` to `sensor_v/sensor_gnd` and keeps the sensor return out of MCU `gnd`." % report["cross_board_harness"]["status"],
             "- Native PCB DRC aggregate: `%s`; errors, expected isolated-copper warnings and unconnected airwires are reported separately below." % report["pcb_drc"]["status"],
             "",
             "## Same-datum enclosure fit",
@@ -1837,7 +1955,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "",
             "- Direct datum status: **%s**. START/MODE and both 0603 LEDs use their footprint centers; USB-C uses the measured component-model front-profile datum from the KiCad export." % report["ui_interface"]["status"],
             "- Power interface contract: **%s**. The shell exposes `%d` external charge port (y+ UI Type-C); VBUS/GND cross J_MOTHER/J7 pins 13/14, local CC1/CC2 Rd pull-downs are present, and the mother board has no second USB socket." % (report["charge_path"]["status"], report["charge_path"]["shell_port_count"]),
-            "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C fit tunnel `%.1f × %.1f mm` from the G-Switch `.kicad_mod` F.Fab rounded metal-shell profile (solder/contact legs and F.CrtYd rectangle excluded), with the larger rounded bowl ending at the placed KiCad housing front; a `%.1f mm` annular printed floor remains around that bowl, while the smaller KiCad-fit tunnel is open through the centre for the Type-C housing; no subtraction widens through the C-clamp wall; board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
+            "- Insert-panel contract: screen opening `%.1f × %.1f mm`, button pocket `Ø%.1f mm` with `Ø%.1f mm` plungers, LED bores `Ø%.1f mm`, speaker opening `Ø%.1f mm`, USB-C fit tunnel `%.1f × %.1f mm` from the GCT USB4105 `.kicad_mod` F.Fab rounded metal-shell profile (solder/contact legs and F.CrtYd rectangle excluded), with the larger rounded bowl ending at the placed KiCad housing front; a `%.1f mm` annular printed floor remains around that bowl, while the smaller KiCad-fit tunnel is open through the centre for the Type-C housing; no subtraction widens through the C-clamp wall; board-to-panel gap `%.1f mm`; panel inserts from the cavity with `%.1f mm` side clearance and finishes `%.1f mm` from the wall datum." % (
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][0],
                 report["ui_interface"]["faceplate"]["screen_opening_mm"][1],
                 report["ui_interface"]["faceplate"]["button_pocket_d_mm"],
@@ -1923,6 +2041,7 @@ def run_with_kicad_python() -> int:
     parameters = probe_scad(openscad)
     boards = check_boards(pcbnew)
     charge_path = check_charge_only_path(pcbnew)
+    cross_board_harness = check_cross_board_harness_contract(pcbnew)
     shell_port_count = number(
         parameters, "clamp_electronics_external_charge_port_count"
     )
@@ -1951,6 +2070,7 @@ def run_with_kicad_python() -> int:
         "status": "PASS",
         "mechanical_fit": mechanical,
         "charge_path": charge_path,
+        "cross_board_harness": cross_board_harness,
         "ui_interface": ui_interface,
         "boards": boards,
         "native_kicad": native_kicad,

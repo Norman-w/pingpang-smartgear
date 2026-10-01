@@ -8,7 +8,7 @@ intentional: it preserves pcbnew's model rotation, origin, and offsets instead
 of recreating a hand-written transform that can drift from the board STL.
 
 The panel opening itself is driven by the target footprint's F.Fab rounded
-profile in ``USB_C_Receptacle_G-Switch_GT-USB-7051x.kicad_mod``.  This STL is a
+profile in ``USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.kicad_mod``.  This STL is a
 separate visual/interference reference and is never used as a SCAD proxy.
 """
 

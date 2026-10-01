@@ -34,7 +34,7 @@ UI 面板唯一外部 Type-C 充电口 VBUS
                                     │ 1S charger + 5 V boost
                                     └─ sys_5v ─ TPS62162 ─ 3v3 ─ ESP32-S3
 
-J3 外部 10…30 V ─ F2 PTC ─ TVS 33 V ─ sensor_fused ─ M6 载板/传感器电源
+J3 外部 10…30 V ─ F2 PTC ─ TVS 33 V ─ sensor_fused ─ M6 载板/传感器电源；回路返回 `sensor_gnd/0V_SENSOR`，不接 MCU `gnd`
                      （与 bat_p、sys_5v 不相连）
 ```
 
@@ -65,9 +65,9 @@ J3 外部 10…30 V ─ F2 PTC ─ TVS 33 V ─ sensor_fused ─ M6 载板/传�
 | J8 | 信号 | 说明 |
 | ---: | --- | --- |
 | 1 | `sensor_fused` | J3 外部 10–30 V 经 PTC/TVS 后的传感器电源 |
-| 2 | `gnd` | 传感器电源回路 |
+| 2 | `sensor_gnd` (`0V_SENSOR`) | 传感器域回路返回，直接到接收载板 J_PWR pin2；不等同 MCU `gnd` |
 
-J8 只接接收载板的电源端，J4 只接 3.3 V 逻辑；现场线束采用锁扣式端子或可插拔螺钉/压接端子，不允许在装配状态下直接焊飞线。
+J8 只接接收载板的电源端，J4 只接 3.3 V 逻辑；J8 pin1/pin2 与接收载板 J_PWR pin1/pin2 按传感器域一一对应。现场线束采用锁扣式端子或可插拔螺钉/压接端子，不允许在装配状态下直接焊飞线。
 
 ## J7 UI 子板接口
 

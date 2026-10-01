@@ -41,13 +41,13 @@ MODEL_SOIC4 = "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-4_4.55x2.6mm_P1.2
 MODEL_0603 = "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
 MODEL_PANEL_BUTTON = "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TS-1088-xR020.step"
 MODEL_PANEL_LED = "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_0603_1608Metric.step"
-# The UI PCB is installed vertically behind the y+ service panel.  The
-# available 16-pin GCT top-mount library model is a horizontal receptacle, so
-# its source +Y mating axis is rotated +90 degrees about footprint X into the
-# vertical footprint's +Z board normal.  The complete UI board is then
-# installed with -90 degrees about X, carrying that opening through the y+
-# panel.  The model remains attached to the KiCad footprint and is therefore
-# included in the board export, not SCAD.
+# The UI PCB is installed vertically behind the y+ service panel.  The native
+# 16-pin GCT top-mount library model is a horizontal receptacle, so its source
+# +Y mating axis is rotated +90 degrees about footprint X into the vertical
+# footprint's +Z board normal.  The complete UI board is then installed with
+# -90 degrees about X, carrying that opening through the y+ panel.  The model
+# remains attached to the KiCad footprint and is therefore included in the
+# board export, not SCAD.
 MODEL_USB_C_PANEL = "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step"
 KICAD_FOOTPRINT_ROOT = Path(
     "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
@@ -242,13 +242,12 @@ def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
     # entire UI board is installed on the y+ wall, that normal becomes +Y.
     fp = load_library_fp(
         board, pcbnew, LIB_USB_C_PANEL,
-        "USB_C_Receptacle_G-Switch_GT-USB-7051x",
+        "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
         ref, value, center_x, center_y, rotation=0.0,
     )
-    # The footprint's installed G-Switch model is not present in this KiCad
-    # library package. Use the available 16-pin KiCad library model explicitly
-    # so board export and enclosure fit share the same panel-normal mating
-    # axis instead of silently dropping the connector model.
+    # Use the installed GCT USB4105 footprint/model as one native KiCad
+    # component.  Its land pattern, mechanical holes and STEP model share the
+    # same datum; no substituted footprint or hand-sized pads are allowed.
     fp.Models().clear()
     add_3d_model(pcbnew, fp, MODEL_USB_C_PANEL, rotation=(90.0, 0.0, 0.0))
     # This is intentionally a USB-C charge-only port.  D+/D-/SBU are left
@@ -260,15 +259,13 @@ def add_panel_usb_c(board, pcbnew, nets: dict[str, object], ref: str,
         "B4": "usb_vbus", "B5": "cc2", "B9": "usb_vbus",
         "B12": "gnd", "SH": "gnd",
     })
-    # Keep the 0.79 mm vertical-receptacle pitch while using a 0.65 mm review pad.  It
-    # leaves the board's normal 0.20 mm copper-clearance rule intact and still
-    # gives a 0.125 mm annulus around the 0.40 mm plated drill.  The final
-    # fabrication land is a first-article datasheet check, not a hidden
-    # relaxation of the whole board's DRC.
+    # Preserve the installed KiCad footprint's actual land pattern.  The
+    # previous generator enlarged every signal pad to 0.65 mm even though the
+    # native vertical-receptacle footprint uses 0.30 mm lands at 0.79 mm
+    # pitch; that created false copper-clearance and solder-mask violations.
+    # The exact vendor land pattern remains the single source of truth here.
     for pad in fp.Pads():
         name = str(pad.GetPadName())
-        if name not in {"", "SH"}:
-            pad.SetSize(xy(pcbnew, 0.65, 0.65))
         if pad.GetNetname() == "gnd":
             pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
     return fp
@@ -623,6 +620,13 @@ def build_ui(pcbnew):
         "Pingpang SmartGear UI daughter v0.2",
         width, height, tuple(net_names),
     )
+    # The native GCT USB4105 footprint places its 0.65 mm locating holes
+    # 0.194 mm from the nearest ground land.  Keep the exact vendor land
+    # pattern and record the component-specific 0.18 mm hole-to-copper rule
+    # on this first-article board; the other board constraints remain at their
+    # normal values and the purchased part still needs a datasheet/first-piece
+    # check before fabrication release.
+    board.GetDesignSettings().m_HoleClearance = int(round(0.18 * MM))
     add_four_mounts(board, pcbnew, width, height, inset=3.5)
     add_connector(
         board, pcbnew,
@@ -636,11 +640,10 @@ def build_ui(pcbnew):
         # Keep the 14-pin mother-board cable on the lower interior band.  The
         # left column is reserved for the two real tactile switches so their
         # actuator bodies and panel bores cannot be hidden under a connector.
-        # Shift the keyed harness body 2 mm left.  The old centre put its
-        # left mechanical pad under the right pad of the MODE tactile switch
-        # once the real 3.9 x 3.0 mm SMD footprint was loaded.  This is a
-        # placement-only correction: no PCB copper is routed or changed.
-        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_14P_CHARGE", 18.0, 17.0, 14,
+        # Move the keyed harness body right to clear the real MODE tactile
+        # footprint's left signal pad and its solder-mask envelope.  This is a
+        # placement-only correction: no PCB copper or pin order changes.
+        "J_MOTHER", "MX1.25_MOTHER_UI_LOCK_14P_CHARGE", 23.5, 17.0, 14,
         MX125_PITCH,
         horizontal=True,
     )
@@ -688,7 +691,7 @@ def build_ui(pcbnew):
     )
     add_panel_usb_c(
         board, pcbnew, nets, "J_USB_PANEL", "USB-C_VERTICAL_CHARGE_ONLY",
-        47.0, 26.0,
+        47.20, 24.75,
     )
     add_two_pad(board, pcbnew, {"1": nets["cc1"], "2": nets["gnd"]},
                 "R_CC1", "5k1 USB-C CC1 Rd", 37.0, 3.0)
