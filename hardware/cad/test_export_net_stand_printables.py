@@ -28,7 +28,6 @@ EXPECTED_COUNTS = {
     "m6_detector_shell_rear": 2,
     "m6_detector_bottom_cover": 2,
     "m6_detector_bottom_gasket": 2,
-    "m6_detector_cable_gland": 2,
     "net_clamp_rod": 2,
     "clamp_pressure_pad": 2,
     "clamp_pressure_pad_guard": 2,
@@ -86,8 +85,8 @@ def validate_export_specs() -> None:
     leaked = [symbol for symbol in OBSOLETE_UI_SYMBOLS if symbol in source_text]
     if leaked:
         raise AssertionError(f"obsolete UI symbols remain in the active SCAD source: {leaked}")
-    if len(EXPORT_SPECS) != 41:
-        raise AssertionError(f"expected 41 printable exports, got {len(EXPORT_SPECS)}")
+    if len(EXPORT_SPECS) != 39:
+        raise AssertionError(f"expected 39 printable exports, got {len(EXPORT_SPECS)}")
     filenames = [spec.filename for spec in EXPORT_SPECS]
     if len(set(filenames)) != len(filenames):
         raise AssertionError("printable export filenames must be unique")
@@ -307,9 +306,9 @@ def main() -> None:
     validate_export_specs()
     if args.manifest.is_file():
         validate_manifest(args.manifest)
-        print(f"EXPORT_MATRIX_OK (41 specs, manifest={args.manifest})")
+        print(f"EXPORT_MATRIX_OK (39 specs, manifest={args.manifest})")
     else:
-        print("EXPORT_MATRIX_OK (41 specs, manifest not present)")
+        print("EXPORT_MATRIX_OK (39 specs, manifest not present)")
 
 
 if __name__ == "__main__":

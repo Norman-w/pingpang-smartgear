@@ -45,7 +45,7 @@ REPORT_JSON = HERE / "fit-report-v0.2.json"
 REPORT_MD = HERE / "fit-report-v0.2.md"
 MM = 1_000_000
 MX125_PITCH = 1.25
-EXPECTED_PRINTABLE_COUNT = 41
+EXPECTED_PRINTABLE_COUNT = 39
 
 
 BOARD_SPECS = {
@@ -1949,6 +1949,7 @@ def markdown_report(report: Dict[str, Any]) -> str:
             "- AABB fit: conservative x/y/z envelope checks for every imported KiCad board and both internal battery packs.",
             "- Boolean interference: `%s` across both clamp sides and both M6 sides." % report["interference"]["status"],
             "- OpenSCAD view compilation: `%s` for full cutaway, physical shell cutaway, per-side exploded views, M6 integration, and M6 exploded assembly." % report["openscad_views"]["status"],
+            "- Harness geometry: **OMITTED** from SCAD; KiCad connector/net contracts remain in the electrical review, while only real device envelopes and required pass-through openings participate in mechanical checks.",
             "- Printable package: `%d/%d` STL files closed and positive volume." % (report["print_package"]["closed_count"], report["print_package"]["printable_stl_count"]),
             "",
             "## UI panel direct interface",

@@ -27,10 +27,9 @@ module receiver_mount_positive() {
     receiver_internal_positive();
     if(m6_detector_show_shell) {
         receiver_cover_set();
-        m6_detector_cable_gland_positive();
     }
-    // The old blue cable-clearance probe is a diagnostic envelope, not a
-    // physical component. Keep it out of the closed enclosure assembly.
+    // Cable routing is intentionally absent from the 3D assembly.  The
+    // bottom-cover pass-through remains the only mechanical cable datum.
     m6_detector_ballhead_positive();
 }
 module receiver_detector_positive() {

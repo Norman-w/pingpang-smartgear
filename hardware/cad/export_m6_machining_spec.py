@@ -28,7 +28,7 @@ from validate_scad import find_openscad
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUTPUT = HERE / "exports" / "desktop-clamp-one-side-x1c-v0.4-top-load" / "m6-machining-spec.json"
-SCHEMA_VERSION = "m6-machining-spec-v1.8-20-mm-pitch-split-post"
+SCHEMA_VERSION = "m6-machining-spec-v1.9-20-mm-pitch-split-post-no-harness-solids"
 
 
 def _r(value: float) -> float | int:
@@ -75,7 +75,7 @@ def _channel_schedule(parameters: dict[str, float]) -> list[dict[str, object]]:
             "thread_axis_x_global_mm": _assembled_x(
                 parameters, parameters["m6_detector_detector_thread_axis_x"]
             ),
-            "insertion": "右侧从外侧 x+、左侧从外侧 x- 装入；灰色六角卡入各自外侧浅窝，M6 中空外丝/光学筒穿过主体并指向球台中心；蓝色尾线局部 z- 绕光束 x 轴 -45° 后从主体 y- 后方斜向让位；螺纹末端中心孔分别朝 x-/x+",
+            "insertion": "右侧从外侧 x+、左侧从外侧 x- 装入；灰色六角卡入各自外侧浅窝，M6 中空外丝/光学筒穿过主体并指向球台中心；尾线方向只作为底盖过线开口的装配标注，SCAD 不生成尾线或线束实体；螺纹末端中心孔分别朝 x-/x+",
         }
         for index in range(count)
     ]
@@ -171,8 +171,8 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "per_side": 1,
                 "total": 2,
                 "preview_is_printable": True,
-                "process": "FDM PETG 首样打印；后续可按同一 10×56×216 mm 包络改为 6061-T6 CNC。十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、绕 x 轴 -45° 的尾线让位和 x 向浅六角座；主体不带 T 尾座、M8 孔或主体内线缆槽；安装时检测器/球头总成整体沿 x 移到网架立柱中心",
-                "fit_before_release": "先用一只真实 M6 直角对射头验证灰色六角外形、M6 中空外丝中心光学孔、蓝色尾线局部 z- 后绕光束 x 轴 -45°、六角窝、有效外丝、至少一枚原配螺帽和光轴高度",
+                "process": "FDM PETG 首样打印；后续可按同一 10×56×216 mm 包络改为 6061-T6 CNC。十个通道中心按 20 mm 节距布置；每路有沿 x 的中空 M6 光学/外丝筒让位孔、x 向浅六角座和底盖过线开口的定位基准；主体不带 T 尾座、M8 孔或主体内线缆槽，SCAD 不生成线束实体；安装时检测器/球头总成整体沿 x 移到网架立柱中心",
+                "fit_before_release": "先用一只真实 M6 直角对射头验证灰色六角外形、M6 中空外丝中心光学孔、过线开口的方向与余量、六角窝、有效外丝、至少一枚原配螺帽和光轴高度",
             },
         ],
         "printed_cover_schedule": [
@@ -195,7 +195,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "name_zh": "底盖（PETG）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "与下方截面同宽；两枚沉头螺钉固定；中央开放 Ø12 mm 线缆/套管过孔，不宣称密封。",
+                "notes": "与下方截面同宽；两枚沉头螺钉固定；中央开放 Ø12 mm 过线孔仅作为安装开口，不包含线缆实体或独立压紧环，也不宣称密封。",
             },
         ],
         "sensor_contract": {
@@ -234,11 +234,12 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 parameters["m6_sensor_overall_end_x"]
                 - parameters["m6_sensor_axis_x"]
             ),
-            "cable_branch_local_axis": "z-",
-            "cable_branch_roll_deg_about_x": _r(parameters["m6_sensor_roll_deg"]),
-            "cable_guard_length_mm": _r(parameters["m6_sensor_cable_guard_length"]),
-            "cable_d_mm": _r(parameters["m6_sensor_cable_d"]),
-            "cable_pocketed_in_body": False,
+            "cable_model_in_cad": False,
+            "cable_exit_datum_local_axis": "z-",
+            "cable_exit_datum_roll_deg_about_x": _r(parameters["m6_sensor_roll_deg"]),
+            "cable_exit_guard_length_datum_mm": _r(parameters["m6_sensor_cable_guard_length"]),
+            "cable_exit_datum_d_mm": _r(parameters["m6_sensor_cable_d"]),
+            "cable_opening_only": True,
             "sensor_optical_bore_d_mm": _r(parameters["m6_sensor_optical_bore_d"]),
             "optical_aperture_location": "M6 中空外丝筒的末端中心孔；灰色六角处不再画独立黑色光学面",
             "optical_bore_d_mm": _r(parameters["m6_detector_optical_bore_d"]),
@@ -254,7 +255,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "insertion_axis": "right x+ / left x- outward entry; outer gray hex captured by shallow pocket; hollow threaded optical barrel and one nut pass toward the smooth opposite body face",
             "optical_axis": "x",
-            "orientation": "L 型灰色六角/尾线在外侧，M6 中空外丝末端中心孔为出光/受光端并水平朝球台中心；蓝色尾线先沿局部 z-，再绕 x 轴 -45°，向 y-/z- 让位",
+            "orientation": "L 型灰色六角/实体头部在外侧，M6 中空外丝末端中心孔为出光/受光端并水平朝球台中心；尾线只保留 z-、绕 x 轴 -45° 的过线开口方向基准，不生成三维线束",
             "lane_layout": "单列竖直安装，所有光学中心 y=0；主体为 x=10 mm 厚、y=56 mm 宽并居中 y=0；原始通道高度为 +10、+30…+190 mm，安装总成上抬 20 mm 后为 +30、+50…+210 mm，不采用旧的左右交错双列",
             "installed_height_schedule_mm": [
                 _r(

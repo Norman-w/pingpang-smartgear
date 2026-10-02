@@ -20,6 +20,8 @@ OBSOLETE_OUTPUT_NAMES = (
     "net-stand-net-clamp-rod-right.png",
     "net-stand-net-clamp-rod-left.png",
     "net-stand-post-clamp-carrier-old.png",
+    "net-stand-m6-wiring-reference-right.png",
+    "net-stand-m6-wiring-reference-left.png",
 )
 
 
@@ -517,22 +519,6 @@ def main() -> None:
         900,
         700,
         definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "m6_detector_wiring_reference",
-        args.output_dir / "net-stand-m6-wiring-reference-right.png",
-        1000,
-        1300,
-        definitions=("SIDE=1",),
-    )
-    render(
-        openscad,
-        "m6_detector_wiring_reference",
-        args.output_dir / "net-stand-m6-wiring-reference-left.png",
-        1000,
-        1300,
-        definitions=("SIDE=-1",),
     )
     render(
         openscad,

@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-10-01T17:42:08.518991+00:00",
+  "generated_at": "2026-10-02T01:39:00.941286+00:00",
   "status": "PASS",
   "mechanical_fit": {
     "cavity_mm": {
@@ -1781,7 +1781,7 @@
     "atopile_entry": "hardware/electronics/atopile/pingpang_smartgear.ato",
     "atopile_validation": "PASS",
     "atopile_build": "PASS",
-    "atopile_output": "[01:41:18] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
+    "atopile_output": "[09:37:56] WARNING  Couldn't install plugin: Exception(\"KiCAD config path not   \n                    found. Couldn't install plugin!\")                           \n           WARNING  Couldn't enable plugin api: FileNotFoundError('Could not    \n                    find config path for kicad_common.json')                    \nhardware/electronics/atopile/pingpang_smartgear.ato: ok",
     "kicad_pdf_export": "PASS",
     "erc_violations": 201,
     "erc_errors": 112,
@@ -1849,9 +1849,9 @@
   },
   "print_package": {
     "manifest": "hardware/cad/exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
-    "printable_stl_count": 41,
-    "closed_count": 41,
-    "positive_volume_count": 41,
+    "printable_stl_count": 39,
+    "closed_count": 39,
+    "positive_volume_count": 39,
     "status": "PASS"
   },
   "interference": {
@@ -1898,7 +1898,7 @@
       {
         "part": "clamp_electronics_full_cutaway",
         "definitions": [],
-        "bytes": 8269762,
+        "bytes": 8181189,
         "manifold_reported": true
       },
       {
@@ -1912,7 +1912,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 8124683,
+        "bytes": 8073232,
         "manifold_reported": true
       },
       {
@@ -1920,13 +1920,13 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 1539366,
+        "bytes": 1487438,
         "manifold_reported": true
       },
       {
         "part": "clamp_electronics_system_exploded",
         "definitions": [],
-        "bytes": 37710250,
+        "bytes": 34921471,
         "manifold_reported": true
       },
       {
@@ -1934,7 +1934,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 24881227,
+        "bytes": 23468831,
         "manifold_reported": true
       },
       {
@@ -1942,7 +1942,7 @@
         "definitions": [
           "SIDE=-1"
         ],
-        "bytes": 25192771,
+        "bytes": 23765222,
         "manifold_reported": true
       },
       {
@@ -1950,7 +1950,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 16636048,
+        "bytes": 14074465,
         "manifold_reported": true
       },
       {
@@ -1958,7 +1958,7 @@
         "definitions": [
           "SIDE=1"
         ],
-        "bytes": 13936992,
+        "bytes": 12600821,
         "manifold_reported": true
       }
     ],

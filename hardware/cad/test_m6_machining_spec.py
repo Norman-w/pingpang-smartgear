@@ -44,11 +44,12 @@ def main() -> None:
         or sensors["body_depth_margin_mm"] != 0
         or sensors["horizontal_thread_section_length_mm"] != 14
         or sensors["horizontal_overall_package_length_mm"] != 20
-        or sensors["cable_branch_local_axis"] != "z-"
-        or sensors["cable_branch_roll_deg_about_x"] != -45
-        or sensors["cable_guard_length_mm"] != 10
-        or sensors["cable_d_mm"] != 3
-        or sensors["cable_pocketed_in_body"] is not False
+        or sensors["cable_model_in_cad"] is not False
+        or sensors["cable_exit_datum_local_axis"] != "z-"
+        or sensors["cable_exit_datum_roll_deg_about_x"] != -45
+        or sensors["cable_exit_guard_length_datum_mm"] != 10
+        or sensors["cable_exit_datum_d_mm"] != 3
+        or sensors["cable_opening_only"] is not True
         or sensors["sensor_optical_bore_d_mm"] != 3
         or sensors["sensor_nut_count_per_channel"] != 1
         or sensors["thread_visible_after_body_mm"] != 6

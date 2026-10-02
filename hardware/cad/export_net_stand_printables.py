@@ -63,7 +63,6 @@ PART_NAMES_ZH = {
     "m6_detector_shell_rear": "M6 线缆端后盖",
     "m6_detector_bottom_cover": "M6 底盖",
     "m6_detector_bottom_gasket": "M6 底盖连续垫",
-    "m6_detector_cable_gland": "M6 多孔压紧出线环",
 }
 
 
@@ -504,15 +503,6 @@ def build_export_specs() -> list[ExportSpec]:
             "TPU/柔性",
             "薄片平面朝下；按柔性材料单独排盘；不得与 PETG 壳体同盘。",
             "M6 底盖连续压紧垫；仅作为盖板贴合/防尘的柔性件，不能把当前设计解释为防水等级认证。",
-        )
-    )
-    specs.extend(
-        _side_specs(
-            "m6_detector_cable_gland",
-            "m6-detector-cable-gland",
-            "PETG",
-            "环形端面朝下；通孔轴沿 Z；压紧件与线束测试后再冻结。",
-            "M6 多孔压紧出线环/应力释放环；用于把十路线束从底盖引出，实际装配可配密封胶圈或灌封套，但壳盖本身仍按严丝合缝配合验收。",
         )
     )
     specs.extend(

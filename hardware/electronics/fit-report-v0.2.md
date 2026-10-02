@@ -1,7 +1,7 @@
 # Pingpang SmartGear electronics system fit report v0.2
 
 - Overall mechanical/package status: **PASS**
-- Generated: `2026-10-01T17:42:08.518991+00:00`
+- Generated: `2026-10-02T01:39:00.941286+00:00`
 - Mechanical source: `hardware/cad/net_stand.scad`
 - Native KiCad status: `PASS`
 - Native KiCad projects: `4` `.kicad_pcb` / `4` `.kicad_pro`; schematic PDF export: `PASS`
@@ -43,7 +43,8 @@ Mother-board retention is the native `esp32-control-v0.1.kicad_pcb` Edge.Cuts co
 - AABB fit: conservative x/y/z envelope checks for every imported KiCad board and both internal battery packs.
 - Boolean interference: `PASS` across both clamp sides and both M6 sides.
 - OpenSCAD view compilation: `PASS` for full cutaway, physical shell cutaway, per-side exploded views, M6 integration, and M6 exploded assembly.
-- Printable package: `41/41` STL files closed and positive volume.
+- Harness geometry: **OMITTED** from SCAD; KiCad connector/net contracts remain in the electrical review, while only real device envelopes and required pass-through openings participate in mechanical checks.
+- Printable package: `39/39` STL files closed and positive volume.
 
 ## UI panel direct interface
 

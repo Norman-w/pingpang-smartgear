@@ -69,9 +69,7 @@ PARTS = (
     "m6_detector_shell_front",
     "m6_detector_shell_rear",
     "m6_detector_bottom_cover",
-    "m6_detector_wiring_reference",
     "m6_detector_bottom_gasket",
-    "m6_detector_cable_gland",
     "net_clamp_fit_probe",
     "net_clamp_fit_section",
     "net_clamp_rod",
@@ -131,7 +129,6 @@ PREVIEW_ONLY_PARTS = {
     "clamp_electronics_exploded",
     "clamp_electronics_emitter_exploded",
     "clamp_electronics_system_exploded",
-    "m6_detector_wiring_reference",
 }
 # The formal gray C body is printable, but its SKP-pocket subtraction includes
 # Minkowski-expanded tools. OpenSCAD may tessellate the reflected CSG with a
@@ -889,7 +886,6 @@ def probe_parameters(openscad: str, output_dir: Path) -> dict[str, float]:
         "m6_sensor_mount_x_offset",
         "m6_sensor_mount_stem_length",
         "m6_sensor_cable_guard_length",
-        "m6_sensor_cable_preview_length",
         "m6_sensor_cable_d",
         "m6_sensor_thread_start_x",
         "m6_sensor_thread_end_x",
@@ -2471,7 +2467,6 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     rear_shell_module = module_text("m6_detector_shell_rear_positive(alpha = m6_detector_shell_alpha)")
     rear_footprint_module = module_text("m6_detector_rear_rounded_footprint_positive()")
     bottom_cover_module = module_text("m6_detector_bottom_cover_positive()")
-    wiring_module = module_text("m6_detector_cable_routing_reference_positive()")
     bottom_gasket_module = module_text("m6_detector_bottom_gasket_positive()")
     table_clamp_body_module = module_text("table_clamp_body_positive()")
     cavity_module = module_text("clamp_electronics_cavity_negative()")
@@ -2524,9 +2519,10 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_hex_prism_x(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
-        or "m6_detector_cable_gland_positive();" not in bottom_cover_module
-        or "m6_detector_cable_trunk_positive();" not in wiring_module
-        or "m6_detector_cable_branch_positive(index);" not in wiring_module
+        or "m6_detector_cable_gland_positive();" in bottom_cover_module
+        or "m6_detector_cable_trunk_positive();" in source_text
+        or "m6_detector_cable_branch_positive(index);" in source_text
+        or "m6_detector_cable_routing_reference_positive();" in source_text
         or "offset(delta = m6_detector_shell_gasket_clearance" not in bottom_gasket_module
         or "m6_detector_shell_tongue_positive(-1, y_side);" not in front_shell_module
         or "m6_detector_shell_tongue_positive(1, y_side);" not in rear_shell_module
@@ -2688,7 +2684,6 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
             abs_tol=1e-4,
         )
         and parameters["m6_sensor_cable_guard_length"] > 0
-        and parameters["m6_sensor_cable_preview_length"] > 0
         and parameters["m6_sensor_cable_d"] > 0
         and math.isclose(
             parameters["m6_sensor_cable_exit_x"],
@@ -3522,8 +3517,6 @@ def main() -> None:
             "m6_detector_shell_front",
             "m6_detector_shell_rear",
             "m6_detector_bottom_cover",
-            "m6_detector_cable_gland",
-            "m6_detector_wiring_reference",
             "m6_detector_bottom_gasket",
             "m6_detector_mount",
             "stg120_outer_carrier",

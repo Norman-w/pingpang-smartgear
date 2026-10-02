@@ -52,7 +52,7 @@
 //   PART="clamp_electronics_ui_panel" y+ 侧壁交互子板/屏幕/按钮/声学件
 //   PART="clamp_electronics_ui_panel_mount" y+ 腔内插入、外侧齐平的一体式 UI 填平固定板
 //   PART="clamp_electronics_ui_led_light_pipes" UI 0603 独立透明导光柱
-//   PART="clamp_electronics_ui_physical_items" SCAD 线束实体件（屏幕/扬声器）
+//   PART="clamp_electronics_ui_physical_items" SCAD 外接实体件（屏幕/扬声器，不含线束）
 //   PART="clamp_electronics_ui_component_alignment_check" 实体器件世界坐标对位检查
 //   PART="clamp_electronics_ui_proxy_layout_check" y+ 面板代理件间隙诊断
 //   PART="clamp_electronics_ui_proxy_board_collision" y+ 面板代理件与真实 UI PCB 碰撞诊断
@@ -90,7 +90,7 @@
 //   PART="m6_detector_shell_front" PETG x- 光学端前盖候选
 //   PART="m6_detector_shell_rear" PETG x+ 线缆端后盖候选
 //   PART="m6_detector_bottom_cover" PETG 底盖候选
-//   PART="m6_detector_wiring_reference" 两侧十路线缆汇线/压紧出线参考
+//   传感器/主控线束不建立三维实体；只保留真实器件包络和必要的过线/插口开口
 //   PART="m6_detector_bottom_gasket" M6 底盖连续柔性压紧垫（单独打印）
 //   PART="laser_micro_rear_retainer_cap" 裸激光夹筒尾部粗牙防脱挡环（PETG）
 //   PART="net_clamp_rod"       单侧球网空心边套圆柱插杆（打印件）
@@ -119,13 +119,14 @@
 // 说明：当前光学主线是用户提供资料中的 M6 直角对射器件：每侧十个
 // M6×0.75 发射/接收器件装入一根可打印 PETG 长条主体（后续可复用包络改做
 // CNC）。光学轴沿 x；
-// L 型器件的蓝色尾线支路局部朝 z-，整件绕光束 x 轴旋转 -45°，从主体
-// x+（右）/x-（左）的后方装入。主体按首样复核采用 x=10 mm 厚、y=56 mm
+// L 型器件的尾线出口基准朝局部 z-，整件的安装方向绕光束 x 轴旋转 -45°；
+// 该信息只用于过线开口尺寸和装配标注，不生成线束实体。主体按首样复核采用
+// x=10 mm 厚、y=56 mm
 // 宽、z=216 mm 高的竖直承载条，不再用只能当薄背条的 6×18 mm 截面；原始十个通道中心
 // 以 20 mm 节距从过网高度 +10 mm 排到 +190 mm；安装总成的 z 抬高量由
 // “网顶净空 + 壳体底部”自动计算，并与球头底座/立柱顶面共用同一安装基准；
 // 右侧器件的外侧装入方向为 x+，左侧由 SIDE 镜像后外侧装入方向为 x-。光学
-// 头部穿过主体的头部让位孔，线缆留在主体外侧，不在铝材里挖线束槽；x 向
+// 头部穿过主体的头部让位孔，不在铝材里挖线束槽；x 向
 // 浅六角座只卡住真实金属头的六角外形，M6 外丝直接穿过主体，在外表面只
 // 安装一枚原配 5 mm 螺帽，14 mm 外丝仍保留足够的外露长度。
 // 当前装配已包含 PETG 前盖、后盖和底盖候选件；主体保持简单的 10×56×216 mm
@@ -370,7 +371,7 @@ clamp_electronics_ui_panel_mount_screw_nominal_d = 2.0;
 clamp_electronics_ui_panel_mount_boss_height = 0;
 clamp_electronics_ui_screen_length_x = 25;
 clamp_electronics_ui_screen_width_y = 14;
-// The cable-fed screen is shifted 1.0 mm toward the lower local-y edge so
+// The external screen is shifted 1.0 mm toward the lower local-y edge so
 // the rounded USB-C bowl keeps a measurable non-overlap margin in the
 // faceplate packing check without changing the PCB or its wiring.
 clamp_electronics_ui_screen_offset_x = -1.0;
@@ -622,12 +623,10 @@ scale_tick_height = 1.5;
 
 // 当前 M6 光电器件阵列。用户提供的资料明确给出“直角 M6”、安装螺纹
 // M6×0.75、头部高度约 8 mm、水平外丝段 14 mm、总水平包络约 20 mm、
-// 检测距离 20 m、NPN 选项。注意：水平 x 轴是光学轴和 M6 外丝轴；蓝色
-// 护套/尾线从 L 头的另一条支路沿局部 z- 出线，绝不能把它画成 x 轴圆柱。
-// 未旋转时这条尾线支路朝 z-，再绕光轴 x 旋转 -45°，落向 y-/z-，给相邻
-// 20 mm 通道让线。当前主体采用一根能包络头部、线缆护套和装配余量的连续
-// 竖直铝条，在十个高度加工水平光学让位孔、浅 x 向六角座和斜向尾线让位；前后 PETG 壳体按
-// x- 光学端 / x+ 线缆端分段，并共享 y± 两条边槽。
+// 检测距离 20 m、NPN 选项。水平 x 轴是光学轴和 M6 外丝轴；尾线方向
+// 只作为过线开口/装配标注，不在 SCAD 中生成线束实体。当前主体采用一根
+// 能包络真实头部和装配余量的连续竖直铝条，在十个高度加工水平光学让位孔和浅 x 向六角座；
+// 前后 PETG 壳体按 x- 光学端 / x+ 服务端分段，并共享 y± 两条边槽。
 m6_sensor_count = 10;
 m6_sensor_center_pitch = 20;
 m6_sensor_first_height = beam_first_height;
@@ -643,15 +642,16 @@ m6_sensor_body_d = 6;
 // The M6 threaded optical barrel is hollow.  This is a visual/first-article
 // aperture placeholder; confirm the real clear bore from the purchased SKU.
 m6_sensor_optical_bore_d = 3;
-// Kept under the old name for manifest compatibility. It is a legacy envelope
-// value, not the x-axis direction of the blue cable.
+// Kept under the old name for manifest compatibility. It is a legacy body
+// envelope value, not a cable solid.
 m6_sensor_body_length = 22;
 m6_sensor_mount_x_offset = 3.25;
 // Compatibility name retained because old manifests call this the mounting
 // stem. In the purchased L-shaped M6 part it is the horizontal threaded section.
 m6_sensor_mount_stem_length = 14;
+// These two values are pass-through/clearance datums only. They are emitted
+// for machining/fit reports but never instantiated as 3D cable geometry.
 m6_sensor_cable_guard_length = 10;
-m6_sensor_cable_preview_length = 18;
 m6_sensor_cable_d = 3;
 m6_sensor_mount_plane_offset_z = 8;
 m6_sensor_thread_engagement = 5;
@@ -661,7 +661,7 @@ m6_sensor_nut_pocket_clearance = 0.35;
 m6_sensor_roll_deg = -45;
 m6_sensor_guard_outer_d = 15;
 m6_sensor_guard_h = 5;
-// 单件试装样件只验证真实传感器、螺母防转和线缆让位，不进入 35 件正式
+// 单件试装样件只验证真实传感器、螺母防转和过线开口，不进入正式
 // PETG 拼盘；因此用比 M6 外螺纹略大的通孔，避免把未确认的攻牙规格冻结在
 // 打印件里。正式铝条仍按卖家实物决定 M6×0.75 攻牙或通孔+螺母。
 m6_sensor_test_coupon_backbone_h = 24;
@@ -880,7 +880,7 @@ m6_detector_body_front_margin_x = 1;
 // purchased sensor envelope.  The sensor is inserted from the outward x face
 // until its AF8 head reaches the stop, then another 2 mm of that head remains
 // captured inside the bar.  One supplied nut is shown on the smooth opposite
-// face; covers, cable channels, brackets, and gimbals remain outside this probe.
+// face; covers, pass-through openings, brackets, and gimbals remain outside this probe.
 m6_detector_fit_head_length_x = m6_sensor_head_length_x;
 m6_detector_fit_head_width_y = m6_sensor_head_width_y;
 m6_detector_fit_head_height_z = m6_sensor_head_height_z;
@@ -925,8 +925,9 @@ m6_detector_shell_split_clearance_x = 0.2;
 // upper-arch sketch while the hollow optical tip remains open.
 m6_detector_shell_corner_radius = 4.0;
 // The enlarged front cap has a solid optical bulkhead; only ten small optical
-// bores pass through it, so the AF8 head, blue guard, and one supplied nut stay
-// inside the enclosure instead of being exposed at the front face.
+// bores pass through it, so the AF8 head and one supplied nut stay inside the
+// enclosure instead of being exposed at the front face; cable routing is not a
+// CAD solid.
 m6_detector_front_cap_length_x = 18;
 m6_detector_front_cap_reduction = 1.2;
 m6_detector_body_groove_width_x = 4;
@@ -958,18 +959,8 @@ m6_detector_bottom_cover_screw_inset_x = 9;
 m6_detector_cable_exit_d = 12;
 m6_detector_cable_exit_sleeve_clearance = 1;
 m6_detector_cable_exit_y = -22;
-m6_detector_cable_gland_outer_d = 18;
-m6_detector_cable_gland_length_z = 6;
-m6_detector_cable_gland_wall_t = 3;
-m6_detector_cable_trunk_y = -34;
-m6_detector_cable_trunk_x = 772.25;
-m6_detector_cable_trunk_width_x = 6;
-m6_detector_cable_trunk_depth_y = 5;
-m6_detector_cable_trunk_clearance_y = 1.2;
-m6_detector_cable_branch_d = 4;
-m6_detector_cable_clip_d = 7;
-m6_detector_cable_clip_t = 3;
-m6_detector_cable_clearance_enabled = true;
+// The cable exit values above are opening/clearance datums only.  No cable,
+// gland, trunk, branch, clip, or strain-relief solid is authored in SCAD.
 m6_detector_show_shell = true;
 // Inspection-only overlay; it is opt-in and never belongs to printable STL.
 m6_show_optical_direction = false;
@@ -1823,8 +1814,8 @@ m6_sensor_axis_x = optical_beam_axis_x;
 m6_sensor_mount_hole_x =
     m6_sensor_axis_x + m6_sensor_mount_x_offset;
 // Vendor drawing: 20 mm from the optical face to the threaded end, of which
-// the last 14 mm is M6×0.75 thread. The cable branch starts on the short head,
-// not on the thread axis.
+// the last 14 mm is M6×0.75 thread. The cable-exit datum is retained only for
+// sizing the enclosure's pass-through; no wire or strain-relief solid is drawn.
 m6_sensor_thread_start_x =
     m6_sensor_axis_x + m6_sensor_head_length_x;
 m6_sensor_thread_end_x =
@@ -1840,8 +1831,8 @@ m6_sensor_cable_exit_x =
     m6_sensor_head_center_x;
 // The historical rail coordinate is retained for the rear support/gimbal
 // envelope. The active detector body itself is the thin 6 mm x-direction bar;
-// the purchased sensor's horizontal 20 mm package does not make the blue cable
-// a second x-axis body.
+// the purchased sensor's horizontal 20 mm package does not make a cable a
+// second x-axis body.
 m6_sensor_rail_x = m6_sensor_axis_x + m6_sensor_head_length_x +
                    m6_sensor_body_length - 3;
 m6_rail_tab_min_x = m6_sensor_axis_x + 1;
@@ -1976,10 +1967,9 @@ m6_detector_fit_nut_center_x =
     m6_detector_fit_nut_min_x + m6_sensor_lock_nut_h / 2;
 m6_detector_sensor_install_offset_x =
     m6_detector_fit_head_center_x - m6_sensor_head_center_x;
-// The bottom-cover sleeve hole follows the installed cable branch, not the
-// raw purchased-model coordinate.  The raw sensor module remains reusable for
-// the standalone inspection preview; only the installed detector array gets
-// this x offset.
+// The bottom-cover pass-through follows the installed sensor exit datum, not
+// the raw purchased-model coordinate. Only the opening datum gets this x
+// offset; no cable or sleeve solid is attached to the sensor preview.
 m6_detector_cable_exit_x =
     m6_sensor_cable_exit_x + m6_detector_sensor_install_offset_x;
 // These aliases describe the installed positive receiver.  The standalone
@@ -2105,11 +2095,11 @@ m6_detector_assembly_ballhead_net_interface_bottom_z =
     m6_detector_ballhead_net_interface_bottom_z +
     m6_detector_mount_raise_z;
 // The compact receiver carrier is installed vertically in the +y side of the
-// M6 rear/cable cavity. Its component side points toward -x. The ten optical
-// heads remain at 20 mm pitch in the M6 body, but their 3-wire harnesses
-// converge before entering this board; board length is therefore independent
-// of optical spacing. Centering this board in the shell leaves the y- side for
-// the common cable trunk and does not stretch the PCB along the optical array.
+// M6 rear/service cavity. Its component side points toward -x. The ten optical
+// heads remain at 20 mm pitch in the M6 body; their electrical harnesses stay
+// in the KiCad/electrical contract and are not represented by SCAD solids.
+// Board length is therefore independent of optical spacing, while the shell
+// retains only the required pass-through opening datum.
 m6_receiver_carrier_length_z = 80;
 m6_receiver_carrier_width_y = 32;
 m6_receiver_carrier_board_t_x = 1.6;
@@ -2947,12 +2937,11 @@ assert(m6_sensor_thread_d == 6 && m6_sensor_thread_pitch == 0.75 &&
            m6_sensor_mount_stem_length > m6_sensor_thread_engagement &&
            m6_sensor_body_length > m6_sensor_thread_engagement &&
            m6_sensor_cable_guard_length > 0 &&
-           m6_sensor_cable_preview_length > 0 &&
            m6_sensor_cable_d > 0 &&
            m6_sensor_thread_start_x == m6_sensor_axis_x +
                m6_sensor_head_length_x &&
            m6_sensor_thread_end_x == m6_sensor_overall_end_x,
-       "M6×0.75 horizontal optical/thread axis and perpendicular cable branch must be usable");
+       "M6×0.75 horizontal optical/thread axis and pass-through datum must be usable");
 assert(m6_rail_t > 0 && m6_rail_width_y > m6_sensor_head_width_y + 2 &&
            m6_rail_tab_t >= 5 &&
            m6_rail_tab_width_y > m6_sensor_thread_d + 2 &&
@@ -3215,7 +3204,7 @@ assert(m6_detector_shell_screw_pilot_d > 0 &&
            m6_detector_cable_exit_d +
                2 * m6_detector_cable_exit_sleeve_clearance <
                m6_detector_shell_width_y + 2 * m6_detector_shell_wall,
-       "cover countersinks and cable-gland exit must fit the printable covers");
+       "cover countersinks and cable pass-through opening must fit the printable covers");
 assert(m6_detector_body_length_x == 10 &&
            m6_detector_body_depth_y == 56 &&
            m6_detector_body_height_z == 216 &&
@@ -3713,15 +3702,9 @@ assert(abs(m6_detector_cable_exit_y) +
            m6_detector_cable_exit_d / 2 +
            m6_detector_cable_exit_sleeve_clearance <
                m6_detector_shell_width_y / 2 + m6_detector_shell_wall &&
-           m6_detector_cable_trunk_y <
-               m6_detector_shell_min_y -
-               m6_detector_cable_trunk_clearance_y &&
-           m6_detector_cable_gland_outer_d >=
-               m6_detector_cable_exit_d +
-               2 * m6_detector_cable_gland_wall_t &&
            m6_detector_shell_gasket_width > 0 &&
            m6_detector_shell_gasket_height > 0,
-       "M6 cable gland/trunk must clear the shell and retain a continuous cover gasket reference");
+       "M6 cable opening datum must clear the shell and retain a continuous cover gasket reference");
 assert(clamp_pad_x < table_edge_x && clamp_pad_outer_x > table_edge_x &&
            clamp_outer_wall_x < clamp_pad_outer_x &&
            clamp_outboard_extension_actual >= clamp_outboard_extension_min &&
@@ -4463,7 +4446,7 @@ module clamp_electronics_emitter_battery_positive() {
 module m6_receiver_carrier_board_raw_positive() {
     // Local board x becomes assembly z by a -90 degree Y rotation.  Local
     // board y is already the assembly y direction; the +y placement keeps the
-    // carrier away from the rear boss, while cable branches remain on y-.
+    // carrier away from the rear boss. Harness routing is electrical-only.
     if (electronics_kicad_models_enabled)
         color("seagreen", 0.96)
             translate([
@@ -4497,69 +4480,6 @@ module m6_receiver_carrier_board_positive() {
         m6_receiver_carrier_board_raw_positive();
 }
 
-module clamp_electronics_wiring_reference_positive() {
-    // This is a serviceable route reference, not a rigid-cable claim.  The
-    // bundle leaves the mother board through J4, runs beside the clamp/post,
-    // then enters the M6 carrier from its +y cable side.  Each side is
-    // mirrored by sided(-1), so RX and TX never share an unlabeled harness.
-    board_wire_z = clamp_electronics_board_bottom_z + 2.8;
-    carrier_wire_z =
-        m6_detector_mount_raise_z +
-        m6_receiver_carrier_board_z_min + 24;
-    route_x = clamp_electronics_cavity_x_max + 5;
-    carrier_x =
-        m6_detector_mount_x_offset +
-        m6_receiver_carrier_board_x - 5;
-    color("royalblue", 0.82) {
-        m6_cylinder_x(
-            2.6,
-            abs(route_x - (clamp_electronics_board_x_max - 5)),
-            (route_x + clamp_electronics_board_x_max - 5) / 2,
-            10,
-            board_wire_z);
-        m6_cylinder_z(
-            2.6,
-            carrier_wire_z - board_wire_z,
-            route_x,
-            10,
-            (carrier_wire_z + board_wire_z) / 2);
-        m6_cylinder_x(
-            2.6,
-            abs(route_x - carrier_x),
-            (route_x + carrier_x) / 2,
-            10,
-            carrier_wire_z);
-        m6_cylinder_y(
-            2.6,
-            abs(m6_receiver_carrier_board_y - 10),
-            carrier_x,
-            (m6_receiver_carrier_board_y + 10) / 2,
-            carrier_wire_z);
-    }
-    color("gold", 0.92)
-        translate([route_x - 4, 7, board_wire_z - 2])
-            cube([8, 6, 4]);
-}
-
-module clamp_electronics_local_wiring_positive() {
-    // Close-up harness stub used by the cavity views.  The complete board-to-
-    // M6 route stays in clamp_electronics_wiring_reference_positive(); keeping
-    // the long vertical run out of this close-up makes the shell/PCB fit
-    // readable instead of shrinking it to a dot.
-    board_wire_z = clamp_electronics_board_bottom_z + 2.8;
-    route_x = clamp_electronics_cavity_x_max + 5;
-    color("royalblue", 0.84)
-        m6_cylinder_x(
-            2.6,
-            abs(route_x - (clamp_electronics_board_x_max - 5)),
-            (route_x + clamp_electronics_board_x_max - 5) / 2,
-            10,
-            board_wire_z);
-    color("gold", 0.94)
-        translate([route_x - 4, 7, board_wire_z - 2])
-            cube([8, 6, 4]);
-}
-
 module clamp_electronics_emitter_battery_rails_positive() {
     // Same four-stop retention pattern, mounted from the emitter battery
     // datum.  The geometry is intentionally kept separate from the canonical
@@ -4586,7 +4506,7 @@ module clamp_electronics_emitter_battery_rails_positive() {
 }
 
 module clamp_electronics_ui_screen_positive() {
-    // The screen is a cable-fed physical item.  Its local lower-left corner
+    // The screen is a real off-board physical item. Its local lower-left corner
     // follows the same board coordinates used by the bezel window.
     clamp_electronics_ui_side_datum_positive()
         translate([
@@ -4620,7 +4540,7 @@ module clamp_electronics_ui_speaker_positive() {
 }
 
 module clamp_electronics_ui_physical_items_positive() {
-    // Only off-board, wire-connected UI items are authored in SCAD.  The
+    // Only off-board physical UI items are authored in SCAD. The
     // board STL already contains the KiCad models for the soldered buttons,
     // 0603 LEDs and USB-C receptacle, so no second solid is created here.
     clamp_electronics_ui_screen_positive();
@@ -4827,8 +4747,8 @@ module clamp_electronics_ui_proxy_layout_check_positive() {
 }
 
 module clamp_electronics_ui_proxy_board_collision_positive() {
-    // Compatibility collision probe: only service-facing, cable-fed solids
-    // are expected to clear the PCB.  Buttons, LEDs and USB-C are soldered
+    // Compatibility collision probe: only real service-facing screen/speaker
+    // solids are expected to clear the PCB. Buttons, LEDs and USB-C are soldered
     // contacts whose KiCad models are already fused into the board STL.
     intersection() {
         union() {
@@ -4992,7 +4912,8 @@ module clamp_electronics_ui_usb_bowl_negative_local(
 module clamp_electronics_ui_panel_positive() {
     // Active y+ side-wall UI daughter board.  The KiCad board STL is the
     // authority for the PCB and every PCB-mounted component model (buttons,
-    // LEDs and USB-C).  SCAD adds only the separate cable-fed screen/speaker.
+    // LEDs and USB-C). SCAD adds only the separate physical screen/speaker;
+    // their connecting wires are intentionally not modeled.
     clamp_electronics_ui_board_positive();
     clamp_electronics_ui_physical_items_positive();
 }
@@ -5166,7 +5087,7 @@ module clamp_electronics_ui_panel_mount_face_positive() {
                         clamp_electronics_ui_usb_bowl_support_positive_local(
                             panel_inner_z);
                     }
-                    // Display window: the cable-fed screen sits behind this
+                    // Display window: the real off-board screen sits behind this
                     // aperture, supported from the cavity side.
                     translate([
                         (clamp_electronics_ui_board_length_x -
@@ -5351,7 +5272,8 @@ module clamp_electronics_shell_cutaway_positive() {
 module clamp_electronics_full_cutaway_positive() {
     // Complete right-side receiver/main-controller installation. Every solid
     // in this view has a physical role: shell, PCB model, pouch cell, y+ UI
-    // board/insert panel, direct wall pilots, and the serviceable harness route. There is
+    // board/insert panel and direct wall pilots. The electrical harness remains
+    // a KiCad/assembly contract and is intentionally not drawn as a CAD solid.
     // no UI bottom-cover or outside-screwed overlay in the active assembly.
     clamp_electronics_shell_display_frame_positive();
     clamp_electronics_main_board_end_bracket_capture_positive();
@@ -5360,7 +5282,6 @@ module clamp_electronics_full_cutaway_positive() {
     clamp_electronics_battery_positive();
     clamp_electronics_ui_panel_positive();
     clamp_electronics_ui_panel_mount_positive();
-    clamp_electronics_local_wiring_positive();
 }
 
 module clamp_electronics_structural_shell_for_clearance_positive() {
@@ -5470,7 +5391,6 @@ module clamp_electronics_emitter_preview_positive() {
     clamp_electronics_emitter_edge_clips_positive();
     clamp_electronics_emitter_board_positive();
     clamp_electronics_battery_positive();
-    clamp_electronics_local_wiring_positive();
 }
 
 module clamp_electronics_emitter_fit_preview_positive() {
@@ -5481,7 +5401,6 @@ module clamp_electronics_emitter_fit_preview_positive() {
     clamp_electronics_emitter_board_positive();
     clamp_electronics_emitter_battery_positive();
     clamp_electronics_emitter_edge_clips_positive();
-    clamp_electronics_local_wiring_positive();
 }
 
 module clamp_electronics_system_preview(show_optical = true) {
@@ -5492,15 +5411,13 @@ module clamp_electronics_system_preview(show_optical = true) {
 }
 
 module clamp_electronics_m6_integration_preview_positive(is_emitter = false, show_optical = true) {
-    // Close system relationship: the local clamp installation, the real
-    // board-to-M6 service route, and the installed M6 shell/receiver PCB all
-    // share the same world datum.  This is the evidence model for routing and
-    // interference; the clamp close-up intentionally omits the long run.
+    // Close system relationship: the local clamp installation and the installed
+    // M6 shell/receiver PCB share the same world datum. Electrical harnesses
+    // are checked in KiCad and are intentionally omitted from this CAD view.
     if (is_emitter)
         clamp_electronics_emitter_fit_preview_positive();
     else
         clamp_electronics_fit_preview_positive();
-    clamp_electronics_wiring_reference_positive();
     if (show_optical) {
         if (bare_laser_enabled) {
             if(is_emitter) laser_micro_detector_positive();
@@ -5516,7 +5433,6 @@ module clamp_electronics_exploded_positive() {
     // boolean clipping: PCB upward, the upper-shelf pouch downward from its
     // installed position, and the y+ UI board/insert panel outward.
     clamp_electronics_shell_display_frame_positive();
-    clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_main_board_positive();
     translate([0, 0, -10]) clamp_electronics_battery_positive();
     translate([0, 34, 0]) clamp_electronics_ui_panel_positive();
@@ -5527,7 +5443,6 @@ module clamp_electronics_emitter_exploded_positive() {
     // Exploded left-side service view, including the internal emitter power
     // board, protected battery and its service-only fallback connector.
     clamp_electronics_shell_display_frame_positive();
-    clamp_electronics_local_wiring_positive();
     translate([0, 0, 12]) clamp_electronics_emitter_board_positive();
     translate([0, 0, -10]) clamp_electronics_emitter_battery_positive();
 }
@@ -5536,8 +5451,7 @@ module clamp_electronics_system_exploded() {
     sided(1) clamp_electronics_exploded_positive();
     sided(-1) clamp_electronics_emitter_exploded_positive();
     // Keep the M6 housing/carrier in the same exploded evidence set; the
-    // receiver PCB is the endpoint of the service harness shown by the
-    // integration preview.
+    // receiver PCB is shown without a synthetic harness solid.
     sided(1) m6_detector_exploded_assembly_positive();
     sided(-1) m6_detector_exploded_assembly_positive();
 }
@@ -9050,54 +8964,6 @@ module m6_sensor_test_coupon_positive() {
         }
 }
 
-module m6_sensor_body_positive(index) {
-    z0 = m6_sensor_z(index);
-    y0 = m6_sensor_lane_y(index);
-    thread_center_x =
-        m6_sensor_thread_start_x + m6_sensor_mount_stem_length / 2;
-    // Legacy standalone sensor proxy. The purchased right-angle device still
-    // has a horizontal optical/M6 axis; the blue guard and cable are the
-    // perpendicular local-z branch.
-    color("dimgray")
-        translate([m6_sensor_axis_x,
-                   y0 - m6_sensor_head_width_y / 2,
-                   z0 - m6_sensor_head_height_z / 2])
-            cube([m6_sensor_head_length_x,
-                  m6_sensor_head_width_y,
-                  m6_sensor_head_height_z]);
-    color("silver")
-        m6_cylinder_x(
-            m6_sensor_thread_d,
-            m6_sensor_mount_stem_length,
-            thread_center_x,
-            y0,
-            z0);
-    color("royalblue")
-        m6_cylinder_z(
-            m6_sensor_body_d,
-            m6_sensor_cable_guard_length,
-            m6_sensor_cable_exit_x,
-            y0,
-            z0 - m6_sensor_head_height_z / 2 -
-                m6_sensor_cable_guard_length / 2);
-    color("black")
-        m6_cylinder_z(
-            m6_sensor_cable_d,
-            m6_sensor_cable_preview_length,
-            m6_sensor_cable_exit_x,
-            y0,
-            z0 - m6_sensor_head_height_z / 2 -
-                m6_sensor_cable_guard_length -
-                m6_sensor_cable_preview_length / 2);
-    color("black")
-        m6_cylinder_x(
-            m6_sensor_face_d,
-            1,
-            m6_sensor_axis_x - 0.5,
-            y0,
-            z0);
-}
-
 module m6_sensor_array_positive() {
     // Public/current PART name now follows the rear-inserted long body.  The
     // old comb remains available as PART=m6_sensor_rail for diagnostics.
@@ -9153,15 +9019,15 @@ module m6_ballhead_mount_positive() {
 // -----------------------------------------------------------------------------
 // 当前主体主线：L 型 M6 传感器 + x 轴 45° 让线旋转
 //
-// The optical channel and M6 threaded barrel remain on the x axis. In the
-// local sensor frame the blue cable guard exits z-, then the complete
-// purchased-device proxy is rolled -45° about x; that cable branch therefore
-// points toward y-/z-. The active aperture is the hollow threaded-barrel tip;
+// The optical channel and M6 threaded barrel remain on the x axis. The local
+// sensor frame keeps a z- service-exit datum and the installed orientation is
+// rolled -45° about x; this only defines the required pass-through direction.
+// The active aperture is the hollow threaded-barrel tip;
 // there is no separate black optical face on the gray hex.
 // The active body is a solid, wide y-direction PETG-printable carrier centered
 // at y=0. It has ten optical/head openings and shallow rear hex seats. The M6
 // thread is a simple clearance pass-through; one purchased nut sits on the
-// outside face. The cable stays outside the body and is not pocketed. The same
+// outside face. No harness solid is attached or pocketed. The same
 // rectangular envelope can later be machined from CNC stock.
 
 module m6_sensor_roll_frame(index) {
@@ -9217,8 +9083,8 @@ module m6_detector_body_positive(screw_z = m6_detector_body_screw_z) {
             m6_detector_sensor_fit_voids_positive();
 
             // Do not cut a diagonal cable trench into the PETG/CNC body. The
-            // rotated blue guard and stripped cable leave on the outside face
-            // and remain visible in the assembly preview.
+            // pass-through is supplied by the removable bottom cover opening;
+            // the cable itself is an electrical/assembly item, not CAD geometry.
 
             // Two pairs of M3/M4 cover pilot holes enter from the optical and
             // cable sides.  The countersink lives in the removable covers.
@@ -9266,11 +9132,10 @@ module m6_detector_body_positive(screw_z = m6_detector_body_screw_z) {
 }
 
 // Minimal first-article fit probe.  This deliberately contains only the
-// long rectangular PETG-printable bar and the real purchased L-shaped sensor model:
-// gray hex head, hollow M6 optical barrel, blue right-angle guard, and short
-// cable proxy.  The head enters from the outward face, overlaps the body by
-// 2 mm, and stops there; one supplied lock nut is placed on the smooth inner
-// body face. Covers, screws, brackets, and gimbals remain outside this probe.
+// long rectangular PETG-printable bar and the real purchased L-shaped sensor
+// envelope: gray hex head, hollow M6 optical barrel, and supplied lock nut.
+// Cable/strain-relief solids are intentionally omitted; the body still owns
+// the optical and pass-through openings required by the real device.
 module m6_detector_fit_body_positive() {
     color("lightsteelblue")
         difference() {
@@ -9296,9 +9161,9 @@ module m6_detector_sensor_local_positive(index, show_nut = true) {
     thread_center_x =
         m6_sensor_thread_start_x + m6_sensor_mount_stem_length / 2;
     // Local frame before the -45° roll: the hollow M6 optical barrel runs
-    // horizontally along x; only the blue strain relief and black cable point
-    // down along local z-. The blue right-angle branch terminates at the
-    // purchased gray hex body. It is not an x-axis cable body.
+    // horizontally along x. The cable exit remains a dimensional datum for
+    // the enclosure opening, but no blue strain relief or black cable solid
+    // is created in the CAD model.
     color("dimgray")
         m6_hex_prism_x(
             m6_sensor_head_hex_af,
@@ -9324,23 +9189,6 @@ module m6_detector_sensor_local_positive(index, show_nut = true) {
                 m6_detector_sensor_head_center_y,
                 z0);
         }
-    color("royalblue")
-        m6_cylinder_z(
-            m6_sensor_body_d,
-            m6_sensor_cable_guard_length,
-            m6_sensor_cable_exit_x,
-            m6_detector_sensor_body_center_y,
-            z0 - m6_sensor_head_height_z / 2 -
-                m6_sensor_cable_guard_length / 2);
-    color("black")
-        m6_cylinder_z(
-            m6_sensor_cable_d,
-            m6_sensor_cable_preview_length,
-            m6_sensor_cable_exit_x,
-            m6_detector_sensor_body_center_y,
-            z0 - m6_sensor_head_height_z / 2 -
-                m6_sensor_cable_guard_length -
-                m6_sensor_cable_preview_length / 2);
     color("black")
         m6_cylinder_x(
             m6_sensor_optical_bore_d,
@@ -9365,8 +9213,9 @@ module m6_detector_sensor_local_positive(index, show_nut = true) {
 module m6_detector_sensor_positive(index, show_nut = true) {
     m6_sensor_roll_frame(index)
         // Positive geometry is installed on the right receiver. The gray
-        // hex/cable side stays at x+ against the shallow pocket; the hollow
-        // threaded optical barrel points inward toward x- through the body.
+        // Hex/connector side stays at x+ against the shallow pocket; the
+        // hollow threaded optical barrel points inward toward x- through the
+        // body. No harness geometry is attached to the device proxy.
         translate([2 * m6_sensor_head_center_x, 0, 0])
             mirror([1, 0, 0])
                 m6_detector_sensor_local_positive(index, show_nut);
@@ -9570,8 +9419,8 @@ module m6_detector_shell_inner_segment_positive(x_min, x_max) {
 
 module m6_detector_front_optical_holes_positive() {
     // The enlarged x- front cap is a bulkhead.  Only the ten optical-axis
-    // bores cross it; the real AF8 heads, blue guards, and supplied nuts are
-    // all recessed behind this wall.
+    // bores cross it; the real AF8 heads and supplied nuts are all recessed
+    // behind this wall. Cable routing is intentionally omitted.
     for (index = [0:m6_sensor_count - 1]) {
         m6_cylinder_x(
             m6_detector_optical_bore_d,
@@ -9688,99 +9537,6 @@ module m6_detector_shell_support_gussets_positive(alpha = m6_detector_shell_alph
     }
 }
 
-module m6_detector_cable_gland_positive(alpha = 0.90) {
-    // A replaceable multi-hole cable gland/strain-relief collar sits below
-    // the bottom cover. The opening is intentionally larger than one wire so
-    // the final part can use a sealed 10/20-wire insert or be potted after the
-    // harness is tested; it is not left as a naked open hole in the enclosure.
-    color("black", alpha)
-        difference() {
-            translate([
-                m6_detector_cable_exit_x,
-                m6_detector_cable_exit_y,
-                m6_detector_shell_bottom_z -
-                    m6_detector_bottom_cover_t -
-                    m6_detector_cable_gland_length_z])
-                cylinder(
-                    d = m6_detector_cable_gland_outer_d,
-                    h = m6_detector_cable_gland_length_z + 0.3);
-            m6_cylinder_z(
-                m6_detector_cable_exit_d +
-                    2 * m6_detector_cable_exit_sleeve_clearance,
-                m6_detector_cable_gland_length_z + 3,
-                m6_detector_cable_exit_x,
-                m6_detector_cable_exit_y,
-                m6_detector_shell_bottom_z -
-                    m6_detector_bottom_cover_t -
-                    m6_detector_cable_gland_length_z / 2);
-        }
-}
-
-module m6_detector_cable_trunk_positive() {
-    // The trunk is held just outside the y- shell wall. A 1.2 mm gap keeps the
-    // wire guide from rubbing on the removable cover while the individual
-    // branches remain visible for service and channel labeling.
-    color("navy", 0.68)
-        translate([
-            m6_detector_cable_trunk_x -
-                m6_detector_cable_trunk_width_x / 2,
-            m6_detector_cable_trunk_y -
-                m6_detector_cable_trunk_depth_y / 2,
-            m6_detector_body_bottom_z + 4])
-            cube([
-                m6_detector_cable_trunk_width_x,
-                m6_detector_cable_trunk_depth_y,
-                m6_detector_body_height_z - 8]);
-}
-
-module m6_detector_cable_branch_positive(index) {
-    z0 = m6_sensor_z(index);
-    // After the -45 degree sensor roll the blue strain-relief exits toward
-    // y-/z-. This straight branch is a service-routing reference, not a claim
-    // that the purchased cable is rigid or exactly this bend radius.
-    branch_z = z0 - 8;
-    color("black", 0.82)
-        m6_cylinder_y(
-            m6_detector_cable_branch_d,
-            abs(m6_detector_cable_trunk_y -
-                m6_detector_sensor_body_center_y),
-            m6_detector_cable_trunk_x,
-            (m6_detector_cable_trunk_y +
-             m6_detector_sensor_body_center_y) / 2,
-            branch_z);
-    color("royalblue", 0.84)
-        translate([
-            m6_detector_cable_trunk_x - 1.5,
-            m6_detector_cable_trunk_y -
-                m6_detector_cable_trunk_depth_y / 2 - 0.8,
-            z0 - m6_detector_cable_clip_t / 2])
-            cube([
-                3,
-                m6_detector_cable_trunk_depth_y + 1.6,
-                m6_detector_cable_clip_t]);
-}
-
-module m6_detector_cable_routing_reference_positive() {
-    // Ten labeled channels converge on one side-specific trunk. The positive
-    // assembly is the right receiver; SIDE=-1 mirrors this entire reference
-    // to the left emitter without changing the optical axis.
-    m6_detector_cable_trunk_positive();
-    for (index = [0:m6_sensor_count - 1])
-        m6_detector_cable_branch_positive(index);
-    color("black", 0.78)
-        m6_cylinder_y(
-            m6_detector_cable_branch_d,
-            abs(m6_detector_cable_exit_y -
-                m6_detector_cable_trunk_y),
-            m6_detector_cable_trunk_x,
-            (m6_detector_cable_exit_y +
-             m6_detector_cable_trunk_y) / 2,
-            m6_detector_shell_bottom_z -
-                m6_detector_bottom_cover_t -
-                m6_detector_cable_gland_length_z / 2);
-    m6_detector_cable_gland_positive();
-}
-
 module m6_detector_bottom_gasket_positive() {
     // Separate orange gasket reference for the one-piece bottom cover. It
     // follows the shell footprint rather than leaving four independent strips.
@@ -9827,7 +9583,6 @@ module m6_detector_bottom_cover_positive() {
                         m6_detector_bottom_cover_screw_head_depth);
                 }
             }
-        m6_detector_cable_gland_positive();
     }
 }
 
@@ -9949,8 +9704,6 @@ module m6_detector_mount_positive() {
         m6_detector_bottom_cover_positive();
         m6_detector_bottom_gasket_positive();
     }
-    if (m6_detector_cable_clearance_enabled)
-        m6_detector_cable_routing_reference_positive();
     // The receiver daughter board is part of the installed M6 shell, not a
     // floating documentation envelope.  This raw-frame call is translated by
     // m6_detector_assembly_positive() together with the optical hardware.
@@ -11904,7 +11657,6 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_sensor_mount_x_offset=", m6_sensor_mount_x_offset));
     echo(str("NETSTAND_PARAM m6_sensor_mount_stem_length=", m6_sensor_mount_stem_length));
     echo(str("NETSTAND_PARAM m6_sensor_cable_guard_length=", m6_sensor_cable_guard_length));
-    echo(str("NETSTAND_PARAM m6_sensor_cable_preview_length=", m6_sensor_cable_preview_length));
     echo(str("NETSTAND_PARAM m6_sensor_cable_d=", m6_sensor_cable_d));
     echo(str("NETSTAND_PARAM m6_sensor_thread_start_x=", m6_sensor_thread_start_x));
     echo(str("NETSTAND_PARAM m6_sensor_thread_end_x=", m6_sensor_thread_end_x));
@@ -12033,16 +11785,6 @@ module parameter_probe() {
     echo(str("NETSTAND_PARAM m6_detector_cable_exit_sleeve_clearance=", m6_detector_cable_exit_sleeve_clearance));
     echo(str("NETSTAND_PARAM m6_detector_cable_exit_x=", m6_detector_cable_exit_x));
     echo(str("NETSTAND_PARAM m6_detector_cable_exit_y=", m6_detector_cable_exit_y));
-    echo(str("NETSTAND_PARAM m6_detector_cable_gland_outer_d=",
-             m6_detector_cable_gland_outer_d));
-    echo(str("NETSTAND_PARAM m6_detector_cable_trunk_y=",
-             m6_detector_cable_trunk_y));
-    echo(str("NETSTAND_PARAM m6_detector_cable_trunk_x=",
-             m6_detector_cable_trunk_x));
-    echo(str("NETSTAND_PARAM m6_detector_cable_trunk_clearance_y=",
-             m6_detector_cable_trunk_clearance_y));
-    echo(str("NETSTAND_PARAM m6_detector_cable_clearance_enabled=",
-             m6_detector_cable_clearance_enabled));
     echo(str("NETSTAND_PARAM m6_detector_detector_thread_axis_x=",
              m6_detector_detector_thread_axis_x));
     echo(str("NETSTAND_PARAM m6_detector_sensor_thread_center_y=", m6_detector_sensor_thread_center_y));
@@ -12590,10 +12332,6 @@ if (PART == "laser_micro_metadata") { laser_micro_metadata();
     sided(default_side) m6_detector_shell_rear_positive();
 } else if (PART == "m6_detector_bottom_cover") {
     sided(default_side) m6_detector_bottom_cover_positive();
-} else if (PART == "m6_detector_wiring_reference") {
-    sided(default_side) m6_detector_cable_routing_reference_positive();
-} else if (PART == "m6_detector_cable_gland") {
-    sided(default_side) m6_detector_cable_gland_positive();
 } else if (PART == "m6_detector_bottom_gasket") {
     sided(default_side) m6_detector_bottom_gasket_positive();
 } else if (PART == "net_clamp_rod") {

@@ -633,7 +633,6 @@ module laser_micro_detector_positive() {
             laser_micro_bottom_cover();
             laser_micro_bottom_gasket();
             laser_micro_front_hardware();
-            m6_detector_cable_gland_positive();
         }
         m6_detector_ballhead_positive();
     }
