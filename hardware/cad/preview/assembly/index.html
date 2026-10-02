@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>装配预览</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    {"imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js",
+      "three/addons/loaders/STLLoader.js": "./vendor/STLLoader.js"
+    }}
+  </script>
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <main id="canvas-panel" class="canvas-panel">
+    <canvas id="viewport" aria-label="三维装配视图"></canvas>
+
+    <aside id="tree-panel" class="floating-panel tree-panel" data-panel-label="装配树" aria-labelledby="title">
+      <div class="panel-heading" data-drag-handle tabindex="0" aria-label="拖动装配树面板；方向键也可移动">
+        <h1 id="title">装配预览</h1>
+        <button class="collapse-button" type="button" data-collapse aria-controls="tree-panel-content" aria-expanded="true" aria-label="折叠装配树面板">−</button>
+      </div>
+      <div id="tree-panel-content" class="panel-content">
+        <p id="status" role="status">正在读取 manifest…</p>
+        <section aria-labelledby="tree-heading" class="tree-section">
+          <h2 id="tree-heading">装配树</h2>
+          <div id="filters" class="filters">
+            <input id="search" type="search" placeholder="搜索实例、零件或 STL" aria-label="搜索装配树">
+            <select id="group-filter" aria-label="按分组筛选"><option value="">全部分组</option></select>
+          </div>
+          <div id="group-actions" class="row">
+            <button id="show-group" type="button">显示当前分组</button>
+            <button id="hide-group" type="button">隐藏当前分组</button>
+          </div>
+          <div id="tree" class="tree" aria-live="polite"></div>
+        </section>
+        <section id="inspector" aria-labelledby="inspector-heading" hidden>
+          <h2 id="inspector-heading">单件详情</h2>
+          <strong id="selected-name"></strong>
+          <p id="selected-source" class="source"></p>
+          <p id="selected-mount" class="source"></p>
+          <div class="row">
+            <button id="focus-selected" type="button">聚焦</button>
+            <button id="show-selected" type="button">显示</button>
+            <button id="hide-selected" type="button">隐藏</button>
+          </div>
+          <label for="selected-opacity">单件不透明度 <output id="selected-opacity-value">100%</output></label>
+          <input id="selected-opacity" type="range" min="0" max="100" value="100">
+        </section>
+      </div>
+    </aside>
+
+    <aside id="view-panel" class="floating-panel view-panel" data-panel-label="视角" aria-labelledby="view-panel-heading">
+      <div class="panel-heading" data-drag-handle tabindex="0" aria-label="拖动视角面板；方向键也可移动">
+        <h2 id="view-panel-heading">视角与显示</h2>
+        <button class="collapse-button" type="button" data-collapse aria-controls="view-panel-content" aria-expanded="true" aria-label="折叠视角面板">−</button>
+      </div>
+      <div id="view-panel-content" class="panel-content">
+        <section aria-labelledby="axis-heading">
+          <h3 id="axis-heading">标准轴向</h3>
+          <div id="axis-views" class="button-grid" aria-label="六个标准轴向视图"></div>
+        </section>
+        <section aria-labelledby="saved-heading">
+          <h3 id="saved-heading">预设视角</h3>
+          <div id="views" class="button-grid"></div>
+        </section>
+        <section aria-labelledby="display-heading">
+          <h3 id="display-heading">显示</h3>
+          <label for="explode">爆炸视图 <output id="explode-value">0%</output></label>
+          <input id="explode" type="range" min="0" max="100" value="0">
+          <label for="global-opacity">全局不透明度 <output id="global-opacity-value">100%</output></label>
+          <input id="global-opacity" type="range" min="0" max="100" value="100">
+        </section>
+        <section id="stage-controls" aria-labelledby="stage-heading">
+          <h3 id="stage-heading">运动阶段</h3>
+          <div class="row">
+            <select id="stage" aria-label="选择运动阶段"></select>
+            <button id="play" type="button">播放</button>
+          </div>
+        </section>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>

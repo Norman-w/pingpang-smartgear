@@ -28,6 +28,7 @@ data/exports/
 # CAD exports and local slicer output
 hardware/cad/exports/
 hardware/cad/rendered/
+hardware/cad/preview/assembly/models/
 hardware/prints/
 /result.json
 

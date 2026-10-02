@@ -1,0 +1,4839 @@
+{
+  "schemaVersion": 1,
+  "title": "球网架通用装配预览 · 模板引擎",
+  "ui": {
+    "persistPanelState": true,
+    "showSearch": true,
+    "showGroups": true
+  },
+  "assembly": {
+    "coordinateSystem": {
+      "units": "mm",
+      "handedness": "right",
+      "up": "z",
+      "description": "项目 SCAD 世界坐标；X 左右，Y 前后，Z 海拔/高度。"
+    },
+    "rootFrameId": "world",
+    "frames": [
+      {
+        "id": "world",
+        "label": "世界坐标（Z+向上）",
+        "parentFrameId": null,
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "id": "context-table",
+        "label": "球台台面（装配环境）",
+        "parentFrameId": "world",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "environment",
+          "mountInterface": "SCAD table_top datum"
+        }
+      },
+      {
+        "id": "context-net",
+        "label": "球网/网布（装配环境）",
+        "parentFrameId": "world",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "environment",
+          "mountInterface": "SCAD net datum"
+        }
+      },
+      {
+        "id": "context-reference",
+        "label": "球网高度参考线（诊断）",
+        "parentFrameId": "context-net",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "reference",
+          "mountInterface": "SCAD net_top datum"
+        }
+      },
+      {
+        "id": "mount-right-clamp",
+        "label": "右侧 C 夹总成",
+        "parentFrameId": "world",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "夹口夹持球台边缘"
+        }
+      },
+      {
+        "id": "mount-right-post",
+        "label": "右侧立柱总成（挂到 C 夹）",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "底座安装面/分型面"
+        }
+      },
+      {
+        "id": "mount-right-m6",
+        "label": "右侧 M6 光电端（挂到立柱）",
+        "parentFrameId": "mount-right-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "立柱顶部球头/适配面"
+        }
+      },
+      {
+        "id": "mount-right-ui",
+        "label": "右侧 UI/电子腔（挂到 C 夹内壁）",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "y+ 内壁 UI 安装面"
+        }
+      },
+      {
+        "id": "mount-left-clamp",
+        "label": "左侧 C 夹总成",
+        "parentFrameId": "world",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "夹口夹持球台边缘"
+        }
+      },
+      {
+        "id": "mount-left-post",
+        "label": "左侧立柱总成（挂到 C 夹）",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "底座安装面/分型面"
+        }
+      },
+      {
+        "id": "mount-left-m6",
+        "label": "左侧 M6 光电端（挂到立柱）",
+        "parentFrameId": "mount-left-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "立柱顶部球头/适配面"
+        }
+      },
+      {
+        "id": "mount-left-ui",
+        "label": "左侧发射电子腔（挂到 C 夹）",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "extensions": {
+          "nodeType": "mount",
+          "mountInterface": "y+ 内壁电子安装面"
+        }
+      },
+      {
+        "id": "frame-context-tabletop",
+        "label": "球台台面（装配环境参考） · 共享",
+        "parentFrameId": "context-table",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -762.5,
+            -250.0,
+            -25.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-context-net-fabric",
+        "label": "乒乓球网布（装配环境参考） · 共享",
+        "parentFrameId": "context-net",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -915.0,
+            -0.6,
+            16.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-context-net-height-reference",
+        "label": "网顶高度参考线（诊断） · 共享",
+        "parentFrameId": "context-reference",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -915.0,
+            -0.5,
+            202.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-post-clamp-carrier-lower",
+        "label": "斜立柱下段 + C 方案整体底座（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            859.8,
+            -29.0,
+            -4.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-post-clamp-carrier-lower-2",
+        "label": "斜立柱下段 + C 方案整体底座（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -918.5,
+            -29.0,
+            -4.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-post-clamp-carrier-upper",
+        "label": "斜立柱上段（顶部下 30 mm 分型）（右） · 右",
+        "parentFrameId": "mount-right-post",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range": [
+          0.0,
+          30.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            887.0,
+            -19.0,
+            230.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-post-clamp-carrier-upper-2",
+        "label": "斜立柱上段（顶部下 30 mm 分型）（左） · 左",
+        "parentFrameId": "mount-left-post",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range": [
+          0.0,
+          30.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -915.0,
+            -19.0,
+            230.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-half-user",
+        "label": "C 形夹操作者侧半体（y-）（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          28.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            680.5,
+            -29.0,
+            -87.93450881540775
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-half-user-2",
+        "label": "C 形夹操作者侧半体（y-）（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          28.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -918.5,
+            -29.0,
+            -87.93450881540775
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-half-opponent",
+        "label": "C 形夹对手侧半体（y+）（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          28.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            680.5,
+            0.09999999999999964,
+            -87.93450881540775
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-half-opponent-2",
+        "label": "C 形夹对手侧半体（y+）（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          28.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -918.5,
+            0.09999999999999964,
+            -87.93450881540775
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-electronics-ui-panel-mount",
+        "label": "y+ UI 外侧齐平填平固定板（一体件）（右） · 右",
+        "parentFrameId": "mount-right-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            799.9,
+            17.5,
+            -47.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-electronics-ui-panel-mount-2",
+        "label": "y+ UI 外侧齐平填平固定板（一体件）（左） · 左",
+        "parentFrameId": "mount-left-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -871.9,
+            17.5,
+            -47.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-body",
+        "label": "M6 十路主体（右） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            834.0,
+            -28.0,
+            173.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-body-2",
+        "label": "M6 十路主体（左） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -844.0,
+            -28.0,
+            173.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-shell-front",
+        "label": "M6 光学端前盖（右） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "prismatic",
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          18.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            820.75,
+            -30.399999998509884,
+            170.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-shell-front-2",
+        "label": "M6 光学端前盖（左） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "prismatic",
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          18.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -838.75,
+            -30.399999998509884,
+            170.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-shell-rear",
+        "label": "M6 线缆端后盖（右） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "prismatic",
+        "axis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          18.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            838.9500000029802,
+            -30.4,
+            170.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-shell-rear-2",
+        "label": "M6 线缆端后盖（左） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "prismatic",
+        "axis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          18.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -869.15,
+            -30.4,
+            170.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-bottom-cover",
+        "label": "M6 底盖（右） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          12.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            820.75,
+            -30.399999998509884,
+            167.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-bottom-cover-2",
+        "label": "M6 底盖（左） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          12.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -858.1499999985099,
+            -30.399999998509884,
+            167.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-bottom-gasket",
+        "label": "M6 底盖连续垫（右） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          12.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            818.9994282349944,
+            -32.149999998509884,
+            170.58
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-m6-detector-bottom-gasket-2",
+        "label": "M6 底盖连续垫（左） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          12.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -859.8999999985099,
+            -32.149999998509884,
+            170.58
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-net-clamp-rod",
+        "label": "球网空心边套圆柱插杆（PETG）（右） · 右",
+        "parentFrameId": "mount-right-post",
+        "kind": "prismatic",
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            912.8,
+            -5.0,
+            16.0
+          ],
+          "rotation": [
+            0.0,
+            -1.5707963267948966,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-net-clamp-rod-2",
+        "label": "球网空心边套圆柱插杆（PETG）（左） · 左",
+        "parentFrameId": "mount-left-post",
+        "kind": "prismatic",
+        "axis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -912.8,
+            -5.0,
+            16.0
+          ],
+          "rotation": [
+            0.0,
+            1.5707963267948966,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-pressure-pad",
+        "label": "台底可动压块（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          14.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            696.5,
+            -25.0,
+            -37.05
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-pressure-pad-2",
+        "label": "台底可动压块（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          14.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -746.5,
+            -25.0,
+            -37.05
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-pressure-pad-guard",
+        "label": "台底压块球头螺纹防脱压环（无胶）（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          14.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            702.5,
+            -19.0,
+            -38.849999999999994
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-pressure-pad-guard-2",
+        "label": "台底压块球头螺纹防脱压环（无胶）（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          14.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -740.5,
+            -19.0,
+            -38.849999999999994
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-printed-screw",
+        "label": "PETG 粗牙扁球头夹紧螺杆（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            714.2909408550252,
+            -7.209059144974793,
+            -87.27499999999999
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-printed-screw-2",
+        "label": "PETG 粗牙扁球头夹紧螺杆（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -728.7090591449748,
+            -7.209059144974793,
+            -87.27499999999999
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-nut",
+        "label": "PETG 粗牙固定螺母（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            713.5,
+            -9.237604307034012,
+            -46.85
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-body-nut-2",
+        "label": "PETG 粗牙固定螺母（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -729.5,
+            -9.237604307034012,
+            -46.85
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-knob",
+        "label": "夹紧手拧旋钮（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            703.5,
+            -17.75500691691859,
+            -92.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-knob-2",
+        "label": "夹紧手拧旋钮（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -739.5,
+            -17.75500691691859,
+            -92.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-knob-nut",
+        "label": "PETG 粗牙旋钮对锁螺母（右） · 右",
+        "parentFrameId": "mount-right-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            713.5,
+            -9.237604307034012,
+            -85.27499999999999
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-clamp-knob-nut-2",
+        "label": "PETG 粗牙旋钮对锁螺母（左） · 左",
+        "parentFrameId": "mount-left-clamp",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "range": [
+          0.0,
+          22.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -729.5,
+            -9.237604307034012,
+            -85.27499999999999
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-sensor-mount-body",
+        "label": "PVDF 网顶传感器座（右） · 右",
+        "parentFrameId": "mount-right-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            823.0,
+            -13.0,
+            160.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-sensor-mount-body-2",
+        "label": "PVDF 网顶传感器座（左） · 左",
+        "parentFrameId": "mount-left-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -869.0,
+            -13.0,
+            160.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-sensor-clamp-lip",
+        "label": "PVDF 薄膜压片（右） · 右",
+        "parentFrameId": "mount-right-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            834.0,
+            -3.5,
+            164.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-sensor-clamp-lip-2",
+        "label": "PVDF 薄膜压片（左） · 左",
+        "parentFrameId": "mount-left-post",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            -864.0,
+            -3.5,
+            164.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-calibration-gauge",
+        "label": "过网高度标定规 · 共享",
+        "parentFrameId": "context-table",
+        "kind": "fixed",
+        "localTransform": {
+          "position": [
+            0.0,
+            -2.0,
+            -1.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-electronics-esp32-main",
+        "label": "ESP32-S3 主控板（KiCad） · 右",
+        "parentFrameId": "mount-right-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            792.9,
+            -16.0,
+            -36.4912
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-electronics-emitter-power",
+        "label": "发射端电源子板（KiCad） · 左",
+        "parentFrameId": "mount-left-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range": [
+          0.0,
+          24.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -802.9,
+            -16.0,
+            -35.8912
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-electronics-ui-panel",
+        "label": "UI 交互子板（KiCad） · 右",
+        "parentFrameId": "mount-right-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          34.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            806.9,
+            16.69,
+            -40.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-electronics-m6-receiver-carrier-right",
+        "label": "右侧 M6 十路接收子板（KiCad） · 右",
+        "parentFrameId": "mount-right-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          42.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            846.91,
+            -4.9,
+            241.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-electronics-m6-receiver-carrier-left",
+        "label": "左侧 M6 十路接收子板（KiCad） · 左",
+        "parentFrameId": "mount-left-m6",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          42.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            -858.59,
+            -4.9,
+            241.5
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-ui-physical-items",
+        "label": "屏幕与扬声器（SCAD 线束实体） · 右",
+        "parentFrameId": "mount-right-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          34.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            823.4,
+            25.8,
+            -33.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "id": "frame-ui-led-light-pipes",
+        "label": "UI LED 导光柱（SCAD） · 右",
+        "parentFrameId": "mount-right-ui",
+        "kind": "prismatic",
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "range": [
+          0.0,
+          34.0
+        ],
+        "defaultValue": 0,
+        "localTransform": {
+          "position": [
+            834.9,
+            25.4,
+            -38.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "context",
+      "label": "球台与网布安装环境"
+    },
+    {
+      "id": "c-clamp",
+      "label": "C 夹分型与 UI 面板"
+    },
+    {
+      "id": "upright",
+      "label": "斜立柱与底座"
+    },
+    {
+      "id": "net",
+      "label": "球网与圆柱插杆"
+    },
+    {
+      "id": "m6",
+      "label": "M6 光电端结构"
+    },
+    {
+      "id": "electronics",
+      "label": "KiCad 线路板与板载器件"
+    },
+    {
+      "id": "ui-components",
+      "label": "UI 板外接实体件"
+    },
+    {
+      "id": "clamp-hardware",
+      "label": "桌下夹紧机构"
+    },
+    {
+      "id": "reference",
+      "label": "标定参考件"
+    },
+    {
+      "id": "other",
+      "label": "其他打印件"
+    }
+  ],
+  "parts": [
+    {
+      "id": "context-tabletop",
+      "name": "球台台面（装配环境参考） · 共享",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=assembly; table_top datum"
+      },
+      "file": "models/stl-f65036e7742d6761b845.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "context",
+      "color": "#64748b",
+      "opacity": 0.24,
+      "instances": [
+        {
+          "id": "instance-context-tabletop",
+          "name": "球台台面（装配环境参考） · 共享",
+          "parentFrameId": "frame-context-tabletop",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "context_tabletop",
+        "side": null,
+        "sourceFile": "generated-context-tabletop.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            1525.0,
+            500.0,
+            25.0
+          ]
+        },
+        "notes": "球台台面安装环境参考；来自 net_stand.scad 的 table_top datum，不是打印件。",
+        "mountFrameId": "context-table"
+      }
+    },
+    {
+      "id": "context-net-fabric",
+      "name": "乒乓球网布（装配环境参考） · 共享",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=assembly; net fabric datum"
+      },
+      "file": "models/stl-8bc1cba468a66e429a47.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "net",
+      "color": "#9bd9d1",
+      "opacity": 0.34,
+      "instances": [
+        {
+          "id": "instance-context-net-fabric",
+          "name": "乒乓球网布（装配环境参考） · 共享",
+          "parentFrameId": "frame-context-net-fabric",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            82.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "context_net_fabric",
+        "side": null,
+        "sourceFile": "generated-context-net-fabric.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            1830.0,
+            1.2,
+            152.5
+          ]
+        },
+        "notes": "网布/网套的装配环境占位；来自 net_stand.scad 的网高基准，不是打印件。",
+        "mountFrameId": "context-net"
+      }
+    },
+    {
+      "id": "context-net-height-reference",
+      "name": "网顶高度参考线（诊断） · 共享",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=assembly; net_top datum"
+      },
+      "file": "models/stl-fedb975e644a9416b4f7.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "reference",
+      "color": "#8492a6",
+      "opacity": 0.55,
+      "instances": [
+        {
+          "id": "instance-context-net-height-reference",
+          "name": "网顶高度参考线（诊断） · 共享",
+          "parentFrameId": "frame-context-net-height-reference",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            -78.0,
+            48.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "context_net_height_reference",
+        "side": null,
+        "sourceFile": "generated-context-net-height.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            1830.0,
+            1.0,
+            1.0
+          ]
+        },
+        "notes": "用于检查网顶高度的诊断线，不是实体零件。",
+        "mountFrameId": "context-reference"
+      }
+    },
+    {
+      "id": "post-clamp-carrier-lower",
+      "name": "斜立柱下段 + C 方案整体底座（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"post_clamp_carrier_lower\"; SIDE=1"
+      },
+      "file": "models/stl-aece551691c343bcd54e.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "upright",
+      "color": "#66b6a4",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-post-clamp-carrier-lower",
+          "name": "斜立柱下段 + C 方案整体底座（右） · 右",
+          "parentFrameId": "frame-post-clamp-carrier-lower",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "post_clamp_carrier_lower",
+        "side": 1,
+        "sourceFile": "right-post-clamp-carrier-lower.stl",
+        "originalBounds": {
+          "min": [
+            859.8,
+            -29.0,
+            -4.0
+          ],
+          "max": [
+            918.5,
+            29.0,
+            240.5
+          ]
+        },
+        "notes": "首样左右各一件下段；绿色 C 方案整体底座与斜立柱下段一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。下段包络从 z=-4 mm 到分型面 z=230.5 mm，含网布 3 mm 过道和原位置侧开圆柱接收腔（容纳 Ø10 mm 插杆及 Ø12 mm 布套包络）；下段分型面带两条公燕尾键和四个 Ø2.4 mm×10 mm 盲导孔。X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放，不缩放；切片器仍需按清单配置支撑。绿色底座必须与配套 C 方案夹体、两枚 Ø4.4 mm 孔和下方钢珠定位孔配合。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "post-clamp-carrier-lower-2",
+      "name": "斜立柱下段 + C 方案整体底座（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"post_clamp_carrier_lower\"; SIDE=-1"
+      },
+      "file": "models/stl-a37f3407521c282eb8dc.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "upright",
+      "color": "#66b6a4",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-post-clamp-carrier-lower-2",
+          "name": "斜立柱下段 + C 方案整体底座（左） · 左",
+          "parentFrameId": "frame-post-clamp-carrier-lower-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "post_clamp_carrier_lower",
+        "side": -1,
+        "sourceFile": "left-post-clamp-carrier-lower.stl",
+        "originalBounds": {
+          "min": [
+            -918.5,
+            -29.0,
+            -4.0
+          ],
+          "max": [
+            -859.8,
+            29.0,
+            240.5
+          ]
+        },
+        "notes": "首样左右各一件下段；绿色 C 方案整体底座与斜立柱下段一体打印。底座沿 x 方向从灰色 C 夹外侧推入让位腔，保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和两侧 15 mm 外伸。下段包络从 z=-4 mm 到分型面 z=230.5 mm，含网布 3 mm 过道和原位置侧开圆柱接收腔（容纳 Ø10 mm 插杆及 Ø12 mm 布套包络）；下段分型面带两条公燕尾键和四个 Ø2.4 mm×10 mm 盲导孔。X1C 首样采用 rx=0°、ry=51°、rz=45° 三轴斜放，不缩放；切片器仍需按清单配置支撑。绿色底座必须与配套 C 方案夹体、两枚 Ø4.4 mm 孔和下方钢珠定位孔配合。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "post-clamp-carrier-upper",
+      "name": "斜立柱上段（顶部下 30 mm 分型）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"post_clamp_carrier_upper\"; SIDE=1"
+      },
+      "file": "models/stl-9f7cf667e044cb9bcc09.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "upright",
+      "color": "#66b6a4",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-post-clamp-carrier-upper",
+          "name": "斜立柱上段（顶部下 30 mm 分型）（右） · 右",
+          "parentFrameId": "frame-post-clamp-carrier-upper",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            30
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "post_clamp_carrier_upper",
+        "side": 1,
+        "sourceFile": "right-post-clamp-carrier-upper.stl",
+        "originalBounds": {
+          "min": [
+            887.0,
+            -19.0,
+            230.5
+          ],
+          "max": [
+            915.0,
+            19.0,
+            260.5
+          ]
+        },
+        "notes": "首样左右各一件上段；这是斜立柱顶部下 30 mm 的可替换段，包络 z=230.5…260.5 mm，分型面朝打印床。上段带两条与下段配合的母燕尾槽、四个 Ø3.4 mm M3 通孔和中心 Ø6.8 mm M8 攻丝底孔；球头下端 M8×1.25 直接进入该座；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔，不使用沉头或台阶肩螺钉。上段可换成后续更高的光电头承载段；不包含网夹的分段或螺丝。",
+        "mountFrameId": "mount-right-post"
+      }
+    },
+    {
+      "id": "post-clamp-carrier-upper-2",
+      "name": "斜立柱上段（顶部下 30 mm 分型）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"post_clamp_carrier_upper\"; SIDE=-1"
+      },
+      "file": "models/stl-a067968add8cbd782df8.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "upright",
+      "color": "#66b6a4",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-post-clamp-carrier-upper-2",
+          "name": "斜立柱上段（顶部下 30 mm 分型）（左） · 左",
+          "parentFrameId": "frame-post-clamp-carrier-upper-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            30
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "post_clamp_carrier_upper",
+        "side": -1,
+        "sourceFile": "left-post-clamp-carrier-upper.stl",
+        "originalBounds": {
+          "min": [
+            -915.0,
+            -19.0,
+            230.5
+          ],
+          "max": [
+            -887.0,
+            19.0,
+            260.5
+          ]
+        },
+        "notes": "首样左右各一件上段；这是斜立柱顶部下 30 mm 的可替换段，包络 z=230.5…260.5 mm，分型面朝打印床。上段带两条与下段配合的母燕尾槽、四个 Ø3.4 mm M3 通孔和中心 Ø6.8 mm M8 攻丝底孔；球头下端 M8×1.25 直接进入该座；四枚普通盘头或低矮圆头 M3×40 自攻钉从上段通孔进入下段 Ø2.4 mm×10 mm 盲导孔，不使用沉头或台阶肩螺钉。上段可换成后续更高的光电头承载段；不包含网夹的分段或螺丝。",
+        "mountFrameId": "mount-left-post"
+      }
+    },
+    {
+      "id": "clamp-body-half-user",
+      "name": "C 形夹操作者侧半体（y-）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_half_user\"; SIDE=1"
+      },
+      "file": "models/stl-c94cc8baf23e8f62a5e7.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-half-user",
+          "name": "C 形夹操作者侧半体（y-）（右） · 右",
+          "parentFrameId": "frame-clamp-body-half-user",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            -22,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_half_user",
+        "side": 1,
+        "sourceFile": "right-clamp-body-half-user.stl",
+        "originalBounds": {
+          "min": [
+            680.5,
+            -29.0,
+            -87.93450881540775
+          ],
+          "max": [
+            918.5,
+            -0.09999999999999964,
+            16.0
+          ]
+        },
+        "notes": "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。两半各有 9 个横向 M5 连接位；只有分型面连接位真正贴到电子腔空腔边界时，才打印用于 M5 承力的 boss 柱和十字加强肋；完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，电子仓左下角与右下斜加强边沿各补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier_lower / post_clamp_carrier_upper 配套，旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-body-half-user-2",
+      "name": "C 形夹操作者侧半体（y-）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_half_user\"; SIDE=-1"
+      },
+      "file": "models/stl-2b03e296c8180a55e92b.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-half-user-2",
+          "name": "C 形夹操作者侧半体（y-）（左） · 左",
+          "parentFrameId": "frame-clamp-body-half-user-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            -22,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_half_user",
+        "side": -1,
+        "sourceFile": "left-clamp-body-half-user.stl",
+        "originalBounds": {
+          "min": [
+            -918.5,
+            -29.0,
+            -87.93450881540775
+          ],
+          "max": [
+            -680.5,
+            -0.09999999999999964,
+            16.0
+          ]
+        },
+        "notes": "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。两半各有 9 个横向 M5 连接位；只有分型面连接位真正贴到电子腔空腔边界时，才打印用于 M5 承力的 boss 柱和十字加强肋；完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，电子仓左下角与右下斜加强边沿各补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier_lower / post_clamp_carrier_upper 配套，旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-body-half-opponent",
+      "name": "C 形夹对手侧半体（y+）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_half_opponent\"; SIDE=1"
+      },
+      "file": "models/stl-5192cca46511296c87ba.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-half-opponent",
+          "name": "C 形夹对手侧半体（y+）（右） · 右",
+          "parentFrameId": "frame-clamp-body-half-opponent",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            22,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_half_opponent",
+        "side": 1,
+        "sourceFile": "right-clamp-body-half-opponent.stl",
+        "originalBounds": {
+          "min": [
+            680.5,
+            0.09999999999999964,
+            -87.93450881540775
+          ],
+          "max": [
+            918.5,
+            29.0,
+            16.0
+          ]
+        },
+        "notes": "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。两半各有 9 个横向 M5 连接位；只有分型面连接位真正贴到电子腔空腔边界时，才打印用于 M5 承力的 boss 柱和十字加强肋；完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，电子仓左下角与右下斜加强边沿各补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier_lower / post_clamp_carrier_upper 配套，旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-body-half-opponent-2",
+      "name": "C 形夹对手侧半体（y+）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_half_opponent\"; SIDE=-1"
+      },
+      "file": "models/stl-0091d35c2a7b639d87df.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-half-opponent-2",
+          "name": "C 形夹对手侧半体（y+）（左） · 左",
+          "parentFrameId": "frame-clamp-body-half-opponent-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            22,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_half_opponent",
+        "side": -1,
+        "sourceFile": "left-clamp-body-half-opponent.stl",
+        "originalBounds": {
+          "min": [
+            -918.5,
+            0.09999999999999964,
+            -87.93450881540775
+          ],
+          "max": [
+            -680.5,
+            29.0,
+            16.0
+          ]
+        },
+        "notes": "左右各需一套；C 形夹沿 y=0 竖直分型为操作者侧 y- 半体和对手侧 y+ 半体。两半各有 9 个横向 M5 连接位；只有分型面连接位真正贴到电子腔空腔边界时，才打印用于 M5 承力的 boss 柱和十字加强肋；完全位于 14 mm 实体上夹板/下臂里的连接位只保留通孔、沉孔或六角螺母窝，避免加强结构在外壳上形成凸起。左下角连接孔向外侧移动，电子仓左下角与右下斜加强边沿各补 1 处连接点，横向 M5 连接件把螺钉头/六角螺母的力传回承力壁。操作者侧为 M5 圆头沉孔，对手侧为防转六角螺母窝，两侧 y=0 分型内侧浅凹槽底对应阳刻 1…9 编号，字顶低于分型基准，分型总间隙 0.20 mm。电子腔在中间打开后可从分型面布线/装板；主控板按 KiCad Edge.Cuts 板形相减出插入让位。x− 端是一件截面为 [ 的打印端部夹件，x+ 端是一件镜像的 ] 端部夹件；每件夹件由外侧整条竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，下唇承托板边、上唇防止上浮，主板不使用 boss/定位柱/伸入腔体的螺钉。两个半体必须与新版 post_clamp_carrier_lower / post_clamp_carrier_upper 配套，旧整件夹体不再进入正式打印清单；图示间隙不是强度/防水承诺。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-electronics-ui-panel-mount",
+      "name": "y+ UI 外侧齐平填平固定板（一体件）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_electronics_ui_panel_mount\"; SIDE=1"
+      },
+      "file": "models/stl-484625daebd6bff43035.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-electronics-ui-panel-mount",
+          "name": "y+ UI 外侧齐平填平固定板（一体件）（右） · 右",
+          "parentFrameId": "frame-clamp-electronics-ui-panel-mount",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            20,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_electronics_ui_panel_mount",
+        "side": 1,
+        "sourceFile": "right-clamp-electronics-ui-panel-mount.stl",
+        "originalBounds": {
+          "min": [
+            799.9,
+            17.5,
+            -47.0
+          ],
+          "max": [
+            871.9,
+            29.0,
+            -5.0
+          ]
+        },
+        "notes": "y+ UI 外侧齐平填平固定板正式打印件（一体件）。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入，外表面与 C 夹壁齐平；腔内侧固定法兰、窗口捕获环和 8 个 Ø2.3 mm 通孔与面板熔成一件，捕获环伸入面板周边 0.4 mm；通孔供 2 mm 蘑菇头自攻钉穿入 C 夹内壁 Ø1.6 mm 盲导孔。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；USB-C 通道尺寸取自当前 KiCad UI 的 J_USB_PANEL 外壳/屏蔽件，排除了焊接脚，再加每侧 0.25 mm 打印配合；外侧改为到达 KiCad 金属外壳前沿的圆角碗槽，外围保留 0.60 mm 连续环形打印底，中心 KiCad-fit 通孔贯穿并由 Type-C 金属壳体负责显示/插入；不使用正向 boss，y+ 可见面不打孔、不做沉头。",
+        "mountFrameId": "mount-right-ui"
+      }
+    },
+    {
+      "id": "clamp-electronics-ui-panel-mount-2",
+      "name": "y+ UI 外侧齐平填平固定板（一体件）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_electronics_ui_panel_mount\"; SIDE=-1"
+      },
+      "file": "models/stl-101b199883a423aeea2b.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "c-clamp",
+      "color": "#d8a24a",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-electronics-ui-panel-mount-2",
+          "name": "y+ UI 外侧齐平填平固定板（一体件）（左） · 左",
+          "parentFrameId": "frame-clamp-electronics-ui-panel-mount-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            20,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_electronics_ui_panel_mount",
+        "side": -1,
+        "sourceFile": "left-clamp-electronics-ui-panel-mount.stl",
+        "originalBounds": {
+          "min": [
+            -871.9,
+            17.5,
+            -47.0
+          ],
+          "max": [
+            -799.9,
+            29.0,
+            -5.0
+          ]
+        },
+        "notes": "y+ UI 外侧齐平填平固定板正式打印件（一体件）。面板外轮廓 62.8×32.8 mm，比 64×34 mm 侧壁窗口每边小 0.6 mm，可从电子腔内穿入，外表面与 C 夹壁齐平；腔内侧固定法兰、窗口捕获环和 8 个 Ø2.3 mm 通孔与面板熔成一件，捕获环伸入面板周边 0.4 mm；通孔供 2 mm 蘑菇头自攻钉穿入 C 夹内壁 Ø1.6 mm 盲导孔。面板与 58×28 mm UI PCB 共用坐标，保留屏幕、START/MODE、0603 LED、扬声器和 16 针 USB-C 的真实开口；USB-C 通道尺寸取自当前 KiCad UI 的 J_USB_PANEL 外壳/屏蔽件，排除了焊接脚，再加每侧 0.25 mm 打印配合；外侧改为到达 KiCad 金属外壳前沿的圆角碗槽，外围保留 0.60 mm 连续环形打印底，中心 KiCad-fit 通孔贯穿并由 Type-C 金属壳体负责显示/插入；不使用正向 boss，y+ 可见面不打孔、不做沉头。",
+        "mountFrameId": "mount-left-ui"
+      }
+    },
+    {
+      "id": "m6-detector-body",
+      "name": "M6 十路主体（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_body\"; SIDE=1"
+      },
+      "file": "models/stl-dec087cf69cd1fe0cc38.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-body",
+          "name": "M6 十路主体（右） · 右",
+          "parentFrameId": "frame-m6-detector-body",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_body",
+        "side": 1,
+        "sourceFile": "right-m6-detector-body.stl",
+        "originalBounds": {
+          "min": [
+            761.25,
+            -28.0,
+            144.5
+          ],
+          "max": [
+            771.25,
+            28.0,
+            360.5
+          ]
+        },
+        "notes": "M6 十路直角光电器件的 PETG 长条主体，含 10 路头部定位/通孔和前后盖导向槽；内部接收子板不与主体熔成一体。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "m6-detector-body-2",
+      "name": "M6 十路主体（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_body\"; SIDE=-1"
+      },
+      "file": "models/stl-630d6255649f4b1dd2b4.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-body-2",
+          "name": "M6 十路主体（左） · 左",
+          "parentFrameId": "frame-m6-detector-body-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_body",
+        "side": -1,
+        "sourceFile": "left-m6-detector-body.stl",
+        "originalBounds": {
+          "min": [
+            -771.25,
+            -28.0,
+            144.5
+          ],
+          "max": [
+            -761.25,
+            28.0,
+            360.5
+          ]
+        },
+        "notes": "M6 十路直角光电器件的 PETG 长条主体，含 10 路头部定位/通孔和前后盖导向槽；内部接收子板不与主体熔成一体。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "m6-detector-shell-front",
+      "name": "M6 光学端前盖（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_shell_front\"; SIDE=1"
+      },
+      "file": "models/stl-db31d03ecc08e3d7c71c.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-shell-front",
+          "name": "M6 光学端前盖（右） · 右",
+          "parentFrameId": "frame-m6-detector-shell-front",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            22,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_shell_front",
+        "side": 1,
+        "sourceFile": "right-m6-detector-front-cover.stl",
+        "originalBounds": {
+          "min": [
+            748.0,
+            -30.399999998509884,
+            141.5
+          ],
+          "max": [
+            766.0,
+            30.399999998509884,
+            363.5
+          ]
+        },
+        "notes": "M6 光学端整片前盖，十路光学孔、两侧导向舌和沉头螺钉孔均保留；盖板为完整件，不用剖切件替代实物。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "m6-detector-shell-front-2",
+      "name": "M6 光学端前盖（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_shell_front\"; SIDE=-1"
+      },
+      "file": "models/stl-2c27e8fd9237118e4482.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-shell-front-2",
+          "name": "M6 光学端前盖（左） · 左",
+          "parentFrameId": "frame-m6-detector-shell-front-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            22,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_shell_front",
+        "side": -1,
+        "sourceFile": "left-m6-detector-front-cover.stl",
+        "originalBounds": {
+          "min": [
+            -766.0,
+            -30.399999998509884,
+            141.5
+          ],
+          "max": [
+            -748.0,
+            30.399999998509884,
+            363.5
+          ]
+        },
+        "notes": "M6 光学端整片前盖，十路光学孔、两侧导向舌和沉头螺钉孔均保留；盖板为完整件，不用剖切件替代实物。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "m6-detector-shell-rear",
+      "name": "M6 线缆端后盖（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_shell_rear\"; SIDE=1"
+      },
+      "file": "models/stl-c3e8600a7714988f1aa9.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-shell-rear",
+          "name": "M6 线缆端后盖（右） · 右",
+          "parentFrameId": "frame-m6-detector-shell-rear",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            -22,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_shell_rear",
+        "side": 1,
+        "sourceFile": "right-m6-detector-rear-cover.stl",
+        "originalBounds": {
+          "min": [
+            766.2000000029802,
+            -30.4,
+            141.5
+          ],
+          "max": [
+            796.4,
+            30.4,
+            363.5
+          ]
+        },
+        "notes": "M6 线缆端整片后盖，含球头支撑 boss、两侧导向舌和沉头螺钉孔；支撑受力路径与线缆出口分开。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "m6-detector-shell-rear-2",
+      "name": "M6 线缆端后盖（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_shell_rear\"; SIDE=-1"
+      },
+      "file": "models/stl-69dbb580788933a72dd8.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-shell-rear-2",
+          "name": "M6 线缆端后盖（左） · 左",
+          "parentFrameId": "frame-m6-detector-shell-rear-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            -22,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_shell_rear",
+        "side": -1,
+        "sourceFile": "left-m6-detector-rear-cover.stl",
+        "originalBounds": {
+          "min": [
+            -796.4,
+            -30.4,
+            141.5
+          ],
+          "max": [
+            -766.2000000029802,
+            30.4,
+            363.5
+          ]
+        },
+        "notes": "M6 线缆端整片后盖，含球头支撑 boss、两侧导向舌和沉头螺钉孔；支撑受力路径与线缆出口分开。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "m6-detector-bottom-cover",
+      "name": "M6 底盖（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_bottom_cover\"; SIDE=1"
+      },
+      "file": "models/stl-345ba3d43298b22f8f0f.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-bottom-cover",
+          "name": "M6 底盖（右） · 右",
+          "parentFrameId": "frame-m6-detector-bottom-cover",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -18
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_bottom_cover",
+        "side": 1,
+        "sourceFile": "right-m6-detector-bottom-cover.stl",
+        "originalBounds": {
+          "min": [
+            748.0,
+            -30.399999998509884,
+            138.5
+          ],
+          "max": [
+            785.3999999985099,
+            30.399999998509884,
+            141.5
+          ]
+        },
+        "notes": "M6 壳体底盖，四周连续压紧边、螺钉孔和多芯线缆出口均在同一可拆件上；不以透明剖切预览代替打印件。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "m6-detector-bottom-cover-2",
+      "name": "M6 底盖（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_bottom_cover\"; SIDE=-1"
+      },
+      "file": "models/stl-3106c2a01d3a10bdccd4.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-bottom-cover-2",
+          "name": "M6 底盖（左） · 左",
+          "parentFrameId": "frame-m6-detector-bottom-cover-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -18
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_bottom_cover",
+        "side": -1,
+        "sourceFile": "left-m6-detector-bottom-cover.stl",
+        "originalBounds": {
+          "min": [
+            -785.3999999985099,
+            -30.399999998509884,
+            138.5
+          ],
+          "max": [
+            -748.0,
+            30.399999998509884,
+            141.5
+          ]
+        },
+        "notes": "M6 壳体底盖，四周连续压紧边、螺钉孔和多芯线缆出口均在同一可拆件上；不以透明剖切预览代替打印件。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "m6-detector-bottom-gasket",
+      "name": "M6 底盖连续垫（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_bottom_gasket\"; SIDE=1"
+      },
+      "file": "models/stl-57ab33d3a19c11308c6c.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-bottom-gasket",
+          "name": "M6 底盖连续垫（右） · 右",
+          "parentFrameId": "frame-m6-detector-bottom-gasket",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -18
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_bottom_gasket",
+        "side": 1,
+        "sourceFile": "right-m6-detector-bottom-gasket.stl",
+        "originalBounds": {
+          "min": [
+            746.2494282349944,
+            -32.149999998509884,
+            141.58
+          ],
+          "max": [
+            787.1499999985099,
+            32.149999998509884,
+            142.58
+          ]
+        },
+        "notes": "M6 底盖连续压紧垫；仅作为盖板贴合/防尘的柔性件，不能把当前设计解释为防水等级认证。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "m6-detector-bottom-gasket-2",
+      "name": "M6 底盖连续垫（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"m6_detector_bottom_gasket\"; SIDE=-1"
+      },
+      "file": "models/stl-0fdf4654b8e03d85adbd.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-m6-detector-bottom-gasket-2",
+          "name": "M6 底盖连续垫（左） · 左",
+          "parentFrameId": "frame-m6-detector-bottom-gasket-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -18
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "m6_detector_bottom_gasket",
+        "side": -1,
+        "sourceFile": "left-m6-detector-bottom-gasket.stl",
+        "originalBounds": {
+          "min": [
+            -787.1499999985099,
+            -32.149999998509884,
+            141.58
+          ],
+          "max": [
+            -746.2494282349944,
+            32.149999998509884,
+            142.58
+          ]
+        },
+        "notes": "M6 底盖连续压紧垫；仅作为盖板贴合/防尘的柔性件，不能把当前设计解释为防水等级认证。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "net-clamp-rod",
+      "name": "球网空心边套圆柱插杆（PETG）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"net_clamp_rod\"; SIDE=1"
+      },
+      "file": "models/stl-9f63d1bb40211c00417a.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "net",
+      "color": "#e7e7e7",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-net-clamp-rod",
+          "name": "球网空心边套圆柱插杆（PETG）（右） · 右",
+          "parentFrameId": "frame-net-clamp-rod",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            25,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "net_clamp_rod",
+        "side": 1,
+        "sourceFile": "right-net-clamp-rod.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            -5.0,
+            0.0
+          ],
+          "max": [
+            152.5,
+            5.0,
+            10.0
+          ]
+        },
+        "notes": "单根 Ø10 mm × 152.5 mm 圆柱插杆；先穿过球网侧边空心布套，再沿历史门洞轴线从 x 侧推入下段的侧开接收腔，随后安装上段完成捕获。门洞宽度仍为 15.2 mm，位置不随圆柱换型改变；旧整高矩形 U 夹、长方形卡条和 keeper 均不再使用；网布边套内径和插杆材料仍需首样实测。",
+        "mountFrameId": "mount-right-post"
+      }
+    },
+    {
+      "id": "net-clamp-rod-2",
+      "name": "球网空心边套圆柱插杆（PETG）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"net_clamp_rod\"; SIDE=-1"
+      },
+      "file": "models/stl-9f63d1bb40211c00417a.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "net",
+      "color": "#e7e7e7",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-net-clamp-rod-2",
+          "name": "球网空心边套圆柱插杆（PETG）（左） · 左",
+          "parentFrameId": "frame-net-clamp-rod-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            -25,
+            0,
+            0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "net_clamp_rod",
+        "side": -1,
+        "sourceFile": "left-net-clamp-rod.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            -5.0,
+            0.0
+          ],
+          "max": [
+            152.5,
+            5.0,
+            10.0
+          ]
+        },
+        "notes": "单根 Ø10 mm × 152.5 mm 圆柱插杆；先穿过球网侧边空心布套，再沿历史门洞轴线从 x 侧推入下段的侧开接收腔，随后安装上段完成捕获。门洞宽度仍为 15.2 mm，位置不随圆柱换型改变；旧整高矩形 U 夹、长方形卡条和 keeper 均不再使用；网布边套内径和插杆材料仍需首样实测。",
+        "mountFrameId": "mount-left-post"
+      }
+    },
+    {
+      "id": "clamp-pressure-pad",
+      "name": "台底可动压块（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_pressure_pad\"; SIDE=1"
+      },
+      "file": "models/stl-a715f8ece16bcc4e68a8.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-pressure-pad",
+          "name": "台底可动压块（右） · 右",
+          "parentFrameId": "frame-clamp-pressure-pad",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -20
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_pressure_pad",
+        "side": 1,
+        "sourceFile": "right-clamp-pressure-pad.stl",
+        "originalBounds": {
+          "min": [
+            696.5,
+            -25.0,
+            -37.05
+          ],
+          "max": [
+            746.5,
+            25.0,
+            -26.5
+          ]
+        },
+        "notes": "独立台底 Ø50 mm 刚性圆盘压块；底面中央为带 Ø30 粗牙外螺纹 boss 的贯穿球头窝，Ø16.7 内腔相对 Ø15.5 扁球头保留 0.6 mm 径向余量、顶部留 0.6 mm 轴向余量；下方由无胶螺纹压环完整捕获球头；可选在顶面另贴薄胶皮。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-pressure-pad-2",
+      "name": "台底可动压块（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_pressure_pad\"; SIDE=-1"
+      },
+      "file": "models/stl-a13022d1ab8035a4e67b.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-pressure-pad-2",
+          "name": "台底可动压块（左） · 左",
+          "parentFrameId": "frame-clamp-pressure-pad-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -20
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_pressure_pad",
+        "side": -1,
+        "sourceFile": "left-clamp-pressure-pad.stl",
+        "originalBounds": {
+          "min": [
+            -746.5,
+            -25.0,
+            -37.05
+          ],
+          "max": [
+            -696.5,
+            25.0,
+            -26.5
+          ]
+        },
+        "notes": "独立台底 Ø50 mm 刚性圆盘压块；底面中央为带 Ø30 粗牙外螺纹 boss 的贯穿球头窝，Ø16.7 内腔相对 Ø15.5 扁球头保留 0.6 mm 径向余量、顶部留 0.6 mm 轴向余量；下方由无胶螺纹压环完整捕获球头；可选在顶面另贴薄胶皮。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-pressure-pad-guard",
+      "name": "台底压块球头螺纹防脱压环（无胶）（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_pressure_pad_guard\"; SIDE=1"
+      },
+      "file": "models/stl-c46e0627c9d216ba0504.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-pressure-pad-guard",
+          "name": "台底压块球头螺纹防脱压环（无胶）（右） · 右",
+          "parentFrameId": "frame-clamp-pressure-pad-guard",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -20
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_pressure_pad_guard",
+        "side": 1,
+        "sourceFile": "right-clamp-pressure-pad-guard.stl",
+        "originalBounds": {
+          "min": [
+            702.5,
+            -19.0,
+            -38.849999999999994
+          ],
+          "max": [
+            740.5,
+            19.0,
+            -30.649999999999995
+          ]
+        },
+        "notes": "独立台底压块的无胶球头防脱压环；内置匹配 Ø30/4 mm 粗牙，外径 Ø38；下缘 Ø13.2 孔允许 Ø12 粗牙杆身通过但阻挡球头，上口 Ø14.7 并向内腔扩口，给球头上下运动留下余量。压环只负责防脱，不承担夹紧主载荷。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-pressure-pad-guard-2",
+      "name": "台底压块球头螺纹防脱压环（无胶）（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_pressure_pad_guard\"; SIDE=-1"
+      },
+      "file": "models/stl-db9a9eddecbbc4dd71a9.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-pressure-pad-guard-2",
+          "name": "台底压块球头螺纹防脱压环（无胶）（左） · 左",
+          "parentFrameId": "frame-clamp-pressure-pad-guard-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -20
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_pressure_pad_guard",
+        "side": -1,
+        "sourceFile": "left-clamp-pressure-pad-guard.stl",
+        "originalBounds": {
+          "min": [
+            -740.5,
+            -19.0,
+            -38.849999999999994
+          ],
+          "max": [
+            -702.5,
+            19.0,
+            -30.649999999999995
+          ]
+        },
+        "notes": "独立台底压块的无胶球头防脱压环；内置匹配 Ø30/4 mm 粗牙，外径 Ø38；下缘 Ø13.2 孔允许 Ø12 粗牙杆身通过但阻挡球头，上口 Ø14.7 并向内腔扩口，给球头上下运动留下余量。压环只负责防脱，不承担夹紧主载荷。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-printed-screw",
+      "name": "PETG 粗牙扁球头夹紧螺杆（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_printed_screw\"; SIDE=1"
+      },
+      "file": "models/stl-fbb45684390c7983a48f.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-printed-screw",
+          "name": "PETG 粗牙扁球头夹紧螺杆（右） · 右",
+          "parentFrameId": "frame-clamp-printed-screw",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_printed_screw",
+        "side": 1,
+        "sourceFile": "right-clamp-printed-screw.stl",
+        "originalBounds": {
+          "min": [
+            714.2909408550252,
+            -7.209059144974793,
+            -87.27499999999999
+          ],
+          "max": [
+            728.7090591449748,
+            7.209059144974793,
+            -29.227336958093098
+          ]
+        },
+        "notes": "正式 PETG 锥形粗牙夹紧螺杆；12 mm 大径、9.6 mm 芯径、4 mm 螺距、约 1.2 mm 牙高，牙根/凹槽各约 2 mm，外侧锥尖约 0.4 mm，顶部 15.5 mm 扁球头带浅六角驱动窝。必须和配套 PETG 锥形粗牙螺母成组使用，不与 M8×1.25 标准螺母混用。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-printed-screw-2",
+      "name": "PETG 粗牙扁球头夹紧螺杆（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_printed_screw\"; SIDE=-1"
+      },
+      "file": "models/stl-92b2a4a3380a7a3f95a5.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-printed-screw-2",
+          "name": "PETG 粗牙扁球头夹紧螺杆（左） · 左",
+          "parentFrameId": "frame-clamp-printed-screw-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_printed_screw",
+        "side": -1,
+        "sourceFile": "left-clamp-printed-screw.stl",
+        "originalBounds": {
+          "min": [
+            -728.7090591449748,
+            -7.209059144974793,
+            -87.27499999999999
+          ],
+          "max": [
+            -714.2909408550252,
+            7.209059144974793,
+            -29.227336958093098
+          ]
+        },
+        "notes": "正式 PETG 锥形粗牙夹紧螺杆；12 mm 大径、9.6 mm 芯径、4 mm 螺距、约 1.2 mm 牙高，牙根/凹槽各约 2 mm，外侧锥尖约 0.4 mm，顶部 15.5 mm 扁球头带浅六角驱动窝。必须和配套 PETG 锥形粗牙螺母成组使用，不与 M8×1.25 标准螺母混用。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-body-nut",
+      "name": "PETG 粗牙固定螺母（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_nut\"; SIDE=1"
+      },
+      "file": "models/stl-6e630f0872a27a0f8741.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-nut",
+          "name": "PETG 粗牙固定螺母（右） · 右",
+          "parentFrameId": "frame-clamp-body-nut",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_nut",
+        "side": 1,
+        "sourceFile": "right-clamp-printed-body-nut.stl",
+        "originalBounds": {
+          "min": [
+            713.5,
+            -9.237604307034012,
+            -46.85
+          ],
+          "max": [
+            729.5,
+            9.237604307034012,
+            -35.35
+          ]
+        },
+        "notes": "下臂捕获用 PETG 锥形粗牙固定螺母；AF16、11.5 mm 高，与 12/9.6 mm、4 mm 螺距、2 mm 牙根、0.4 mm 锥尖打印螺杆配套。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-body-nut-2",
+      "name": "PETG 粗牙固定螺母（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_body_nut\"; SIDE=-1"
+      },
+      "file": "models/stl-8d3970e6d9d7d8c8c5d8.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-body-nut-2",
+          "name": "PETG 粗牙固定螺母（左） · 左",
+          "parentFrameId": "frame-clamp-body-nut-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_body_nut",
+        "side": -1,
+        "sourceFile": "left-clamp-printed-body-nut.stl",
+        "originalBounds": {
+          "min": [
+            -729.5,
+            -9.237604307034012,
+            -46.85
+          ],
+          "max": [
+            -713.5,
+            9.237604307034012,
+            -35.35
+          ]
+        },
+        "notes": "下臂捕获用 PETG 锥形粗牙固定螺母；AF16、11.5 mm 高，与 12/9.6 mm、4 mm 螺距、2 mm 牙根、0.4 mm 锥尖打印螺杆配套。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-knob",
+      "name": "夹紧手拧旋钮（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_knob\"; SIDE=1"
+      },
+      "file": "models/stl-174fa2bdf2ad74308ff2.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-knob",
+          "name": "夹紧手拧旋钮（右） · 右",
+          "parentFrameId": "frame-clamp-knob",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_knob",
+        "side": 1,
+        "sourceFile": "right-clamp-knob.stl",
+        "originalBounds": {
+          "min": [
+            703.5,
+            -17.75500691691859,
+            -92.5
+          ],
+          "max": [
+            739.5,
+            17.75500691691859,
+            -72.5
+          ]
+        },
+        "notes": "打印旋钮；必须装入预先对锁的两枚 PETG 粗牙螺母，不使用标准 M8 细牙螺母。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-knob-2",
+      "name": "夹紧手拧旋钮（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_knob\"; SIDE=-1"
+      },
+      "file": "models/stl-138389c7bd25357a2c7b.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-knob-2",
+          "name": "夹紧手拧旋钮（左） · 左",
+          "parentFrameId": "frame-clamp-knob-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_knob",
+        "side": -1,
+        "sourceFile": "left-clamp-knob.stl",
+        "originalBounds": {
+          "min": [
+            -739.5,
+            -17.75500691691859,
+            -92.5
+          ],
+          "max": [
+            -703.5,
+            17.75500691691859,
+            -72.5
+          ]
+        },
+        "notes": "打印旋钮；必须装入预先对锁的两枚 PETG 粗牙螺母，不使用标准 M8 细牙螺母。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "clamp-knob-nut",
+      "name": "PETG 粗牙旋钮对锁螺母（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_knob_nut\"; SIDE=1"
+      },
+      "file": "models/stl-57093f1d13229dc6d469.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-knob-nut",
+          "name": "PETG 粗牙旋钮对锁螺母（右） · 右",
+          "parentFrameId": "frame-clamp-knob-nut",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_knob_nut",
+        "side": 1,
+        "sourceFile": "right-clamp-printed-knob-nut.stl",
+        "originalBounds": {
+          "min": [
+            713.5,
+            -9.237604307034012,
+            -85.27499999999999
+          ],
+          "max": [
+            729.5,
+            9.237604307034012,
+            -72.675
+          ]
+        },
+        "notes": "旋钮内捕获的两枚 PETG 锥形粗牙对锁螺母；每枚 6 mm 高，先对锁后装入旋钮捕获窝，牙根/凹槽各约 2 mm，锥尖约 0.4 mm。",
+        "mountFrameId": "mount-right-clamp"
+      }
+    },
+    {
+      "id": "clamp-knob-nut-2",
+      "name": "PETG 粗牙旋钮对锁螺母（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"clamp_knob_nut\"; SIDE=-1"
+      },
+      "file": "models/stl-771c1b085e520f52a626.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "clamp-hardware",
+      "color": "#d9a441",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-clamp-knob-nut-2",
+          "name": "PETG 粗牙旋钮对锁螺母（左） · 左",
+          "parentFrameId": "frame-clamp-knob-nut-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0,
+            0,
+            -26
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "clamp_knob_nut",
+        "side": -1,
+        "sourceFile": "left-clamp-printed-knob-nut.stl",
+        "originalBounds": {
+          "min": [
+            -729.5,
+            -9.237604307034012,
+            -85.27499999999999
+          ],
+          "max": [
+            -713.5,
+            9.237604307034012,
+            -72.675
+          ]
+        },
+        "notes": "旋钮内捕获的两枚 PETG 锥形粗牙对锁螺母；每枚 6 mm 高，先对锁后装入旋钮捕获窝，牙根/凹槽各约 2 mm，锥尖约 0.4 mm。",
+        "mountFrameId": "mount-left-clamp"
+      }
+    },
+    {
+      "id": "sensor-mount-body",
+      "name": "PVDF 网顶传感器座（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"sensor_mount_body\"; SIDE=1"
+      },
+      "file": "models/stl-794b88dd680280bf6b78.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-sensor-mount-body",
+          "name": "PVDF 网顶传感器座（右） · 右",
+          "parentFrameId": "frame-sensor-mount-body",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "sensor_mount_body",
+        "side": 1,
+        "sourceFile": "right-sensor-mount-body.stl",
+        "originalBounds": {
+          "min": [
+            823.0,
+            -13.0,
+            160.5
+          ],
+          "max": [
+            869.0,
+            4.0,
+            168.5
+          ]
+        },
+        "notes": "网端 PVDF 安装座本体；从网布上沿扣入，右件外端到右立柱内侧面保留 18 mm，左件镜像；本体不接触立柱，也不形成网顶轨道。",
+        "mountFrameId": "mount-right-post"
+      }
+    },
+    {
+      "id": "sensor-mount-body-2",
+      "name": "PVDF 网顶传感器座（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"sensor_mount_body\"; SIDE=-1"
+      },
+      "file": "models/stl-e9d22387791865f85336.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-sensor-mount-body-2",
+          "name": "PVDF 网顶传感器座（左） · 左",
+          "parentFrameId": "frame-sensor-mount-body-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "sensor_mount_body",
+        "side": -1,
+        "sourceFile": "left-sensor-mount-body.stl",
+        "originalBounds": {
+          "min": [
+            -869.0,
+            -13.0,
+            160.5
+          ],
+          "max": [
+            -823.0,
+            4.0,
+            168.5
+          ]
+        },
+        "notes": "网端 PVDF 安装座本体；从网布上沿扣入，右件外端到右立柱内侧面保留 18 mm，左件镜像；本体不接触立柱，也不形成网顶轨道。",
+        "mountFrameId": "mount-left-post"
+      }
+    },
+    {
+      "id": "sensor-clamp-lip",
+      "name": "PVDF 薄膜压片（右） · 右",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"sensor_clamp_lip\"; SIDE=1"
+      },
+      "file": "models/stl-ea373ddefa7402348ece.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-sensor-clamp-lip",
+          "name": "PVDF 薄膜压片（右） · 右",
+          "parentFrameId": "frame-sensor-clamp-lip",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "sensor_clamp_lip",
+        "side": 1,
+        "sourceFile": "right-sensor-clamp-lip.stl",
+        "originalBounds": {
+          "min": [
+            834.0,
+            -3.5,
+            164.5
+          ],
+          "max": [
+            864.0,
+            -0.5,
+            168.5
+          ]
+        },
+        "notes": "夹持 PVDF 薄膜两侧的可拆压片；只压薄膜，不承担网架或立柱载荷。",
+        "mountFrameId": "mount-right-post"
+      }
+    },
+    {
+      "id": "sensor-clamp-lip-2",
+      "name": "PVDF 薄膜压片（左） · 左",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"sensor_clamp_lip\"; SIDE=-1"
+      },
+      "file": "models/stl-f4c5e2514d20994fbc46.stl",
+      "geometrySpace": "local",
+      "role": "printed",
+      "groupId": "m6",
+      "color": "#6aa9e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-sensor-clamp-lip-2",
+          "name": "PVDF 薄膜压片（左） · 左",
+          "parentFrameId": "frame-sensor-clamp-lip-2",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "sensor_clamp_lip",
+        "side": -1,
+        "sourceFile": "left-sensor-clamp-lip.stl",
+        "originalBounds": {
+          "min": [
+            -864.0,
+            -3.5,
+            164.5
+          ],
+          "max": [
+            -834.0,
+            -0.5,
+            168.5
+          ]
+        },
+        "notes": "夹持 PVDF 薄膜两侧的可拆压片；只压薄膜，不承担网架或立柱载荷。",
+        "mountFrameId": "mount-left-post"
+      }
+    },
+    {
+      "id": "calibration-gauge",
+      "name": "过网高度标定规 · 共享",
+      "source": {
+        "kind": "scad",
+        "file": "../../net_stand.scad",
+        "selector": "PART=\"calibration_gauge\""
+      },
+      "file": "models/stl-732ee1a8f6f1dc45be03.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "reference",
+      "color": "#8492a6",
+      "opacity": 0.35,
+      "instances": [
+        {
+          "id": "instance-calibration-gauge",
+          "name": "过网高度标定规 · 共享",
+          "parentFrameId": "frame-calibration-gauge",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "visible": false
+        }
+      ],
+      "extensions": {
+        "sourcePart": "calibration_gauge",
+        "side": null,
+        "sourceFile": "calibration-gauge.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            -2.0,
+            -1.0
+          ],
+          "max": [
+            57.99215999990702,
+            20.0,
+            140.0
+          ]
+        },
+        "notes": "共享的 STG-120ML 32 点 / 3.87 mm 间距标定规；用于核对光纤头有效检测面和两段窗口，不代表放大器已经提供逐点输出。",
+        "mountFrameId": "context-table"
+      }
+    },
+    {
+      "id": "electronics-esp32-main",
+      "name": "ESP32-S3 主控板（KiCad） · 右",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/esp32-control-v0.1.stl",
+        "selector": "electronics_esp32_main"
+      },
+      "file": "models/stl-0038b52955bfd5faf66e.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "electronics",
+      "color": "#2f80ed",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-electronics-esp32-main",
+          "name": "ESP32-S3 主控板（KiCad） · 右",
+          "parentFrameId": "frame-electronics-esp32-main",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            24.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "electronics_esp32_main",
+        "side": 1,
+        "sourceFile": "esp32-control-v0.1.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            86.0,
+            32.0,
+            5.84
+          ]
+        },
+        "notes": "KiCad 导出的板级模型，包含主控、板载器件和 UI 连接器；仅用于电子腔装配查看。",
+        "mountFrameId": "mount-right-ui"
+      }
+    },
+    {
+      "id": "electronics-emitter-power",
+      "name": "发射端电源子板（KiCad） · 左",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/emitter-power-v0.2.stl",
+        "selector": "electronics_emitter_power"
+      },
+      "file": "models/stl-7b2321d01e8f1719e87d.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "electronics",
+      "color": "#c94b63",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-electronics-emitter-power",
+          "name": "发射端电源子板（KiCad） · 左",
+          "parentFrameId": "frame-electronics-emitter-power",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            0.0,
+            24.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "electronics_emitter_power",
+        "side": -1,
+        "sourceFile": "emitter-power-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            68.0,
+            32.0,
+            5.84
+          ]
+        },
+        "notes": "KiCad 导出的发射端电源子板；按现有电子腔镜像基准放置。",
+        "mountFrameId": "mount-left-ui"
+      }
+    },
+    {
+      "id": "electronics-ui-panel",
+      "name": "UI 交互子板（KiCad） · 右",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/ui-panel-v0.2.stl",
+        "selector": "electronics_ui_panel"
+      },
+      "file": "models/stl-066e257d73a845b3a3e9.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "electronics",
+      "color": "#48a0e8",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-electronics-ui-panel",
+          "name": "UI 交互子板（KiCad） · 右",
+          "parentFrameId": "frame-electronics-ui-panel",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            34.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "electronics_ui_panel",
+        "side": 1,
+        "sourceFile": "ui-panel-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            1.5081525331499654e-15,
+            -28.0
+          ],
+          "max": [
+            58.0,
+            8.350000000000001,
+            2.4615400662861797e-16
+          ]
+        },
+        "notes": "KiCad UI 板模型，含板载按键、LED 和唯一 Type-C 接口；按现有 y+ 面板方向预变换。",
+        "mountFrameId": "mount-right-ui"
+      }
+    },
+    {
+      "id": "electronics-m6-receiver-carrier-right",
+      "name": "右侧 M6 十路接收子板（KiCad） · 右",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/m6-receiver-carrier-v0.2.stl",
+        "selector": "electronics_m6_receiver_carrier_right"
+      },
+      "file": "models/stl-d89ae8d7ca52e14934a2.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "electronics",
+      "color": "#36a269",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-electronics-m6-receiver-carrier-right",
+          "name": "右侧 M6 十路接收子板（KiCad） · 右",
+          "parentFrameId": "frame-electronics-m6-receiver-carrier-right",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            42.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "electronics_m6_receiver_carrier_right",
+        "side": 1,
+        "sourceFile": "m6-receiver-carrier-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            -5.839999999999999,
+            0.0,
+            0.0
+          ],
+          "max": [
+            4.898587196589413e-15,
+            32.0,
+            80.0
+          ]
+        },
+        "notes": "KiCad M6 载板，随右侧 M6 壳体的 x/z 基准同步。",
+        "mountFrameId": "mount-right-m6"
+      }
+    },
+    {
+      "id": "electronics-m6-receiver-carrier-left",
+      "name": "左侧 M6 十路接收子板（KiCad） · 左",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/m6-receiver-carrier-v0.2.stl",
+        "selector": "electronics_m6_receiver_carrier_left"
+      },
+      "file": "models/stl-4561bc2455467e76c12f.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "electronics",
+      "color": "#36a269",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-electronics-m6-receiver-carrier-left",
+          "name": "左侧 M6 十路接收子板（KiCad） · 左",
+          "parentFrameId": "frame-electronics-m6-receiver-carrier-left",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            42.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "electronics_m6_receiver_carrier_left",
+        "side": -1,
+        "sourceFile": "m6-receiver-carrier-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            -5.84,
+            0.0,
+            0.0
+          ],
+          "max": [
+            4.898587196589413e-15,
+            32.0,
+            80.0
+          ]
+        },
+        "notes": "KiCad M6 载板左侧镜像实例，保持与右侧板同一模型来源。",
+        "mountFrameId": "mount-left-m6"
+      }
+    },
+    {
+      "id": "ui-physical-items",
+      "name": "屏幕与扬声器（SCAD 线束实体） · 右",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/ui-physical-items-v0.2.stl",
+        "selector": "ui_physical_items"
+      },
+      "file": "models/stl-e7660e4cd155b8558f42.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "ui-components",
+      "color": "#78d9bc",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-ui-physical-items",
+          "name": "屏幕与扬声器（SCAD 线束实体） · 右",
+          "parentFrameId": "frame-ui-physical-items",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            34.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "ui_physical_items",
+        "side": 1,
+        "sourceFile": "ui-physical-items-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            44.700000000000045,
+            2.219999999999999,
+            20.200000000000003
+          ]
+        },
+        "notes": "只保留通过线束连接的屏幕和扬声器实体；PCB 按键、LED、Type-C 由 KiCad UI 板提供。",
+        "mountFrameId": "mount-right-ui"
+      }
+    },
+    {
+      "id": "ui-led-light-pipes",
+      "name": "UI LED 导光柱（SCAD） · 右",
+      "source": {
+        "kind": "external",
+        "file": "../../../electronics/3d/v0.2/ui-led-light-pipes-v0.2.stl",
+        "selector": "ui_led_light_pipes"
+      },
+      "file": "models/stl-5d42b1b121c4429fec95.stl",
+      "geometrySpace": "local",
+      "role": "diagnostic",
+      "groupId": "ui-components",
+      "color": "#b8f6dc",
+      "opacity": 1.0,
+      "instances": [
+        {
+          "id": "instance-ui-led-light-pipes",
+          "name": "UI LED 导光柱（SCAD） · 右",
+          "parentFrameId": "frame-ui-led-light-pipes",
+          "localTransform": {
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          "explosion": [
+            0.0,
+            34.0,
+            0.0
+          ],
+          "visible": true
+        }
+      ],
+      "extensions": {
+        "sourcePart": "ui_led_light_pipes",
+        "side": 1,
+        "sourceFile": "ui-led-light-pipes-v0.2.stl",
+        "originalBounds": {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            5.0,
+            3.8000000000000007,
+            24.0
+          ]
+        },
+        "notes": "独立透明导光柱，作为 UI 板 LED 的装配参考。",
+        "mountFrameId": "mount-right-ui"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "id": "assembled",
+      "label": "装配状态",
+      "values": {
+        "frame-post-clamp-carrier-upper": 0.0,
+        "frame-post-clamp-carrier-upper-2": 0.0,
+        "frame-clamp-body-half-user": 0.0,
+        "frame-clamp-body-half-user-2": 0.0,
+        "frame-clamp-body-half-opponent": 0.0,
+        "frame-clamp-body-half-opponent-2": 0.0,
+        "frame-clamp-electronics-ui-panel-mount": 0.0,
+        "frame-clamp-electronics-ui-panel-mount-2": 0.0,
+        "frame-m6-detector-shell-front": 0.0,
+        "frame-m6-detector-shell-front-2": 0.0,
+        "frame-m6-detector-shell-rear": 0.0,
+        "frame-m6-detector-shell-rear-2": 0.0,
+        "frame-m6-detector-bottom-cover": 0.0,
+        "frame-m6-detector-bottom-cover-2": 0.0,
+        "frame-m6-detector-bottom-gasket": 0.0,
+        "frame-m6-detector-bottom-gasket-2": 0.0,
+        "frame-net-clamp-rod": 0.0,
+        "frame-net-clamp-rod-2": 0.0,
+        "frame-clamp-pressure-pad": 0.0,
+        "frame-clamp-pressure-pad-2": 0.0,
+        "frame-clamp-pressure-pad-guard": 0.0,
+        "frame-clamp-pressure-pad-guard-2": 0.0,
+        "frame-clamp-printed-screw": 0.0,
+        "frame-clamp-printed-screw-2": 0.0,
+        "frame-clamp-body-nut": 0.0,
+        "frame-clamp-body-nut-2": 0.0,
+        "frame-clamp-knob": 0.0,
+        "frame-clamp-knob-2": 0.0,
+        "frame-clamp-knob-nut": 0.0,
+        "frame-clamp-knob-nut-2": 0.0,
+        "frame-electronics-esp32-main": 0.0,
+        "frame-electronics-emitter-power": 0.0,
+        "frame-electronics-ui-panel": 0.0,
+        "frame-electronics-m6-receiver-carrier-right": 0.0,
+        "frame-electronics-m6-receiver-carrier-left": 0.0,
+        "frame-ui-physical-items": 0.0,
+        "frame-ui-led-light-pipes": 0.0
+      }
+    },
+    {
+      "id": "service",
+      "label": "维护打开",
+      "values": {
+        "frame-post-clamp-carrier-upper": 19.5,
+        "frame-post-clamp-carrier-upper-2": 19.5,
+        "frame-clamp-body-half-user": 18.2,
+        "frame-clamp-body-half-user-2": 18.2,
+        "frame-clamp-body-half-opponent": 18.2,
+        "frame-clamp-body-half-opponent-2": 18.2,
+        "frame-clamp-electronics-ui-panel-mount": 15.600000000000001,
+        "frame-clamp-electronics-ui-panel-mount-2": 15.600000000000001,
+        "frame-m6-detector-shell-front": 11.700000000000001,
+        "frame-m6-detector-shell-front-2": 11.700000000000001,
+        "frame-m6-detector-shell-rear": 11.700000000000001,
+        "frame-m6-detector-shell-rear-2": 11.700000000000001,
+        "frame-m6-detector-bottom-cover": 7.800000000000001,
+        "frame-m6-detector-bottom-cover-2": 7.800000000000001,
+        "frame-m6-detector-bottom-gasket": 7.800000000000001,
+        "frame-m6-detector-bottom-gasket-2": 7.800000000000001,
+        "frame-net-clamp-rod": 15.600000000000001,
+        "frame-net-clamp-rod-2": 15.600000000000001,
+        "frame-clamp-pressure-pad": 9.1,
+        "frame-clamp-pressure-pad-2": 9.1,
+        "frame-clamp-pressure-pad-guard": 9.1,
+        "frame-clamp-pressure-pad-guard-2": 9.1,
+        "frame-clamp-printed-screw": 14.3,
+        "frame-clamp-printed-screw-2": 14.3,
+        "frame-clamp-body-nut": 14.3,
+        "frame-clamp-body-nut-2": 14.3,
+        "frame-clamp-knob": 14.3,
+        "frame-clamp-knob-2": 14.3,
+        "frame-clamp-knob-nut": 14.3,
+        "frame-clamp-knob-nut-2": 14.3,
+        "frame-electronics-esp32-main": 15.600000000000001,
+        "frame-electronics-emitter-power": 15.600000000000001,
+        "frame-electronics-ui-panel": 22.1,
+        "frame-electronics-m6-receiver-carrier-right": 27.3,
+        "frame-electronics-m6-receiver-carrier-left": 27.3,
+        "frame-ui-physical-items": 22.1,
+        "frame-ui-led-light-pipes": 22.1
+      }
+    },
+    {
+      "id": "exploded",
+      "label": "分解检查",
+      "values": {
+        "frame-post-clamp-carrier-upper": 30.0,
+        "frame-post-clamp-carrier-upper-2": 30.0,
+        "frame-clamp-body-half-user": 28.0,
+        "frame-clamp-body-half-user-2": 28.0,
+        "frame-clamp-body-half-opponent": 28.0,
+        "frame-clamp-body-half-opponent-2": 28.0,
+        "frame-clamp-electronics-ui-panel-mount": 24.0,
+        "frame-clamp-electronics-ui-panel-mount-2": 24.0,
+        "frame-m6-detector-shell-front": 18.0,
+        "frame-m6-detector-shell-front-2": 18.0,
+        "frame-m6-detector-shell-rear": 18.0,
+        "frame-m6-detector-shell-rear-2": 18.0,
+        "frame-m6-detector-bottom-cover": 12.0,
+        "frame-m6-detector-bottom-cover-2": 12.0,
+        "frame-m6-detector-bottom-gasket": 12.0,
+        "frame-m6-detector-bottom-gasket-2": 12.0,
+        "frame-net-clamp-rod": 24.0,
+        "frame-net-clamp-rod-2": 24.0,
+        "frame-clamp-pressure-pad": 14.0,
+        "frame-clamp-pressure-pad-2": 14.0,
+        "frame-clamp-pressure-pad-guard": 14.0,
+        "frame-clamp-pressure-pad-guard-2": 14.0,
+        "frame-clamp-printed-screw": 22.0,
+        "frame-clamp-printed-screw-2": 22.0,
+        "frame-clamp-body-nut": 22.0,
+        "frame-clamp-body-nut-2": 22.0,
+        "frame-clamp-knob": 22.0,
+        "frame-clamp-knob-2": 22.0,
+        "frame-clamp-knob-nut": 22.0,
+        "frame-clamp-knob-nut-2": 22.0,
+        "frame-electronics-esp32-main": 24.0,
+        "frame-electronics-emitter-power": 24.0,
+        "frame-electronics-ui-panel": 34.0,
+        "frame-electronics-m6-receiver-carrier-right": 42.0,
+        "frame-electronics-m6-receiver-carrier-left": 42.0,
+        "frame-ui-physical-items": 34.0,
+        "frame-ui-led-light-pipes": 34.0
+      }
+    }
+  ],
+  "playback": {
+    "sequence": [
+      "assembled",
+      "service",
+      "exploded",
+      "assembled"
+    ],
+    "secondsPerTransition": 1.6,
+    "loop": true
+  },
+  "views": [
+    {
+      "id": "global",
+      "label": "全局等轴",
+      "direction": [
+        1,
+        0.8,
+        0.65
+      ]
+    },
+    {
+      "id": "table",
+      "label": "球台安装关系",
+      "direction": [
+        1,
+        0.8,
+        0.45
+      ],
+      "focusInstanceIds": [
+        "instance-context-tabletop",
+        "instance-context-net-fabric"
+      ]
+    },
+    {
+      "id": "front",
+      "label": "前视（Y-）",
+      "direction": [
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "rear",
+      "label": "后视（Y+）",
+      "direction": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "right",
+      "label": "右视（X+）",
+      "direction": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "left",
+      "label": "左视（X-）",
+      "direction": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "top",
+      "label": "俯视（Z+）",
+      "direction": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "ui",
+      "label": "UI 面板与电子腔",
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "focusInstanceIds": [
+        "instance-clamp-electronics-ui-panel-mount",
+        "instance-clamp-electronics-ui-panel-mount-2"
+      ]
+    },
+    {
+      "id": "m6",
+      "label": "M6 光电端",
+      "direction": [
+        1,
+        0.35,
+        0.25
+      ],
+      "focusInstanceIds": [
+        "instance-m6-detector-body",
+        "instance-m6-detector-body-2"
+      ]
+    },
+    {
+      "id": "post",
+      "label": "立柱分型",
+      "direction": [
+        1,
+        0.5,
+        0.4
+      ],
+      "focusInstanceIds": [
+        "instance-post-clamp-carrier-upper",
+        "instance-post-clamp-carrier-upper-2"
+      ]
+    },
+    {
+      "id": "net",
+      "label": "网杆入口",
+      "direction": [
+        1,
+        0.3,
+        0.25
+      ],
+      "focusInstanceIds": [
+        "instance-net-clamp-rod",
+        "instance-net-clamp-rod-2"
+      ]
+    }
+  ],
+  "extensions": {
+    "adapter": "hardware/cad/build_assembly_preview.py",
+    "sourceManifest": "../../exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
+    "sourceManifestSha256": "e7e4d9d544b880b6f1b8bb1113452d5337193f5cc7b378d3a944a7eda744a8ea",
+    "sourceScad": "hardware/cad/net_stand.scad",
+    "generatedGeometry": "local STL copies are derived from the formal export and are ignored by git",
+    "motionStatus": "visual-service-stages; not a dynamics, load, or interference proof",
+    "mountRelations": [
+      {
+        "childFrameId": "context-table",
+        "parentFrameId": "world",
+        "childLabel": "球台台面（装配环境）",
+        "parentLabel": "世界坐标（Z+向上）",
+        "interface": "SCAD table_top datum",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "context-net",
+        "parentFrameId": "world",
+        "childLabel": "球网/网布（装配环境）",
+        "parentLabel": "世界坐标（Z+向上）",
+        "interface": "SCAD net datum",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "context-reference",
+        "parentFrameId": "context-net",
+        "childLabel": "球网高度参考线（诊断）",
+        "parentLabel": "球网/网布（装配环境）",
+        "interface": "SCAD net_top datum",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-right-clamp",
+        "parentFrameId": "world",
+        "childLabel": "右侧 C 夹总成",
+        "parentLabel": "世界坐标（Z+向上）",
+        "interface": "夹口夹持球台边缘",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-right-post",
+        "parentFrameId": "mount-right-clamp",
+        "childLabel": "右侧立柱总成（挂到 C 夹）",
+        "parentLabel": "右侧 C 夹总成",
+        "interface": "底座安装面/分型面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-right-m6",
+        "parentFrameId": "mount-right-post",
+        "childLabel": "右侧 M6 光电端（挂到立柱）",
+        "parentLabel": "右侧立柱总成（挂到 C 夹）",
+        "interface": "立柱顶部球头/适配面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-right-ui",
+        "parentFrameId": "mount-right-clamp",
+        "childLabel": "右侧 UI/电子腔（挂到 C 夹内壁）",
+        "parentLabel": "右侧 C 夹总成",
+        "interface": "y+ 内壁 UI 安装面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-left-clamp",
+        "parentFrameId": "world",
+        "childLabel": "左侧 C 夹总成",
+        "parentLabel": "世界坐标（Z+向上）",
+        "interface": "夹口夹持球台边缘",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-left-post",
+        "parentFrameId": "mount-left-clamp",
+        "childLabel": "左侧立柱总成（挂到 C 夹）",
+        "parentLabel": "左侧 C 夹总成",
+        "interface": "底座安装面/分型面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-left-m6",
+        "parentFrameId": "mount-left-post",
+        "childLabel": "左侧 M6 光电端（挂到立柱）",
+        "parentLabel": "左侧立柱总成（挂到 C 夹）",
+        "interface": "立柱顶部球头/适配面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      },
+      {
+        "childFrameId": "mount-left-ui",
+        "parentFrameId": "mount-left-clamp",
+        "childLabel": "左侧发射电子腔（挂到 C 夹）",
+        "parentLabel": "左侧 C 夹总成",
+        "interface": "y+ 内壁电子安装面",
+        "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
+      }
+    ],
+    "treeSemantics": "frames describe installed parent-child dependencies; diagnostic context solids are not printable parts",
+    "groupLegend": {
+      "context": "球台与网布安装环境",
+      "net": "球网与圆柱插杆",
+      "reference": "标定参考件",
+      "upright": "斜立柱与底座",
+      "c-clamp": "C 夹分型与 UI 面板",
+      "m6": "M6 光电端结构",
+      "clamp-hardware": "桌下夹紧机构",
+      "electronics": "KiCad 线路板与板载器件",
+      "ui-components": "UI 板外接实体件"
+    }
+  }
+}

@@ -68,10 +68,13 @@ done
 ```text
 python3 render_net_stand_preview.py
 python3 test_preview_consistency.py
+python3 build_assembly_preview.py
 python3 -m http.server 8000
 ```
 
-浏览器装配页位于 [`preview/index.html`](preview/index.html)，可以切换装配、爆炸、打印拼盘和零件清单；真实打印件按 manifest 加载，电子腔专页加载包含 PCB 直装按键/LED/USB-C 模型的 KiCad 板级 STL，并把屏幕/扬声器等 SCAD 线束实体作为装配件检查。重点查看：
+浏览器装配页位于 [`preview/index.html`](preview/index.html)，可以切换装配、爆炸、打印拼盘和零件清单；真实打印件按 manifest 加载，电子腔专页加载包含 PCB 直装按键/LED/USB-C 模型的 KiCad 板级 STL，并把屏幕/扬声器等 SCAD 线束实体作为装配件检查。通用模板版位于 [`preview/assembly/`](preview/assembly/)，生成后直接打开 `http://localhost:8000/preview/assembly/`。它使用 `scad-assembly-web-preview` 的 manifest/frame/group/instance/stage 引擎，提供装配树、分组筛选、单件显隐、XYZ 标准轴、预设视角、维护阶段和爆炸播放；`build_assembly_preview.py` 会从当前正式打印件 manifest 读取 STL，把源几何局部化并去重后写入被 gitignore 的 `preview/assembly/models/`。模板 manifest 还把 `net_stand.scad` 的球台台面、网布和网顶高度线作为半透明诊断参考件加入总装配，并用 frame 父子关系表达“球台 → C 夹 → 立柱 → M6 端”和“C 夹内壁 → UI/电子腔 → KiCad 板/屏幕/导光柱”的挂载链；这些环境参考件不属于打印清单，选中实例时左侧详情会显示挂载接口和父 frame。
+
+模板版是当前正式 SCAD/STL 的可视化装配入口，维护阶段是用于检查装配关系的视觉位移，不代表动力学、强度、防水或实物干涉已经验收。正式 STL 清单缺失时先运行 `python3 export_net_stand_printables.py --clean`，再运行 `python3 build_assembly_preview.py`。
 
 网页装配页现在只加载正式 manifest 中的 C 方案夹体半件和黄绿连接件；旧候选腿脚和让位审查网格已从预览入口移除，不会再与正式模型叠加。三维工具栏的“立柱/C夹”重点视角直接查看当前正式零件，并支持 y=0 分型合拢/爆炸检查，便于检查 M5 boss、螺母窝、电子腔和底座让位腔。
 
