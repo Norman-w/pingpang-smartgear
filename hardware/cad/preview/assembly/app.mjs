@@ -30,6 +30,11 @@ async function main() {
     runtime.setMotionAdapter(module.createMotionAdapter(runtime, manifest));
   }
   $("#title").textContent = manifest.title || "装配预览";
+  const roleLabels = {
+    printed: "打印",
+    purchased: "外采",
+    diagnostic: "环境/参考",
+  };
   const groups = runtime.index.groups;
   const groupSelect = $("#group-filter");
   for (const group of groups.values()) {
@@ -45,6 +50,53 @@ async function main() {
   $("#group-actions").hidden = !showGroups;
   $("#filters").hidden = !showSearch && !showGroups;
   $("#filters").classList.toggle("single-control", !showSearch || !showGroups);
+  const scopeCounts = new Map();
+  for (const record of runtime.index.parts.values()) {
+    const scope = record.extensions?.scope ||
+      (record.role === "printed" ? "project-print" : "external-reference");
+    const current = scopeCounts.get(scope) || { role: record.role || "diagnostic", count: 0 };
+    current.count += record.instances.length;
+    scopeCounts.set(scope, current);
+  }
+  const scopeNames = {
+    "project-print": "本工程打印件",
+    purchased: "外采件（不打印）",
+    "external-environment": "外部环境",
+    "external-reference": "外部参考实体",
+  };
+  const scopeList = $("#scope-list");
+  for (const [scope, value] of scopeCounts) {
+    const item = document.createElement("li");
+    item.append(document.createTextNode(scopeNames[scope] || scope));
+    const count = document.createElement("strong");
+    count.textContent = `${value.count} 个`;
+    item.append(count);
+    scopeList.append(item);
+  }
+  const procurementItems = manifest.extensions?.procurementItems || [];
+  const procurementList = $("#procurement-list");
+  for (const item of procurementItems) {
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = `${item.name || item.id} · ${item.quantity || "数量待定"}`;
+    details.append(summary);
+    const meta = document.createElement("p");
+    meta.className = "procurement-item-meta";
+    meta.textContent = `${item.kind || "外部件"} · ${item.status || "状态待定"}`;
+    details.append(meta);
+    if (item.notes) {
+      const notes = document.createElement("p");
+      notes.className = "procurement-item-notes";
+      notes.textContent = item.notes;
+      details.append(notes);
+    }
+    procurementList.append(details);
+  }
+  if (!procurementItems.length) $("#procurement-summary").hidden = true;
+  const retired = manifest.extensions?.retiredExternalParts || [];
+  if (retired.length) {
+    $("#retired-summary").textContent = `已从当前装配移除：${retired.map((item) => item.name).join("、")}`;
+  }
   const stageSelect = $("#stage");
   for (const stage of runtime.index.stages.values()) {
     const option = document.createElement("option");
@@ -109,6 +161,7 @@ async function main() {
   const inspector = $("#inspector");
   const selectedName = $("#selected-name");
   const selectedSource = $("#selected-source");
+  const selectedScope = $("#selected-scope");
   const selectedMount = $("#selected-mount");
   const selectedOpacity = $("#selected-opacity");
   const selectedOpacityValue = $("#selected-opacity-value");
@@ -118,6 +171,7 @@ async function main() {
     const record = runtime.instances.get(selectedId);
     inspector.hidden = !record;
     if (!record) {
+      selectedScope.textContent = "";
       selectedMount.textContent = "";
       return;
     }
@@ -126,6 +180,9 @@ async function main() {
       item.id === record.spec.componentBindingId);
     selectedSource.textContent = `${record.part.source.file} · ${record.part.file}` +
       (binding ? ` · ${binding.name || binding.id} (${binding.islandId})` : "");
+    const scope = record.part.extensions?.scope ||
+      (record.part.role === "printed" ? "project-print" : "external-reference");
+    selectedScope.textContent = `范围：${roleLabels[record.part.role] || record.part.role || "未标注"} · ${scopeNames[scope] || scope}`;
     const selectedFrame = runtime.index.frames.get(record.spec.parentFrameId);
     const relation = mountRelations.get(selectedFrame?.parentFrameId) ||
       mountRelations.get(record.spec.parentFrameId);
@@ -170,7 +227,8 @@ async function main() {
     const binding = record.part.componentBindings?.find((item) =>
       item.id === record.spec.componentBindingId);
     return [record.part.name, record.part.id, record.spec.name, record.spec.id,
-      record.part.file, record.part.groupId, binding?.id, binding?.name, binding?.islandId].some((value) =>
+      record.part.file, record.part.groupId, record.part.role,
+      record.part.extensions?.scope, binding?.id, binding?.name, binding?.islandId].some((value) =>
       String(value || "").toLocaleLowerCase().includes(query));
   };
   const frameMatches = (frameId) => {
@@ -204,7 +262,8 @@ async function main() {
       checkbox.setAttribute("aria-label", `显示 ${instanceId}`);
       checkbox.addEventListener("change", () => runtime.setVisible(instanceId, checkbox.checked));
       const name = record.spec.name || record.part.name || instanceId;
-      const inspect = button(name, () => {
+      const role = roleLabels[record.part.role] || record.part.role || "对象";
+      const inspect = button(`${role} · ${name}`, () => {
         selectedId = instanceId;
         renderInspector();
         focus([instanceId]);

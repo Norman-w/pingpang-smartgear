@@ -35,12 +35,22 @@
             <button id="show-group" type="button">显示当前分组</button>
             <button id="hide-group" type="button">隐藏当前分组</button>
           </div>
+          <div id="scope-summary" class="scope-summary" aria-label="对象范围统计">
+            <h3>对象范围</h3>
+            <ul id="scope-list" class="scope-list"></ul>
+          </div>
+          <section id="procurement-summary" class="procurement-summary" aria-labelledby="procurement-heading">
+            <h3 id="procurement-heading">采购清单（不进打印盘）</h3>
+            <div id="procurement-list" class="procurement-list"></div>
+            <p id="retired-summary" class="source"></p>
+          </section>
           <div id="tree" class="tree" aria-live="polite"></div>
         </section>
         <section id="inspector" aria-labelledby="inspector-heading" hidden>
           <h2 id="inspector-heading">单件详情</h2>
           <strong id="selected-name"></strong>
           <p id="selected-source" class="source"></p>
+          <p id="selected-scope" class="source"></p>
           <p id="selected-mount" class="source"></p>
           <div class="row">
             <button id="focus-selected" type="button">聚焦</button>

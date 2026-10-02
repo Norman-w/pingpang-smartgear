@@ -127,6 +127,127 @@ def _box_triangles(size: Sequence[float]) -> list[tuple[tuple[float, float, floa
     return triangles
 
 
+def _translate_triangles(
+    triangles: Iterable[Sequence[tuple[float, float, float]]],
+    offset: Sequence[float],
+) -> list[tuple[tuple[float, float, float], ...]]:
+    return [
+        tuple(tuple(vertex[index] + float(offset[index]) for index in range(3)) for vertex in triangle)
+        for triangle in triangles
+    ]
+
+
+def _cylinder_triangles(
+    radius: float,
+    height: float,
+    *,
+    axis: str = "z",
+    origin: Sequence[float] = (0.0, 0.0, 0.0),
+    segments: int = 32,
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Make a small faceted cylinder for a purchased-part envelope."""
+
+    if axis not in {"x", "y", "z"}:
+        raise ValueError(f"unsupported cylinder axis: {axis}")
+    ox, oy, oz = (float(value) for value in origin)
+
+    def point(distance: float, angle: float) -> tuple[float, float, float]:
+        c, s = radius * math.cos(angle), radius * math.sin(angle)
+        if axis == "x":
+            return ox + distance, oy + c, oz + s
+        if axis == "y":
+            return ox + c, oy + distance, oz + s
+        return ox + c, oy + s, oz + distance
+
+    triangles: list[tuple[tuple[float, float, float], ...]] = []
+    start_center = (ox, oy, oz)
+    end_center = point(height, 0.0)
+    for index in range(segments):
+        a0 = 2 * math.pi * index / segments
+        a1 = 2 * math.pi * (index + 1) / segments
+        p0, p1 = point(0.0, a0), point(0.0, a1)
+        q0, q1 = point(height, a0), point(height, a1)
+        triangles.extend(((p0, p1, q1), (p0, q1, q0)))
+        triangles.extend(((start_center, p1, p0), (end_center, q0, q1)))
+    return triangles
+
+
+def _sphere_triangles(
+    radius: float,
+    center: Sequence[float],
+    *,
+    segments: int = 24,
+    rings: int = 12,
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Make a faceted sphere for the visible metal ball in the purchased head."""
+
+    cx, cy, cz = (float(value) for value in center)
+
+    def point(phi: float, theta: float) -> tuple[float, float, float]:
+        return (
+            cx + radius * math.sin(phi) * math.cos(theta),
+            cy + radius * math.sin(phi) * math.sin(theta),
+            cz + radius * math.cos(phi),
+        )
+
+    triangles: list[tuple[tuple[float, float, float], ...]] = []
+    for ring in range(rings):
+        phi0 = math.pi * ring / rings
+        phi1 = math.pi * (ring + 1) / rings
+        for segment in range(segments):
+            theta0 = 2 * math.pi * segment / segments
+            theta1 = 2 * math.pi * (segment + 1) / segments
+            a, b = point(phi0, theta0), point(phi0, theta1)
+            c, d = point(phi1, theta1), point(phi1, theta0)
+            if ring == 0:
+                triangles.append((a, c, d))
+            elif ring == rings - 1:
+                triangles.append((a, b, c))
+            else:
+                triangles.extend(((a, b, c), (a, c, d)))
+    return triangles
+
+
+def _purchased_ballhead_triangles() -> list[tuple[tuple[float, float, float], ...]]:
+    """Approximate the purchased 13 mm ballhead and both threaded interfaces.
+
+    This is a display envelope only.  It is intentionally tagged as a
+    purchased part in the manifest and must not be mistaken for printable CAD.
+    """
+
+    # The local datum is the centre of the 13 mm ball.  The body is a 28 mm
+    # long x-oriented housing; the selected M8 stud points z- and the fixed
+    # 1/4-20 stud points x- into the rear-cover boss.  This is a transparent
+    # envelope for an already purchased part, not a replacement thread model.
+    triangles = _translate_triangles(_box_triangles((28.0, 24.0, 26.0)), (0.0, -12.0, -13.0))
+    triangles += _sphere_triangles(6.5, (14.0, 0.0, 0.0))
+    triangles += _cylinder_triangles(16.0, 8.0, origin=(14.0, 0.0, -17.0))
+    triangles += _cylinder_triangles(4.0, 28.0, origin=(14.0, 0.0, -45.0))
+    triangles += _cylinder_triangles(3.175, 16.0, axis="x", origin=(-16.0, 0.0, 0.0))
+    triangles += _cylinder_triangles(9.0, 8.0, axis="y", origin=(14.0, -20.0, 0.0))
+    return triangles
+
+
+def _purchased_m6_sensor_array_triangles(
+    count: int = 10,
+    pitch: float = 20.0,
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Approximate one side's repeated purchased right-angle M6 sensors.
+
+    One shared mesh is used for the ten identical devices on each side.  The
+    mesh is an installation envelope only; the vendor SKU and cable exit still
+    need to be checked against the delivered parts.
+    """
+
+    triangles: list[tuple[tuple[float, float, float], ...]] = []
+    for index in range(count):
+        offset_z = float(index) * pitch
+        triangles += _translate_triangles(_box_triangles((6.0, 10.0, 8.0)), (0.0, -5.0, -4.0 + offset_z))
+        triangles += _cylinder_triangles(3.0, 14.0, axis="x", origin=(6.0, 0.0, offset_z))
+        triangles += _cylinder_triangles(2.0, 10.0, axis="z", origin=(3.0, 0.0, -14.0 + offset_z))
+    return triangles
+
+
 def _rotate_xyz(vertex: Sequence[float], rotation: Sequence[float]) -> tuple[float, float, float]:
     x, y, z = vertex
     rx, ry, rz = rotation
@@ -193,11 +314,13 @@ def _local_stl_bytes(
 
 def _group_for(part: str) -> tuple[str, str, str]:
     if part == "context_tabletop":
-        return "context", "球台与网布安装环境", "#64748b"
+        return "context", "外部环境（球台与网布）", "#64748b"
     if part == "context_net_fabric":
-        return "net", "球网与圆柱插杆", "#9bd9d1"
+        return "context", "外部环境（球台与网布）", "#9bd9d1"
     if part == "context_net_height_reference":
-        return "reference", "标定参考件", "#8492a6"
+        return "context", "外部环境（球台与网布）", "#8492a6"
+    if part.startswith("purchased_"):
+        return "purchased", "采购件（不打印）", "#d98b44"
     if part.startswith("electronics_"):
         return "electronics", "KiCad 线路板与板载器件", "#3aa4cf"
     if part.startswith("ui_"):
@@ -304,7 +427,8 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
     m6_raise_z = max(20.0, 168.5 + 2.0 - raw_shell_bottom_z)
 
     groups = [
-        {"id": "context", "label": "球台与网布安装环境"},
+        {"id": "context", "label": "外部环境（球台与网布）"},
+        {"id": "purchased", "label": "采购件（不打印）"},
         {"id": "c-clamp", "label": "C 夹分型与 UI 面板"},
         {"id": "upright", "label": "斜立柱与底座"},
         {"id": "net", "label": "球网与圆柱插杆"},
@@ -334,11 +458,13 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
         ("context-reference", "球网高度参考线（诊断）", "context-net", "reference", "SCAD net_top datum"),
         ("mount-right-clamp", "右侧 C 夹总成", "world", "mount", "夹口夹持球台边缘"),
         ("mount-right-post", "右侧立柱总成（挂到 C 夹）", "mount-right-clamp", "mount", "底座安装面/分型面"),
-        ("mount-right-m6", "右侧 M6 光电端（挂到立柱）", "mount-right-post", "mount", "立柱顶部球头/适配面"),
+        ("mount-right-ballhead", "右侧采购球头/连接接口", "mount-right-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"),
+        ("mount-right-m6", "右侧 M6 光电端（挂到采购球头）", "mount-right-ballhead", "mount", "后盖 boss 与球头 1/4-20 螺柱同轴"),
         ("mount-right-ui", "右侧 UI/电子腔（挂到 C 夹内壁）", "mount-right-clamp", "mount", "y+ 内壁 UI 安装面"),
         ("mount-left-clamp", "左侧 C 夹总成", "world", "mount", "夹口夹持球台边缘"),
         ("mount-left-post", "左侧立柱总成（挂到 C 夹）", "mount-left-clamp", "mount", "底座安装面/分型面"),
-        ("mount-left-m6", "左侧 M6 光电端（挂到立柱）", "mount-left-post", "mount", "立柱顶部球头/适配面"),
+        ("mount-left-ballhead", "左侧采购球头/连接接口", "mount-left-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"),
+        ("mount-left-m6", "左侧 M6 光电端（挂到采购球头）", "mount-left-ballhead", "mount", "后盖 boss 与球头 1/4-20 螺柱同轴"),
         ("mount-left-ui", "左侧发射电子腔（挂到 C 夹）", "mount-left-clamp", "mount", "y+ 内壁电子安装面"),
     ]
     mount_relations: list[dict[str, object]] = []
@@ -383,6 +509,10 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             return f"mount-{side_name}-clamp"
         if part == "post_clamp_carrier_upper":
             return f"mount-{side_name}-post"
+        if part == "purchased_ballhead":
+            return f"mount-{side_name}-ballhead"
+        if part == "purchased_m6_sensor_array":
+            return f"mount-{side_name}-m6"
         if part in {"m6_detector_body", "m6_detector_shell_front", "m6_detector_shell_rear",
                     "m6_detector_bottom_cover", "m6_detector_bottom_gasket",
                     "electronics_m6_receiver_carrier_right", "electronics_m6_receiver_carrier_left"}:
@@ -403,6 +533,16 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
     receiver_raw_origin = [780.0, -4.9, 212.5]
     receiver_installed_x = receiver_raw_origin[0] + right_m6_offset_x
     receiver_installed_z = receiver_raw_origin[2] + m6_raise_z
+    raw_ballhead_center_z = (
+        float(rear_bounds["min"][2]) + float(rear_bounds["max"][2])
+    ) / 2
+    installed_ballhead_center_z = raw_ballhead_center_z + m6_raise_z
+    # These two values mirror the authoritative SCAD datums
+    # (table_edge_x + optical_beam_edge_overlap and beam_first_height).  They
+    # are used only to place the purchased display envelope against the same
+    # M6 openings; the source SCAD remains the dimensional authority.
+    installed_sensor_axis_x = 762.5 + 0.5 + right_m6_offset_x
+    installed_sensor_first_z = 168.5 + 10.0 + m6_raise_z
     # These are the real KiCad-exported board/component solids already used by
     # the electronics maintenance page.  They are external display geometry,
     # not new SCAD parts and not printable replacements for the PCB source.
@@ -555,7 +695,64 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             "notes": "独立透明导光柱，作为 UI 板 LED 的装配参考。",
         },
     ]
-    all_entries = context_entries + entries + external_entries
+    purchased_entries: list[dict[str, object]] = []
+    for side_value, side_name in ((1, "右"), (-1, "左")):
+        purchased_entries.append({
+            "part": "purchased_ballhead",
+            "name_zh": f"13 mm 采购球头/连接接口（{side_name}）",
+            "file": "generated-purchased-ballhead.stl",
+            "source_file": "../../net_stand.scad",
+            "source_kind": "external",
+            "definitions": [
+                "PURCHASED m6_ballhead envelope",
+                "M8x1.25 lower stud -> upright top",
+                "1/4-20 upper stud -> M6 rear boss",
+            ],
+            "side_value": side_value,
+            "generated_geometry": "purchased-ballhead",
+            "display_position": [
+                post_center_x - 30.0 if side_value == 1 else -post_center_x - 14.0,
+                -20.0,
+                installed_ballhead_center_z - 45.0,
+            ],
+            "mirror_x": side_value < 0,
+            "motion_axis": [0.0, 0.0, 1.0],
+            "motion_max": 18.0,
+            "explosion": [side_value * 150.0, -28.0, 18.0],
+            "color": "#d98b44",
+            "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端选 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端固定 1/4-20 外牙沿 x 进入 M6 后盖中央 boss，并由采购螺母锁紧。旧版 90° 独立连接器不属于当前方案。",
+            "scope": "purchased",
+            "procurement_status": "外购；螺纹有效长度和旋钮净空需按到货件复核",
+            "assembly_role": "立柱与 M6 后盖之间的可调承力接口",
+        })
+        purchased_entries.append({
+            "part": "purchased_m6_sensor_array",
+            "name_zh": f"M6 直角光电件阵列包络（{side_name}，10 枚）",
+            "file": "generated-purchased-m6-sensor-array.stl",
+            "source_file": "../../net_stand.scad",
+            "source_kind": "external",
+            "definitions": [
+                "PURCHASED m6_sensor_array envelope",
+                "M6x0.75; 10 pcs; pitch 20 mm",
+            ],
+            "side_value": side_value,
+            "generated_geometry": "purchased-m6-sensor-array",
+            "display_position": [
+                installed_sensor_axis_x if side_value == 1 else -installed_sensor_axis_x - 20.0,
+                -5.0,
+                installed_sensor_first_z - 14.0,
+            ],
+            "mirror_x": side_value < 0,
+            "motion_axis": [side_value * 1.0, 0.0, 0.0],
+            "motion_max": 14.0,
+            "explosion": [side_value * 70.0, -24.0, 12.0],
+            "color": "#b6b8bd",
+            "notes": "外采 M6×0.75 直角发射/接收器的十枚重复包络；光学端沿光束轴进入主体，头部和安装杆由当前 M6 壳体的开孔包络承接。这里显示一份共享阵列网格，采购数量为左右各 10 枚；实际 SKU、尾线方向和锁紧螺母仍需实测。",
+            "scope": "purchased",
+            "procurement_status": "外购；左右各 10 枚，型号后缀和输出方式需核对",
+            "assembly_role": "M6 外采光电头插入打印主体/壳体的安装包络",
+        })
+    all_entries = context_entries + purchased_entries + entries + external_entries
 
     for index, raw in enumerate(all_entries):
         entry = dict(raw)
@@ -564,7 +761,12 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             if entry.get("source_kind") == "external"
             else source_path.parent / str(entry["file"])
         )
-        if entry.get("generated_box"):
+        generated_geometry = entry.get("generated_geometry")
+        if generated_geometry == "purchased-ballhead":
+            triangles = _purchased_ballhead_triangles()
+        elif generated_geometry == "purchased-m6-sensor-array":
+            triangles = _purchased_m6_sensor_array_triangles()
+        elif entry.get("generated_box"):
             triangles = _box_triangles(entry["generated_box"]["size"])
         else:
             if not source_file.is_file():
@@ -610,7 +812,14 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             rotation = [0.0, 0.0, 0.0]
             axis = list(entry.get("motion_axis", [0.0, 1.0, 0.0]))
             motion_range = [0.0, float(entry.get("motion_max", 42.0))]
-        kind = "diagnostic" if entry.get("source_kind") == "external" or entry.get("generated_box") or entry.get("part") == "calibration_gauge" else "printed"
+        kind = entry.get("role")
+        if kind is None:
+            if entry.get("scope") == "purchased":
+                kind = "purchased"
+            elif entry.get("source_kind") == "external" or entry.get("generated_box") or entry.get("part") == "calibration_gauge":
+                kind = "diagnostic"
+            else:
+                kind = "printed"
         visible = bool(entry.get("visible", entry.get("part") != "calibration_gauge"))
         name = f"{entry.get('name_zh') or entry['part']} · {_side_label(side)}"
         selector = "; ".join(str(value) for value in entry.get("definitions", [])) or str(entry["part"])
@@ -688,12 +897,25 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
                 "originalBounds": {"min": list(minimum), "max": list(maximum)},
                 "notes": entry.get("notes") or entry.get("orientation") or "",
                 "mountFrameId": parent_frame_id,
+                "scope": entry.get(
+                    "scope",
+                    "project-print" if kind == "printed" else
+                    "external-environment" if entry.get("generated_box") else
+                    "external-reference",
+                ),
             },
         }
+        if entry.get("procurement_status"):
+            part_record["extensions"]["procurementStatus"] = entry["procurement_status"]
+        if entry.get("assembly_role"):
+            part_record["extensions"]["assemblyRole"] = entry["assembly_role"]
+        if generated_geometry:
+            part_record["extensions"]["geometryStatus"] = "display envelope only; not printable CAD"
         parts.append(part_record)
         instances_by_part.setdefault(str(entry["part"]), []).append(instance)
-        if entry["part"] in {"clamp_electronics_ui_panel_mount", "m6_detector_body", "post_clamp_carrier_upper", "net_clamp_rod", "context_tabletop", "context_net_fabric", "context_net_height_reference"}:
+        if entry["part"] in {"clamp_electronics_ui_panel_mount", "m6_detector_body", "post_clamp_carrier_upper", "net_clamp_rod", "context_tabletop", "context_net_fabric", "context_net_height_reference"} or entry["part"].startswith("purchased_"):
             focus_ids.setdefault(str(entry["part"]), []).append(instance_id)
+            focus_ids.setdefault("purchased", []).append(instance_id)
 
     def values_for(stage: str) -> dict[str, float]:
         result: dict[str, float] = {}
@@ -707,6 +929,19 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
 
     source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
     source_rel = (Path("..", "..") / source_path.relative_to(CAD_ROOT)).as_posix()
+    procurement_items = [
+        {
+            "id": item.get("id"),
+            "name": item.get("name_zh") or item.get("name_en") or item.get("id"),
+            "kind": item.get("kind"),
+            "status": item.get("status"),
+            "quantity": item.get("quantity"),
+            "scadPart": item.get("scad_part"),
+            "notes": item.get("notes", ""),
+        }
+        for item in source.get("assembly_components", [])
+        if not item.get("printable", False)
+    ]
     manifest: dict[str, object] = {
         "schemaVersion": 1,
         "title": "球网架通用装配预览 · 模板引擎",
@@ -742,7 +977,8 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             {"id": "left", "label": "左视（X-）", "direction": [-1, 0, 0]},
             {"id": "top", "label": "俯视（Z+）", "direction": [0, 0, 1]},
             {"id": "ui", "label": "UI 面板与电子腔", "direction": [0, 1, 0], "focusInstanceIds": focus_ids.get("clamp_electronics_ui_panel_mount", [])},
-            {"id": "m6", "label": "M6 光电端", "direction": [1, 0.35, 0.25], "focusInstanceIds": focus_ids.get("m6_detector_body", [])},
+            {"id": "m6", "label": "M6 光电端", "direction": [1, 0.35, 0.25], "focusInstanceIds": focus_ids.get("m6_detector_body", []) + focus_ids.get("purchased_ballhead", []) + focus_ids.get("purchased_m6_sensor_array", [])},
+            {"id": "purchased", "label": "采购件与安装接口", "direction": [1, 0.55, 0.35], "focusInstanceIds": focus_ids.get("purchased", [])},
             {"id": "post", "label": "立柱分型", "direction": [1, 0.5, 0.4], "focusInstanceIds": focus_ids.get("post_clamp_carrier_upper", [])},
             {"id": "net", "label": "网杆入口", "direction": [1, 0.3, 0.25], "focusInstanceIds": focus_ids.get("net_clamp_rod", [])},
         ],
@@ -754,7 +990,22 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             "generatedGeometry": "local STL copies are derived from the formal export and are ignored by git",
             "motionStatus": "visual-service-stages; not a dynamics, load, or interference proof",
             "mountRelations": mount_relations,
-            "treeSemantics": "frames describe installed parent-child dependencies; diagnostic context solids are not printable parts",
+            "treeSemantics": "frames describe installed parent-child dependencies; purchased parts stay in their real mount subtree; diagnostic context solids are not printable parts",
+            "scopePolicy": {
+                "project-print": "正式打印件，来源为当前打印 manifest",
+                "purchased": "外采实体或外采实体包络，不进入打印盘",
+                "external-environment": "球台/网布等项目外部安装环境，不是本工程零件",
+                "external-reference": "KiCad/SCAD 外部参考实体；用于装配查看，不改变打印清单",
+            },
+            "procurementItems": procurement_items,
+            "retiredExternalParts": [
+                {
+                    "id": "legacy-90-degree-m6-connector",
+                    "name": "旧版 90°金属连接件/独立适配板",
+                    "status": "retired",
+                    "reason": "当前方案由 13 mm 采购球头的 M8 下端直接进入立柱、1/4-20 上端直接进入 M6 后盖 boss；旧件不再属于当前装配。",
+                },
+            ],
             "groupLegend": {group_id: label for group_id, label, _color in [
                 _group_for(str(item["part"])) for item in all_entries
             ]},
