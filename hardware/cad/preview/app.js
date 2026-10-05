@@ -94,7 +94,7 @@ const ASSEMBLY_STEPS = [
   { number: 1, label: "桌下夹紧与立柱", description: "两侧传统 C 形夹、保护垫、12 mm 大径/4 mm 螺距 PETG 锥形粗牙螺杆和配套打印螺母固定在球台边缘；牙根和凹槽各约 2 mm，外侧锥尖约 0.4 mm，牙根为连续实体带；上下结构舌头同步向台内延长 20 mm，台下有效伸入为 82 mm，粗牙压紧件位于下舌头中点；台底压紧盘放大为 Ø50。保留桌面夹持开口、压块和螺杆工作区，桌边外侧非接触区沿 y 全深做成实心桥体；上下结构夹臂均为 14 mm，靠球台侧下部支撑厚 40 mm，向外侧以 14 mm 下夹臂收口并形成斜底；底部手拧旋钮采用外径 40 mm、18 齿圆角锯齿握持圈，旋钮两侧 7 mm 加固斜墙与 C 夹本体一体打印，接触软垫仍独立可替换。" },
   { number: 2, label: "固定灰色主体 / C 方案推入接口", description: "C 形主体沿 y=0 分为操作者侧和对手侧两个半体；9 个横向 M5 连接点、前侧圆头沉孔和后侧防转六角螺母窝把上夹板、下臂与外侧桥体锁成一个承力框。只有连接到电子仓空腔面的点增加 printed boss 和十字肋，完全位于实心夹臂里的点只保留通孔/沉孔，避免外壳鼓包。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；右侧桥体整段内缩形成约 117×40 mm 的电子仓，保留约 15.5 mm 上部承力层、9 mm 侧壁和一体化 4 mm 斜底。两半分开后从 y=0 分型面装入主控 PCB：按 KiCad Edge.Cuts 形状相减出板形让位，x− 端的 [ 夹件和 x+ 端的 ] 夹件分别由外侧竖根、下承托唇和上限位唇组成，合拢后形成 [——主板——]，完成夹持；不再使用主板底部柱、定位柱或主板螺丝；x+ 外侧墙与分型承力 boss 保持完整，底盖和连续垫不进入正式打印包，y+ 侧安装正式 UI 交互面板压框，面框只提供屏幕、按键、LED、扬声器和唯一 Type-C 充电口；两半合拢后，绿色 C 方案整体底座从 x+ 水平推入灰色腔体，黄色斜立柱下段坐在绿色顶面 z=16 mm，上段在 z=230.5 mm 分型并继续到 z=260.5 mm。绿色件保留两枚 Ø4 mm 通孔、中央 Ø6×2 mm 底坑和 15 mm 两侧外伸，灰色夹体配套 Ø4.4 mm 孔与 4 mm 钢球/弹簧定位。当前正式打印件是下段、顶部 30 mm 上段和固定 C 夹半体，没有双 T 槽、独立滑轨或旧式共面落座。分型总间隙 0.20 mm 用于打印装配。" },
   { number: 3, label: "网布空心边套与圆柱插杆", description: "立柱分型不属于网夹：顶部下 30 mm 的下段/上段由公母键和四枚 M3×40 连接。先把球网侧边的空心布套套在一根 Ø10 mm 连续圆柱插杆上，再沿原门洞轴线从 x 侧推入下段侧开接收腔；插杆底端落在 z=16 mm，长度覆盖网布的 z=16…168.5 mm 区域，最后把上段滑入并封住插入口。预览中的半透明圆筒只表示网布空心边套，正式打印件只有一根圆柱插杆；门洞横向宽度保持历史 15.2 mm，旧的矩形 U 夹、长方形卡条和 keeper 已移除。" },
-  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖 boss 根部由 y± 两条实体桥接肋连接到后壳侧壁，中央 Ø7 通孔保持无遮挡；竖直采购 13 mm 球头按实物包络显示，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔，后盖 boss 与球头水平安装轴心共线；取消旧版横向承托臂和旧版独立连接器。" },
+  { number: 4, label: "M6 45° L 型主体、x 向分体壳与竖直球头", description: "先把左右各十个 M6 直角发射/接收器的中空 M6 外丝轴朝向球台中心：右侧螺纹末端中心孔朝 x-、左侧镜像后朝 x+；器件从各自 x 外侧插入 10×56×216 mm 加宽加厚 PETG 长方条主体，灰色六角留在外侧浅六角窝内，朝台内平滑面带一枚原配螺帽，蓝色尾线局部沿 z-，整件绕光束 x 轴转 -45° 后向 y-/z- 斜向离开；通道中心按 20 mm 节距排列，x- 光学前盖为正球弧、x+ 线缆后盖在接驳边保留直角、仅后端两个角圆滑，两盖共享 y± 边槽并配底盖；后盖向 x+ 外伸 52×38×16 mm 承台，底面开向下的 1/4-20 打印内丝，z+ 天空侧两条加强筋回接后墙；竖直采购 13 mm 球头的上端 1/4-20 朝 z+ 进入承台，下端 M8 外牙沿 z- 进入浅黄色固定网柱顶面中心的攻丝底孔；取消旧版横向承托臂和旧版独立连接器。" },
   { number: 5, label: "机械参考线与最终检查", description: "历史参考线仍用 +10…+100 mm；当前 M6 阵列原始通道用 +10…+190 mm、安装后按壳体底部越过网顶 2 mm 自动抬高 29 mm，为 +39…+219 mm，按 20 mm 节距核对两侧阵列平行度与微调锁紧；最后检查绿色底座是否沿 x+ 推入灰色让位腔、两枚 Ø4/Ø4.4 孔是否对齐、中央 Ø6×2 mm 底坑与 4 mm 钢球是否到位、网布/圆柱插杆顶端 z=168.5 mm、球头底座与立柱顶端 z=260.5 mm、底座以上 30 mm 实心锥形渐变到 z=46 mm 后保持 28×38 mm、网布 3 mm 过道和圆柱插杆盲孔畅通、两侧 PVDF 传感器和所有盖板严丝合缝；器件输出参数仍以实测证据为准。" },
 ];
 
@@ -423,13 +423,12 @@ function sourcePrintableEntries() {
 const M6_PREVIEW_MIN_RAISE_Z = 20;
 const M6_PREVIEW_NET_TOP_Z = 168.5;
 const M6_PREVIEW_SHELL_CLEARANCE_Z = 2;
-const M6_PREVIEW_BALLHEAD_STUD_LENGTH_X = 16;
-const M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X = 12;
-const M6_PREVIEW_BALLHEAD_GAP_X = 2;
 const M6_PREVIEW_BALLHEAD_HOUSING_D = 28;
 const M6_PREVIEW_BALLHEAD_HOUSING_LENGTH_Z = 26;
 const M6_PREVIEW_BALLHEAD_BASE_T = 8;
 const M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z = 28;
+const M6_PREVIEW_PLATFORM_LENGTH_X = 52;
+const M6_PREVIEW_PLATFORM_THREAD_OFFSET_X = 34;
 
 function deriveAssemblyDatums(entries) {
   const rightPost = entries.find((entry) => entry.part === "post_clamp_carrier_lower"
@@ -461,11 +460,13 @@ function deriveAssemblyDatums(entries) {
     postUpperBounds?.max?.[2] ?? 0,
     260.5,
   );
-  const rearMaxX = rearBounds?.max?.[0] ?? 796.4;
+  const rearMaxX = rearBounds?.max?.[0] ?? 834.4;
+  // The rear STL bound includes the new outward platform.  Its thread axis
+  // is platform-max minus 52 mm plus the 34 mm thread offset, not the old
+  // horizontal-boss clearance measured from the STL tip.
   const rawBallheadCenterX = rearMaxX
-    + (M6_PREVIEW_BALLHEAD_STUD_LENGTH_X - M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X)
-    + M6_PREVIEW_BALLHEAD_GAP_X
-    + M6_PREVIEW_BALLHEAD_HOUSING_D / 2;
+    - M6_PREVIEW_PLATFORM_LENGTH_X
+    + M6_PREVIEW_PLATFORM_THREAD_OFFSET_X;
   const rawBallheadCenterZ = rearBounds
     ? (rearBounds.min[2] + rearBounds.max[2]) / 2
     : 252.5;
@@ -839,7 +840,8 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
   }));
 
   // Current M6 assembly contract. The detector is a plain PETG rectangle;
-  // the rear PETG cover has the visible thickened 1/4-20 boss. The purchased
+  // the rear PETG cover has the visible outward platform with a downward
+  // printed 1/4-20 female thread. The purchased
   // ballhead is vertical and its downward M8 stud lands on the flat top of the
   // same fixed post. All z values below start in the raw source frame and are
   // shifted together by the derived shell-clearance datum.
@@ -911,32 +913,34 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     receiverOpticalMinX: 754.85,
     receiverNutMinX: 756.25,
     shellSupportBossMinX: 782.4,
-    shellSupportBossMaxX: 796.4,
-    shellSupportBossLengthX: 14,
+    shellSupportBossMaxX: 834.4,
+    shellSupportBossLengthX: 52,
     shellSupportBossOverlapX: 3,
-    shellSupportBossMinY: -9,
-    shellSupportBossMaxY: 9,
-    shellSupportBossDepthY: 18,
-    shellSupportBossCenterX: 789.4,
+    shellSupportBossMinY: -19,
+    shellSupportBossMaxY: 19,
+    shellSupportBossDepthY: 38,
+    shellSupportBossCenterX: 808.4,
     shellSupportBossCenterY: 0,
-    shellSupportBossBottomZ: 234.5,
-    shellSupportBossTopZ: 270.5,
-    shellSupportBossHeightZ: 36,
-    shellSupportBossRadius: 2,
-    shellSupportGussetMinX: 782.2,
-    shellSupportGussetMaxX: 785.6,
-    shellSupportGussetXOverlap: 0.2,
-    shellSupportGussetRootYStart: 4,
-    shellSupportGussetWallYStart: 28,
-    shellSupportGussetRootWidthY: 5,
-    shellSupportGussetWallWidthY: 2.4,
-    shellSupportGussetBottomZ: 246.5,
-    shellSupportGussetTopZ: 258.5,
-    shellSupportGussetHeightZ: 12,
-    shellSupportHoleD: 7,
+    shellSupportBossBottomZ: 271.5,
+    shellSupportBossTopZ: 287.5,
+    shellSupportBossHeightZ: 16,
+    shellSupportBossRadius: 3,
+    shellSupportGussetMinX: 782.4,
+    shellSupportGussetMaxX: 834.4,
+    shellSupportGussetXOverlap: 1,
+    shellSupportGussetRootYStart: 15,
+    shellSupportGussetWallYStart: 15,
+    shellSupportGussetRootWidthY: 4,
+    shellSupportGussetWallWidthY: 4,
+    shellSupportGussetBottomZ: 271.5,
+    shellSupportGussetTopZ: 311.5,
+    shellSupportGussetHeightZ: 24,
+    shellSupportHoleD: 7.35,
     shellSupportHoleDepthX: 14,
-    shellSupportHoleEntryX: 796.4,
-    shellSupportStudEngagementX: 12,
+    shellSupportHoleEntryX: 816.4,
+    shellSupportHoleCenterY: 0,
+    shellSupportHoleEntryZ: 271.5,
+    shellSupportStudEngagementX: 14,
     ballheadBallD: 13,
     ballheadHousingD: 28,
     ballheadHousingLength: 26,
@@ -951,6 +955,10 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     ballheadCenterX: assemblyDatums.rawBallheadCenterX,
     ballheadCenterY: 0,
     ballheadCenterZ: assemblyDatums.rawBallheadCenterZ,
+    ballheadSensorPlateCenterZ: assemblyDatums.rawBallheadCenterZ
+      + 13 + 2,
+    ballheadSensorStudCenterZ: assemblyDatums.rawBallheadCenterZ
+      + 13 + 2 + 2 + 8,
     ballheadBaseCenterZ: assemblyDatums.rawBallheadBaseCenterZ,
     ballheadBaseD: 32,
     ballheadBaseT: 8,
@@ -958,9 +966,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
       - M6_PREVIEW_BALLHEAD_BASE_T / 2
       - M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z / 2,
     ballheadNetStudLength: M6_PREVIEW_BALLHEAD_NET_STUD_LENGTH_Z,
-    ballheadSensorStudCenterX: assemblyDatums.rawRearMaxX
-      + M6_PREVIEW_BALLHEAD_STUD_LENGTH_X / 2
-      - M6_PREVIEW_BALLHEAD_STUD_ENGAGEMENT_X,
+    ballheadSensorStudCenterX: assemblyDatums.rawBallheadCenterX,
     ballheadSensorStudD: 6.35,
     ballheadSensorThreadCoreD: 5.35,
     ballheadSensorThreadPitch: 1.27,
@@ -1036,6 +1042,8 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     "ballheadCenterZ",
     "ballheadBaseCenterZ",
     "ballheadNetStudCenterZ",
+    "ballheadSensorPlateCenterZ",
+    "ballheadSensorStudCenterZ",
   ]) {
     m6Geometry[field] += detectorRaiseZ;
   }
@@ -1150,7 +1158,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
           m6Geometry.bodyHeightZ],
         side,
         explosion: [0, 0, 0],
-        notes: "本阶段只显示 PETG 长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；后盖 boss、壳子和采购球头在完整装配模式显示。",
+        notes: "本阶段只显示 PETG 长条主体与真实三维 L 型器件；主体截面加宽到 y=56 mm、加厚到 x=10 mm。灰色 AF8 六角从外侧卡入 2 mm，中空 M6 外丝贯穿主体，朝台内的平滑面带一枚原配螺帽。蓝色护套和黑色尾线按实物绕光束 x 轴 -45° 显示；后盖外伸承台、壳子和采购球头在完整装配模式显示。",
       }));
       for (let index = 0; index < 10; index += 1) {
         const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -1377,8 +1385,8 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     }));
     if (m6Geometry.showShell && !hasSourceM6Part("m6_detector_shell_rear")) items.push(makeAssemblyItem({
       id: `hardware:m6-shell-rear:${sideLabel}`,
-      name_zh: `M6 后盖：直角接驳边/后端圆角与加厚 1/4-20 支撑 boss（${sideName}）`,
-      name_en: "M6 rear cover with straight joint edge, rounded rear corners, and 1/4-20 boss",
+      name_zh: `M6 后盖：直角接驳边/后端圆角与外伸 1/4-20 承台（${sideName}）`,
+      name_en: "M6 rear cover with outward platform and downward 1/4-20 thread",
       kind: "保护壳（非承力）",
       material: "PETG 尺寸样件",
       group: "optical",
@@ -1396,6 +1404,10 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
         boss_radius: m6Geometry.shellSupportBossRadius,
         boss_hole_d: m6Geometry.shellSupportHoleD,
         boss_hole_depth_x: m6Geometry.shellSupportHoleDepthX,
+        boss_hole_depth_z: m6Geometry.shellSupportHoleDepthX,
+        boss_hole_center_x: m6Geometry.shellSupportHoleEntryX - m6Geometry.rearMinX,
+        boss_hole_center_y: m6Geometry.shellSupportHoleCenterY - m6Geometry.shellMinY,
+        boss_hole_entry_z: m6Geometry.shellSupportHoleEntryZ - m6Geometry.shellBottomZ,
         gusset_x_offset: m6Geometry.shellSupportGussetMinX - m6Geometry.rearMinX,
         gusset_length_x: m6Geometry.shellSupportGussetMaxX - m6Geometry.shellSupportGussetMinX,
         gusset_root_y_offset: m6Geometry.shellSupportGussetRootYStart - m6Geometry.shellMinY,
@@ -1412,7 +1424,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
         m6Geometry.shellHeightZ],
       side,
       explosion: [side * 118, 0, 38],
-      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面中央（y=0、z 中心）适当增厚形成支撑 boss，并开 x 向 Ø7.0 1/4-20 外牙通孔，内藏一颗标准 1/4-20 螺母。boss 根部在 y± 两侧各有一条约 3.4×26.4×12 mm 的实体桥接肋，根部从 |y|=4 mm 起并跨到后壳侧壁，避开中央 Ø7 通孔；后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
+      notes: "x+ 线缆端后盖在与前盖接驳处保持直角，只有自身 x+ 后部两个角圆滑；背面向 x+ 外伸 52×38×16 mm 承台，底面 y=0 处开向下的盲 1/4-20 打印内丝，螺纹上方保留实体顶板。承台 z+ 天空侧两端各有一条加强筋回接后墙，避开球头和线缆通道；后盖与主体通过沉头螺丝连接，首样不把薄壳作为唯一弯矩承力件。",
     }));
     if (m6Geometry.showShell && !hasSourceM6Part("m6_detector_bottom_cover")) items.push(makeAssemblyItem({
       id: `hardware:m6-bottom-cover:${sideLabel}`,
@@ -1478,28 +1490,28 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-sensor-stud:${sideLabel}`,
-      name_zh: `后盖 boss x 轴 1/4-20 连接螺柱（${sideName}）`,
-      name_en: "1/4-20 horizontal ball-head stud into rear-cover boss",
+      name_zh: `后盖承台 z+ 1/4-20 连接螺柱（${sideName}）`,
+      name_en: "1/4-20 upward ball-head stud into rear-cover platform",
       kind: "外购云台接口占位",
       material: "外购金属件（非打印）",
       group: "optical",
       shape: "threaded-stud",
       shapeOptions: {
         radius: m6Geometry.ballheadSensorStudD / 2,
-        axis: "x",
+        axis: "z",
         outer_d: m6Geometry.ballheadSensorStudD,
         core_d: m6Geometry.ballheadSensorThreadCoreD,
         pitch: m6Geometry.ballheadSensorThreadPitch,
       },
       base_min: [ballheadStudMinX,
         m6Geometry.ballheadCenterY - m6Geometry.ballheadSensorStudD / 2,
-        m6Geometry.ballheadCenterZ - m6Geometry.ballheadSensorStudD / 2],
-      size: [m6Geometry.ballheadSensorStudLength,
+        m6Geometry.ballheadSensorStudCenterZ - m6Geometry.ballheadSensorStudLength / 2],
+      size: [m6Geometry.ballheadSensorStudD,
         m6Geometry.ballheadSensorStudD,
-        m6Geometry.ballheadSensorStudD],
+        m6Geometry.ballheadSensorStudLength],
       side,
       explosion: [side * 162, -28, 24],
-      notes: "商品上端 1/4-20 外牙金属螺柱沿 x-（左侧镜像为 x+）直接进入各自 x 后端背面中央 boss 的 Ø7.0 通孔，并由隐藏的标准 1/4-20 螺母锁紧；主体保持长方条，不制作 T 尾座。",
+      notes: "商品上端 1/4-20 外牙金属螺柱保持竖直沿 z+，从后盖承台底面进入向下的打印盲内丝；螺柱与承台根部、两侧天空向加强筋共用 y=0 安装基准，不再使用横向通孔或隐藏螺母。",
     }));
     items.push(makeAssemblyItem({
       id: `hardware:m6-ballhead-net-stud:${sideLabel}`,
@@ -1525,7 +1537,7 @@ function makeProxyAssemblyItems(entries, assemblyDatums) {
         m6Geometry.ballheadNetStudLength],
       side,
       explosion: [side * 154, -28, -24],
-      notes: `采购球头下端选择 M8×1.25 外牙，朝 z- 插入浅黄色立柱顶面中心的 M8 攻丝底孔；安装顶面 z=${formatNumber(assemblyDatums.postTopZ)} mm，孔轴 x=${formatNumber(assemblyDatums.postCenterX)}、y=0，与球头底座及后盖 boss 同轴。不设置外露圆形承座、六角螺母窝或侧向承力耳。`,
+      notes: `采购球头下端选择 M8×1.25 外牙，朝 z- 插入浅黄色立柱顶面中心的 M8 攻丝底孔；安装顶面 z=${formatNumber(assemblyDatums.postTopZ)} mm，孔轴 x=${formatNumber(assemblyDatums.postCenterX)}、y=0，与球头底座及后盖承台同轴。不设置外露圆形承座、六角螺母窝或侧向承力耳。`,
     }));
     for (let index = 0; index < 10; index += 1) {
       const z = m6Geometry.sensorBaseZ + index * m6Geometry.sensorPitch;
@@ -2334,7 +2346,7 @@ function renderMode() {
     refs.modelTitle.textContent = state.uiMode === "exploded" ? "网架爆炸预览" : "网架完整装配";
     refs.modelCaption.textContent = state.uiMode === "exploded"
       ? "爆炸距离只沿真实 x 向推入方向改变显示位置；绿色底座在爆炸归零时进入固定灰色 C 夹让位腔，黄色立柱保持原 z 坐标并坐在绿色顶面 z=16 mm。两枚 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位；网布/圆柱功能区到 z=168.5 mm，Ø10 圆柱插杆沿原门洞轴线从 x 侧进入下段侧开接收腔，安装上段后封住入口；固定网柱分型面为 z=230.5 mm，顶部上段到 z=260.5 mm，球头下端 M8 与上段顶面中心孔同轴；从绿色顶面起 30 mm 为 35×58→28×38 mm 的一体实心渐变，之后保持 28×38 mm；打印件仍按源 STL 的真实装配坐标加载，紫色半透明件为非打印占位。"
-      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖 boss、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的黄色固定网柱下段与顶部 30 mm 上段分别打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入主控 PCB，板形让位来自 KiCad Edge.Cuts，板边由 x−/[ 与 x+/] 两个端部 C 形夹件夹持，不再使用主板底部柱、定位柱或主板螺丝；电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙和 boss 保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱下段从绿色顶面 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段带 M8 攻丝底孔并闭合到 z=260.5 mm，M6 球头下端 M8 直接进入固定网柱顶面中心孔，球头轴心与后盖 boss 共线；网布/圆柱插杆仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布空心边套先套到圆柱插杆，再沿原门洞轴线从 x 侧推入下段侧开接收腔；四枚 M3×40 只连接立柱上下段；盖板、boss、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
+      : "主体与壳体总成预览；坐标约定为 x=光束左右、y=前后、z=竖直。球台、无网顶轨道的真实网布、PVDF、M6 45° L 型主体、x 向分体壳、后盖外伸承台、竖直采购球头和电子腔体按装配包络显示；完整装配态把每个打印件和外购件都放在同一套安装基准，爆炸偏移只在爆炸标签启用。灰色 C 形主体沿 y=0 分为操作者侧/对手侧两半，9 个横向 M5 连接点把两半锁成承力框；只有连接到电子仓空腔面的点增加 boss/十字肋，实心夹臂里的点只保留通孔/沉孔，避免外壳凸起。左下角连接孔向外侧移动，电子仓左下角和右下斜加强边沿各增加连接点；带绿色整体底座的黄色固定网柱下段与顶部 30 mm 上段分别打印；右侧桥体内形成约 117×40 mm 大电子仓，两半分开后从 y=0 分型面放入主控 PCB，板形让位来自 KiCad Edge.Cuts，板边由 x−/[ 与 x+/] 两个端部 C 形夹件夹持，不再使用主板底部柱、定位柱或主板螺丝；电池位于主板器件层上方的第二层托位，避开端部夹件和器件；x+ 外侧墙和承台保留，上方约 15.5 mm 承力层、两侧 9 mm 承力壁、底部 4 mm 一体化斜底；绿色底座从 x+ 推入灰色让位腔，两个 Ø4/Ø4.4 孔负责锁紧，中央 Ø6×2 mm 底坑配 4 mm 钢球定位，黄色立柱下段从绿色顶面 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段带 M8 攻丝底孔并闭合到 z=260.5 mm，M6 球头下端 M8 直接进入固定网柱顶面中心孔，上端 1/4-20 朝 z+ 进入后盖承台底面的盲内丝，承台 z+ 两侧加强筋回接后墙；网布/圆柱插杆仍只在 z=16…168.5 mm 的通道内工作，从绿色顶面起 30 mm 做 35×58→28×38 mm 的一体实心渐变。网布空心边套先套到圆柱插杆，再沿原门洞轴线从 x 侧推入下段侧开接收腔；四枚 M3×40 只连接立柱上下段；盖板、按钮/指示和线缆路径按当前机械包络检查；已移除旧版横向承托臂、独立滑轨和旧版独立上段外件/连接器。";
     refs.assemblyStatusBadge.textContent = `${state.assembly.items.filter(assemblyVisible).length} 个装配对象 · mm`;
     if (state.laserEnabled) {
       refs.modelTitle.textContent = state.assembly.focusPreset === "laserArray" ? "裸激光十路夹座 · 原球头粗调"
@@ -3288,9 +3300,9 @@ function createAssemblyProxy(THREE, item) {
     });
     addProxyPart(THREE, group, item, outer, place([0, 0, 0]));
 
-    // The rear-cover boss is a separate thickened PETG volume.  The browser
-    // proxy keeps it separate so the centered rear-face seat and x-axis M8
-    // interface remain obvious in the assembly even though the SCAD part is
+    // The rear-cover platform is a separate thickened PETG volume.  The
+    // browser proxy keeps it separate so the outward seat, downward blind
+    // thread and sky-side ribs remain obvious even though the SCAD part is
     // one union.
     const bossLength = number(options.boss_length_x, 0);
     const bossDepth = number(options.boss_depth_y, 0);
@@ -3298,36 +3310,43 @@ function createAssemblyProxy(THREE, item) {
     const bossXOffset = number(options.boss_x_offset, 0);
     const bossYOffset = number(options.boss_y_offset, 0);
     const bossZOffset = number(options.boss_z_offset, 0);
-    const bossX = options.mirror_x
-      ? width - bossXOffset - bossLength
-      : bossXOffset;
     if (bossLength > 0 && bossDepth > 0 && bossHeight > 0) {
-      const boss = new THREE.BoxGeometry(bossLength, bossDepth, bossHeight);
+      const boss = footprintGeometry(THREE, "rounded-footprint", width, depth, bossHeight, {
+        mirror_x: Boolean(options.mirror_x),
+        x0: bossXOffset,
+        x1: bossXOffset + bossLength,
+        y0: bossYOffset,
+        y1: bossYOffset + bossDepth,
+        radius: number(options.boss_radius, 3),
+      });
       addProxyPart(
         THREE,
         group,
         item,
         boss,
         place([
-          bossX + bossLength / 2,
-          bossYOffset + bossDepth / 2,
-          bossZOffset + bossHeight / 2,
+          0,
+          0,
+          bossZOffset,
         ]),
       );
       const holeD = number(options.boss_hole_d, 0);
-      const holeDepth = number(options.boss_hole_depth_x, bossLength);
+      const holeDepth = number(options.boss_hole_depth_z, options.boss_hole_depth_x || bossHeight);
+      const holeCenterX = number(options.boss_hole_center_x, bossXOffset + bossLength / 2);
+      const holeCenterY = number(options.boss_hole_center_y, bossYOffset + bossDepth / 2);
+      const holeEntryZ = number(options.boss_hole_entry_z, bossZOffset);
       if (holeD > 0 && holeDepth > 0) {
         const hole = new THREE.CylinderGeometry(holeD / 2, holeD / 2, holeDepth + 0.4, 24);
-        hole.rotateZ(Math.PI / 2);
+        hole.rotateX(Math.PI / 2);
         addProxyPart(
           THREE,
           group,
           item,
           hole,
           place([
-            bossX + bossLength / 2,
-            bossYOffset + bossDepth / 2,
-            bossZOffset + bossHeight / 2,
+            options.mirror_x ? width - holeCenterX : holeCenterX,
+            holeCenterY,
+            holeEntryZ + holeDepth / 2,
           ]),
           { color: "#26313b", opacity: 0.86, depthWrite: false, metalness: 0.2 },
         );
@@ -3338,7 +3357,6 @@ function createAssemblyProxy(THREE, item) {
       // half, while both reach the rear shell wall.
       const gussetLength = number(options.gusset_length_x, 0);
       const gussetHeight = number(options.gusset_height_z, 0);
-      const gussetRootY = number(options.gusset_root_y_offset, depth / 2);
       const gussetRootWidth = number(options.gusset_root_width_y, 0);
       if (gussetLength > 0 && gussetHeight > 0 && gussetRootWidth > 0) {
         const gussetXOffset = number(options.gusset_x_offset, bossXOffset);
@@ -3346,14 +3364,16 @@ function createAssemblyProxy(THREE, item) {
           ? width - gussetXOffset - gussetLength
           : gussetXOffset;
         const gussetZ = number(options.gusset_z_offset, 0);
+        const platformMinY = bossYOffset;
+        const platformMaxY = bossYOffset + bossDepth;
         const ribSpecs = [
-          [gussetRootY, depth],
-          [0, depth - (gussetRootY + gussetRootWidth)],
+          [platformMaxY - gussetRootWidth, gussetRootWidth],
+          [platformMinY, gussetRootWidth],
         ];
-        ribSpecs.forEach(([y0, y1]) => {
-          const ribDepth = Math.max(0, y1 - y0);
-          if (ribDepth <= 0) return;
-          const rib = new THREE.BoxGeometry(gussetLength, ribDepth, gussetHeight);
+        ribSpecs.forEach(([y0, ribDepth]) => {
+          const ribDepthSafe = Math.max(0, ribDepth);
+          if (ribDepthSafe <= 0) return;
+          const rib = new THREE.BoxGeometry(gussetLength, ribDepthSafe, gussetHeight);
           addProxyPart(
             THREE,
             group,
@@ -3361,7 +3381,7 @@ function createAssemblyProxy(THREE, item) {
             rib,
             place([
               gussetX + gussetLength / 2,
-              y0 + ribDepth / 2,
+              y0 + ribDepthSafe / 2,
               gussetZ + gussetHeight / 2,
             ]),
             { color: "#657786", opacity: 0.92, depthWrite: true, metalness: 0.08 },

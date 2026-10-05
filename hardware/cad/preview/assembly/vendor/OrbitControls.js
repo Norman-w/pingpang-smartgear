@@ -173,10 +173,6 @@ class OrbitControls extends EventDispatcher {
 
 			const offset = new Vector3();
 
-			// so camera.up is the orbit axis
-			const quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
-			const quatInverse = quat.clone().invert();
-
 			const lastPosition = new Vector3();
 			const lastQuaternion = new Quaternion();
 			const lastTargetPosition = new Vector3();
@@ -184,6 +180,13 @@ class OrbitControls extends EventDispatcher {
 			const twoPI = 2 * Math.PI;
 
 			return function update( deltaTime = null ) {
+
+				// Recompute these from camera.up on every update.  Assembly views can
+				// switch between Z-up and Y-up when looking along the world Z axis;
+				// caching the constructor-time Z-up quaternion makes the next preset
+				// inherit a rolled orbit frame.
+				const quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
+				const quatInverse = quat.clone().invert();
 
 				const position = scope.object.position;
 

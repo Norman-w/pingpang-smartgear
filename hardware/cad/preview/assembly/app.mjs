@@ -1,4 +1,4 @@
-import { AssemblyScene } from "./assembly-scene.mjs";
+import { AssemblyScene } from "./assembly-scene.mjs?assembly-template-v4";
 import { installFloatingPanels } from "./floating-panels.mjs";
 
 const $ = (selector) => document.querySelector(selector);
@@ -108,10 +108,17 @@ async function main() {
   if (!manifest.playback) $("#play").hidden = true;
   let activeFocusIds = manifest.views?.[0]?.focusInstanceIds || null;
   let activeDirection = manifest.views?.[0]?.direction || [1, 0.75, 1];
-  const focus = (ids, direction = activeDirection) => {
+  let activeIsolated = manifest.views?.[0]?.isolate === true;
+  const focus = (ids, direction = activeDirection, isolate = activeIsolated) => {
     activeFocusIds = ids || null;
     activeDirection = direction;
+    activeIsolated = isolate === true && Array.isArray(ids) && ids.length > 0;
+    runtime.setViewVisibility(activeIsolated ? activeFocusIds : null);
     runtime.focus(activeFocusIds, activeDirection);
+    // Keep the tree checkboxes in sync with the temporary near-view
+    // isolation; otherwise the canvas and the assembly tree describe
+    // different visibility states after a preset is selected.
+    renderTree();
   };
   runtime.onAxisView = (direction) => { activeDirection = direction; };
   for (const [label, direction] of [
@@ -126,7 +133,7 @@ async function main() {
   }
   stageSelect.addEventListener("change", () => {
     runtime.setStage(stageSelect.value);
-    focus(activeFocusIds, activeDirection);
+    focus(activeFocusIds, activeDirection, activeIsolated);
   });
   $("#play").addEventListener("click", () => {
     if (runtime.playing) runtime.pause();
@@ -143,7 +150,7 @@ async function main() {
   const views = $("#views");
   for (const view of runtime.index.views.values()) {
     views.append(button(view.label || view.id,
-      () => focus(view.focusInstanceIds, view.direction)));
+      () => focus(view.focusInstanceIds, view.direction, view.isolate === true)));
   }
   if (!runtime.index.views.size) {
     views.append(button("全局", () => focus(null)));

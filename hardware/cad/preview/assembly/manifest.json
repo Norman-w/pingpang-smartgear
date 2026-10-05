@@ -162,7 +162,7 @@
         },
         "extensions": {
           "nodeType": "purchased-interface",
-          "mountInterface": "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"
+          "mountInterface": "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝"
         }
       },
       {
@@ -184,7 +184,7 @@
         },
         "extensions": {
           "nodeType": "mount",
-          "mountInterface": "后盖 boss 与球头 1/4-20 螺柱同轴"
+          "mountInterface": "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋"
         }
       },
       {
@@ -272,7 +272,7 @@
         },
         "extensions": {
           "nodeType": "purchased-interface",
-          "mountInterface": "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"
+          "mountInterface": "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝"
         }
       },
       {
@@ -294,7 +294,7 @@
         },
         "extensions": {
           "nodeType": "mount",
-          "mountInterface": "后盖 boss 与球头 1/4-20 螺柱同轴"
+          "mountInterface": "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋"
         }
       },
       {
@@ -390,9 +390,9 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            859.15,
-            -20.0,
-            236.5
+            885.0,
+            -16.0,
+            232.5
           ],
           "rotation": [
             0.0,
@@ -418,7 +418,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            835.75,
+            847.6,
             -5.0,
             193.5
           ],
@@ -446,9 +446,9 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -903.15,
-            -20.0,
-            236.5
+            -917.0,
+            -16.0,
+            232.5
           ],
           "rotation": [
             0.0,
@@ -474,7 +474,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -855.75,
+            -867.6,
             -5.0,
             193.5
           ],
@@ -752,7 +752,7 @@
         "kind": "fixed",
         "localTransform": {
           "position": [
-            834.0,
+            845.85,
             -28.0,
             173.5
           ],
@@ -770,7 +770,7 @@
         "kind": "fixed",
         "localTransform": {
           "position": [
-            -844.0,
+            -855.85,
             -28.0,
             173.5
           ],
@@ -798,7 +798,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            820.75,
+            832.6,
             -30.399999998509884,
             170.5
           ],
@@ -826,7 +826,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -838.75,
+            -850.6,
             -30.399999998509884,
             170.5
           ],
@@ -854,8 +854,8 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            838.9500000029802,
-            -30.4,
+            850.8000000029803,
+            -30.399999998509884,
             170.5
           ],
           "rotation": [
@@ -882,8 +882,8 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -869.15,
-            -30.4,
+            -919.0,
+            -30.399999998509884,
             170.5
           ],
           "rotation": [
@@ -910,7 +910,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            820.75,
+            832.6,
             -30.399999998509884,
             167.5
           ],
@@ -938,7 +938,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -858.1499999985099,
+            -869.9999999985099,
             -30.399999998509884,
             167.5
           ],
@@ -966,7 +966,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            818.9994282349944,
+            830.8494282349944,
             -32.149999998509884,
             170.58
           ],
@@ -994,7 +994,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -859.8999999985099,
+            -871.7499999985099,
             -32.149999998509884,
             170.58
           ],
@@ -1588,7 +1588,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            846.91,
+            858.76,
             -4.9,
             241.5
           ],
@@ -1616,7 +1616,7 @@
         "defaultValue": 0,
         "localTransform": {
           "position": [
-            -858.59,
+            -870.44,
             -4.9,
             241.5
           ],
@@ -1918,9 +1918,9 @@
       "source": {
         "kind": "external",
         "file": "../../net_stand.scad",
-        "selector": "PURCHASED m6_ballhead envelope; M8x1.25 lower stud -> upright top; 1/4-20 upper stud -> M6 rear boss"
+        "selector": "PURCHASED m6_ballhead envelope; M8x1.25 lower stud -> upright top; 1/4-20 upper stud -> rear-platform downward female thread"
       },
-      "file": "models/stl-6235411f91a9053fc653.stl",
+      "file": "models/stl-fc342f7cf8fd6c1f9b86.stl",
       "geometrySpace": "local",
       "role": "purchased",
       "groupId": "purchased",
@@ -1962,12 +1962,12 @@
             0.0
           ],
           "max": [
-            46.0,
-            36.0,
-            58.0
+            32.0,
+            35.0,
+            82.0
           ]
         },
-        "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端选 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端固定 1/4-20 外牙沿 x 进入 M6 后盖中央 boss，并由采购螺母锁紧。旧版 90° 独立连接器不属于当前方案。",
+        "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端 1/4-20 外牙保持直立沿 z+ 插入 M6 后壳外伸承台的下向打印内丝。承台向 x 外伸并在 z+ 天空侧用双三角加强筋回接后壳；旧版横向 90° 独立连接器不属于当前方案。",
         "mountFrameId": "mount-right-ballhead",
         "scope": "purchased",
         "procurementStatus": "外购；螺纹有效长度和旋钮净空需按到货件复核",
@@ -2044,9 +2044,9 @@
       "source": {
         "kind": "external",
         "file": "../../net_stand.scad",
-        "selector": "PURCHASED m6_ballhead envelope; M8x1.25 lower stud -> upright top; 1/4-20 upper stud -> M6 rear boss"
+        "selector": "PURCHASED m6_ballhead envelope; M8x1.25 lower stud -> upright top; 1/4-20 upper stud -> rear-platform downward female thread"
       },
-      "file": "models/stl-eefcb7161f5d6704a67d.stl",
+      "file": "models/stl-bb1ea2bbaeaa2e8bcbed.stl",
       "geometrySpace": "local",
       "role": "purchased",
       "groupId": "purchased",
@@ -2088,12 +2088,12 @@
             0.0
           ],
           "max": [
-            46.0,
-            36.0,
-            58.0
+            32.0,
+            35.0,
+            82.0
           ]
         },
-        "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端选 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端固定 1/4-20 外牙沿 x 进入 M6 后盖中央 boss，并由采购螺母锁紧。旧版 90° 独立连接器不属于当前方案。",
+        "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端 1/4-20 外牙保持直立沿 z+ 插入 M6 后壳外伸承台的下向打印内丝。承台向 x 外伸并在 z+ 天空侧用双三角加强筋回接后壳；旧版横向 90° 独立连接器不属于当前方案。",
         "mountFrameId": "mount-left-ballhead",
         "scope": "purchased",
         "procurementStatus": "外购；螺纹有效长度和旋钮净空需按到货件复核",
@@ -2412,7 +2412,7 @@
         "file": "../../net_stand.scad",
         "selector": "PART=\"clamp_body_half_user\"; SIDE=1"
       },
-      "file": "models/stl-c94cc8baf23e8f62a5e7.stl",
+      "file": "models/stl-0684e4266b617b2ee031.stl",
       "geometrySpace": "local",
       "role": "printed",
       "groupId": "c-clamp",
@@ -2472,7 +2472,7 @@
         "file": "../../net_stand.scad",
         "selector": "PART=\"clamp_body_half_user\"; SIDE=-1"
       },
-      "file": "models/stl-2b03e296c8180a55e92b.stl",
+      "file": "models/stl-5c526a551ede2468634c.stl",
       "geometrySpace": "local",
       "role": "printed",
       "groupId": "c-clamp",
@@ -2592,7 +2592,7 @@
         "file": "../../net_stand.scad",
         "selector": "PART=\"clamp_body_half_opponent\"; SIDE=-1"
       },
-      "file": "models/stl-0091d35c2a7b639d87df.stl",
+      "file": "models/stl-4e3bcb8296ffa250596e.stl",
       "geometrySpace": "local",
       "role": "printed",
       "groupId": "c-clamp",
@@ -3012,7 +3012,7 @@
         "file": "../../net_stand.scad",
         "selector": "PART=\"m6_detector_shell_rear\"; SIDE=1"
       },
-      "file": "models/stl-c3e8600a7714988f1aa9.stl",
+      "file": "models/stl-902a589346922d6ca305.stl",
       "geometrySpace": "local",
       "role": "printed",
       "groupId": "m6",
@@ -3050,16 +3050,16 @@
         "originalBounds": {
           "min": [
             766.2000000029802,
-            -30.4,
+            -30.399999998509884,
             141.5
           ],
           "max": [
-            796.4,
-            30.4,
+            834.4,
+            30.399999998509884,
             363.5
           ]
         },
-        "notes": "M6 线缆端整片后盖，含球头支撑 boss、两侧导向舌和沉头螺钉孔；支撑受力路径与线缆出口分开。",
+        "notes": "M6 线缆端整片后盖，含向外伸出的 1/4-20 下向打印内丝承台、天空侧双加强筋、两侧导向舌和沉头螺钉孔；承台受力路径与线缆出口分开。",
         "mountFrameId": "mount-right-m6",
         "scope": "project-print"
       }
@@ -3072,7 +3072,7 @@
         "file": "../../net_stand.scad",
         "selector": "PART=\"m6_detector_shell_rear\"; SIDE=-1"
       },
-      "file": "models/stl-69dbb580788933a72dd8.stl",
+      "file": "models/stl-9fbe21f74a3bf83e031a.stl",
       "geometrySpace": "local",
       "role": "printed",
       "groupId": "m6",
@@ -3109,17 +3109,17 @@
         "sourceFile": "left-m6-detector-rear-cover.stl",
         "originalBounds": {
           "min": [
-            -796.4,
-            -30.4,
+            -834.4,
+            -30.399999998509884,
             141.5
           ],
           "max": [
             -766.2000000029802,
-            30.4,
+            30.399999998509884,
             363.5
           ]
         },
-        "notes": "M6 线缆端整片后盖，含球头支撑 boss、两侧导向舌和沉头螺钉孔；支撑受力路径与线缆出口分开。",
+        "notes": "M6 线缆端整片后盖，含向外伸出的 1/4-20 下向打印内丝承台、天空侧双加强筋、两侧导向舌和沉头螺钉孔；承台受力路径与线缆出口分开。",
         "mountFrameId": "mount-left-m6",
         "scope": "project-print"
       }
@@ -5098,7 +5098,9 @@
       ],
       "focusInstanceIds": [
         "instance-context-tabletop",
-        "instance-context-net-fabric"
+        "instance-context-net-fabric",
+        "instance-post-clamp-carrier-lower",
+        "instance-post-clamp-carrier-lower-2"
       ]
     },
     {
@@ -5148,91 +5150,108 @@
     },
     {
       "id": "ui",
-      "label": "UI 面板与电子腔",
+      "label": "UI 面板外观（右侧，仅 UI 件）",
       "direction": [
-        0,
-        1,
-        0
+        0.35,
+        1.0,
+        -0.55
       ],
+      "isolate": true,
       "focusInstanceIds": [
         "instance-clamp-electronics-ui-panel-mount",
-        "instance-clamp-electronics-ui-panel-mount-2"
+        "instance-electronics-ui-panel",
+        "instance-ui-physical-items",
+        "instance-ui-led-light-pipes"
+      ]
+    },
+    {
+      "id": "electronics",
+      "label": "电子仓内侧（主板 + UI 板）",
+      "direction": [
+        0.35,
+        -1.0,
+        0.75
+      ],
+      "isolate": true,
+      "focusInstanceIds": [
+        "instance-clamp-electronics-ui-panel-mount",
+        "instance-electronics-esp32-main",
+        "instance-electronics-ui-panel",
+        "instance-ui-physical-items",
+        "instance-ui-led-light-pipes"
       ]
     },
     {
       "id": "m6",
-      "label": "M6 光电端",
+      "label": "M6 光电端（右侧）",
       "direction": [
-        1,
-        0.35,
-        0.25
+        -1,
+        -0.45,
+        0.3
       ],
+      "isolate": true,
       "focusInstanceIds": [
         "instance-m6-detector-body",
-        "instance-m6-detector-body-2",
-        "instance-purchased-ballhead",
-        "instance-purchased-ballhead-2",
+        "instance-m6-detector-shell-front",
+        "instance-m6-detector-shell-rear",
+        "instance-m6-detector-bottom-cover",
+        "instance-m6-detector-bottom-gasket",
         "instance-purchased-m6-sensor-array",
-        "instance-purchased-m6-sensor-array-2"
+        "instance-electronics-m6-receiver-carrier-right"
       ]
     },
     {
       "id": "purchased",
-      "label": "采购件与安装接口",
+      "label": "采购件与安装接口（右侧）",
       "direction": [
-        1,
-        0.55,
+        -1,
+        -0.55,
         0.35
       ],
+      "isolate": true,
       "focusInstanceIds": [
-        "instance-context-tabletop",
-        "instance-context-net-fabric",
-        "instance-context-net-height-reference",
         "instance-purchased-ballhead",
-        "instance-purchased-m6-sensor-array",
-        "instance-purchased-ballhead-2",
-        "instance-purchased-m6-sensor-array-2",
         "instance-post-clamp-carrier-upper",
-        "instance-post-clamp-carrier-upper-2",
-        "instance-clamp-electronics-ui-panel-mount",
-        "instance-clamp-electronics-ui-panel-mount-2",
-        "instance-m6-detector-body",
-        "instance-m6-detector-body-2",
-        "instance-net-clamp-rod",
-        "instance-net-clamp-rod-2"
+        "instance-m6-detector-shell-rear",
+        "instance-m6-detector-body"
       ]
     },
     {
       "id": "post",
-      "label": "立柱分型",
+      "label": "立柱分型（右侧）",
       "direction": [
-        1,
-        0.5,
-        0.4
+        -1,
+        -0.55,
+        0.35
       ],
+      "isolate": true,
       "focusInstanceIds": [
+        "instance-post-clamp-carrier-lower",
         "instance-post-clamp-carrier-upper",
-        "instance-post-clamp-carrier-upper-2"
+        "instance-purchased-ballhead"
       ]
     },
     {
       "id": "net",
-      "label": "网杆入口",
+      "label": "网杆入口（右侧）",
       "direction": [
-        1,
-        0.3,
-        0.25
+        -1,
+        -0.55,
+        0.35
       ],
+      "isolate": true,
       "focusInstanceIds": [
+        "instance-post-clamp-carrier-upper",
         "instance-net-clamp-rod",
-        "instance-net-clamp-rod-2"
+        "instance-sensor-mount-body",
+        "instance-sensor-clamp-lip"
       ]
     }
   ],
   "extensions": {
     "adapter": "hardware/cad/build_assembly_preview.py",
     "sourceManifest": "../../exports/desktop-clamp-one-side-x1c-v0.7-split-c-scheme/manifest.json",
-    "sourceManifestSha256": "e7e4d9d544b880b6f1b8bb1113452d5337193f5cc7b378d3a944a7eda744a8ea",
+    "sourceManifestSha256": "255300ac433fd330302bd4de8620ab01f74f2540dbea746a2971f4457254e484",
     "sourceScad": "hardware/cad/net_stand.scad",
     "generatedGeometry": "local STL copies are derived from the formal export and are ignored by git",
     "motionStatus": "visual-service-stages; not a dynamics, load, or interference proof",
@@ -5282,7 +5301,7 @@
         "parentFrameId": "mount-right-post",
         "childLabel": "右侧采购球头/连接接口",
         "parentLabel": "右侧立柱总成（挂到 C 夹）",
-        "interface": "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss",
+        "interface": "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝",
         "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
       },
       {
@@ -5290,7 +5309,7 @@
         "parentFrameId": "mount-right-ballhead",
         "childLabel": "右侧 M6 光电端（挂到采购球头）",
         "parentLabel": "右侧采购球头/连接接口",
-        "interface": "后盖 boss 与球头 1/4-20 螺柱同轴",
+        "interface": "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋",
         "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
       },
       {
@@ -5322,7 +5341,7 @@
         "parentFrameId": "mount-left-post",
         "childLabel": "左侧采购球头/连接接口",
         "parentLabel": "左侧立柱总成（挂到 C 夹）",
-        "interface": "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss",
+        "interface": "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝",
         "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
       },
       {
@@ -5330,7 +5349,7 @@
         "parentFrameId": "mount-left-ballhead",
         "childLabel": "左侧 M6 光电端（挂到采购球头）",
         "parentLabel": "左侧采购球头/连接接口",
-        "interface": "后盖 boss 与球头 1/4-20 螺柱同轴",
+        "interface": "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋",
         "evidence": "SCAD/KiCad 装配定位关系；仅表示挂载依赖，不是受力/干涉验收。"
       },
       {
@@ -5420,7 +5439,7 @@
         "status": "外购 / 当前默认 M8 外牙 / 待网夹接口量测",
         "quantity": "2 套（左右各 1）",
         "scadPart": "m6_ballhead",
-        "notes": "默认采购 13mm球头【M8外牙】；球头保持竖直，商品固定上端 1/4-20 外牙从各自 x 后端进入背面中央加厚 boss。固定网柱下段从黄灰交界 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段继续到 z=260.5 mm；网布及卡夹仍只工作到 z=168.5 mm，M6 顶部支撑由上段承载。偏航、俯仰、旋转微调依靠采购球头锁紧机构。"
+        "notes": "默认采购 13mm球头【M8外牙】；球头保持竖直，下端 M8×1.25 向 z- 进入立柱上段，固定上端 1/4-20 外牙向 z+ 进入 M6 后盖承台底部的打印内丝。承台根部与后壳搭接并在 z+ 天空侧加双三角加强筋。固定网柱下段从黄灰交界 z=16 mm 延伸到 z=230.5 mm，顶部 30 mm 上段继续到 z=260.5 mm；网布及卡夹仍只工作到 z=168.5 mm，M6 顶部支撑由上段承载。偏航、俯仰、旋转微调依靠采购球头锁紧机构。"
       },
       {
         "id": "m6-ballhead-variants",
@@ -5464,7 +5483,7 @@
         "id": "legacy-90-degree-m6-connector",
         "name": "旧版 90°金属连接件/独立适配板",
         "status": "retired",
-        "reason": "当前方案由 13 mm 采购球头的 M8 下端直接进入立柱、1/4-20 上端直接进入 M6 后盖 boss；旧件不再属于当前装配。"
+        "reason": "当前方案由 13 mm 采购球头的 M8 下端直接进入立柱、1/4-20 上端沿 z+ 进入 M6 后盖外伸承台的下向打印内丝；旧件不再属于当前装配。"
       }
     ],
     "groupLegend": {

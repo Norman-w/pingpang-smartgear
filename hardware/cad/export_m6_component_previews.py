@@ -218,7 +218,7 @@ def export_component_previews(
         "units": "mm",
         "coordinate_system": {
             "x": "beam direction; left emitter exits +x, right receiver aperture faces -x",
-        "y": "table front/rear direction; rear-cover support boss is centered at y=0",
+        "y": "table front/rear direction; rear-cover support platform is centered at y=0",
             "z": "vertical direction",
             "side_files": "right=SIDE 1, left=SIDE -1; left is the x mirror of right",
             "frame": "entries remain in global OpenSCAD coordinates so they align with assembly and machining spec",

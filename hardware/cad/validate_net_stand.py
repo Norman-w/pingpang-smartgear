@@ -2515,8 +2515,8 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
         or "m6_detector_shell_support_gussets_positive();" not in rear_shell_module
         or "m6_detector_body_tail_clearance_positive" in rear_shell_module
         or "m6_rounded_rect_prism_x(" not in rear_boss_module
-        or "m6_cylinder_x(" not in rear_hole_module
-        or "m6_hex_prism_x(" not in rear_hole_module
+        or "cylinder(" not in rear_hole_module
+        or "clamp_printed_thread_band(" not in rear_hole_module
         or "m6_detector_front_optical_holes_positive();" not in front_shell_module
         or "m6_detector_shell_footprint_positive();" not in bottom_cover_module
         or "m6_detector_cable_gland_positive();" in bottom_cover_module
@@ -2592,7 +2592,7 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     ):
         raise RuntimeError(
             "active M6/mechanical path diverged: rectangular body, installed sensor "
-            "voids, rear-cover boss/hole and split upright/carrier path must be used"
+            "voids, rear-cover platform/thread and split upright/carrier path must be used"
         )
 
     cover_install_order = [
@@ -2918,150 +2918,116 @@ def validate_current_m6_contract(parameters: dict[str, float]) -> None:
     ):
         raise RuntimeError(f"current M6 split shell/bottom cover contract is inconsistent: {parameters}")
 
+    # The ballhead now sits under the rear-shell platform.  The platform root
+    # overlaps the rear wall by the configured amount, while the thread opens
+    # downward and stops below the printable roof.
     if not (
-        parameters["m6_detector_shell_support_boss_min_x"]
+        parameters["m6_detector_shell_support_platform_min_x"]
         < parameters["m6_detector_shell_max_x"]
-        < parameters["m6_detector_shell_support_boss_max_x"]
+        < parameters["m6_detector_shell_support_platform_max_x"]
         and math.isclose(
-            parameters["m6_detector_shell_support_boss_overlap_x"],
+            parameters["m6_detector_shell_support_platform_overlap_x"],
             parameters["m6_detector_shell_max_x"]
-            - parameters["m6_detector_shell_support_boss_min_x"],
+            - parameters["m6_detector_shell_support_platform_min_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_shell_support_boss_min_x"]
+        and parameters["m6_detector_shell_support_platform_min_x"]
         >= parameters["m6_detector_shell_rear_min_x"]
-        and parameters["m6_detector_shell_support_boss_min_y"]
+        and parameters["m6_detector_shell_support_platform_min_y"]
         >= parameters["m6_detector_shell_min_y"]
-        and parameters["m6_detector_shell_support_boss_max_y"]
+        and parameters["m6_detector_shell_support_platform_max_y"]
         <= parameters["m6_detector_shell_max_y"]
-        and parameters["m6_detector_shell_support_boss_min_y"]
-        < parameters["m6_detector_body_center_y"]
-        < parameters["m6_detector_shell_support_boss_max_y"]
+        and parameters["m6_detector_shell_support_platform_min_y"]
+        < parameters["m6_detector_shell_support_platform_center_y"]
+        < parameters["m6_detector_shell_support_platform_max_y"]
         and math.isclose(
-            parameters["m6_detector_shell_support_boss_center_y"],
+            parameters["m6_detector_shell_support_platform_center_y"],
             parameters["m6_detector_body_center_y"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_shell_support_boss_top_z"]
-        > parameters["m6_detector_shell_support_boss_bottom_z"]
-        and parameters["m6_detector_shell_support_boss_bottom_z"]
-        < parameters["m6_detector_body_center_z"]
-        < parameters["m6_detector_shell_support_boss_top_z"]
-        and parameters["m6_detector_shell_support_boss_length_x"]
-        == parameters["m6_detector_shell_support_boss_max_x"]
-        - parameters["m6_detector_shell_support_boss_min_x"]
-        and parameters["m6_detector_shell_support_boss_height_z"]
-        == parameters["m6_detector_shell_support_boss_top_z"]
-        - parameters["m6_detector_shell_support_boss_bottom_z"]
-        and parameters["m6_detector_shell_support_boss_radius"] > 0
-        and parameters["m6_detector_shell_support_hole_d"]
+        and parameters["m6_detector_shell_support_platform_top_z"]
+        > parameters["m6_detector_shell_support_platform_bottom_z"]
+        and parameters["m6_detector_shell_support_platform_bottom_z"]
+        > parameters["m6_detector_body_center_z"]
+        and parameters["m6_detector_shell_support_platform_top_z"]
+        < parameters["m6_detector_shell_top_z"]
+        and math.isclose(
+            parameters["m6_detector_shell_support_platform_length_x"],
+            parameters["m6_detector_shell_support_platform_max_x"]
+            - parameters["m6_detector_shell_support_platform_min_x"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and math.isclose(
+            parameters["m6_detector_shell_support_platform_thickness_z"],
+            parameters["m6_detector_shell_support_platform_top_z"]
+            - parameters["m6_detector_shell_support_platform_bottom_z"],
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_shell_support_platform_radius"] > 0
+        and parameters["m6_detector_shell_support_platform_thread_core_d"]
+        > parameters["m6_ballhead_sensor_thread_core_d"]
+        and parameters["m6_detector_shell_support_platform_thread_major_d"]
         > parameters["m6_ballhead_sensor_stud_d"]
-        and parameters["m6_detector_shell_support_hole_depth_x"]
-        <= parameters["m6_detector_shell_support_boss_length_x"]
-        and parameters["m6_detector_shell_support_hole_entry_x"]
-        == parameters["m6_detector_shell_support_boss_max_x"]
-        and parameters["m6_detector_shell_support_nut_pocket_center_x"]
-        - parameters["m6_ballhead_top_nut_pocket_depth"] / 2
-        >= parameters["m6_detector_shell_support_boss_min_x"]
-        and parameters["m6_detector_shell_support_nut_pocket_center_x"]
-        + parameters["m6_ballhead_top_nut_pocket_depth"] / 2
-        <= parameters["m6_detector_shell_support_boss_max_x"]
-        and parameters["m6_ballhead_top_nut_pocket_af"]
-        / math.cos(math.radians(30))
-        < parameters["m6_detector_shell_support_boss_depth_y"]
-        and parameters["m6_detector_shell_support_gusset_min_x"]
-        < parameters["m6_detector_shell_support_boss_min_x"]
-        and parameters["m6_detector_shell_support_gusset_max_x"]
-        > parameters["m6_detector_shell_max_x"]
+        and parameters["m6_detector_shell_support_platform_thread_depth_z"]
+        < parameters["m6_detector_shell_support_platform_thickness_z"]
+        and parameters["m6_detector_shell_support_platform_thread_entry_z"]
+        == parameters["m6_detector_shell_support_platform_bottom_z"]
+        and parameters["m6_detector_shell_support_platform_thread_top_z"]
+        < parameters["m6_detector_shell_support_platform_top_z"]
         and math.isclose(
-            parameters["m6_detector_shell_support_gusset_root_y_start_positive"],
-            parameters["m6_detector_shell_support_boss_max_y"]
-            - parameters["m6_detector_shell_support_gusset_root_width_y"],
+            parameters["m6_detector_shell_support_platform_thread_center_x"],
+            parameters["m6_detector_shell_support_platform_min_x"]
+            + parameters["m6_detector_shell_support_platform_thread_offset_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
         and math.isclose(
-            parameters["m6_detector_shell_support_gusset_wall_y_start_positive"],
-            parameters["m6_detector_shell_max_y"]
-            - parameters["m6_detector_shell_support_gusset_wall_width_y"],
+            parameters["m6_detector_shell_support_platform_thread_center_y"],
+            parameters["m6_detector_shell_support_platform_center_y"],
             rel_tol=0,
             abs_tol=1e-4,
         )
-        and parameters["m6_detector_shell_support_gusset_root_y_start_positive"]
-        > parameters["m6_detector_shell_support_boss_center_y"]
-        + parameters["m6_detector_shell_support_hole_d"] / 2
-        and parameters["m6_detector_shell_support_boss_min_y"]
-        + parameters["m6_detector_shell_support_gusset_root_width_y"]
-        < parameters["m6_detector_shell_support_boss_center_y"]
-        - parameters["m6_detector_shell_support_hole_d"] / 2
-        and parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
-        + parameters["m6_detector_shell_support_gusset_wall_width_y"]
-        <= parameters["m6_detector_shell_max_y"] + 1e-4
-        and parameters["m6_detector_shell_min_y"]
-        + parameters["m6_detector_shell_support_gusset_wall_width_y"]
-        <= parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
-        and parameters["m6_detector_shell_support_gusset_bottom_z"]
-        >= parameters["m6_detector_shell_bottom_z"]
+        and parameters["m6_detector_shell_support_platform_thread_root_width"] > 0
+        and parameters["m6_detector_shell_support_platform_thread_tip_width"] > 0
+        and parameters["m6_detector_shell_support_platform_thread_segments_per_turn"] >= 20
+        and parameters["m6_detector_shell_support_platform_gusset_height_z"] > 0
+        and parameters["m6_detector_shell_support_platform_gusset_width_y"] > 0
+        and parameters["m6_detector_shell_support_gusset_top_z"]
+        > parameters["m6_detector_shell_support_platform_top_z"]
         and parameters["m6_detector_shell_support_gusset_top_z"]
         <= parameters["m6_detector_shell_top_z"]
-        and math.isclose(
-            parameters["m6_detector_shell_support_gusset_height_z"],
-            parameters["m6_detector_shell_support_gusset_top_z"]
-            - parameters["m6_detector_shell_support_gusset_bottom_z"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and (
-            parameters["m6_detector_ballhead_sensor_stud_center_x"]
-            - parameters["m6_ballhead_sensor_stud_length"] / 2
-            < parameters["m6_detector_shell_support_hole_entry_x"]
-        )
-        and (
-            parameters["m6_detector_ballhead_sensor_stud_center_x"]
-            + parameters["m6_ballhead_sensor_stud_length"] / 2
-            > parameters["m6_detector_shell_support_hole_entry_x"]
-            - parameters["m6_detector_shell_support_stud_engagement_x"]
-        )
     ):
-        raise RuntimeError(f"current M6 rear-cover boss and purchased ballhead interface is inconsistent: {parameters}")
+        raise RuntimeError(f"current M6 rear-cover platform/thread contract is inconsistent: {parameters}")
 
     if not (
         math.isclose(
-            parameters["m6_detector_ballhead_center_z"],
-            parameters["m6_detector_body_center_z"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and parameters["m6_detector_ballhead_center_x"]
-        > parameters["m6_detector_shell_support_hole_entry_x"]
-        and math.isclose(
-            parameters["m6_detector_ballhead_center_y"],
-            parameters["m6_detector_shell_support_boss_center_y"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and math.isclose(
-            parameters["m6_detector_ballhead_center_y"],
-            parameters["m6_detector_body_center_y"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and math.isclose(
-            parameters["m6_detector_ballhead_center_z"],
-            parameters["m6_detector_body_center_z"],
-            rel_tol=0,
-            abs_tol=1e-4,
-        )
-        and math.isclose(
             parameters["m6_detector_ballhead_sensor_stud_center_x"],
-            parameters["m6_detector_shell_support_hole_entry_x"]
-            + parameters["m6_ballhead_sensor_stud_length"] / 2
-            - parameters["m6_detector_shell_support_stud_engagement_x"],
+            parameters["m6_detector_shell_support_platform_thread_center_x"],
             rel_tol=0,
             abs_tol=1e-4,
         )
+        and math.isclose(
+            parameters["m6_detector_ballhead_sensor_stud_center_z"],
+            parameters["m6_detector_ballhead_sensor_plate_center_z"]
+            + parameters["m6_ballhead_side_plate_t_x"] / 2
+            + parameters["m6_ballhead_sensor_stud_length"] / 2,
+            rel_tol=0,
+            abs_tol=1e-4,
+        )
+        and parameters["m6_detector_ballhead_sensor_stud_center_z"]
+        - parameters["m6_ballhead_sensor_stud_length"] / 2
+        <= parameters["m6_detector_shell_support_platform_thread_entry_z"] + 0.01
+        and parameters["m6_detector_ballhead_sensor_stud_center_z"]
+        + parameters["m6_ballhead_sensor_stud_length"] / 2
+        >= parameters["m6_detector_shell_support_platform_thread_top_z"] - 0.01
+        and parameters["m6_detector_ballhead_sensor_plate_center_z"]
+        < parameters["m6_detector_shell_support_platform_bottom_z"]
+        and parameters["m6_detector_ballhead_sensor_plate_center_z"]
+        > parameters["m6_detector_ballhead_center_z"]
         and parameters["m6_detector_ballhead_base_center_z"]
         < parameters["m6_detector_ballhead_center_z"]
         and parameters["m6_detector_ballhead_net_stud_center_z"]

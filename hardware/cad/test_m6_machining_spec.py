@@ -64,7 +64,7 @@ def main() -> None:
 
     shell = spec["shell_contract"]
     if (
-        shell["outer_envelope_mm"] != [37.4, 60.8, 222]
+        shell["outer_envelope_mm"] != [86.4, 60.8, 222]
         or shell["split_axis"] != "x"
         or shell["split_x_global_mm"] != 850.6
         or shell["front_cap_length_x_mm"] != 18
@@ -75,21 +75,29 @@ def main() -> None:
         or "四枚 M3×40" not in shell["top_entry"]
     ):
         raise AssertionError("split-cover contract changed")
-    if shell["support_boss"]["min_global_mm"] != [867, -9, 263.5]:
-        raise AssertionError("rear-cover boss lower datum changed")
-    if shell["support_boss"]["max_global_mm"] != [881, 9, 299.5]:
-        raise AssertionError("rear-cover boss upper datum changed")
+    platform = shell["support_platform"]
+    if (
+        platform["min_global_mm"] != [867, -19, 300.5]
+        or platform["max_global_mm"] != [919, 19, 316.5]
+        or platform["thread_axis"] != "z- from the platform underside; blind printed 1/4-20 female thread"
+        or platform["thread_depth_z_mm"] != 14
+        or platform["thread_entry_z_global_mm"] != 300.5
+        or platform["thread_top_z_global_mm"] != 314.5
+        or platform["gusset_top_z_global_mm"] != 340.5
+    ):
+        raise AssertionError("rear-cover platform/thread datum changed")
 
     support = spec["support_contract"]
     if (
         support["type"] != "purchased 13 mm ballhead/gimbal"
         or "split fixed net post" not in support["posture"]
+        or "downward-facing printed female thread" not in support["posture"]
         or support["ballhead_center_z_global_mm"] != 281.5
         or support["mount_raise_z_mm"] != 29
         or "下段 z=16…230.5 mm、上段 z=230.5…260.5 mm" not in support["net_interface"]
         or "四枚 M3×40" not in support["net_interface"]
     ):
-        raise AssertionError("rear-cover boss/purchased ballhead interface contract changed")
+        raise AssertionError("rear-cover platform/purchased ballhead interface contract changed")
 
     direct_mount = support["direct_mount"]
     if (

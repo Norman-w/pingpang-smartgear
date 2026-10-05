@@ -208,23 +208,227 @@ def _sphere_triangles(
     return triangles
 
 
-def _purchased_ballhead_triangles() -> list[tuple[tuple[float, float, float], ...]]:
-    """Approximate the purchased 13 mm ballhead and both threaded interfaces.
+def _rounded_rect_prism_z_triangles(
+    width: float,
+    depth: float,
+    height: float,
+    radius: float,
+    *,
+    center: Sequence[float],
+    corner_segments: int = 8,
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Make a closed rounded-rectangle prism, matching the SCAD envelope."""
 
-    This is a display envelope only.  It is intentionally tagged as a
-    purchased part in the manifest and must not be mistaken for printable CAD.
+    if not 0 < radius < min(width, depth) / 2:
+        raise ValueError("rounded-prism radius must fit inside both dimensions")
+    cx, cy, cz = (float(value) for value in center)
+    half_width, half_depth = width / 2, depth / 2
+    bottom, top = cz - height / 2, cz + height / 2
+    corners = (
+        (cx + half_width - radius, cy + half_depth - radius, 0.0, math.pi / 2),
+        (cx - half_width + radius, cy + half_depth - radius, math.pi / 2, math.pi),
+        (cx - half_width + radius, cy - half_depth + radius, math.pi, 3 * math.pi / 2),
+        (cx + half_width - radius, cy - half_depth + radius, 3 * math.pi / 2, 2 * math.pi),
+    )
+    outline: list[tuple[float, float]] = []
+    for corner_x, corner_y, start, end in corners:
+        for index in range(corner_segments):
+            angle = start + (end - start) * index / corner_segments
+            outline.append(
+                (corner_x + radius * math.cos(angle), corner_y + radius * math.sin(angle))
+            )
+
+    triangles: list[tuple[tuple[float, float, float], ...]] = []
+    bottom_center = (cx, cy, bottom)
+    top_center = (cx, cy, top)
+    count = len(outline)
+    for index, (x0, y0) in enumerate(outline):
+        x1, y1 = outline[(index + 1) % count]
+        p0 = (x0, y0, bottom)
+        p1 = (x1, y1, bottom)
+        q0 = (x0, y0, top)
+        q1 = (x1, y1, top)
+        triangles.extend(((p0, p1, q1), (p0, q1, q0)))
+        triangles.extend(((bottom_center, p1, p0), (top_center, q0, q1)))
+    return triangles
+
+
+def _ridged_disc_triangles(
+    diameter: float,
+    height: float,
+    *,
+    axis: str,
+    center: Sequence[float],
+    ridge_count: int = 24,
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Make the knurled lock/base disc used by the purchased ballhead."""
+
+    if axis not in {"x", "y", "z"}:
+        raise ValueError(f"unsupported disc axis: {axis}")
+    cx, cy, cz = (float(value) for value in center)
+    ridge_d = 1.4
+    ridge_radius = diameter / 2 - ridge_d / 2
+    triangles = _cylinder_triangles(
+        (diameter - ridge_d) / 2,
+        height,
+        axis=axis,
+        origin={
+            "x": (cx - height / 2, cy, cz),
+            "y": (cx, cy - height / 2, cz),
+            "z": (cx, cy, cz - height / 2),
+        }[axis],
+    )
+    for index in range(ridge_count):
+        angle = 2 * math.pi * index / ridge_count
+        if axis == "x":
+            ridge_center = (cx, cy + ridge_radius * math.cos(angle), cz + ridge_radius * math.sin(angle))
+        elif axis == "y":
+            ridge_center = (cx + ridge_radius * math.cos(angle), cy, cz + ridge_radius * math.sin(angle))
+        else:
+            ridge_center = (cx + ridge_radius * math.cos(angle), cy + ridge_radius * math.sin(angle), cz)
+        triangles += _cylinder_triangles(
+            ridge_d / 2,
+            height,
+            axis=axis,
+            origin={
+                "x": (ridge_center[0] - height / 2, ridge_center[1], ridge_center[2]),
+                "y": (ridge_center[0], ridge_center[1] - height / 2, ridge_center[2]),
+                "z": (ridge_center[0], ridge_center[1], ridge_center[2] - height / 2),
+            }[axis],
+        )
+    return triangles
+
+
+def _threaded_stud_triangles(
+    major_diameter: float,
+    core_diameter: float,
+    length: float,
+    pitch: float,
+    *,
+    axis: str,
+    center: Sequence[float],
+) -> list[tuple[tuple[float, float, float], ...]]:
+    """Make a coarse visual thread for a purchased metal stud.
+
+    This deliberately follows the visual construction in ``m6_threaded_stud_x``
+    and ``m6_threaded_stud_z`` from ``net_stand.scad``.  It is an assembly
+    envelope only; it never replaces the delivered rolled thread.
     """
 
-    # The local datum is the centre of the 13 mm ball.  The body is a 28 mm
-    # long x-oriented housing; the selected M8 stud points z- and the fixed
-    # 1/4-20 stud points x- into the rear-cover boss.  This is a transparent
-    # envelope for an already purchased part, not a replacement thread model.
-    triangles = _translate_triangles(_box_triangles((28.0, 24.0, 26.0)), (0.0, -12.0, -13.0))
-    triangles += _sphere_triangles(6.5, (14.0, 0.0, 0.0))
-    triangles += _cylinder_triangles(16.0, 8.0, origin=(14.0, 0.0, -17.0))
-    triangles += _cylinder_triangles(4.0, 28.0, origin=(14.0, 0.0, -45.0))
-    triangles += _cylinder_triangles(3.175, 16.0, axis="x", origin=(-16.0, 0.0, 0.0))
-    triangles += _cylinder_triangles(9.0, 8.0, axis="y", origin=(14.0, -20.0, 0.0))
+    if axis not in {"x", "y", "z"}:
+        raise ValueError(f"unsupported stud axis: {axis}")
+    cx, cy, cz = (float(value) for value in center)
+    start = {
+        "x": (cx - length / 2, cy, cz),
+        "y": (cx, cy - length / 2, cz),
+        "z": (cx, cy, cz - length / 2),
+    }[axis]
+    triangles = _cylinder_triangles(
+        core_diameter / 2,
+        length,
+        axis=axis,
+        origin=start,
+    )
+    crest_length = pitch * 0.36
+    offset = -length / 2 + pitch / 2
+    while offset < length / 2 - pitch / 2 + 1e-6:
+        ring_center = {
+            "x": (cx + offset, cy, cz),
+            "y": (cx, cy + offset, cz),
+            "z": (cx, cy, cz + offset),
+        }[axis]
+        ring_start = {
+            "x": (ring_center[0] - crest_length / 2, ring_center[1], ring_center[2]),
+            "y": (ring_center[0], ring_center[1] - crest_length / 2, ring_center[2]),
+            "z": (ring_center[0], ring_center[1], ring_center[2] - crest_length / 2),
+        }[axis]
+        triangles += _cylinder_triangles(
+            major_diameter / 2,
+            crest_length,
+            axis=axis,
+            origin=ring_start,
+        )
+        offset += pitch
+    return triangles
+
+
+def _purchased_ballhead_triangles() -> list[tuple[tuple[float, float, float], ...]]:
+    """Recreate the detailed purchased ballhead envelope from ``net_stand.scad``.
+
+    The previous preview used a solid rectangular placeholder.  This mesh keeps
+    the same local datum and installation bounds, but restores the recognizable
+    rounded clamp body, exposed 13 mm ball, side lock wheel, base disc, and the
+    coarse visual crests on both the 1/4-20 and M8 interfaces.  It remains a
+    display/fit envelope for bought hardware, never a printable replacement.
+    """
+
+    # Coordinates share the SCAD ballhead datum: the body centre is
+    # (32, 19, 49), the lower M8 stud points z-, and the upper 1/4-20 stud
+    # points z+.  The generated STL is an envelope for the bought part only.
+    body_center = (32.0, 19.0, 49.0)
+    # The SCAD body is a rounded 28×24×26 housing with its top window opened;
+    # the lower half is the visible clamp shell around the ball.
+    triangles = _rounded_rect_prism_z_triangles(
+        28.0,
+        24.0,
+        13.0,
+        4.0,
+        center=(32.0, 19.0, 42.5),
+    )
+    triangles += _sphere_triangles(6.5, body_center, segments=32, rings=16)
+
+    # Top plate and fixed 1/4-20 stud into the rear platform's underside.
+    triangles += _ridged_disc_triangles(
+        24.0,
+        4.0,
+        axis="z",
+        center=(32.0, 19.0, 64.0),
+        ridge_count=24,
+    )
+    triangles += _cylinder_triangles(
+        5.0,
+        2.2,
+        axis="z",
+        origin=(32.0, 19.0, 65.1),
+    )
+    triangles += _threaded_stud_triangles(
+        6.35,
+        5.35,
+        16.0,
+        1.27,
+        axis="z",
+        center=(32.0, 19.0, 74.0),
+    )
+
+    # y- lock wheel, lower ridged seating disc, and vertical M8×1.25 stud.
+    triangles += _ridged_disc_triangles(
+        18.0,
+        8.0,
+        axis="y",
+        center=(32.0, 4.0, 49.0),
+        ridge_count=24,
+    )
+    triangles += _ridged_disc_triangles(
+        32.0,
+        8.0,
+        axis="z",
+        center=(32.0, 19.0, 32.0),
+        ridge_count=32,
+    )
+    triangles += _cylinder_triangles(
+        6.5,
+        2.0,
+        axis="z",
+        origin=(32.0, 19.0, 34.0),
+    )
+    triangles += _threaded_stud_triangles(
+        8.0,
+        6.6,
+        28.0,
+        1.25,
+        axis="z",
+        center=(32.0, 19.0, 14.0),
+    )
     return triangles
 
 
@@ -414,15 +618,32 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
     if not entries:
         raise ValueError("source print manifest has no parts")
     right_post = next((item for item in entries if item.get("part") == "post_clamp_carrier_lower" and item.get("side_value") == 1), None)
+    right_upper_post = next((item for item in entries if item.get("part") == "post_clamp_carrier_upper" and item.get("side_value") == 1), None)
     right_rear = next((item for item in entries if item.get("part") == "m6_detector_shell_rear" and item.get("side_value") == 1), None)
-    if not right_post or not right_rear:
-        raise ValueError("source print manifest is missing right post or M6 rear cover")
-    post_bounds = right_post["bounds"]
+    if not right_post or not right_upper_post or not right_rear:
+        raise ValueError("source print manifest is missing right post, upper post, or M6 rear cover")
+    upper_post_bounds = right_upper_post["bounds"]
     rear_bounds = right_rear["bounds"]
-    post_center_x = (float(post_bounds["min"][0]) + float(post_bounds["max"][0])) / 2
+    # The ballhead's lower M8 stud still seats on the upper post.  Its x datum
+    # is shared with the new rear-platform female-thread axis, so derive it
+    # from the upper post rather than the angled lower carrier's centroid.
+    upper_post_center_x = (
+        float(upper_post_bounds["min"][0]) + float(upper_post_bounds["max"][0])
+    ) / 2
     rear_max_x = float(rear_bounds["max"][0])
-    raw_ballhead_center_x = rear_max_x + (16.0 - 12.0) + 2.0 + 28.0 / 2
-    right_m6_offset_x = post_center_x - raw_ballhead_center_x
+    # The rear STL bounds now include the outward platform.  Recover the
+    # shell/platform datum from that bound instead of treating the platform
+    # tip as the old shell wall: platform min = max - 52, thread axis =
+    # platform min + 34 = 816.4 in the raw SCAD frame.
+    platform_length_x = 52.0
+    platform_thread_offset_x = 34.0
+    raw_ballhead_center_x = (
+        rear_max_x - platform_length_x + platform_thread_offset_x
+    )
+    # Shift the entire M6 assembly from its raw SCAD datum to the upper-post
+    # center.  The platform thread axis, rather than a lower-carrier centroid,
+    # is the datum for both the downward M8 seat and the upward 1/4-20 stud.
+    right_m6_offset_x = upper_post_center_x - raw_ballhead_center_x
     raw_shell_bottom_z = float(rear_bounds["min"][2])
     m6_raise_z = max(20.0, 168.5 + 2.0 - raw_shell_bottom_z)
 
@@ -458,13 +679,13 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
         ("context-reference", "球网高度参考线（诊断）", "context-net", "reference", "SCAD net_top datum"),
         ("mount-right-clamp", "右侧 C 夹总成", "world", "mount", "夹口夹持球台边缘"),
         ("mount-right-post", "右侧立柱总成（挂到 C 夹）", "mount-right-clamp", "mount", "底座安装面/分型面"),
-        ("mount-right-ballhead", "右侧采购球头/连接接口", "mount-right-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"),
-        ("mount-right-m6", "右侧 M6 光电端（挂到采购球头）", "mount-right-ballhead", "mount", "后盖 boss 与球头 1/4-20 螺柱同轴"),
+        ("mount-right-ballhead", "右侧采购球头/连接接口", "mount-right-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝"),
+        ("mount-right-m6", "右侧 M6 光电端（挂到采购球头）", "mount-right-ballhead", "mount", "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋"),
         ("mount-right-ui", "右侧 UI/电子腔（挂到 C 夹内壁）", "mount-right-clamp", "mount", "y+ 内壁 UI 安装面"),
         ("mount-left-clamp", "左侧 C 夹总成", "world", "mount", "夹口夹持球台边缘"),
         ("mount-left-post", "左侧立柱总成（挂到 C 夹）", "mount-left-clamp", "mount", "底座安装面/分型面"),
-        ("mount-left-ballhead", "左侧采购球头/连接接口", "mount-left-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端进入 M6 后盖 boss"),
-        ("mount-left-m6", "左侧 M6 光电端（挂到采购球头）", "mount-left-ballhead", "mount", "后盖 boss 与球头 1/4-20 螺柱同轴"),
+        ("mount-left-ballhead", "左侧采购球头/连接接口", "mount-left-post", "purchased-interface", "M8×1.25 下端进入立柱上段；1/4-20 上端朝 +Z 进入后壳承台下向内丝"),
+        ("mount-left-m6", "左侧 M6 光电端（挂到采购球头）", "mount-left-ballhead", "mount", "后壳外伸承台与球头上向 1/4-20 螺柱同轴；承台天空侧双加强筋"),
         ("mount-left-ui", "左侧发射电子腔（挂到 C 夹）", "mount-left-clamp", "mount", "y+ 内壁电子安装面"),
     ]
     mount_relations: list[dict[str, object]] = []
@@ -529,6 +750,11 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
     output_by_hash: dict[str, str] = {}
     used_ids: set[str] = set()
     focus_ids: dict[str, list[str]] = {}
+    # Preset views are object-level close-ups.  Keep the side of every
+    # focusable instance alongside the part bucket so a view of the right
+    # optical end does not accidentally span the full table between the right
+    # and left assemblies.
+    focus_ids_by_side: dict[tuple[str, int], list[str]] = {}
 
     receiver_raw_origin = [780.0, -4.9, 212.5]
     receiver_installed_x = receiver_raw_origin[0] + right_m6_offset_x
@@ -706,21 +932,31 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             "definitions": [
                 "PURCHASED m6_ballhead envelope",
                 "M8x1.25 lower stud -> upright top",
-                "1/4-20 upper stud -> M6 rear boss",
+                "1/4-20 upper stud -> rear-platform downward female thread",
             ],
             "side_value": side_value,
             "generated_geometry": "purchased-ballhead",
-            "display_position": [
-                post_center_x - 30.0 if side_value == 1 else -post_center_x - 14.0,
-                -20.0,
-                installed_ballhead_center_z - 45.0,
+            # Anchor the shared mesh by its actual body centre after the
+            # optional x mirror.  This keeps both the M8 lower stud and the
+            # upward 1/4-20 stud on the same SCAD axis instead of hiding a
+            # minimum-bound offset in a hand-tuned display position.
+            "display_anchor_world": [
+                upper_post_center_x if side_value == 1 else -upper_post_center_x,
+                0.0,
+                installed_ballhead_center_z,
             ],
+            # The generated STL is translated to its own minimum bounds before
+            # it is written.  Its body/axis centre is therefore (16, 16, 49),
+            # not the raw SCAD point (32, 19, 49).  The x mirror is performed
+            # around the normalized mesh bounds, so this anchor stays positive
+            # for both side instances.
+            "display_anchor_local": [16.0, 16.0, 49.0],
             "mirror_x": side_value < 0,
             "motion_axis": [0.0, 0.0, 1.0],
             "motion_max": 18.0,
             "explosion": [side_value * 150.0, -28.0, 18.0],
             "color": "#d98b44",
-            "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端选 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端固定 1/4-20 外牙沿 x 进入 M6 后盖中央 boss，并由采购螺母锁紧。旧版 90° 独立连接器不属于当前方案。",
+            "notes": "外采 13 mm 球头只作为安装包络显示，不是打印件。下端 M8×1.25 外牙沿 z- 进入立柱上段顶面攻丝孔；上端 1/4-20 外牙保持直立沿 z+ 插入 M6 后壳外伸承台的下向打印内丝。承台向 x 外伸并在 z+ 天空侧用双三角加强筋回接后壳；旧版横向 90° 独立连接器不属于当前方案。",
             "scope": "purchased",
             "procurement_status": "外购；螺纹有效长度和旋钮净空需按到货件复核",
             "assembly_role": "立柱与 M6 后盖之间的可调承力接口",
@@ -805,10 +1041,20 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             position = list(entry["generated_box"]["minimum"])
             rotation = [0.0, 0.0, 0.0]
         if entry.get("source_kind") == "external":
-            position = [
-                float(entry["display_position"][index]) + minimum[index]
-                for index in range(3)
-            ]
+            if entry.get("display_anchor_world"):
+                anchor_local = [
+                    float(value)
+                    for value in entry.get("display_anchor_local", (0.0, 0.0, 0.0))
+                ]
+                position = [
+                    float(entry["display_anchor_world"][index]) - anchor_local[index]
+                    for index in range(3)
+                ]
+            else:
+                position = [
+                    float(entry["display_position"][index]) + minimum[index]
+                    for index in range(3)
+                ]
             rotation = [0.0, 0.0, 0.0]
             axis = list(entry.get("motion_axis", [0.0, 1.0, 0.0]))
             motion_range = [0.0, float(entry.get("motion_max", 42.0))]
@@ -913,9 +1159,32 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             part_record["extensions"]["geometryStatus"] = "display envelope only; not printable CAD"
         parts.append(part_record)
         instances_by_part.setdefault(str(entry["part"]), []).append(instance)
-        if entry["part"] in {"clamp_electronics_ui_panel_mount", "m6_detector_body", "post_clamp_carrier_upper", "net_clamp_rod", "context_tabletop", "context_net_fabric", "context_net_height_reference"} or entry["part"].startswith("purchased_"):
-            focus_ids.setdefault(str(entry["part"]), []).append(instance_id)
+        if entry["part"] in {
+            "clamp_electronics_ui_panel_mount",
+            "electronics_esp32_main",
+            "electronics_ui_panel",
+            "ui_physical_items",
+            "ui_led_light_pipes",
+            "m6_detector_body",
+            "m6_detector_shell_front",
+            "m6_detector_shell_rear",
+            "m6_detector_bottom_cover",
+            "m6_detector_bottom_gasket",
+            "post_clamp_carrier_lower",
+            "post_clamp_carrier_upper",
+            "net_clamp_rod",
+            "sensor_mount_body",
+            "sensor_clamp_lip",
+            "context_tabletop",
+            "context_net_fabric",
+            "context_net_height_reference",
+        } or entry["part"].startswith("purchased_") or entry["part"].startswith("electronics_m6_receiver_carrier_"):
+            part_key = str(entry["part"])
+            focus_ids.setdefault(part_key, []).append(instance_id)
             focus_ids.setdefault("purchased", []).append(instance_id)
+            side_value = entry.get("side_value")
+            side_key = int(side_value) if side_value in (-1, 1) else 0
+            focus_ids_by_side.setdefault((part_key, side_key), []).append(instance_id)
 
     def values_for(stage: str) -> dict[str, float]:
         result: dict[str, float] = {}
@@ -929,6 +1198,16 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
 
     source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
     source_rel = (Path("..", "..") / source_path.relative_to(CAD_ROOT)).as_posix()
+
+    def side_focus(parts_to_focus: list[str], side: int = 1) -> list[str]:
+        """Return one side's installed instances in a stable part order."""
+
+        return [
+            instance_id
+            for part_key in parts_to_focus
+            for instance_id in focus_ids_by_side.get((part_key, side), [])
+        ]
+
     procurement_items = [
         {
             "id": item.get("id"),
@@ -976,11 +1255,101 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
             {"id": "right", "label": "右视（X+）", "direction": [1, 0, 0]},
             {"id": "left", "label": "左视（X-）", "direction": [-1, 0, 0]},
             {"id": "top", "label": "俯视（Z+）", "direction": [0, 0, 1]},
-            {"id": "ui", "label": "UI 面板与电子腔", "direction": [0, 1, 0], "focusInstanceIds": focus_ids.get("clamp_electronics_ui_panel_mount", [])},
-            {"id": "m6", "label": "M6 光电端", "direction": [1, 0.35, 0.25], "focusInstanceIds": focus_ids.get("m6_detector_body", []) + focus_ids.get("purchased_ballhead", []) + focus_ids.get("purchased_m6_sensor_array", [])},
-            {"id": "purchased", "label": "采购件与安装接口", "direction": [1, 0.55, 0.35], "focusInstanceIds": focus_ids.get("purchased", [])},
-            {"id": "post", "label": "立柱分型", "direction": [1, 0.5, 0.4], "focusInstanceIds": focus_ids.get("post_clamp_carrier_upper", [])},
-            {"id": "net", "label": "网杆入口", "direction": [1, 0.3, 0.25], "focusInstanceIds": focus_ids.get("net_clamp_rod", [])},
+            {
+                "id": "ui",
+                "label": "UI 面板外观（右侧，仅 UI 件）",
+                # The UI panel is the y+ outside wall.  The external view is
+                # intentionally taken from y+ so the screen, speaker, LED
+                # apertures and Type-C opening are actually visible; the
+                # cavity-side inspection has its own preset below.  The
+                # horizontal ESP32 main board is deliberately excluded here:
+                # it is a separate flat +Z-mounted board in the cavity, not
+                # the vertical UI daughter board behind this panel.  Showing
+                # it in this exterior preset makes the two installation
+                # planes look like one incorrectly oriented assembly.
+                "direction": [0.35, 1.0, -0.55],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "clamp_electronics_ui_panel_mount",
+                    "electronics_ui_panel",
+                    "ui_physical_items",
+                    "ui_led_light_pipes",
+                ]),
+            },
+            {
+                "id": "electronics",
+                "label": "电子仓内侧（主板 + UI 板）",
+                # Looking from the open y- side exposes the PCB and the
+                # mounted screen/speaker bodies without bringing in the
+                # mirrored left assembly or the full C-clamp bounds.  This
+                # is the view where the flat +Z ESP32 board and the vertical
+                # y+ UI board are intentionally seen together as two
+                # different mounting planes.
+                "direction": [0.35, -1.0, 0.75],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "clamp_electronics_ui_panel_mount",
+                    "electronics_esp32_main",
+                    "electronics_ui_panel",
+                    "ui_physical_items",
+                    "ui_led_light_pipes",
+                ]),
+            },
+            # The right detector is the receiver whose optical face is x-.
+            # These are deliberately one-side, object-level views: including
+            # the mirrored left assembly makes the camera retreat to table
+            # scale and hides the actual interface the preset is meant to
+            # inspect.
+            {
+                "id": "m6",
+                "label": "M6 光电端（右侧）",
+                "direction": [-1, -0.45, 0.30],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "m6_detector_body",
+                    "m6_detector_shell_front",
+                    "m6_detector_shell_rear",
+                    "m6_detector_bottom_cover",
+                    "m6_detector_bottom_gasket",
+                    "purchased_m6_sensor_array",
+                    "electronics_m6_receiver_carrier_right",
+                ]),
+            },
+            {
+                "id": "purchased",
+                "label": "采购件与安装接口（右侧）",
+                "direction": [-1, -0.55, 0.35],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "purchased_ballhead",
+                    "post_clamp_carrier_upper",
+                    "m6_detector_shell_rear",
+                    "m6_detector_body",
+                ]),
+            },
+            {
+                "id": "post",
+                "label": "立柱分型（右侧）",
+                "direction": [-1, -0.55, 0.35],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "post_clamp_carrier_lower",
+                    "post_clamp_carrier_upper",
+                    "purchased_ballhead",
+                ]),
+            },
+            {
+                "id": "net",
+                "label": "网杆入口（右侧）",
+                "direction": [-1, -0.55, 0.35],
+                "isolate": True,
+                "focusInstanceIds": side_focus([
+                    "post_clamp_carrier_upper",
+                    "net_clamp_rod",
+                    "sensor_mount_body",
+                    "sensor_clamp_lip",
+                ]),
+            },
         ],
         "extensions": {
             "adapter": "hardware/cad/build_assembly_preview.py",
@@ -1003,7 +1372,7 @@ def _build_manifest(source: dict[str, object], source_path: Path) -> dict[str, o
                     "id": "legacy-90-degree-m6-connector",
                     "name": "旧版 90°金属连接件/独立适配板",
                     "status": "retired",
-                    "reason": "当前方案由 13 mm 采购球头的 M8 下端直接进入立柱、1/4-20 上端直接进入 M6 后盖 boss；旧件不再属于当前装配。",
+                    "reason": "当前方案由 13 mm 采购球头的 M8 下端直接进入立柱、1/4-20 上端沿 z+ 进入 M6 后盖外伸承台的下向打印内丝；旧件不再属于当前装配。",
                 },
             ],
             "groupLegend": {group_id: label for group_id, label, _color in [

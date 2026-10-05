@@ -11,6 +11,17 @@ const applyTransform = (object, value) => {
   object.rotation.set(...value.rotation);
 };
 
+// Keep camera.up perpendicular to the viewing direction.  The old code left
+// the default Z-up vector in place when looking from +Z/-Z, which makes
+// lookAt() singular and poisons every following preset with an arbitrary roll.
+const cameraUpForDirection = (direction) => {
+  const axis = vec(direction).normalize();
+  if (Math.abs(axis.z) > 0.999) {
+    return new THREE.Vector3(0, axis.z > 0 ? 1 : -1, 0);
+  }
+  return new THREE.Vector3(0, 0, 1);
+};
+
 export class AssemblyScene {
   constructor(canvas, manifest) {
     this.manifest = manifest;
@@ -255,6 +266,19 @@ export class AssemblyScene {
     record.mesh.visible = record.visible;
   }
 
+  setViewVisibility(instanceIds = null) {
+    const allowed = Array.isArray(instanceIds) ? new Set(instanceIds) : null;
+    for (const [instanceId, record] of this.instances) {
+      // A view preset temporarily isolates its own inspection objects.  When
+      // the preset is cleared, return to the manifest's declared defaults so
+      // diagnostic items such as the hidden calibration gauge stay hidden.
+      this.setVisible(
+        instanceId,
+        allowed ? allowed.has(instanceId) : record.spec.visible !== false,
+      );
+    }
+  }
+
   setFrameVisible(frameId, visible) {
     const root = this.frameNodes.get(frameId);
     for (const [instanceId, record] of this.instances) {
@@ -318,8 +342,11 @@ export class AssemblyScene {
     const size = box.getSize(new THREE.Vector3());
     const radius = Math.max(size.length() * 0.5, 1);
     const distance = radius / Math.sin(THREE.MathUtils.degToRad(this.camera.fov / 2)) * 1.35;
+    const axis = vec(direction).normalize();
+    this.camera.up.copy(cameraUpForDirection(axis));
     this.controls.target.copy(center);
-    this.camera.position.copy(center).addScaledVector(vec(direction).normalize(), distance);
+    this.camera.position.copy(center).addScaledVector(axis, distance);
+    this.camera.lookAt(center);
     this.camera.near = Math.max(distance / 1000, 0.01);
     this.camera.far = distance * 1000;
     this.camera.updateProjectionMatrix();
@@ -329,6 +356,7 @@ export class AssemblyScene {
   orientToAxis(direction) {
     const axis = vec(direction).normalize();
     const distance = Math.max(this.camera.position.distanceTo(this.controls.target), 1);
+    this.camera.up.copy(cameraUpForDirection(axis));
     this.camera.position.copy(this.controls.target).addScaledVector(axis, distance);
     this.camera.lookAt(this.controls.target);
     this.controls.update();

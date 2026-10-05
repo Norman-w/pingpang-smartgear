@@ -9,8 +9,9 @@ CNC; the rear cover carries the 1/4-20 interface for the purchased vertical
 at z=230.5 mm; the upper segment ends at z=260.5 mm and is joined with four
 M3x40 screws. The net fabric/clip zone remains z=16..168.5 mm. The selected
 ballhead's downward M8×1.25 stud enters the centre blind tapped seat in the
-replaceable upper post segment; no separate adapter or 90-degree connector is
-part of the current handoff.
+replaceable upper post segment, while its upward 1/4-20 stud enters the
+downward-facing printed female thread in the rear-cover platform; no separate
+adapter or 90-degree connector is part of the current handoff.
 """
 
 from __future__ import annotations
@@ -97,19 +98,24 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
     ]
     body_envelope_size = body_size[:]
     body_envelope_min = body_min[:]
+    shell_min_x = min(
+        parameters["m6_detector_shell_min_x"],
+        parameters["m6_detector_shell_support_platform_min_x"],
+    )
+    shell_max_x = max(
+        parameters["m6_detector_shell_max_x"],
+        parameters["m6_detector_shell_support_platform_max_x"],
+    )
     shell_size = [
-        _r(
-            parameters["m6_detector_shell_max_x"]
-            - parameters["m6_detector_shell_min_x"]
-        ),
+        _r(shell_max_x - shell_min_x),
         _r(
             max(
                 parameters["m6_detector_shell_max_y"],
-                parameters["m6_detector_shell_support_boss_max_y"],
+                parameters["m6_detector_shell_support_platform_max_y"],
             )
             - min(
                 parameters["m6_detector_shell_min_y"],
-                parameters["m6_detector_shell_support_boss_min_y"],
+                parameters["m6_detector_shell_support_platform_min_y"],
             )
         ),
         _r(parameters["m6_detector_shell_height_z"]),
@@ -185,10 +191,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "part": "m6_detector_shell_rear",
-                "name_zh": "后盖（PETG，后方加厚 1/4-20 接口 boss）",
+                "name_zh": "后盖（PETG，外伸承台/下向 1/4-20 内丝）",
                 "per_side": 1,
                 "total": 2,
-                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面中央在 y=0、z 中心加厚形成支撑 boss，开 x 向 Ø7.0 1/4-20 通孔并内藏标准捕获螺母，boss 根部在 y± 两侧各增加一条跨到后壳侧壁的实体 PETG 加强肋且避开中央通孔；供商品球头固定上端连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
+                "notes": "覆盖 x+ 线缆端；后盖 x+ 背面向外伸出 52×38×16 mm 承台，底面 y=0 处开向下的 1/4-20 PETG 打印内丝，根部与后壳搭接 3 mm，z+ 天空侧两端各有一条三角加强筋回接后墙；供商品球头固定上端连接；左侧发射端按 x 镜像；首样不把薄壳当作唯一弯矩承力件。",
             },
             {
                 "part": "m6_detector_bottom_cover",
@@ -275,7 +281,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
         "shell_contract": {
             "outer_envelope_mm": shell_size,
             "outer_min_global_mm": [
-                _assembled_x(parameters, parameters["m6_detector_shell_min_x"]),
+                _assembled_x(parameters, shell_min_x),
                 _r(parameters["m6_detector_shell_min_y"]),
                 _assembled_z(parameters, parameters["m6_detector_shell_bottom_z"]),
             ],
@@ -314,86 +320,55 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
                 "后盖从 z+ 套入主体，后盖舌片进入同一 y± 边槽的 x+ 半并以 x+ 沉头螺钉固定",
                 "底盖从 z- 贴合并以两枚沉头螺钉固定，统一线缆套管从 Ø12 mm 孔穿出",
             ],
-            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面中央（y=0、z 中心）适当增厚形成 1/4-20 支撑 boss，内藏标准 1/4-20 捕获螺母，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；固定网柱下段从黄灰交界 z=16 mm 延伸到分型面 z=230.5 mm，上段延伸到 z=260.5 mm，四枚 M3×40（普通盘头或低矮圆头）自攻钉从上段 Ø3.4 mm 通孔拧入下段 Ø2.4×10 mm 导向盲孔，不用沉头或台阶肩螺钉；网布/圆柱功能区仍只到 z=168.5 mm，底端不进入 C 形座；M6 球头下端 M8×1.25 接口直接进入固定网柱上段中心攻丝座，取消横向适配臂，最终尺寸待真实器件首样复核",
-            "support_boss": {
+            "top_entry": "前盖位于 x- 光学端并做正球弧、后盖位于 x+ 线缆端且只在自身后部做圆角，和前盖接驳的 x- 边保持直角；后盖 x+ 背面向外伸出承台，底面向下开 1/4-20 打印内丝，z+ 天空侧双三角加强筋回接后墙，主体位于两盖中间，前后盖均从主体 z+ 套入；底盖从 z- 贴合，左侧发射端按 x 镜像；固定网柱下段从黄灰交界 z=16 mm 延伸到分型面 z=230.5 mm，上段延伸到 z=260.5 mm，四枚 M3×40（普通盘头或低矮圆头）自攻钉从上段 Ø3.4 mm 通孔拧入下段 Ø2.4×10 mm 导向盲孔，不用沉头或台阶肩螺钉；网布/圆柱功能区仍只到 z=168.5 mm，底端不进入 C 形座；M6 球头上端 1/4-20 外牙朝 z+ 进入后盖承台内丝，下端 M8×1.25 朝 z- 进入固定网柱上段中心攻丝座，取消横向适配臂，最终尺寸待真实器件首样复核",
+            "support_platform": {
                 "material": "PETG 首样；未来可换金属嵌件或 CNC 后盖",
                 "min_global_mm": [
-                    _assembled_x(
-                        parameters, parameters["m6_detector_shell_support_boss_min_x"]
-                    ),
-                    _r(parameters["m6_detector_shell_support_boss_min_y"]),
-                    _assembled_z(
-                        parameters, parameters["m6_detector_shell_support_boss_bottom_z"]
-                    ),
+                    _assembled_x(parameters, parameters["m6_detector_shell_support_platform_min_x"]),
+                    _r(parameters["m6_detector_shell_support_platform_min_y"]),
+                    _assembled_z(parameters, parameters["m6_detector_shell_support_platform_bottom_z"]),
                 ],
                 "max_global_mm": [
-                    _assembled_x(
-                        parameters, parameters["m6_detector_shell_support_boss_max_x"]
-                    ),
-                    _r(parameters["m6_detector_shell_support_boss_max_y"]),
-                    _assembled_z(
-                        parameters, parameters["m6_detector_shell_support_boss_top_z"]
-                    ),
+                    _assembled_x(parameters, parameters["m6_detector_shell_support_platform_max_x"]),
+                    _r(parameters["m6_detector_shell_support_platform_max_y"]),
+                    _assembled_z(parameters, parameters["m6_detector_shell_support_platform_top_z"]),
                 ],
-                "length_x_mm": _r(parameters["m6_detector_shell_support_boss_length_x"]),
-                "root_overlap_x_mm": _r(parameters["m6_detector_shell_support_boss_overlap_x"]),
-                "depth_y_mm": _r(parameters["m6_detector_shell_support_boss_depth_y"]),
-                "height_z_mm": _r(parameters["m6_detector_shell_support_boss_height_z"]),
-                "center_y_global_mm": _r(parameters["m6_detector_shell_support_boss_center_y"]),
-                "gusset_min_global_mm": [
-                    _assembled_x(
-                        parameters, parameters["m6_detector_shell_support_gusset_min_x"]
-                    ),
-                    _r(parameters["m6_detector_shell_min_y"]),
-                    _assembled_z(
-                        parameters, parameters["m6_detector_shell_support_gusset_bottom_z"]
-                    ),
+                "length_x_mm": _r(parameters["m6_detector_shell_support_platform_length_x"]),
+                "root_overlap_x_mm": _r(parameters["m6_detector_shell_support_platform_overlap_x"]),
+                "width_y_mm": _r(parameters["m6_detector_shell_support_platform_width_y"]),
+                "thickness_z_mm": _r(parameters["m6_detector_shell_support_platform_thickness_z"]),
+                "center_y_global_mm": _r(parameters["m6_detector_shell_support_platform_center_y"]),
+                "thread_axis": "z- from the platform underside; blind printed 1/4-20 female thread",
+                "thread_core_d_mm": _r(parameters["m6_detector_shell_support_platform_thread_core_d"]),
+                "thread_major_d_mm": _r(parameters["m6_detector_shell_support_platform_thread_major_d"]),
+                "thread_pitch_mm": _r(parameters["m6_detector_shell_support_platform_thread_pitch"]),
+                "thread_depth_z_mm": _r(parameters["m6_detector_shell_support_platform_thread_depth_z"]),
+                "thread_entry_z_global_mm": _assembled_z(parameters, parameters["m6_detector_shell_support_platform_thread_entry_z"]),
+                "thread_top_z_global_mm": _assembled_z(parameters, parameters["m6_detector_shell_support_platform_thread_top_z"]),
+                "thread_center_global_mm": [
+                    _assembled_x(parameters, parameters["m6_detector_shell_support_platform_thread_center_x"]),
+                    _r(parameters["m6_detector_shell_support_platform_thread_center_y"]),
+                    _assembled_z(parameters, parameters["m6_detector_shell_support_platform_thread_center_z"]),
                 ],
-                "gusset_max_global_mm": [
-                    _assembled_x(
-                        parameters, parameters["m6_detector_shell_support_gusset_max_x"]
-                    ),
-                    _r(parameters["m6_detector_shell_max_y"]),
-                    _assembled_z(
-                        parameters, parameters["m6_detector_shell_support_gusset_top_z"]
-                    ),
-                ],
-                "gusset_x_overlap_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_x_overlap"]
-                ),
-                "gusset_root_width_y_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_root_width_y"]
-                ),
-                "gusset_wall_width_y_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_wall_width_y"]
-                ),
-                "gusset_height_z_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_height_z"]
-                ),
-                "gusset_root_y_start_positive_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_root_y_start_positive"]
-                ),
-                "gusset_wall_y_start_positive_mm": _r(
-                    parameters["m6_detector_shell_support_gusset_wall_y_start_positive"]
-                ),
-                "hole_axis": "x- from the rear x+ face toward the optical side",
-                "hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
-                "hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
-                "hole_entry_x_global_mm": _assembled_x(
-                    parameters, parameters["m6_detector_shell_support_hole_entry_x"]
-                ),
+                "gusset_height_z_mm": _r(parameters["m6_detector_shell_support_platform_gusset_height_z"]),
+                "gusset_width_y_mm": _r(parameters["m6_detector_shell_support_platform_gusset_width_y"]),
+                "gusset_top_z_global_mm": _assembled_z(parameters, parameters["m6_detector_shell_support_gusset_top_z"]),
             },
         },
         "support_contract": {
             "type": "purchased 13 mm ballhead/gimbal",
-            "posture": "vertical purchased ballhead on the M6 rear-cover boss; its downward M8×1.25 stud enters the centre tapped seat in the split fixed net post's upper segment",
-            "boss_hole_axis": "x- from the rear cover boss toward the optical side",
-            "boss_hole_d_mm": _r(parameters["m6_detector_shell_support_hole_d"]),
-            "boss_hole_depth_x_mm": _r(parameters["m6_detector_shell_support_hole_depth_x"]),
-            "boss_hole_entry_x_global_mm": _assembled_x(
-                parameters, parameters["m6_detector_shell_support_hole_entry_x"]
+            "posture": "vertical purchased ballhead under the M6 rear-cover platform; its upward 1/4-20 stud enters the downward-facing printed female thread and its downward M8×1.25 stud enters the split fixed net post's upper segment",
+            "platform_thread_axis": "z- from the rear-cover platform underside",
+            "platform_thread_core_d_mm": _r(parameters["m6_detector_shell_support_platform_thread_core_d"]),
+            "platform_thread_major_d_mm": _r(parameters["m6_detector_shell_support_platform_thread_major_d"]),
+            "platform_thread_pitch_mm": _r(parameters["m6_detector_shell_support_platform_thread_pitch"]),
+            "platform_thread_depth_z_mm": _r(parameters["m6_detector_shell_support_platform_thread_depth_z"]),
+            "platform_thread_entry_z_global_mm": _assembled_z(
+                parameters, parameters["m6_detector_shell_support_platform_thread_entry_z"]
             ),
-            "ballhead_stud_engagement_x_mm": _r(parameters["m6_detector_shell_support_stud_engagement_x"]),
+            "platform_thread_top_z_global_mm": _assembled_z(
+                parameters, parameters["m6_detector_shell_support_platform_thread_top_z"]
+            ),
             "ballhead_center_x_global_mm": _r(
                 parameters["m6_detector_assembly_ballhead_center_x"]
             ),
@@ -403,7 +378,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             ),
             "mount_raise_z_mm": _r(parameters["m6_detector_mount_raise_z"]),
             "net_interface": "球头下端 M8×1.25 外牙朝 z-，直接进入固定网柱上段中心盲孔；固定网柱下段 z=16…230.5 mm、上段 z=230.5…260.5 mm，四枚 M3×40（普通盘头或低矮圆头）连接，网布/圆柱功能区到 z=168.5 mm",
-            "load_path": "主体/后盖 boss -> 1/4-20 外牙采购球头上端 -> 球头下端 M8×1.25 -> 上段中心攻丝座 -> 连续固定网柱；打印件只提供攻丝底孔，实物螺纹/嵌件和承力仍需验证",
+            "load_path": "主体/后盖外伸承台 -> 下向 1/4-20 打印内丝 -> 采购球头上端外牙 -> 球头下端 M8×1.25 -> 上段中心攻丝座 -> 连续固定网柱；打印件只提供攻丝底孔，实物螺纹/嵌件和承力仍需验证",
             "direct_mount": {
                 "enabled": bool(parameters["m6_detector_direct_mount_enabled"]),
                 "material": "same PETG upper-post material; optional metal M8×1.25 insert",
@@ -522,7 +497,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "sensor_stud_length_mm": _r(
                 parameters["m6_ballhead_sensor_stud_length"]
             ),
-            "sensor_stud_role": "商品固定上端 1/4-20 外牙；沿 x 接入后盖隐藏的 1/4-20 捕获螺母",
+            "sensor_stud_role": "商品固定上端 1/4-20 外牙；沿 z+ 进入后盖承台下向打印内丝",
             "sensor_stud_thread_core_d_mm": _r(parameters["m6_ballhead_sensor_thread_core_d"]),
             "sensor_stud_thread_pitch_mm": _r(parameters["m6_ballhead_sensor_thread_pitch"]),
             "net_stud_d_mm": _r(parameters["m6_ballhead_net_stud_d"]),
@@ -530,7 +505,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "net_stud_role": "当前选定下端 M8×1.25 外牙；z- 直接进入固定网柱上段中心 M8×1.25 攻丝座",
             "net_stud_thread_core_d_mm": _r(parameters["m6_ballhead_net_thread_core_d"]),
             "net_stud_thread_pitch_mm": _r(parameters["m6_ballhead_net_thread_pitch"]),
-            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙从各自 x 后端进入后盖中央加厚 boss 的 x 向通孔并由隐藏螺母锁紧；下方 M8×1.25 竖直接口朝 z- 进入固定网柱上段中心攻丝座，固定网柱分为 z=16…230.5 mm 下段和 z=230.5…260.5 mm 上段，四枚 M3×40（普通盘头或低矮圆头）连接，网布/圆柱功能区到 z=168.5 mm；取消横向承托臂和侧向上返竖向耳；最终承力以首样实测为准",
+            "posture": "球头主体竖直；商品固定上端 1/4-20 外牙沿 z+ 进入后盖外伸承台的下向打印内丝；下方 M8×1.25 竖直接口朝 z- 进入固定网柱上段中心攻丝座，固定网柱分为 z=16…230.5 mm 下段和 z=230.5…260.5 mm 上段，四枚 M3×40（普通盘头或低矮圆头）连接，网布/圆柱功能区到 z=168.5 mm；取消横向承托臂和侧向上返竖向耳；最终承力以首样实测为准",
             "rotation_range_deg": _r(parameters["m6_ballhead_rotation_range_deg"]),
             "opening_range_deg": _r(parameters["m6_ballhead_tilt_range_deg"]),
             "selected_variant": "13mm球【M8外牙】（当前模型默认）",
@@ -571,10 +546,10 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             },
             {
                 "id": "detector_to_ballhead",
-                "name_zh": "后盖加厚 boss 到采购球头",
+                "name_zh": "后盖外伸承台到采购球头",
                 "per_side": 1,
                 "total": 2,
-                "spec": "selected 13 mm ballhead; fixed upper 1/4-20 external stud enters the rear-cover captured nut; lower M8×1.25 external stud enters the fixed net post upper-segment centre tap",
+                "spec": "selected 13 mm ballhead; fixed upper 1/4-20 external stud enters the rear-cover platform's downward printed female thread; lower M8×1.25 external stud enters the fixed net post upper-segment centre tap",
                 "status": "verify delivered thread side, effective engagement and anti-rotation",
             },
         ],
@@ -583,7 +558,7 @@ def build_spec(openscad: str, probe_directory: Path) -> dict[str, object]:
             "确认固定网柱下段从黄灰交界 z=16 mm 到分型面 z=230.5 mm，上段到 z=260.5 mm；四枚 M3×40（普通盘头或低矮圆头）从上段 Ø3.4 mm 通孔进入下段 Ø2.4×10 mm 导向盲孔，网布/圆柱功能区仍是 z=16..168.5 mm，底端与 C 形座共面且不下插；M6 球头下端 M8×1.25 进入固定网柱上段中心攻丝座，实物攻丝/嵌件和承力完成后再核对其高度",
             "确认网布先沿 x 穿过 PETG 立柱主体 y 向 3 mm 过道，端部止在立柱外表面，再把空心边套套到 Ø10 圆柱插杆并沿原门洞轴线从 x 侧推入下段侧开接收腔；上段安装后封住入口，不设置穿钉、keeper 或独立卡夹；记录插入力、防脱行程和拆下上段后的抽出力",
             "用一只真实器件先验证 10 mm 主体厚度、x 轴 -45° 斜向浅六角窝、一枚外螺帽和线缆弯曲半径",
-            "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧 boss 均位于各自后端面的 y=0、z 中心",
+            "确认左右件只做 x 镜像：左侧发射光轴朝 x+、后盖在 x- 背面，右侧接收光轴朝 x-、后盖在 x+ 背面；两侧承台均位于各自后端面的 y=0，底部内丝朝 z-，天空侧加强筋与后墙连续",
             "确认前盖 x-、后盖 x+ 从 z+ 套入；两盖舌片分别落入 y± 连续边槽的 x 前/后半，沉头螺钉不会进入光学孔或线缆孔",
             "确认灰色桌下夹体保留桌面夹持开口和压块/螺杆区域，外侧下部为 y 全深 40 mm 到 8 mm 的实心渐变斜底；M8 夹紧丝杆相对原包络加长 12 mm，仍由台底压块承接",
             "球头按竖直姿态安装；到货后核对 13 mm 球、旋钮净空、90°开口、360°旋转和螺纹选项",
