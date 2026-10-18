@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.5-vertical-tube-clearance/perpendicular-double-u-guard-v1.5-vertical-tube-clearance.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 416,
+  "uniqueVertexCount": 208,
+  "bounds": {
+    "min": [
+      -27.399999618530273,
+      -21.0,
+      -21.0
+    ],
+    "max": [
+      27.399999618530273,
+      21.0,
+      29.0
+    ],
+    "size": [
+      54.79999923706055,
+      42.0,
+      50.0
+    ]
+  },
+  "surfaceArea": 13064.348552452728,
+  "signedVolume": 41040.02539857215,
+  "volume": 41040.02539857215,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}

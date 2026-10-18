@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.9-mirrored-end-ramps/perpendicular-double-u-guard-v1.9-mirrored-end-ramps.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 464,
+  "uniqueVertexCount": 232,
+  "bounds": {
+    "min": [
+      -27.399999618530273,
+      -33.0,
+      -21.5
+    ],
+    "max": [
+      27.399999618530273,
+      33.0,
+      29.0
+    ],
+    "size": [
+      54.79999923706055,
+      66.0,
+      50.5
+    ]
+  },
+  "surfaceArea": 16845.843969544054,
+  "signedVolume": 49938.8252795536,
+  "volume": 49938.8252795536,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}

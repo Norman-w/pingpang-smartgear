@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.4-full-nut-passage/perpendicular-double-u-guard-v1.4-full-nut-passage.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 400,
+  "uniqueVertexCount": 200,
+  "bounds": {
+    "min": [
+      -27.399999618530273,
+      -21.0,
+      -21.0
+    ],
+    "max": [
+      27.399999618530273,
+      21.0,
+      29.0
+    ],
+    "size": [
+      54.79999923706055,
+      42.0,
+      50.0
+    ]
+  },
+  "surfaceArea": 14264.34853489184,
+  "signedVolume": 45040.02526979231,
+  "volume": 45040.02526979231,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}

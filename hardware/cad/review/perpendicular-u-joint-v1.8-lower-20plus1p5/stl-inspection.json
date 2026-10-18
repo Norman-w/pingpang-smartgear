@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.8-lower-20plus1p5/perpendicular-double-u-guard-v1.8-lower-20plus1p5.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 440,
+  "uniqueVertexCount": 220,
+  "bounds": {
+    "min": [
+      -27.399999618530273,
+      -33.0,
+      -21.5
+    ],
+    "max": [
+      27.399999618530273,
+      33.0,
+      29.0
+    ],
+    "size": [
+      54.79999923706055,
+      66.0,
+      50.5
+    ]
+  },
+  "surfaceArea": 15768.348552452728,
+  "signedVolume": 46382.025398572194,
+  "volume": 46382.025398572194,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}
