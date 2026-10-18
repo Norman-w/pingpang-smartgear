@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id="arrow-x" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#e19b00"/>
+    </marker>
+    <marker id="arrow-y" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#008fc4"/>
+    </marker>
+    <marker id="arrow-z" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#1b9e43"/>
+    </marker>
+    <marker id="arrow-black" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#222"/>
+    </marker>
+    <style>
+      .title { font: 700 30px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #222; }
+      .label { font: 700 22px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; }
+      .note { font: 20px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #222; }
+      .small { font: 17px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #444; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="800" fill="#fafafa"/>
+  <text x="50" y="55" class="title">v0.7 恢复版：XYZ 坐标方向与功能</text>
+
+  <!-- Upper 20x20 long tube: X axis. -->
+  <polygon points="185,210 735,305 735,385 185,290" fill="#9da5b3" stroke="#626b78" stroke-width="2"/>
+  <polygon points="185,290 735,385 735,425 185,330" fill="#737b88" stroke="#626b78" stroke-width="2"/>
+  <text x="210" y="245" class="small">上方 20×20 长方管</text>
+
+  <!-- Lower 20x20 foot: Y axis. -->
+  <polygon points="490,445 760,295 760,385 490,535" fill="#4d7fd8" stroke="#24529c" stroke-width="2"/>
+  <polygon points="490,535 760,385 760,500 490,650" fill="#2d579e" stroke="#24529c" stroke-width="2"/>
+  <polygon points="490,445 760,295 830,335 560,485" fill="#638fe0" stroke="#24529c" stroke-width="2"/>
+  <text x="580" y="545" class="small" fill="#fff">下方 20×20 脚 / 方管</text>
+
+  <!-- One-piece double-U guard, shown schematically. -->
+  <polygon points="430,230 600,165 760,240 590,305" fill="#ff6b18" stroke="#b63e0c" stroke-width="3"/>
+  <polygon points="430,230 590,305 590,575 510,530 510,300 430,265" fill="#d95213" stroke="#9e350d" stroke-width="3"/>
+  <polygon points="680,270 760,240 760,510 680,555" fill="#c8440f" stroke="#9e350d" stroke-width="3"/>
+  <polygon points="430,230 510,265 510,300 430,265" fill="#f25a15"/>
+  <polygon points="680,270 760,240 760,275 680,305" fill="#f25a15"/>
+  <circle cx="595" cy="235" r="18" fill="#d8a500" stroke="#805f00" stroke-width="3"/>
+  <circle cx="595" cy="235" r="6" fill="#fafafa"/>
+  <text x="535" y="190" class="small" fill="#fff">一体式双 U 卡</text>
+
+  <!-- Coordinate origin and functional arrows. -->
+  <circle cx="595" cy="305" r="7" fill="#222"/>
+  <text x="608" y="333" class="small">O(0,0,0)：两根方管中心 / 螺丝轴线</text>
+
+  <line x1="155" y1="145" x2="900" y2="275" stroke="#e19b00" stroke-width="5" marker-end="url(#arrow-x)"/>
+  <text x="700" y="125" class="label" fill="#b57900">+X：围挡长方向</text>
+  <text x="700" y="150" class="small">上方长方管的轴线</text>
+
+  <line x1="850" y1="300" x2="445" y2="700" stroke="#008fc4" stroke-width="5" marker-end="url(#arrow-y)"/>
+  <text x="720" y="700" class="label" fill="#00749e">+Y：背面 → 正面</text>
+  <text x="720" y="725" class="small">下方脚的轴线；正面 U 为 +Y，背面 U 为 -Y，内距沿 Y=20 mm</text>
+
+  <line x1="1000" y1="620" x2="1000" y2="115" stroke="#1b9e43" stroke-width="5" marker-end="url(#arrow-z)"/>
+  <text x="875" y="105" class="label" fill="#187c37">+Z：竖直向上</text>
+  <text x="875" y="130" class="small">螺丝沿 Z 方向贯穿</text>
+
+  <!-- Coordinate/function card. -->
+  <rect x="55" y="520" width="360" height="205" rx="12" fill="#ffffff" stroke="#c9cdd3" stroke-width="2"/>
+  <text x="80" y="555" class="label" fill="#333">坐标功能</text>
+  <text x="80" y="590" class="note">X：方管长向 / 卡子横向宽度</text>
+  <text x="80" y="625" class="note">Y：正背面 / 两个 U 的分开方向</text>
+  <text x="80" y="660" class="note">Z：上下 / 螺丝通孔方向</text>
+  <text x="80" y="700" class="small">当前只恢复 v0.7，未加入手绘图后的加固结构</text>
+</svg>

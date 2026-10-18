@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id="arrow-x" markerWidth="16" markerHeight="16" refX="12" refY="8" orient="auto">
+      <path d="M0,0 L16,8 L0,16 z" fill="#d88a00"/>
+    </marker>
+    <marker id="arrow-z" markerWidth="16" markerHeight="16" refX="12" refY="8" orient="auto">
+      <path d="M0,0 L16,8 L0,16 z" fill="#198a3c"/>
+    </marker>
+    <marker id="arrow-y" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M0,0 L14,7 L0,14 z" fill="#087ea8"/>
+    </marker>
+    <style>
+      .title { font: 700 36px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #202124; }
+      .heading { font: 700 28px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #202124; }
+      .label { font: 700 25px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; }
+      .note { font: 22px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #202124; }
+      .small { font: 19px 'PingFang SC', 'Noto Sans CJK SC', sans-serif; fill: #4b4f55; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1600" fill="#fafafa"/>
+  <text x="70" y="80" class="title">v0.7 恢复版：XZ 平面坐标方向与功能</text>
+  <text x="70" y="125" class="note" fill="#a33b1b">本图为 XZ 平面参考：不显示灰色上方方管</text>
+
+  <!-- Front U silhouette in the XZ plane. -->
+  <rect x="350" y="285" width="620" height="125" rx="4" fill="#ff6b18" stroke="#a63a0c" stroke-width="4"/>
+  <rect x="350" y="285" width="120" height="650" rx="4" fill="#d95213" stroke="#a63a0c" stroke-width="4"/>
+  <rect x="850" y="285" width="120" height="650" rx="4" fill="#c8440f" stroke="#a63a0c" stroke-width="4"/>
+
+  <!-- Inward lower retaining lips. -->
+  <rect x="430" y="805" width="180" height="105" fill="#d95213" stroke="#a63a0c" stroke-width="4"/>
+  <rect x="710" y="805" width="180" height="105" fill="#c8440f" stroke="#a63a0c" stroke-width="4"/>
+
+  <!-- Lower foot cross-section in this plane: its axis is normal to the page (Y). -->
+  <rect x="590" y="500" width="140" height="140" fill="#4d7fd8" stroke="#24529c" stroke-width="5"/>
+  <text x="610" y="575" class="small" fill="#ffffff">脚截面</text>
+
+  <!-- Screw axis at the origin, along Z. -->
+  <line x1="660" y1="455" x2="660" y2="780" stroke="#1b9e43" stroke-width="7" stroke-dasharray="18 12"/>
+  <circle cx="660" cy="455" r="10" fill="#202124"/>
+  <text x="685" y="470" class="small">O：螺丝中心</text>
+
+  <!-- X axis: horizontal in the XZ plane. -->
+  <line x1="220" y1="1060" x2="1110" y2="1060" stroke="#d88a00" stroke-width="7" marker-end="url(#arrow-x)"/>
+  <text x="970" y="1010" class="label" fill="#a56b00">+X</text>
+  <text x="1020" y="1010" class="note">围挡长方向 / 卡子横向</text>
+
+  <!-- Z axis: vertical in the XZ plane. -->
+  <line x1="1120" y1="1000" x2="1120" y2="190" stroke="#198a3c" stroke-width="7" marker-end="url(#arrow-z)"/>
+  <text x="1145" y="230" class="label" fill="#187c37">+Z</text>
+  <text x="1195" y="230" class="note">竖直向上 / 螺丝通孔轴线</text>
+
+  <!-- Y is normal to the XZ plane. -->
+  <circle cx="1160" cy="590" r="34" fill="#ffffff" stroke="#087ea8" stroke-width="6"/>
+  <circle cx="1160" cy="590" r="10" fill="#087ea8"/>
+  <text x="1210" y="575" class="label" fill="#087ea8">+Y</text>
+  <text x="1210" y="610" class="note">朝正面 / 出图面</text>
+  <circle cx="1160" cy="710" r="34" fill="#ffffff" stroke="#087ea8" stroke-width="6"/>
+  <line x1="1142" y1="692" x2="1178" y2="728" stroke="#087ea8" stroke-width="7"/>
+  <line x1="1178" y1="692" x2="1142" y2="728" stroke="#087ea8" stroke-width="7"/>
+  <text x="1210" y="695" class="label" fill="#087ea8">-Y</text>
+  <text x="1210" y="730" class="note">朝背面 / 入图面</text>
+
+  <!-- Function card. -->
+  <rect x="70" y="1130" width="980" height="300" rx="18" fill="#ffffff" stroke="#c9cdd3" stroke-width="3"/>
+  <text x="105" y="1190" class="heading">坐标功能</text>
+  <text x="105" y="1245" class="note">X：灰色方管沿 X 方向延伸；本 XZ 图的水平轴，也确定 U 卡左右开口。</text>
+  <text x="105" y="1300" class="note">Y：垂直于本图；正面 U 在 +Y，背面 U 在 -Y，两个 U 内侧面间距为 20 mm。</text>
+  <text x="105" y="1355" class="note">Z：确定上下位置；脚底 z=-20 mm，打印件最低 z=-21 mm，螺丝沿 Z 贯穿。</text>
+  <text x="105" y="1405" class="small">灰色方管虽沿 X 方向，但本 XZ 平面缩略图按要求隐藏，不画灰色方管。</text>
+</svg>

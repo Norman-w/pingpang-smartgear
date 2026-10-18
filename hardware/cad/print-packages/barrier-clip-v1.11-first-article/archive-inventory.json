@@ -1,0 +1,1635 @@
+{
+  "schema_version": 1,
+  "scope": "barrier guard only; preserved, not deleted",
+  "actual_print": {
+    "prediction_seconds": 16753,
+    "weight_g": 108.87,
+    "objects": 2,
+    "plates": 1,
+    "layers": 272,
+    "support_type": "tree(auto)",
+    "printer_started_by_user": true,
+    "physical_fit_and_strength": "not_tested"
+  },
+  "source_geometry_changed": false,
+  "scad_dependency_references": 86,
+  "files": [
+    {
+      "path": "BARRIER-GUARD-INDEX.zh-CN.md",
+      "size": 3763,
+      "sha256": "0ca99c039b0de317ac11cbcb1659efd0581962b9618a0abf919765f53eea0559"
+    },
+    {
+      "path": "perpendicular-u-joint-guard/README.md",
+      "size": 1864,
+      "sha256": "7d888e79e11faf69d4211b57df3fb472df44266bd6772b029c52f6cdbd80df3e"
+    },
+    {
+      "path": "perpendicular-u-joint-guard/perpendicular_u_joint_guard.scad",
+      "size": 7257,
+      "sha256": "c21f3cc11ab490a8f0b834ced1b096305fcbb337d1bc39e61b4c110040bb0c75"
+    },
+    {
+      "path": "perpendicular-u-joint-guard/render_preview.py",
+      "size": 2413,
+      "sha256": "4ddd47f61ae0228e2ec71d4885c9243cd16a2c1d0c67f6df5937a2289a8662c6"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.3/README.md",
+      "size": 2008,
+      "sha256": "4d3764f475222c9b21e3e038f88e51bb0d2e69035a518605a2ef8859a70a79f5"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.3/perpendicular_double_u_guard.scad",
+      "size": 7951,
+      "sha256": "08bf4719bf250c5d44b6685ae400962957f317ba4dfc54c83d17cbc2abd113b3"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.3/render_preview.py",
+      "size": 2232,
+      "sha256": "263e3d2e5cb5a3f905d27fecf1b8cb75bec5850740d5229c9d9bc5c12d6e03ab"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.4/README.md",
+      "size": 2120,
+      "sha256": "4e708fa6126216c26995a096980352c3b33076312a5b5d7331be54652d8df1c3"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.4/perpendicular_double_u_guard.scad",
+      "size": 7133,
+      "sha256": "182e3ff7afed291b57ed9306201830fe251b0a7c5b41e5f0996135afb4b22233"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.4/render_preview.py",
+      "size": 2232,
+      "sha256": "4328c7a09f90765289381f242144f17f030efb74c2572ccc1d538c220156797e"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.5/README.md",
+      "size": 2508,
+      "sha256": "4ce1861ba1d2ece9766e297026dd414b99bc27125752cbc3b9fa2243336f15ae"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.5/perpendicular_double_u_guard.scad",
+      "size": 8133,
+      "sha256": "429b5c8866407cb9cf325a0030ea061b53c10d872f69cb7827143d12725f0873"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.5/render_preview.py",
+      "size": 2232,
+      "sha256": "8202c030902cad0d03e3c2b9473cef5204414664a5dfe46f3b093f8d725b40a4"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.6/README.md",
+      "size": 2642,
+      "sha256": "1738499a80b2382ee964f8bde7b87be9e3ed6f08c2ac66924869afe83574ccdf"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.6/perpendicular_double_u_guard.scad",
+      "size": 8282,
+      "sha256": "c4b95188e0409c57c4ec408a05f0845174eaa43235524410d7ebddb07dce4835"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.6/render_preview.py",
+      "size": 2232,
+      "sha256": "111cb759cc781fce53f8e6195c3f83752c12c0baa09c2fdf446ce7e4202e0225"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/README.md",
+      "size": 5324,
+      "sha256": "2fba18128c93ff5f954219a0f4619b20403c8965cdac10db58d32dc0d0a58f83"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/coordinate_reference.scad",
+      "size": 1729,
+      "sha256": "21f0702bd9b0e3e4b4e1261471d27a18b70a9eb9d36cbf665e0cf8b48601a3dc"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/coordinate_reference_iso.scad",
+      "size": 2034,
+      "sha256": "1d07e03e74a7ea17b54beaa59bedd58d5ef1ae6426f5b7862bd6bce3cc5f2053"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/coordinate_reference_xz.scad",
+      "size": 3344,
+      "sha256": "e977b0b0413d4960384ee2717b3c73110863a03135495ce0714f68ec9d466de1"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/perpendicular_double_u_guard.scad",
+      "size": 9205,
+      "sha256": "a201a3cf69ba6be26872ecc8942e931a84e86820e6eb90840ac3cd4b7b637904"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.7/render_preview.py",
+      "size": 2232,
+      "sha256": "770351275fe38611ce88b7c6a44b487fe9eb1af68292c563c3f345dd1348203b"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.8/README.md",
+      "size": 2437,
+      "sha256": "c5b266a9de39957a27f26d1a6cb59a90c0659913f5ec1b9b02921b039a42b72c"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.8/perpendicular_double_u_guard.scad",
+      "size": 11143,
+      "sha256": "82294e10f17a87b3af2acb96b620afe7644983e35fb5d732f419e47e952c4e0e"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.8/render_preview.py",
+      "size": 2303,
+      "sha256": "7f7262de28adf2cbdaa7b568d6186222b7f1f8d44245ec6550d8aa83eebb7491"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.9-sloped-wall/README.md",
+      "size": 1478,
+      "sha256": "c65d6b1be07948c61cf92aa78e0ba86f6b1c202faff07d83b76de15c3be1441f"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.9-sloped-wall/candidate_sloped_wall.scad",
+      "size": 3224,
+      "sha256": "7c23594bf71022f7de80fa88ebb51a9e502556f2af7cef585b44dc497545784d"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.9-sloped-wall/coordinate_reference_iso.scad",
+      "size": 1687,
+      "sha256": "f0a2daff5390d33d80128f59d509218da82ffef49ff1a0cd5d102c3e7022affb"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v0.9-sloped-wall/coordinate_reference_xz.scad",
+      "size": 2451,
+      "sha256": "d95cb76cfeb8cae50922de7bfb8536a8a403730fb36e80af054434cbea991bd9"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.0-four-sloped-walls/README.md",
+      "size": 1896,
+      "sha256": "701e00a95d7b6d0dbec62e415d67bfd74d6a0f166fdf6a93987c2d35ac68f663"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.0-four-sloped-walls/candidate_four_sloped_walls.scad",
+      "size": 4915,
+      "sha256": "27bd9d15b16bacdb5521ce6dbdede211f9e4aef27c013604337da07da42b46f4"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.0-four-sloped-walls/coordinate_reference_back_xz.scad",
+      "size": 2010,
+      "sha256": "34240cabcecaafaef9a37d253ee88eae3518003a3a86f68f56da1f6302696f47"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.0-four-sloped-walls/coordinate_reference_front_xz.scad",
+      "size": 1785,
+      "sha256": "80ea59ce0c0ae008d367e2d27051dd72ef74d3713ccc7d0013475e8c254bd556"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.0-four-sloped-walls/coordinate_reference_iso.scad",
+      "size": 1396,
+      "sha256": "0dbdc0f2e358eaaf195de8a335d9469038fdef45d83c9a23e7259eb17ace9672"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/README.md",
+      "size": 2032,
+      "sha256": "4f0c4e3e507a459a3a5af6210b825b7f51670f4a2b82578826de514a5c5a3047"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/candidate_full_corner_walls.scad",
+      "size": 6849,
+      "sha256": "99f5976560da1f0ce4b17cf0cdb12af1f0eaf838009c0a98bbaa9ca1fce54f92"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/coordinate_reference_back_xz.scad",
+      "size": 1408,
+      "sha256": "d0cfd40b9597e77ffda728e731ecb663ec4a2022bd532bb4ebb74d86b64054c3"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/coordinate_reference_front_xz.scad",
+      "size": 1382,
+      "sha256": "8d23e9744d581c8cec8061ac378f56b4c8904fb09ad43e05a83f9e9b56000b1a"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/coordinate_reference_hole_section.scad",
+      "size": 695,
+      "sha256": "92e3df7a3a1bc7a75e0e670472219f1f6ab3ddd59306b9f70d1ca074ef84535f"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/coordinate_reference_iso.scad",
+      "size": 1121,
+      "sha256": "77ef98547040703a6fae7d91bb690272e19fe04c33053552703c8dd410a09c96"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.1-full-corner-walls/coordinate_reference_top_slice.scad",
+      "size": 1101,
+      "sha256": "0df4f2f23b6fd231109d5cdb8ce0313ac4f5abf47a22a46d7a6de10b87765fcb"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.10-full-wall-width-ramps/README.md",
+      "size": 2135,
+      "sha256": "7978524caa781c51d2041c50d74e494f599b4513a1440144d485a1a39a670894"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.10-full-wall-width-ramps/full_wall_width_ramps_guard.scad",
+      "size": 1254,
+      "sha256": "3419c10192c29472712c2b9c68b31e76f3f5d9e55f80b1970ff6d45e67827673"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.10-full-wall-width-ramps/review.scad",
+      "size": 3307,
+      "sha256": "ac2d5bcde4fea1a58545b87b3d25bc027fda57e06d111f61d497781a96a588c4"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/PRINT-TWO.zh-CN.md",
+      "size": 4317,
+      "sha256": "540a0a3abb3a47ab7af1d7129a0d0788a0630996ae91dbae61fbf53832d1da17"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/README.md",
+      "size": 4075,
+      "sha256": "b891de91165301108f95304645cead4b5a68b9ee3f6f3427f409d0299950a3f0"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/audit_archive.py",
+      "size": 6764,
+      "sha256": "0cdfe9d2909203518889abe60ead75e793148e2a4d62c891b69278de824ff89b"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/audit_two_piece_plate.py",
+      "size": 5533,
+      "sha256": "8d0032699373139f7a2cfbf95ab489de3343bd0eb61b881c6834128352624b8a"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/build_two_piece_plate.py",
+      "size": 8435,
+      "sha256": "fa4dd160a2dc3ec41edd89e51989e00d1b18d4df5eacab7e37187615f6ecb271"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/fit_clearance_guard.scad",
+      "size": 3251,
+      "sha256": "1cb179e518da492e4ae69a67c622260a2d6d42bf224012e05a290c15698646a8"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/review.scad",
+      "size": 4414,
+      "sha256": "e0979097637375e48b84470198ff3eeae1352e40f02e0a3c128affea2af43f69"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/README.md",
+      "size": 2472,
+      "sha256": "bf0970f2df5269f0136113c1d63753437687a3fbf8e492b45eb22d4c1f1614fc"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/candidate_continuous_corner_walls.scad",
+      "size": 8395,
+      "sha256": "ee366b2677b3813e49ea829e51978ed2abfe11fc3cec53f589edfc43a5c05dda"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_back_xz.scad",
+      "size": 1390,
+      "sha256": "9b81e3e9d15b08089cb9c76b49e9da58a8461026ffc3d6e3b4f385e849e6fa11"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_bottom_view.scad",
+      "size": 1014,
+      "sha256": "cda9b0a217610f405f6e50a76bd57e0553f4ba40445fed04fba89ed707e1b2a4"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_front_xz.scad",
+      "size": 1360,
+      "sha256": "cc0e1033c330fcd3af42c4c6b348bf8509e1f6259bdf893b5e9562d55ef73f6b"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_hole_section.scad",
+      "size": 682,
+      "sha256": "ea74eddfa2011b0f2f12d6bc055443f2eb41f4e0200e44af3fbf496951181fec"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_hook_check.scad",
+      "size": 235,
+      "sha256": "93be3dabfb3d94fcff0de55d02ebbfb15e9ca803f997d8315b557be01e5387d1"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_iso.scad",
+      "size": 1099,
+      "sha256": "a6a2dcdf8e6a683105ca2332b4a88e2ebc7d8ef66c97f1a17a5b6968ea178f62"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.2-continuous-corner-walls/coordinate_reference_top_slice.scad",
+      "size": 1154,
+      "sha256": "a06132e9d26e76e78ac5e66756933c626067b9f7495d372996e272b3493204f4"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/README.md",
+      "size": 2430,
+      "sha256": "e8b46195f395efd9844fb2bb6f16aad2e18129782a2b01ab87a1ae05a4074e6b"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/candidate_triangular_corner_fills.scad",
+      "size": 7718,
+      "sha256": "ed5e4f4fc4770cded279357446b92adcead215499f557fceb9fe1338133b00a8"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_back_xz.scad",
+      "size": 1378,
+      "sha256": "81cfc115ea7cf3deb3c145e25c6efc70c1d5676487babe04320e698ab92ede53"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_front_xz.scad",
+      "size": 1391,
+      "sha256": "3426db869ef08f75e7affcc6719840eed1ac58bdac8fc12bc46f38df25c5d6ce"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_hole_section.scad",
+      "size": 708,
+      "sha256": "7e64ad5dee388f84f587f59fc2fc75592abaf6128180c2c292362f4b57f34092"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_hook_check.scad",
+      "size": 156,
+      "sha256": "865f647d6640465fd9105adbe002c88746bc43cd0d2545de2cbec3a0e4122963"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_iso.scad",
+      "size": 1092,
+      "sha256": "a7b0b9b97ad4953bb6bc3b5a36b19cb888925b3239370c0445c7bd33815a1d49"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.3-triangular-corner-fills/coordinate_reference_top_slice.scad",
+      "size": 1044,
+      "sha256": "bc5f5193bfbf3e44c91032ac8779f35768b454849a102fdbf7747b50f6222549"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.4-full-nut-passage/README.md",
+      "size": 1744,
+      "sha256": "efda4339129fbbc5514fffc3000fe4b6b51e34cdb61bf1578ad16be62ae598a2"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.4-full-nut-passage/full_nut_passage_guard.scad",
+      "size": 793,
+      "sha256": "72f5b2b88918b70c57a8968436a86f3f1d29e410bfaa4e1bf498bdedce6e0ac8"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.4-full-nut-passage/review.scad",
+      "size": 5727,
+      "sha256": "c33e4180a40250b346b8a1a95408db07e8acecaf12b731076c010ded48656b4e"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.5-vertical-tube-clearance/README.md",
+      "size": 3447,
+      "sha256": "34cd2f9942b81f68cdcdcfec38d932bc6d9c3ab8d1fc2ab40ad1d79a85fee7d1"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.5-vertical-tube-clearance/review.scad",
+      "size": 6403,
+      "sha256": "f46691f278591a094a9933ddbdadde589f8cb09f6e1d2df473b1d8c047f403e8"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.5-vertical-tube-clearance/vertical_tube_clearance_guard.scad",
+      "size": 834,
+      "sha256": "54159fa9ada05b26bbe9d821d4cf4d413b65efec015268ea54389f71fc8b7a50"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-x-extension/README.md",
+      "size": 3199,
+      "sha256": "0c4b59224f8ca7144c90febef56d1e6b7e7ae4b02bada051aa44ce917044f4ba"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-x-extension/lower_x_extension_guard.scad",
+      "size": 1591,
+      "sha256": "7d85caa3589921c43468c721dd6c606754ef4d1281c4784b497e49f839fbda41"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-x-extension/review.scad",
+      "size": 5847,
+      "sha256": "d98d54ae2115d143a1910b41de7bfefbb9e1f2b65c81f0ae19b9c7b121150737"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-y-extension/README.md",
+      "size": 317,
+      "sha256": "5804cdedc111e672474d0bdd5c661132cce74c08b207d483aaad6c8394aaf876"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-y-extension/lower_y_extension_guard.scad",
+      "size": 1634,
+      "sha256": "9f19e507fe3e26b0d1e67b0cd70592acc82e28622ebba9ad4ee966b893816055"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.6-lower-y-extension/review.scad",
+      "size": 5587,
+      "sha256": "e048719b1eb4b5d8f5121fc33ed31e224c35b752374fb37f5e62394e8b12a03b"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.7-continuous-lower-u-y/README.md",
+      "size": 3462,
+      "sha256": "31fbcba72570b11354f5e4f074f3a09b2242ad93b0fcb94a000e12a49ee3593c"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.7-continuous-lower-u-y/continuous_lower_u_y_guard.scad",
+      "size": 2106,
+      "sha256": "9c3ade8081532e915426fbcc1a3ba8d074d6f46329f3a449ae3309302d048a38"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.7-continuous-lower-u-y/review.scad",
+      "size": 8021,
+      "sha256": "7e8bfb2106c1bf1feec1015840b02c1842864cc3e905cebadfce8a8bb89c56f5"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.8-lower-20plus1p5/README.md",
+      "size": 3756,
+      "sha256": "b4dc0f7a70faca78aed1e75641a14681931ecafecf59d1a73fb7044691e78470"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.8-lower-20plus1p5/lower_20plus1p5_guard.scad",
+      "size": 2477,
+      "sha256": "225288008bcebcc11520dd6bd2dc9a640aa079b5ea2af6c4d15ae60c6038fea0"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.8-lower-20plus1p5/review.scad",
+      "size": 8301,
+      "sha256": "0a93d3b04d94544e5d01d9bbfba81969ad11024ec6d20b2a3f78d2d038eadb94"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.9-mirrored-end-ramps/README.md",
+      "size": 4026,
+      "sha256": "6b5a5992d62bd88a141f08512fcf34c2e763e58de0e0311e511c4ce4d3362083"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.9-mirrored-end-ramps/mirrored_end_ramps_guard.scad",
+      "size": 2282,
+      "sha256": "42a968d484872cd48d3e281ae104c17dcbb3464bb35ed4a317c242d9773cc340"
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.9-mirrored-end-ramps/review.scad",
+      "size": 7601,
+      "sha256": "dfc3b0da561494b0d8d41ed2c1c4450f1147cb076009f0e64eb374c7fd05886b"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/README.zh-CN.md",
+      "size": 2428,
+      "sha256": "026aae9b9054ffa569ffcb1c63ae060725a9473d895c24862f2c52d4d8302b54"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/barrier-clip-v1.11-2x-upright-tree-actual.3mf",
+      "size": 44235,
+      "sha256": "c40511891ad39601da3842f04e9a5ee1c247edeec58872800deea4b18145ab11"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/barrier-clip-v1.11-2x-upright-tree-actual.gcode.3mf",
+      "size": 3174710,
+      "sha256": "f22eb5cab440486c697d727c2d978eab2d2ef78fab2f464061ad791d70a759c2"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/guard-v1.11-cad-coordinates.stl",
+      "size": 21684,
+      "sha256": "d8c9dca80f8bf3f1c4618479b197e40a6a913860e9a055918af4563a1b97db1e"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/historical-generated-exports-REFERENCE-ONLY.zip",
+      "size": 3064355,
+      "sha256": "8e5b0caf23357539d140e8787550b731333dfd87c29252b4b060f01aa57ca520"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/offline-time-comparison-REFERENCE-ONLY.zip",
+      "size": 13133652,
+      "sha256": "320c3ad8741b1440a0ccd13faa56b9e26116021be5e403b46c4c730e0fd8f43f"
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.11-first-article/reference-roof-down-prepared-NOT-ACTUAL.3mf",
+      "size": 45740,
+      "sha256": "1a2fec09e2eef24ffc7b22ec651e183e193940dcd171054129e86e2aaea9bd95"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/01-joint-assembly-iso.png",
+      "size": 36682,
+      "sha256": "03c05f98079c1d05f64c1d056f8b757007b8094753d3af5e4a16a60a59b70df2"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/02-joint-exploded-iso.png",
+      "size": 38606,
+      "sha256": "bf1e6c41118b251e7514e1264cb0322b5dcde988b7c97218e56f04891bef2fcb"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/03-joint-section-iso.png",
+      "size": 32635,
+      "sha256": "f6ec27ec21a08ccffcb713dede7e47a2086db66da0c2857451bd563689f88fcc"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/04-print-layout.png",
+      "size": 29310,
+      "sha256": "bba5eefad1bad7a5d3adc9210f738ff2acd592754dcd1e91271fabb8d8a61688"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/05-front-u-detail.png",
+      "size": 27699,
+      "sha256": "67465f7073f535f039767a4ef42b71b6c226b6ffc56cca80681ee56207e6910c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.2/06-back-u-detail.png",
+      "size": 29503,
+      "sha256": "d6dd0c949098702bea590d6d60f3b8020089988ab58391a6368c39c6d6733f31"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/01-assembly-iso.png",
+      "size": 36741,
+      "sha256": "3427403971cc7ee7e251639abe38d598b0332c6db1481ab331f0c7bd3ddc6e24"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/02-assembly-section.png",
+      "size": 31431,
+      "sha256": "f70b72a3e6e75dabb8501dd4415d8b4bfdf7b244ad6d1333404d5c1ac9220a03"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/03-one-piece-iso.png",
+      "size": 37627,
+      "sha256": "8788b005c19cef8657010082044a5e7568b207e54d0b19e7da8e8a3cff5aebcc"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/04-front-u.png",
+      "size": 25814,
+      "sha256": "6d4b9264230ca04d024412ea7a7ec19961b12bdc2ca004860b0cd1f75446e7e6"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/05-bottom-screw-hole.png",
+      "size": 26238,
+      "sha256": "f39c0721474f0625dceca0f6e5043378fa03a01ad06f579e99eb086a406272ef"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/05-top-nut-pocket.png",
+      "size": 27146,
+      "sha256": "d27fceea1fe038d3c78c097cda20e82ef014ad40fdd88eb44f604c0ac8360248"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/06-bottom-opening.png",
+      "size": 26011,
+      "sha256": "5006897242b237aaaea08cb468fb05fd1f11a37d2ace75164b23229c1fc0a304"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/06-print-orientation.png",
+      "size": 38221,
+      "sha256": "a407b195fc3fdebdea1d323d93f36494593d35540eff97232b81d23988de1aef"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.3/07-print-orientation.png",
+      "size": 38189,
+      "sha256": "d49330502107a2e0135601d35e4865b93fa28f257a6b32077493c080b18a2104"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/01-assembly-iso.png",
+      "size": 36056,
+      "sha256": "3b91efc6dcb02a7ea73ac4147f48f676ad4ad14e75db385ea63ebbb9024b7f58"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/02-assembly-section.png",
+      "size": 31265,
+      "sha256": "308ed615003d4a35b7715a5ca3e2756dccc9da24dc81b5849d5ca31152cb7d55"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/03-one-piece-iso.png",
+      "size": 35700,
+      "sha256": "28b60b9a26b4ca262b1addb2c97ba2f2b02075eb0db3d945407757df378272f3"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/04-front-u.png",
+      "size": 25726,
+      "sha256": "487dc4ae00d25ad30888c215c7014f5c40dd99b897f59ef80fa284a7fcc5183d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/05-top-nut-pocket.png",
+      "size": 27248,
+      "sha256": "e6e29db3bbf1d84bc9088468ec6f976e2f5b336325c6e41ab7a037c91cf59628"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/06-bottom-opening.png",
+      "size": 25764,
+      "sha256": "b52d69f51259d1e076f4b60dd494c69610828d6fdf7f84babe787781e5af833d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.4/07-print-orientation.png",
+      "size": 36517,
+      "sha256": "91d0c4515271a9680f2277f670aacbdd3a0a731f47da503e9c4bb485b3219831"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/01-assembly-iso.png",
+      "size": 35404,
+      "sha256": "76a6be8ad927625e559e73ffd82b2707a1e1950cfcd6df70c5b6a776da6156d8"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/02-assembly-section.png",
+      "size": 31471,
+      "sha256": "5c1f37f0af30d5689b165ad61c43ee1ea0ef6034a73a5eeff4fefe3a470a7adf"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/03-one-piece-iso.png",
+      "size": 36347,
+      "sha256": "19973b4aaa6837f75663d6a2dc60c9a7911e96234149596b857bff6f0e0d2f1a"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/04-front-u.png",
+      "size": 25726,
+      "sha256": "487dc4ae00d25ad30888c215c7014f5c40dd99b897f59ef80fa284a7fcc5183d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/05-top-nut-pocket.png",
+      "size": 27248,
+      "sha256": "e6e29db3bbf1d84bc9088468ec6f976e2f5b336325c6e41ab7a037c91cf59628"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/06-bottom-opening.png",
+      "size": 25764,
+      "sha256": "b52d69f51259d1e076f4b60dd494c69610828d6fdf7f84babe787781e5af833d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.5/07-print-orientation.png",
+      "size": 35421,
+      "sha256": "83c824bfaecab444a17f059b52bc5bf87d0d0b02d2253e1e4ab97b591b8b4336"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/01-assembly-iso.png",
+      "size": 35788,
+      "sha256": "cc1688a5a520e216aa5475519190bcdb6b87a9420a58fa6c4b1e257b2ac27753"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/02-assembly-section.png",
+      "size": 31763,
+      "sha256": "f024513207da8e599021c6e1f412dc211b9bbee6e0aab5964e651d65b859280b"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/03-one-piece-iso.png",
+      "size": 36214,
+      "sha256": "fedc7c7886ab18150a48e1c919a7ce809d9669fbd878adf39c119103ea5df4b7"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/04-front-u.png",
+      "size": 25853,
+      "sha256": "b7b5b41e50d83cde4d6dd1d3c81fe79f1727698811cb974bae64087001107315"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/05-top-nut-pocket.png",
+      "size": 27185,
+      "sha256": "17e6303d1c6c0bcc6c380456272e5f0e9da37ba2d9261558b5e4301bd347a649"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/06-bottom-opening.png",
+      "size": 26067,
+      "sha256": "a959483ebb9229bca4360e9e084497cfe4f1d8e7e75a82db5cdf550742f015db"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.6/07-print-orientation.png",
+      "size": 34946,
+      "sha256": "a932f6dd2d86628b9c63d53a45954ef94055c93104f7d4503bd8a486fb1f1c7c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/01-assembly-iso.png",
+      "size": 36430,
+      "sha256": "2286e26b2bdb62109c945a475d01e9ea0f8f029558023ff42721f6784c677a87"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/02-assembly-section.png",
+      "size": 31983,
+      "sha256": "4d0871307b97cd4b12dc3be6bd10ebec5127b8830910c148508d1c68785ffd83"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/03-one-piece-iso.png",
+      "size": 36407,
+      "sha256": "ce8b7384d57f304553c7c6269ded074ec066b218f3a5cb0ec57e31f17e37fa9f"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/04-front-u.png",
+      "size": 25769,
+      "sha256": "785324b6462f8ddbaedb19ec303eb09dd62a899ac1b28f9028c39db437778b39"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/05-top-nut-pocket.png",
+      "size": 27477,
+      "sha256": "f8bd202e0b00b6794ca031d6441d6a25823dbb5999ed0d10b5449ad8955a660a"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/06-bottom-opening.png",
+      "size": 26086,
+      "sha256": "8764a2eba56851d6181db83f052a60de664afecc0bf2d99bc0d6458776886833"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/07-print-orientation.png",
+      "size": 37811,
+      "sha256": "f2591b664de2a885f690e57a1ca56e5711fccc44e5fc8c34fef1b12da7ad69c1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/08-coordinate-reference.png",
+      "size": 47841,
+      "sha256": "7401c3415ad1812232bae5102906a45c2bf53f3e427f1ffbc30e241359d24a81"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/08-coordinate-thumbnail.svg",
+      "size": 4358,
+      "sha256": "2e7237793057477729fd542878afd813f659d203d191338db0b5a6d25aea3755"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/08-coordinate-thumbnail.svg.png",
+      "size": 174474,
+      "sha256": "61328b9bdc593b9bbc3914f5e0d798170c76b7dc53204fba7a5b1a38a0c45c2d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/09-xz-coordinate-scad.png",
+      "size": 39763,
+      "sha256": "f3038c5420f0908831ad81c729b498a5e203a61e145a960003d56099f5b19688"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/09-xz-coordinate-thumbnail.svg",
+      "size": 4543,
+      "sha256": "bb4291651a7010338755313fe130887d78a73959998eb715c8426c128d430738"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/09-xz-coordinate-thumbnail.svg.png",
+      "size": 178329,
+      "sha256": "79f85c5c57f7111f0530f2e66bc867c237786c84deea86b65b68d5893183939e"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/10-assembly-coordinate-scad.png",
+      "size": 47841,
+      "sha256": "7401c3415ad1812232bae5102906a45c2bf53f3e427f1ffbc30e241359d24a81"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/10-isometric-coordinate-scad.png",
+      "size": 61986,
+      "sha256": "6919ad98118aa0c2505d40cbb64160dbc05e388012d97f4b50d0cd897af09202"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/11-upper-web-isometric.png",
+      "size": 61788,
+      "sha256": "9a1fd75890996db074350c074d37a1581c264706c13fe3222ca1f80b1f816da5"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/12-upper-web-xz.png",
+      "size": 39668,
+      "sha256": "932c2db64fb71e5cd4e727a30761a08dfffd1c9be8fc598a86c104d38202df7c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/13-thinner-hooks-isometric.png",
+      "size": 61781,
+      "sha256": "bcd00332fbdf6637ccc55e6819807b1a2c2f43a51445624783c348f9f8bb2618"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/14-thinner-hooks-xz.png",
+      "size": 39668,
+      "sha256": "693fd3c5ba8a20bef2bd836b76be8e72274b40311cee3207903ff19962beed4a"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/15-hooks-z1p5-isometric.png",
+      "size": 61812,
+      "sha256": "4eedc299cbd48e2dd834617717337c5a121139df7cd5b2c81079bd6947525efd"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/16-hooks-z1p5-xz.png",
+      "size": 39666,
+      "sha256": "de1053a363262c81247f1eceb55f337323843dee69d31df756d6d8bb3ab59f60"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/17-eaves12-isometric.png",
+      "size": 62138,
+      "sha256": "c0807bd7a8a554cad10a51dfc285bf94e99ae7e113a66be69378aa7ad4e4a21b"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.7/18-eaves12-xz.png",
+      "size": 39740,
+      "sha256": "003c5555afc9c4a845b9f5cac83fec2a92dc6df58aaf6cdad23091d4672b5ac1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/01-assembly-iso.png",
+      "size": 37854,
+      "sha256": "605e441700ca246d43fb1d0dab6ecacc008a227d0c9da8781ad803f84d239ffc"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/02-assembly-section.png",
+      "size": 32836,
+      "sha256": "2799f2086be70a41e0e1609b13aca990e4ddaf00a2abae80583cb29e4aee63fc"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/03-one-piece-iso.png",
+      "size": 38772,
+      "sha256": "975dc33f9142433af1f48c1b0a2915ee03e047dc6a774c6757c5c29b833fc6b3"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/04-front-u.png",
+      "size": 25745,
+      "sha256": "87255880e0ed6503cd9e9498f913eadcb05a8f00ece9f67e4b30baa6abccb27d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/05-top-nut-pocket.png",
+      "size": 27439,
+      "sha256": "4868fafc87d0e8e94a4d2194df5f6a13879d9ee3b110e9b07d73e4d44b685dde"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/06-bottom-opening.png",
+      "size": 26089,
+      "sha256": "2efd9b59c4ebc2941334bae3621f814588f3c8831bf0bf8606480fef0e478c07"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/07-print-orientation.png",
+      "size": 37338,
+      "sha256": "dbbbc9027e03f362106b4997c31bcfdb1e79f9fce7d73a8add96451c6c6a0806"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.8/08-annotation-marked.png",
+      "size": 38799,
+      "sha256": "e291c2db2e367dbe1eb8f5ac8e49df2e236323927345e9b04b45663a536c7564"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.9-sloped-wall/01-candidate-isometric.png",
+      "size": 48684,
+      "sha256": "ab3b5e63b962b9b970fb7c8d28b02933c10a4382dbeeba0e33e734f6663deaab"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v0.9-sloped-wall/02-candidate-xz.png",
+      "size": 35837,
+      "sha256": "e33ff583b21c8ec90b35d133ad27fd191d1c1ec9c978c15d7ca53326b404dc5f"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.0-four-sloped-walls/01-four-walls-isometric.png",
+      "size": 55909,
+      "sha256": "4d981d6e45eccfe68021d527fdf55c79ee0a2efb7167f3f6bb18ca60bcd5496d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.0-four-sloped-walls/02-front-plus-y-xz.png",
+      "size": 37051,
+      "sha256": "9c78a094df6682d35be439e42fa86d92d302f62aebd7c554cb896dbaf0958c45"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.0-four-sloped-walls/03-back-minus-y-xz.png",
+      "size": 36674,
+      "sha256": "944cb634b96dafc018c3bacd89fc076453d2cdcbb396fb3510152b9d3b9bd368"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.1-full-corner-walls/01-four-full-walls-isometric.png",
+      "size": 55946,
+      "sha256": "aeca0e63409fca04f58fed9132888dc2f6112389f61e122b0d363e205f2e98e6"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.1-full-corner-walls/02-front-plus-y-xz.png",
+      "size": 36087,
+      "sha256": "a18379c4569ed2a36cd916544095fbe5c485ef266d2709306526f586c84dc642"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.1-full-corner-walls/03-back-minus-y-xz.png",
+      "size": 36332,
+      "sha256": "0d437e74d687832ea0a1ea9d435c07a9be675a7f4f47077bd922c76705b0dfef"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.1-full-corner-walls/04-top-y-depth-gap.png",
+      "size": 37849,
+      "sha256": "cc7e2941d22b800906100a2b794f600ad9a46945cc8233a85f5341ed846512c1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.1-full-corner-walls/05-through-hole-section.png",
+      "size": 30813,
+      "sha256": "d660b3364fc400a2097d440fe9af6880412736634bb9850963c9ec30d3ea5816"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.10-full-wall-width-ramps/01-assembly.png",
+      "size": 50169,
+      "sha256": "57e7d9ca70f6f5c599ce4af53fb84bbde7643bd805640bb84c31e995da4b580e"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.10-full-wall-width-ramps/02-xz-full-wall-coverage.png",
+      "size": 40733,
+      "sha256": "f5a52f497ec132c034846651075ee86657053d673b0349116d9fdf70a6582405"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.10-full-wall-width-ramps/03-xy-full-wall-coverage.png",
+      "size": 33660,
+      "sha256": "c610c6a73fb373cd001a5cd0d93d0a901c12fc0367be16b6f252e39ee81f020c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.10-full-wall-width-ramps/04-reverse-assembly.png",
+      "size": 42996,
+      "sha256": "59bb67b83f543a7a07fc2329fdc7326e183ddabfd96a9ef167d10e4bb1be2f19"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.10-full-wall-width-ramps/stl-inspection.json",
+      "size": 768,
+      "sha256": "bc5142bf268cb9f1d04f3dc20f0148e6eebe102cc1a5525014a50cebbe0a5484"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/01-assembly.png",
+      "size": 50402,
+      "sha256": "67c1e086ad39930a4223b5c9023ba9bd4ade881f49400d73575e5191a424093b"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/02-xz-21p8-by-22.png",
+      "size": 44368,
+      "sha256": "583cbb2b8b72618c64a6ffef708fa82f3449c80eeac9299c1727a5c3dede8bb8"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/03-yz-21-by-22.png",
+      "size": 37576,
+      "sha256": "cac4a5a174f15466d087fdba783457ccccbacd36354369b66a7582d640735b92"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/04-top.png",
+      "size": 29211,
+      "sha256": "7ad68b835c9bc4f9eee768ffdfb920a17d7c40d65f8e4f90d93be6e3571dc75b"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/05-reverse-assembly.png",
+      "size": 43093,
+      "sha256": "cf577b9b643c3b291254e9adf2700afa11dffb53cf4c9ba5f4daf447679a4298"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/stl-inspection.json",
+      "size": 757,
+      "sha256": "69af45f6042e784840fd37981021a43b873991e4559600bc369193048dd703d8"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/time-comparison/README.zh-CN.md",
+      "size": 2373,
+      "sha256": "e5739dcb68ff4ae1af95eb9b5e18de6fbddc7ce8562a982624d3feb7b00555de"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/time-comparison/compare.py",
+      "size": 2382,
+      "sha256": "97d373253296be091ad43aa29ca7cf99e51135b9cc6794e5b41c945eb37c83d1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/time-comparison/results.json",
+      "size": 396,
+      "sha256": "a200ff824723eccfd88ddb5df3f57087f0624413a7e830b586dc658eeecd2c0c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-package-audit.json",
+      "size": 1633,
+      "sha256": "f2a01bf35e85b8aceaeab822050cc858d25b8c778d4d285f7e361df8f6e71ac1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/01-continuous-walls-isometric.png",
+      "size": 56288,
+      "sha256": "49f6ffcaca956ff4aad51f894a78048c5a5ac3d44aee618d4bd8daedb70a91d4"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/02-front-xz.png",
+      "size": 36186,
+      "sha256": "e403efe19b33692fc5c22f98766e9b82bd15660e4213a60eb16eaf5c173b4ad6"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/03-back-xz.png",
+      "size": 36336,
+      "sha256": "99beebe7e1b9e63ac4b0b2462ccbb6877d87582785240e9e408325f3ed4af19a"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/04-top-continuity-channel.png",
+      "size": 38021,
+      "sha256": "3d228a9cfea945d1f3adefdf8453495b35e9f6f3696df3f24b4f58215f98fa99"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/05-bottom-channel.png",
+      "size": 34302,
+      "sha256": "6a7ad049a70b4cd12927016dbd40ef331bdea1a3e4acbd18dcd7e1cfe6948707"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/06-through-hole-section.png",
+      "size": 31257,
+      "sha256": "da7bf2e1eeda9ad4b313be00dc1b9446f03265036bcc92560250f913870d5257"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.2-continuous-corner-walls/07-bottom-hook-check.png",
+      "size": 26425,
+      "sha256": "e853a943da67931b3c06a7ec902a849a46230218b3d801f30e42c19a97c3d9ac"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/01-triangular-fills-isometric.png",
+      "size": 55408,
+      "sha256": "0d2e39562b6b4b51b09f1a04d04f159db8bea66647ccd4c1b6014076246577a8"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/02-front-xz-triangle-profile.png",
+      "size": 36001,
+      "sha256": "c3b2dcb8ff9b858134144b4955635e9aee04b2a9c4f06060ed83fa9a1c457dff"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/03-back-xz-triangle-profile.png",
+      "size": 35822,
+      "sha256": "c97c00d808ccce3c48cc2acacd225f69a4ff1dd7ba8d92759c1afe38c9d0d7cf"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/04-top-channel-slice.png",
+      "size": 36577,
+      "sha256": "7794d67b44b931979ce5f258c279d561d83285ba3a358696a6a00248a8c8aa59"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/05-through-hole-section.png",
+      "size": 30977,
+      "sha256": "c9b9126e36b9622c76490ac17b8069d5e60afe3fa57aaa253d3736d01cfc0006"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/06-bottom-hook-check.png",
+      "size": 26425,
+      "sha256": "e853a943da67931b3c06a7ec902a849a46230218b3d801f30e42c19a97c3d9ac"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/08-assembly-through-hole-verification.png",
+      "size": 60379,
+      "sha256": "cca377089467be38fbd42bfba60276b7d110cdb1a93bdb8cbbf6006c666442ca"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.3-triangular-corner-fills/08-assembly-through-hole-verification.scad",
+      "size": 4106,
+      "sha256": "b1eac1fa0b6d6fdebb951ad076bb6fce2d05db24b4a7bfbb6c2d4e472a9a804d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.4-full-nut-passage/01-assembly-isometric.png",
+      "size": 42212,
+      "sha256": "54dddfcaef684ff3a82d5051eb64aa627a939c9ff39f47a21555953bbe1d9d2c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.4-full-nut-passage/02-assembly-centre-section.png",
+      "size": 55673,
+      "sha256": "05390c710ac500f43a149b6a94e0ce5458b0b39ce3273dcb53ec6efd2c15f070"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.4-full-nut-passage/03-insertion-minus-z.png",
+      "size": 53825,
+      "sha256": "80a66e588d1aa8f19e77924fe2f554567658315435e812642dba7f2d171ff4f6"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.4-full-nut-passage/04-original-wall-interference.png",
+      "size": 52683,
+      "sha256": "8f55c6a1161ed29fc7c849dbe76a412dd2b6b78908014d4f3ff9c63b0227b613"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.4-full-nut-passage/stl-inspection.json",
+      "size": 775,
+      "sha256": "d657b497eb2608b0fcd771ed1f9027f3361df60be011e687169306164ff6a894"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/01-assembly-isometric.png",
+      "size": 42212,
+      "sha256": "54dddfcaef684ff3a82d5051eb64aa627a939c9ff39f47a21555953bbe1d9d2c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/02-centre-section.png",
+      "size": 47181,
+      "sha256": "49c25338679d2a188286e6518b541feda256ba596419de865f188ef1926c56a0"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/03-insertion-minus-z.png",
+      "size": 51377,
+      "sha256": "51cc1d103335d90e8851480bc8a434ffd97925ae67f8a579c483c4897d21f9d3"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/04-side-yz-entry-section.png",
+      "size": 37745,
+      "sha256": "94050bcc3b1d652f366ed431e04753f259aed1bcb7e640469e9760382e68992d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/05-original-elastic-hooks.png",
+      "size": 16085,
+      "sha256": "8e2e39c121fc466ff43da50cf0605b0fb2825d5032ca00551ea0b5f7b42b938c"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.5-vertical-tube-clearance/stl-inspection.json",
+      "size": 790,
+      "sha256": "4a93a12d783e7f9ee357b521c4c97a009b0f99dea9e73bef1d468874c29f3ba0"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/01-x-extensions-isometric.png",
+      "size": 42984,
+      "sha256": "9f80feb57a90c0fe6908128d2bf137d3c80825addda6d985a8cb0960d794fb14"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/02-xz-extension-dimensions.png",
+      "size": 45104,
+      "sha256": "da2742f4527a6edebb2cf3ab883fa03e9cd3dad836dcc2491404c820c3a9e945"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/03-v1.5-v1.6-x-comparison.png",
+      "size": 35549,
+      "sha256": "f8b0ffde9607710c0d5af4d74ff31ae5a937f66faefdd7044c03fadfcfd65b89"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/04-x-end-yz-section.png",
+      "size": 44082,
+      "sha256": "8d1f4aa289a6f3764ccd5b78efa51b1fea1e367a1eb171e50d9922be6f719c34"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/05-lower-top-dimensions.png",
+      "size": 43467,
+      "sha256": "2c29f79544b26900336d351ae11fef1c6b8a394a00c20cb7323e4f2b1d5af4a1"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-x-extension/stl-inspection.json",
+      "size": 780,
+      "sha256": "06e27e876d50f5f460d40c357a37e577281941e4e4096ff27d884a6c9693b4ba"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-y-extension/01-assembly-green-extensions.png",
+      "size": 42817,
+      "sha256": "77bd9a3b592cfe72253d1d49eaae3c79d07196ed2fcba84684d5220832070457"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-y-extension/02-yz-extension-dimensions.png",
+      "size": 47326,
+      "sha256": "8f8aac7494bc44e07047ef6e8d4a0ea8969d7e8e1f0dd2a8cafeebb9e25f64a9"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-y-extension/03-v1.5-v1.6-comparison.png",
+      "size": 36459,
+      "sha256": "aea6ab7a945739abe47269fed1a614818d2db8b23df6c59879f52d4965eb7426"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.6-lower-y-extension/04-bottom-extension-check.png",
+      "size": 42583,
+      "sha256": "3e0462a7613ca0a68965a672521b8cdfb7ef9424f0fe7a4ee2a6febee5764a0e"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/01-continuous-u-assembly.png",
+      "size": 57467,
+      "sha256": "26cf129920a74eec228fdd3c1af87c29d5927f25a5c6299ade6bb8ca44ceb6da"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/02-yz-length-height-dimensions.png",
+      "size": 48214,
+      "sha256": "54f7bef873ae907d165a8ce3608693f6c3af3c06076104500a526265ae42ca08"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/03-v1.5-v1.7-y-comparison.png",
+      "size": 38375,
+      "sha256": "40a35ce8a8af76447a809c5c82c3cdfb64770fda0659d2d3513cf7a2b923ee95"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/04-new-segment-xz-profile.png",
+      "size": 50107,
+      "sha256": "afaa1f0b373e9eab19fb6050aa2e29871556a54b5995ce28cbd62f22822ffbf7"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/05-lower-xy-continuity.png",
+      "size": 50009,
+      "sha256": "6c60ff87564a8828067e828ad633c605fbf1516d8e2f81cd8ab754ba87da7d69"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.7-continuous-lower-u-y/stl-inspection.json",
+      "size": 784,
+      "sha256": "e3b72d0b03c5c3ee84049d0c5e20757adabb2e9adf0cb0b49aa34dc18a507b55"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/01-assembly-corrected-lower-profile.png",
+      "size": 57593,
+      "sha256": "fa2639f4739f21659905beb28b8f42dfbae917d6e85fe5341e36993ec6e87942"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/02-y-continuity-21p5-height.png",
+      "size": 48247,
+      "sha256": "d64213125e1ec7fc0af52ca883be150b22a3e2d92cc000c34bc0b661cd7a68f0"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/03-end-xz-20-plus-1p5.png",
+      "size": 55928,
+      "sha256": "639ad36efb80b228486f19d39383282440653530d1b37346103b1347827628c9"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/04-lower-xy-continuity.png",
+      "size": 48858,
+      "sha256": "4d9ef538b12b03fd9fd48568a6931cbe0afd2ebe5baae6662c18dd8b5c35438d"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/05-centre-full-nut-passage.png",
+      "size": 38458,
+      "sha256": "ac4e12615964c7a3eee07e228d2e21e094f7619dbab6ca1b33e54a2b12451f51"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.8-lower-20plus1p5/stl-inspection.json",
+      "size": 776,
+      "sha256": "e550800ce86f6d1d049149109cca8efeed351ca8dce25c0c1a19dd561a6e2890"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/01-mirrored-ramps-assembly.png",
+      "size": 58098,
+      "sha256": "839957d326189760b0ab9ae3dcbf6990c4a7c73256039490f2f6f438433da2f9"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/02-plus-y-10-to-3-profile.png",
+      "size": 51894,
+      "sha256": "de7eb1f8f451433654b201582d9120b619f12948b5eb48eeae9d370e3960d5cb"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/03-minus-y-3-to-10-profile.png",
+      "size": 51877,
+      "sha256": "25ffc47faeae774910d3213a706decf0d578a493433d45357709a12f9ca6be30"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/04-end-xz-ramp-width.png",
+      "size": 54620,
+      "sha256": "5f264f686b91dabba6678d584b7c5d0a19612d18dc90fee459ca3b5217c84745"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/05-central-hole-channel-comparison.png",
+      "size": 39264,
+      "sha256": "bc262b3f1d3622a3b1c6672a36772b446fc114e411fdef9b56e84f827b7c3f54"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/06-reverse-assembly.png",
+      "size": 50230,
+      "sha256": "a9956856cd13d1bd1d7b5cde0b6d318257811a0a852b958e179db258fbb08a88"
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.9-mirrored-end-ramps/stl-inspection.json",
+      "size": 778,
+      "sha256": "eb39f9d7321367d7f1668f39b48671ff3a33435c843e4906bcfc27b7714d36d5"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-assembly-deployed.png",
+      "size": 36513,
+      "sha256": "37e3e41de13d8e55b45a36027e814bd4bb1a8bda9d17bcc56f97640a5929fdcb"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-assembly-folded.png",
+      "size": 36611,
+      "sha256": "6d55064bae841129159b4509f12236a626981d727ec7a8e5b75f4cdc2758e904"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-cutaway.png",
+      "size": 25088,
+      "sha256": "ae1257d45dbd012ea687f08af2d5d2c312ef025653afd9fe93a34106f1de56ae"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-fit-section.png",
+      "size": 31217,
+      "sha256": "d6ec4068f01e20ac21d069c9a7bdf9708c59c1cf5b474724f3803670052c6ff5"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-hook-test-coupon.png",
+      "size": 38206,
+      "sha256": "5210598de9c5ac687d0b93b3838ebd49133dff1489652ebf71da4c12aecac612"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-print-orientation.png",
+      "size": 31433,
+      "sha256": "27009e8bf990df38eb14b7b1645f54a26404b750e908ab51d18a1e4c39f35f15"
+    },
+    {
+      "path": "review/rotating-foot-guard-v0.1/guard-clip-printable.png",
+      "size": 26496,
+      "sha256": "e60c812c1b7757824970474191f0b27cb4010158f08322f7556d901309012b12"
+    },
+    {
+      "path": "rotating-foot-guard/README.md",
+      "size": 3428,
+      "sha256": "e143cda011584455b9d9d5b022de7d70e95bd5c3eb85b05851119c9b1514f614"
+    },
+    {
+      "path": "rotating-foot-guard/render_preview.py",
+      "size": 3596,
+      "sha256": "17c2680942db02e4c0e316d8ae18e114281a72cfb72dd1f57b9d0c3832d68cf0"
+    },
+    {
+      "path": "rotating-foot-guard/rotating_foot_guard.scad",
+      "size": 8818,
+      "sha256": "a5e20b1187606432f9084dfd0add248dad8cf0777acbcb17f8dff7b1ef63cb87"
+    }
+  ],
+  "reference_archives": [
+    {
+      "file": "historical-generated-exports-REFERENCE-ONLY.zip",
+      "entries": [
+        {
+          "path": "exports/perpendicular-u-joint-v0.2/perpendicular-u-back-print-v0.2.stl",
+          "size": 42084,
+          "sha256": "e3ea8cc83310cb01104627b366e804757259d739aa35f4db1b71960ecbf69fe9"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.2/perpendicular-u-back-v0.2.stl",
+          "size": 42084,
+          "sha256": "8a8817f3f46e283edfc2a46e687d391f95b87beca5b9d7fcfd6dc9a2d5bdbb07"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.2/perpendicular-u-front-print-v0.2.stl",
+          "size": 41984,
+          "sha256": "6035bf81170553108deccc40cd316181d97916c66e6b41e89ee9409de4d1066b"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.2/perpendicular-u-front-v0.2.stl",
+          "size": 41984,
+          "sha256": "40d9efa76e5dcb6099871eaff65a97f10c9169756d227ca2ea69954392699b78"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.3/perpendicular-double-u-guard-print-v0.3.stl",
+          "size": 26784,
+          "sha256": "5a4b78d77137a0600bf48bd5037a6de94c8fd55f5bb3e9c1623a53b63971ce36"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.3/perpendicular-double-u-guard-v0.3.stl",
+          "size": 26784,
+          "sha256": "f71a0cb4cdf4c93784657c7760411417ae83db15811ea3256993cc945a900b01"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.4/perpendicular-double-u-guard-print-v0.4.stl",
+          "size": 18084,
+          "sha256": "749754bf94ca841c85df93bfd57f164e8bda32d9d8c2b683231988e4bd05c26c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.4/perpendicular-double-u-guard-v0.4.stl",
+          "size": 18084,
+          "sha256": "a746de50f53cecb6dacee565daf71f876842e07aff5836899e5301f51cd6bfaa"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.5/perpendicular-double-u-guard-print-v0.5.stl",
+          "size": 19484,
+          "sha256": "0c9f5e97528630952e3334b322cd4f60679f0953ac8812ed57fad0d969a30b5d"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.5/perpendicular-double-u-guard-v0.5.stl",
+          "size": 19484,
+          "sha256": "8930fd055001ba41a48612b58e451987b9692a554518c6c94bf4ccc0e372dbc1"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.6/perpendicular-double-u-guard-print-v0.6.stl",
+          "size": 19284,
+          "sha256": "8b78e1f7511df625fa81bdca5afb14564bbb52725763016a556aa093d8a846bb"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.6/perpendicular-double-u-guard-v0.6.stl",
+          "size": 19284,
+          "sha256": "b9c228acda5dcf2acd086de07bb425bd8be1ec206e98aba14fe4b026bde26777"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-print-v0.7.stl",
+          "size": 31084,
+          "sha256": "35bc0ca0f963a64f91eb99cbf95229f48fcbc93deb965a77349726648a68d1c1"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-v0.7-eaves12.stl",
+          "size": 31884,
+          "sha256": "6dc2af245a2bb22e4df74635b2b4683c05d852cd4e02f8db32cec7ea0c8d76c9"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-v0.7-upper-web-hooks-z1p5.stl",
+          "size": 31884,
+          "sha256": "12034eadc5b9cfa58dda7178cdd8e5203f430c1c62aedaed48e000e83cbf7663"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-v0.7-upper-web-thinner-hooks.stl",
+          "size": 31884,
+          "sha256": "9c890a85b20217117ab47af7d1022ab202b76ca139014d2d30ad100d2a5a8a2a"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-v0.7-upper-web.stl",
+          "size": 31884,
+          "sha256": "1ff25f7a3f73f16ae99766e1f5cd133ea33c130e81939ccd41a8d0667582e770"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.7/perpendicular-double-u-guard-v0.7.stl",
+          "size": 31084,
+          "sha256": "a28730bdf5075af68848e83a2ca4df38fd8ac63a63f64ccd3ebb628babe53d13"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.8/perpendicular-double-u-guard-print-v0.8.stl",
+          "size": 32084,
+          "sha256": "fd2098949f138a94c4a21a77c3b4e29416dc17d209cde3a9e2100a185c9d8215"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.8/perpendicular-double-u-guard-v0.8.stl",
+          "size": 32084,
+          "sha256": "3267970bd0c532d254e363238bd8dc528a9fb1305f0472ea758957c0e7ce22d0"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v0.9-sloped-wall/perpendicular-double-u-guard-v0.9-sloped-wall.stl",
+          "size": 32684,
+          "sha256": "20ed482f33b606fa2106f35238542075303850b2e47b4a588352d7615946c83e"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.0-four-sloped-walls/perpendicular-double-u-guard-v1.0-four-sloped-walls.stl",
+          "size": 38484,
+          "sha256": "0cc9f895f8d806f23edfc51563b7906b159b6d93b877f1b4e389899bfe6aede3"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.1-full-corner-walls/perpendicular-double-u-guard-v1.1-full-corner-walls.stl",
+          "size": 39584,
+          "sha256": "de88e371459a936e7ad9bc68ecc3709b1bb404f9a664a51b6dcbd361b11f0d0c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.10-full-wall-width-ramps/perpendicular-double-u-guard-v1.10.stl",
+          "size": 22484,
+          "sha256": "cd170b057b655cdbb249ddb6d13fa5f6fd702fe31323f899b95da4b7ebbb0af1"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/perpendicular-double-u-guard-v1.11.stl",
+          "size": 21684,
+          "sha256": "d8c9dca80f8bf3f1c4618479b197e40a6a913860e9a055918af4563a1b97db1e"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/barrier-clip-v1.11-2x-X1C-PETG-native.3mf",
+          "size": 45740,
+          "sha256": "1a2fec09e2eef24ffc7b22ec651e183e193940dcd171054129e86e2aaea9bd95"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/barrier-clip-v1.11-2x-X1C-PETG.3mf",
+          "size": 45937,
+          "sha256": "9eb021ea13d043496604ed181da841fab05ca13c24ead18cfa40b89ef4437a4f"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/barrier-clip-v1.11-2x-X1C-PETG.gcode.3mf",
+          "size": 1423880,
+          "sha256": "feab0d631aedd6bebd2347c71e401e928be900e4217bf9698bae8582a9b9ac23"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/barrier-clip-v1.11-A.stl",
+          "size": 21684,
+          "sha256": "e9392f6a7e2fc609b477ffce66243cd1647a0d2e05b68a0b631584978c560c9c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/barrier-clip-v1.11-B.stl",
+          "size": 21684,
+          "sha256": "e9392f6a7e2fc609b477ffce66243cd1647a0d2e05b68a0b631584978c560c9c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/manifest.json",
+          "size": 999,
+          "sha256": "763765d2863c9e4a172b81ec59a0b0c2cc8a410faa99563a0fb3a56c8e8fb79e"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/package-audit.json",
+          "size": 1633,
+          "sha256": "f2a01bf35e85b8aceaeab822050cc858d25b8c778d4d285f7e361df8f6e71ac1"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/plate_1.gcode",
+          "size": 9738772,
+          "sha256": "248bb158caa0c867a03875bb6d36c2b75569208a626d9e0814a4326a9c4b126c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/plate_1.png",
+          "size": 9158,
+          "sha256": "a302518dcd2d76780c5604b3a6b0be34504f26117ddf5093a26a3b481200b70b"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/resolved-settings.json",
+          "size": 55700,
+          "sha256": "36c592a6ecebd5ce3d473d008fc0cef19f5f49e7003d8c28902ce45228620c6e"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/seed.log",
+          "size": 322,
+          "sha256": "1cb37a5660fc41195354cd5ee796414a51261c9c7a1f24ecd0ca7885fea5d63e"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/slice.log",
+          "size": 92,
+          "sha256": "794376ea42f8649195e9a54076211a5fe8fa4422dfb2b319f5f4c7a97f106eb9"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.11-fit-21xy-22z/two-piece-x1c/top_1.png",
+          "size": 3568,
+          "sha256": "f21c2dafd5c013127b223736e34079aa4c185947d1ea3b0e3cf43b1579dde0dc"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.2-continuous-corner-walls/perpendicular-double-u-guard-v1.2-continuous-corner-walls.stl",
+          "size": 39284,
+          "sha256": "d9819fd9eb9b5f52bb7d78de36467176850f5d197ef19dc0531ce502e12b6062"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.3-triangular-corner-fills/perpendicular-double-u-guard-v1.3-triangular-corner-fills.stl",
+          "size": 35184,
+          "sha256": "833928810b0bfcbb9cea69477b98c5501f80fb653b348e17ce1eb64eec00c6c5"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.4-full-nut-passage/perpendicular-double-u-guard-v1.4-full-nut-passage.stl",
+          "size": 20084,
+          "sha256": "4852a1746acf4084fb2dba3e77dd02b0d2c3e80c3b6e442535debcaa08af51fc"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.5-vertical-tube-clearance/perpendicular-double-u-guard-v1.5-vertical-tube-clearance.stl",
+          "size": 20884,
+          "sha256": "bb7c0767e16b2b509bbb74e4865529a4b2eb62a50696c1bbc68a5b512d166d03"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.6-lower-x-extension/perpendicular-double-u-guard-v1.6-lower-x-extension.stl",
+          "size": 22484,
+          "sha256": "7fd7f9e56c10f0067c8d4d78e7231607a369456bf164319fc7dfc7626f0b6222"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.7-continuous-lower-u-y/perpendicular-double-u-guard-v1.7-continuous-lower-u-y.stl",
+          "size": 21684,
+          "sha256": "2750e158cf119addb37e26139adc15c03085946f7cffdfb6efee04c6d79cdd16"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.8-lower-20plus1p5/perpendicular-double-u-guard-v1.8-lower-20plus1p5.stl",
+          "size": 22084,
+          "sha256": "7286ec2565f1d194dfa2ddaefcb9751a56c00f8311b31b170e919784e0710e1c"
+        },
+        {
+          "path": "exports/perpendicular-u-joint-v1.9-mirrored-end-ramps/perpendicular-double-u-guard-v1.9-mirrored-end-ramps.stl",
+          "size": 23284,
+          "sha256": "3c5a84f05b87f31f0672ad87b847fd9e2d908c73e273d8247a8355073b6f22be"
+        },
+        {
+          "path": "exports/rotating-foot-guard-v0.1/rotating-foot-guard-hook-test-coupon.stl",
+          "size": 30417,
+          "sha256": "71fb5df06e143153df59be374b6b136c3bccd3f67b7236010843b8560577e1c8"
+        },
+        {
+          "path": "exports/rotating-foot-guard-v0.1/rotating-foot-guard-side-minus-print-orientation.stl",
+          "size": 33982,
+          "sha256": "29a5da62d51f9aea457006e5882b49fea09cc24e18773792b239cb7594a85920"
+        },
+        {
+          "path": "exports/rotating-foot-guard-v0.1/rotating-foot-guard-side-minus.stl",
+          "size": 33448,
+          "sha256": "54c7a32fe057bf73610a25c4372debf37450be57cdd444316e92cc6d8de14123"
+        },
+        {
+          "path": "exports/rotating-foot-guard-v0.1/rotating-foot-guard-side-plus-print-orientation.stl",
+          "size": 32995,
+          "sha256": "7aa6148f31471c4aba94ff4d2a663cb4a5081572285fa7b8ff70eec1a780a477"
+        },
+        {
+          "path": "exports/rotating-foot-guard-v0.1/rotating-foot-guard-side-plus.stl",
+          "size": 32474,
+          "sha256": "2f632899774bdc2f898f650fc10dccf0f66a08850a78f6f874cad13edc91b6c4"
+        }
+      ]
+    },
+    {
+      "file": "offline-time-comparison-REFERENCE-ONLY.zip",
+      "entries": [
+        {
+          "path": "6w-15-gyroid/input.3mf",
+          "size": 45257,
+          "sha256": "cad9dcce8d3eeb6161e3d68f892160b9bfc12ef45f3770b6f5bfaf7653609595"
+        },
+        {
+          "path": "6w-15-gyroid/slice.log",
+          "size": 92,
+          "sha256": "46374877d2949612389787564c4159a4df4751a71fdbffbdda103fdf2df3d6e9"
+        },
+        {
+          "path": "6w-15-gyroid/sliced.3mf",
+          "size": 2614488,
+          "sha256": "de90275cec51d14c876fca8688bcd094605144ca71c3642fbf634f070c4fcda3"
+        },
+        {
+          "path": "6w-15-lines/input.3mf",
+          "size": 45259,
+          "sha256": "f6c1b2a9034279992cfbe568052c5ae1e9485c7f2c5c31554572e16cb0d65197"
+        },
+        {
+          "path": "6w-15-lines/slice.log",
+          "size": 92,
+          "sha256": "61da951dfbf2ad9225bdcf05008864f129962dd86b1fab146b29797754feb61e"
+        },
+        {
+          "path": "6w-15-lines/sliced.3mf",
+          "size": 2276824,
+          "sha256": "30baa6e2a5e7dcea323323c8933586a49dd0e292861fef8efabefb710019ea69"
+        },
+        {
+          "path": "6w-30-gyroid/input.3mf",
+          "size": 45258,
+          "sha256": "b6092fffc250af58cf51befe344ca398e8e9864218169ff12ea0b3fa5ecdfd45"
+        },
+        {
+          "path": "6w-30-gyroid/slice.log",
+          "size": 92,
+          "sha256": "3591baec2d0632ad8275810ba5bf8887cd05ab01fd9248c88412d8a39fe9cfce"
+        },
+        {
+          "path": "6w-30-gyroid/sliced.3mf",
+          "size": 3196721,
+          "sha256": "1ed455c1151209066c62f0ce33d8f10d1cd14104604b8e9ea06b95f662957e30"
+        },
+        {
+          "path": "8w-15-gyroid/input.3mf",
+          "size": 45257,
+          "sha256": "a1a88f795152b971139bf71908f42f5d0638c056299d79feaf7eea4ed209e4e3"
+        },
+        {
+          "path": "8w-15-gyroid/slice.log",
+          "size": 92,
+          "sha256": "67803a802fd1955f4a7e01c66192b00998b7a58b1bb684687e91032acf178ee7"
+        },
+        {
+          "path": "8w-15-gyroid/sliced.3mf",
+          "size": 2604833,
+          "sha256": "cb937c7c63dc45ead1ecdbaba600c4d2f353efba9e44f598206f1142b6079272"
+        },
+        {
+          "path": "8w-15-lines/input.3mf",
+          "size": 45259,
+          "sha256": "4286578547d31854c95ed5672e0583082923e4e0a4b617279790203a38e82cf6"
+        },
+        {
+          "path": "8w-15-lines/slice.log",
+          "size": 92,
+          "sha256": "ed71899f080f149fc4b7011fd1e7c0700d721bf17d342af5169b2af4a8c41b8c"
+        },
+        {
+          "path": "8w-15-lines/sliced.3mf",
+          "size": 2317945,
+          "sha256": "5aed6942a7d381355abe1b2e0daa465147ee3ab3d5f3699f8fab8161fa19ec1e"
+        },
+        {
+          "path": "compare.py",
+          "size": 2142,
+          "sha256": "a2ab75bc009cda940518c54fa1a8249742345573a216938f906c7d8d62c4ad6d"
+        },
+        {
+          "path": "results.json",
+          "size": 396,
+          "sha256": "a200ff824723eccfd88ddb5df3f57087f0624413a7e830b586dc658eeecd2c0c"
+        }
+      ]
+    }
+  ]
+}

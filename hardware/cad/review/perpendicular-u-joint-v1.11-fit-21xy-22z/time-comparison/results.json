@@ -1,0 +1,27 @@
+[
+  {
+    "name": "6w-30-gyroid",
+    "seconds": 16692,
+    "grams": 108.67
+  },
+  {
+    "name": "6w-15-gyroid",
+    "seconds": 15413,
+    "grams": 101.61
+  },
+  {
+    "name": "8w-15-gyroid",
+    "seconds": 16003,
+    "grams": 109.51
+  },
+  {
+    "name": "6w-15-lines",
+    "seconds": 15294,
+    "grams": 100.93
+  },
+  {
+    "name": "8w-15-lines",
+    "seconds": 16044,
+    "grams": 109.83
+  }
+]
