@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.11-fit-21xy-22z/perpendicular-double-u-guard-v1.11.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 432,
+  "uniqueVertexCount": 216,
+  "bounds": {
+    "min": [
+      -27.899999618530273,
+      -33.5,
+      -23.5
+    ],
+    "max": [
+      27.899999618530273,
+      33.5,
+      31.0
+    ],
+    "size": [
+      55.79999923706055,
+      67.0,
+      54.5
+    ]
+  },
+  "surfaceArea": 18083.212381267425,
+  "signedVolume": 55472.80954776829,
+  "volume": 55472.80954776829,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}
