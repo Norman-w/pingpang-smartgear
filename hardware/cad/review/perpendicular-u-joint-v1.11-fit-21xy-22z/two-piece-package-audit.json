@@ -1,0 +1,84 @@
+{
+  "package": "barrier-clip-v1.11-2x-X1C-PETG.gcode.3mf",
+  "package_sha256": "feab0d631aedd6bebd2347c71e401e928be900e4217bf9698bae8582a9b9ac23",
+  "source_scad_sha256": "1cb179e518da492e4ae69a67c622260a2d6d42bf224012e05a290c15698646a8",
+  "source_stl_sha256": "d8c9dca80f8bf3f1c4618479b197e40a6a913860e9a055918af4563a1b97db1e",
+  "object_count": 2,
+  "plate_count": 1,
+  "objects": [
+    {
+      "object_id": "2",
+      "min_mm": [
+        62.1000004,
+        94.5,
+        0.0
+      ],
+      "max_mm": [
+        117.8999996,
+        161.5,
+        54.5
+      ]
+    },
+    {
+      "object_id": "4",
+      "min_mm": [
+        138.1000004,
+        94.5,
+        0.0
+      ],
+      "max_mm": [
+        193.8999996,
+        161.5,
+        54.5
+      ]
+    }
+  ],
+  "prediction_seconds": 14325,
+  "weight_g": 106.88,
+  "support_extrusions": {
+    "Support": {
+      "extruding_moves": 5226,
+      "min_mm": [
+        70.799,
+        89.537,
+        0.2
+      ],
+      "max_mm": [
+        185.68,
+        162.464,
+        26.8
+      ]
+    },
+    "Support transition": {
+      "extruding_moves": 1669,
+      "min_mm": [
+        72.737,
+        91.475,
+        20.13
+      ],
+      "max_mm": [
+        183.263,
+        160.525,
+        26.2
+      ]
+    },
+    "Support interface": {
+      "extruding_moves": 11559,
+      "min_mm": [
+        72.738,
+        91.305,
+        20.406
+      ],
+      "max_mm": [
+        183.263,
+        160.695,
+        27.6
+      ]
+    }
+  },
+  "functional_pocket_support_free": true,
+  "checks_passed": true,
+  "printer_sent": false,
+  "printer_started": false,
+  "physical_fit_and_strength": "not_tested"
+}
