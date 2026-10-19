@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.13-edge-safe-label/guard-v1.13.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 8872,
+  "uniqueVertexCount": 4436,
+  "bounds": {
+    "min": [
+      -27.899999618530273,
+      -33.5,
+      -23.5
+    ],
+    "max": [
+      27.899999618530273,
+      33.5,
+      31.600000381469727
+    ],
+    "size": [
+      55.79999923706055,
+      67.0,
+      55.10000038146973
+    ]
+  },
+  "surfaceArea": 17763.679089176225,
+  "signedVolume": 55102.494562331754,
+  "volume": 55102.494562331754,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}

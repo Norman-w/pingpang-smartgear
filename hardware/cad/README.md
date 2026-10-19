@@ -1,6 +1,6 @@
 # OpenSCAD 机械主线
 
-独立的围挡脚限位卡见[版本与交付索引](BARRIER-GUARD-INDEX.zh-CN.md)。当前首件为v1.11；实际打印工程为用户翻转后的正放/树状支撑版本，源文件、历史草稿、审图、原生3MF和时间对照均独立归档，不与下述球网/立柱主线混用。
+独立的围挡脚限位卡当前模型为[v1.13：盖底齐平、小号字样、阳边倒角](perpendicular-u-joint-guard-v1.13-edge-safe-label/README.zh-CN.md)，最终STL与v1.12参考模型见[正式模型归档](print-packages/barrier-clip-v1.13-model/README.zh-CN.md)。[v1.11历史版本与首件归档索引](BARRIER-GUARD-INDEX.zh-CN.md)作为当时的交付快照保留；已记录的实际打印工程仍为v1.11用户翻转后的正放/树状支撑版本，不是新模型的3MF。围挡工作不与下述球网/立柱主线混用。
 
 当前机械源文件是 [`net_stand.scad`](net_stand.scad)。它把球网、两侧立柱、桌下夹体、PVDF 传感器安装位、M6 光学壳体以及电子腔体放在同一套参数坐标中，用于装配干涉和打印件导出。
 

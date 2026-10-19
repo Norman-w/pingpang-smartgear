@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "model": "v1.13",
+  "units": "mm",
+  "new_3mf": false,
+  "printer_command_sent": false,
+  "direct_scad_references": 6,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "925f36b1693b75660e739d7e1aa13f5ccd5c75593523408fce0b448bae53ac36",
+      "size": 19568
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.12-flush-roof/README.zh-CN.md",
+      "sha256": "3ae62a21f361dd443db4ddb1b31be936f2ff99c7c5620a5f7d63c79899f3fe19",
+      "size": 1784
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.12-flush-roof/flush_roof_guard.scad",
+      "sha256": "65a8ed8d7782154cab7b7926a1af0bcdd94eff763492014cc122b36e017043c6",
+      "size": 717
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.12-flush-roof/review.scad",
+      "sha256": "42516c772e84f08894dddf91aa75a7f481bea03a0a9f3811596110397a1a577f",
+      "size": 1870
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/README.zh-CN.md",
+      "sha256": "7404b7d5e1237dc5bfdce82e5297fc1dc7964ac04c25d4322631e634903ffd6a",
+      "size": 3418
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/assemble_export.scad",
+      "sha256": "ce23660d7bd15d26d3c45771bbc7ca86f090827775889fad8a7b9e5c459c8248",
+      "size": 442
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/build_export.py",
+      "sha256": "8cc0db073a476b01be92626d084004073d04390f2b5649a3a7dc7f83d7540232",
+      "size": 1083
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/edge_safe_guard.scad",
+      "sha256": "974d15095bfabd91bdadffa930768142c5702f7752c2a8fc12fdaad036141d5c",
+      "size": 2371
+    },
+    {
+      "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/review.scad",
+      "sha256": "3bb8dfe46e80a3f239f503526cc3f5c462747cb85111ebf06af75964f0920613",
+      "size": 1644
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.13-model/README.zh-CN.md",
+      "sha256": "e53661f3db21de61fb935bb28d9d1b614b2a3035bc99db0748fe1f50cc305c04",
+      "size": 990
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.13-model/guard-v1.13.stl",
+      "sha256": "57fb04c228f27f8e4c6c4596027609b86e78c47b08122774a9e496e3631f8f37",
+      "size": 443684
+    },
+    {
+      "path": "print-packages/barrier-clip-v1.13-model/reference-guard-v1.12.stl",
+      "sha256": "895b3ff4f9d4d52ab4fe360dd0fff333aadca328e35882a614bcf8cc59d614ec",
+      "size": 19684
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.12-flush-roof/01-flush-roof-section-iso.png",
+      "sha256": "1d198da5409d5e3e0d683eb7711e4389d1371fdb979d9e566b6f25fec8a657d8",
+      "size": 43614
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.13-edge-safe-label/01-assembly-iso.png",
+      "sha256": "5a206d47e3b045e107a1ff6019073261eaa87604ed1732372feef26ddf3fa381",
+      "size": 59460
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.13-edge-safe-label/02-roof-detail-iso.png",
+      "sha256": "490095cc3591ae3d3d7aa9f61e6e62d804c6df02b37e0a360e5904942ae5cd04",
+      "size": 47638
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.13-edge-safe-label/body-inspection.json",
+      "sha256": "930ec41c019cdae450af973f36628f9736ae0a1313872df19115a91a5f065afb",
+      "size": 734
+    },
+    {
+      "path": "review/perpendicular-u-joint-v1.13-edge-safe-label/stl-inspection.json",
+      "sha256": "9b327da9c8dc111970a82073942c53a1cb9fd4b23f8ff1a2f6859f8398a1d520",
+      "size": 768
+    }
+  ]
+}

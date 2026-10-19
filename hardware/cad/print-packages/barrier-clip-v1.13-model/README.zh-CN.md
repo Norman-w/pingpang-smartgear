@@ -1,0 +1,9 @@
+# v1.13 模型归档（未切片）
+
+- `guard-v1.13.stl`：当前模型，盖底残留凸条已去除；顶部小号`Norman@PingCloud`凸字0.6高，主体阳边/阳角0.6倒角、字边0.1微倒角；最底1.5 mm完整保留。8872面、4436顶点、单一连通实体，封闭流形，外包55.8×67×55.1 mm，体积55102.494562 mm³。
+- `reference-guard-v1.12.stl`：未加字/倒角的盖底齐平中间版，只供对照。
+- 原生权威源、分阶段构建方法与接受边界见[v1.13说明](../../perpendicular-u-joint-guard-v1.13-edge-safe-label/README.zh-CN.md)。[真实等轴图](../../review/perpendicular-u-joint-v1.13-edge-safe-label/01-assembly-iso.png)。
+
+STL按毫米/CAD原坐标导入，未保存打印朝向或切片参数；没有生成新3MF、发送或改变打印任务。旧v1.11实际首件工程保留不动，不要把旧3MF误当成此版本。
+
+`manifest.json`记录本次模型归档、源文件和审图的SHA256；不改写此前v1.11归档清单。
