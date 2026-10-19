@@ -28,8 +28,8 @@
     },
     {
       "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/README.zh-CN.md",
-      "sha256": "7404b7d5e1237dc5bfdce82e5297fc1dc7964ac04c25d4322631e634903ffd6a",
-      "size": 3418
+      "sha256": "8eb11aa599393479bfb4bd53ba6136b2255ec54e8162ebc3a4e6c4ecd5d5c83f",
+      "size": 4400
     },
     {
       "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/assemble_export.scad",
@@ -43,8 +43,8 @@
     },
     {
       "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/edge_safe_guard.scad",
-      "sha256": "974d15095bfabd91bdadffa930768142c5702f7752c2a8fc12fdaad036141d5c",
-      "size": 2371
+      "sha256": "328bf1362a995c942f16989d9861a38224945e18bf33486f637c7a0b35766063",
+      "size": 2876
     },
     {
       "path": "perpendicular-u-joint-guard-v1.13-edge-safe-label/review.scad",
@@ -53,8 +53,8 @@
     },
     {
       "path": "print-packages/barrier-clip-v1.13-model/README.zh-CN.md",
-      "sha256": "e53661f3db21de61fb935bb28d9d1b614b2a3035bc99db0748fe1f50cc305c04",
-      "size": 990
+      "sha256": "94518c3295133bdb75b4f113db9a450b7a2c0bf23e57f13b8a2844e1b7c41e8d",
+      "size": 1297
     },
     {
       "path": "print-packages/barrier-clip-v1.13-model/guard-v1.13.stl",

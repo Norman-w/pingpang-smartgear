@@ -1,4 +1,9 @@
-// v1.13, mm. X=gray tube, Y=blue foot, Z=up. One-piece PETG guard.
+// 乒乓球围挡支撑脚止转卡 v1.13：限制中心螺丝松动时支撑脚意外旋转。
+// 适用接头：两根名义20x20方管上下贴合，工作时相互垂直，中心螺丝沿Z贯穿。
+// 从上方沿-Z套入；前后两个一体U卡臂包住下方脚，底部内扣保持扣合。
+// 收纳前先取下卡子，再将支撑脚转至与长管平行；不可带卡强行折转。
+// 本件是可拆卸止转附件，不替代原螺丝紧固；实物扣合与地面间隙需验证。
+// Units mm. X=gray upper tube, Y=blue foot, Z=up. One-piece PETG guard.
 // Native solid construction: no imported mesh replaces the SCAD source.
 use <../perpendicular-u-joint-guard-v1.12-flush-roof/flush_roof_guard.scad>;
 
