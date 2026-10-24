@@ -1,0 +1,148 @@
+{
+  "package": "barrier-clip-v1.15-6x-upright-black-PETG.gcode.3mf",
+  "package_sha256": "11185ddc29b66c9c5013c8efcf8686ddf200b873351d8beba67d90df172c2a4d",
+  "source_sha256": "78fcfbf3173cc5a50d09dc0e1ba158784eef878c64981032b86a8a55287bdd34",
+  "objects": [
+    {
+      "object_id": "2",
+      "min_mm": [
+        27.1000004,
+        42.5,
+        0.0
+      ],
+      "max_mm": [
+        82.8999996,
+        109.5,
+        55.0999984
+      ]
+    },
+    {
+      "object_id": "4",
+      "min_mm": [
+        100.1000004,
+        42.5,
+        0.0
+      ],
+      "max_mm": [
+        155.8999996,
+        109.5,
+        55.0999984
+      ]
+    },
+    {
+      "object_id": "6",
+      "min_mm": [
+        173.1000004,
+        42.5,
+        0.0
+      ],
+      "max_mm": [
+        228.8999996,
+        109.5,
+        55.0999984
+      ]
+    },
+    {
+      "object_id": "8",
+      "min_mm": [
+        27.1000004,
+        138.5,
+        0.0
+      ],
+      "max_mm": [
+        82.8999996,
+        205.5,
+        55.0999984
+      ]
+    },
+    {
+      "object_id": "10",
+      "min_mm": [
+        100.1000004,
+        138.5,
+        0.0
+      ],
+      "max_mm": [
+        155.8999996,
+        205.5,
+        55.0999984
+      ]
+    },
+    {
+      "object_id": "12",
+      "min_mm": [
+        173.1000004,
+        138.5,
+        0.0
+      ],
+      "max_mm": [
+        228.8999996,
+        205.5,
+        55.0999984
+      ]
+    }
+  ],
+  "object_count": 6,
+  "plate_count": 1,
+  "prediction_seconds": 58390,
+  "weight_g": 388.62,
+  "matched_actual_recipe_keys": [
+    "printer_settings_id",
+    "curr_bed_type",
+    "layer_height",
+    "wall_loops",
+    "sparse_infill_density",
+    "sparse_infill_pattern",
+    "top_shell_layers",
+    "bottom_shell_layers",
+    "enable_support",
+    "support_type",
+    "support_on_build_plate_only",
+    "support_top_z_distance",
+    "support_bottom_z_distance",
+    "support_interface_top_layers",
+    "support_interface_spacing",
+    "support_object_xy_distance",
+    "brim_type",
+    "brim_width",
+    "brim_object_gap",
+    "filament_type",
+    "filament_settings_id",
+    "nozzle_temperature",
+    "nozzle_temperature_initial_layer",
+    "textured_plate_temp",
+    "textured_plate_temp_initial_layer",
+    "xy_hole_compensation",
+    "xy_contour_compensation"
+  ],
+  "support_extrusions": {
+    "Support": {
+      "extruding_moves": 293428,
+      "min_mm": [
+        25.993,
+        37.355,
+        0.2
+      ],
+      "max_mm": [
+        230.002,
+        204.705,
+        46.8
+      ]
+    },
+    "Support interface": {
+      "extruding_moves": 15692,
+      "min_mm": [
+        26.413,
+        39.465,
+        22.8
+      ],
+      "max_mm": [
+        229.604,
+        204.239,
+        46.4
+      ]
+    }
+  },
+  "checks_passed": true,
+  "physical_fit_and_strength": "not_tested"
+}

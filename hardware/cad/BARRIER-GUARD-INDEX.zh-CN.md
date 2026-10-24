@@ -1,8 +1,14 @@
 # 围挡脚限位卡：版本与交付索引
 
-这是围挡限位卡的独立工作，不替代本目录的球网/立柱主线。当前零件几何为 **v1.11**，维持现状，不实施本轮讨论的减填充、增墙或结构修改。
+这是围挡限位卡的独立工作，不替代本目录的球网/立柱主线。当前零件几何为 **v1.15**：下卡臂加厚至 7 mm，斜筋下收成 Y 向棱，连接处补实并统一倒角。实物抗踢强度仍待验证。
 
 ## 当前可用入口
+
+- [v1.15 源码与数字验证](perpendicular-u-joint-guard-v1.15-tapered-unified/README.zh-CN.md)。
+- [v1.15 六件黑色 PETG 正式打印包](print-packages/barrier-clip-v1.15-6x-black-PETG/README.zh-CN.md)：一板六件，房盖向上、内扣朝下；沿用实际首件 0.20 mm / 6 墙 / 30% gyroid / 自动树状支撑。预计 16h13m10s / 388.62g。
+- [v1.15 等轴审图](review/perpendicular-u-joint-v1.15-tapered-unified/01-tapered-iso.png)。
+
+## 历史首件记录（v1.11，不是当前几何）
 
 - [v1.11主SCAD](perpendicular-u-joint-guard-v1.11-fit-21xy-22z/fit_clearance_guard.scad)：X基准21并保留0.8打印间隙，实际内宽21.8；Y内距21；Z两层各22 mm；底扣厚1.5；立墙5；顶盖8；螺帽全深孔Ø16。
 - [真实等轴审图](review/perpendicular-u-joint-v1.11-fit-21xy-22z/01-assembly.png)与[几何说明](perpendicular-u-joint-guard-v1.11-fit-21xy-22z/README.md)。
@@ -27,7 +33,10 @@
 | v1.7 | `perpendicular-u-joint-guard-v1.7-continuous-lower-u-y/` | Z解释错误，已由v1.8替代 |
 | v1.8 | `perpendicular-u-joint-guard-v1.8-lower-20plus1p5/` | 20+1.5基线 |
 | v1.9–v1.10 | 镜像斜坡、全墙宽斜坡目录 | 已采用中间版本 |
-| v1.11 | `perpendicular-u-joint-guard-v1.11-fit-21xy-22z/` | 当前首件几何 |
+| v1.11 | `perpendicular-u-joint-guard-v1.11-fit-21xy-22z/` | 历史实际首件与打印配方来源 |
+| v1.12–v1.13 | flush-roof / edge-safe-label | 顶部让位、倒角、字样的依赖基线 |
+| v1.14 | `perpendicular-u-joint-guard-v1.14-full-depth-ribs/` | 已撤回的宽底直立筋候选，勿打印 |
+| v1.15 | `perpendicular-u-joint-guard-v1.15-tapered-unified/` | 当前六件试印几何，实物待验证 |
 
 各阶段图片在`review/perpendicular-u-joint-*`或`review/rotating-foot-guard-v0.1`。v0.7遗留的`*-coordinate-thumbnail.svg*`只是早期非CAD示意档案，不是精确模型或当前渲染证据；当前入口采用真实SCAD渲染图。
 

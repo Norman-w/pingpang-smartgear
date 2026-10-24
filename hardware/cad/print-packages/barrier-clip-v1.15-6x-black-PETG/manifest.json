@@ -1,0 +1,70 @@
+{
+  "source_sha256": "78fcfbf3173cc5a50d09dc0e1ba158784eef878c64981032b86a8a55287bdd34",
+  "template_sha256": "c40511891ad39601da3842f04e9a5ee1c247edeec58872800deea4b18145ab11",
+  "quantity": 6,
+  "plate_count": 1,
+  "centres_xy_mm": [
+    [
+      55.0,
+      76.0
+    ],
+    [
+      128.0,
+      76.0
+    ],
+    [
+      201.0,
+      76.0
+    ],
+    [
+      55.0,
+      172.0
+    ],
+    [
+      128.0,
+      172.0
+    ],
+    [
+      201.0,
+      172.0
+    ]
+  ],
+  "rotation_xyz_deg": [
+    0,
+    0,
+    0
+  ],
+  "scale": 1,
+  "source_normalization_translation_mm": [
+    27.899999618530273,
+    33.5,
+    23.5
+  ],
+  "orientation": "roof up; hooks on bed; automatic tree supports",
+  "printer": "X1 Carbon 0.4 nozzle",
+  "material": "Generic PETG",
+  "colour": "black",
+  "expected_mapping": "AMS A4; verify in live send dialog",
+  "editable_3mf": "barrier-clip-v1.15-6x-upright-black-PETG.3mf",
+  "sliced_3mf": "barrier-clip-v1.15-6x-upright-black-PETG.gcode.3mf",
+  "printer_sent": true,
+  "printer_started": true,
+  "dispatch_observed_date": "2026-10-24 Asia/Shanghai",
+  "actual_mapping": "AMS A4 black PETG; verified in send dialog and device panel",
+  "bed_leveling": true,
+  "flow_calibration": true,
+  "timelapse": false,
+  "user_confirmed_plate_clear": true,
+  "device_job_name": "barrier-clip-v1.15-6x-upright-black-PETG.gcode",
+  "device_state_observed": "Waiting for heatbed temperature; 0 percent; layer 0/275; pause and stop enabled",
+  "device_heatbed_current_target_c": [26, 70],
+  "device_nozzle_current_target_c": [74, 75],
+  "device_displayed_duration": "16h13m11s",
+  "device_displayed_weight_g": 388.62,
+  "dispatch_method": "Bambu Studio GUI; re-sliced after project import; GUI estimate and material totals matched archived offline slice",
+  "camera": "live connected; initialization visible; first layer not yet printed",
+  "existing_warning": "Lidar data abnormal; automatic first-layer inspection unavailable",
+  "first_layer_verified": false,
+  "print_completed": false,
+  "physical_fit_and_strength": "not_tested"
+}

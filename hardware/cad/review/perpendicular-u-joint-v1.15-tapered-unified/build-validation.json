@@ -1,0 +1,23 @@
+{
+  "method": "native SCAD raw solid; octahedron erosion then dilation, intersect raw, restore lowest 1.5 mm",
+  "numerical_tolerance_mm": 1e-05,
+  "body_components": 1,
+  "full_components": 1,
+  "raw_volume_mm3": 70825.43583662278,
+  "body_volume_mm3": 70610.08842564894,
+  "full_volume_mm3": 70640.63500088794,
+  "added_outside_raw_mm3": 0.0015573213164455087,
+  "manifold3d_version": "3.5.4",
+  "numpy_version": "2.5.4",
+  "source_sha256": {
+    "perpendicular-u-joint-guard-v1.15-tapered-unified/tapered_guard.scad": "f811bdb9daec4401bd57734a084fb07a7e8bea1f16cd4c7ee79fb8eb2d88b36f",
+    "perpendicular-u-joint-guard-v1.15-tapered-unified/build_export.py": "4e5c0e9483abc43f512656f87778bce9f9e79a36dd810d7e8827506f55a612bb",
+    "perpendicular-u-joint-guard-v1.13-edge-safe-label/edge_safe_guard.scad": "328bf1362a995c942f16989d9861a38224945e18bf33486f637c7a0b35766063",
+    "perpendicular-u-joint-guard-v1.12-flush-roof/flush_roof_guard.scad": "65a8ed8d7782154cab7b7926a1af0bcdd94eff763492014cc122b36e017043c6",
+    "perpendicular-u-joint-guard-v1.11-fit-21xy-22z/fit_clearance_guard.scad": "1cb179e518da492e4ae69a67c622260a2d6d42bf224012e05a290c15698646a8"
+  },
+  "output_sha256": {
+    "guard-v1.15-body.stl": "733b269d91fcd51fc3215b29296f7433e0faa5352c8922a4e4ea1a22a8effb77",
+    "guard-v1.15.stl": "78fcfbf3173cc5a50d09dc0e1ba158784eef878c64981032b86a8a55287bdd34"
+  }
+}

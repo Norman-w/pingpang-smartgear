@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.14-full-depth-ribs/NOT-FOR-PRINT-body.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 1216,
+  "uniqueVertexCount": 604,
+  "bounds": {
+    "min": [
+      -27.899999618530273,
+      -33.5,
+      -23.5
+    ],
+    "max": [
+      27.899999618530273,
+      33.5,
+      31.0
+    ],
+    "size": [
+      55.79999923706055,
+      67.0,
+      54.5
+    ]
+  },
+  "surfaceArea": 22332.265649379504,
+  "signedVolume": 88356.48767921579,
+  "volume": 88356.48767921579,
+  "degenerateTriangleCount": 8,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 8,
+  "inconsistentOrientationEdgeCount": 4,
+  "watertightByEdgeTopology": false
+}

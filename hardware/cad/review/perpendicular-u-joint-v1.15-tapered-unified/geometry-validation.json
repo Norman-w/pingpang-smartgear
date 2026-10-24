@@ -1,0 +1,25 @@
+{
+  "old_arm_to_added_thickness_missing_mm3": 0.0,
+  "ramp_to_arm_missing_mm3": 0.0,
+  "rib_to_arm_missing_mm3": 0.0,
+  "rib_to_roof_missing_mm3": 0.0,
+  "upper_wall_to_arm_missing_mm3": 0.0,
+  "old_upper_wall_to_tapered_rib_pocket_missing_mm3": 0.0,
+  "upper_tube_entry_intrusion_mm3": 0.0,
+  "lower_foot_intrusion_mm3": 0.0,
+  "screw_bore_intrusion_mm3": 0.0,
+  "bottom_max_abs_x_mm": 17.899999618530273,
+  "bottom_edge_y_intervals_mm": [
+    [
+      -33.5,
+      -10.5
+    ],
+    [
+      10.5,
+      33.5
+    ]
+  ],
+  "upper_roof_change_mm3": 0.0008264378795390032,
+  "body_components": 1,
+  "full_components": 1
+}

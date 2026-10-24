@@ -1,0 +1,32 @@
+{
+  "path": "/Users/norman/CodexProjects/Pingpang-SmartGear/hardware/cad/exports/perpendicular-u-joint-v1.15-tapered-unified/guard-v1.15.stl",
+  "format": "binary",
+  "units": "unknown",
+  "triangleCount": 7864,
+  "uniqueVertexCount": 3932,
+  "bounds": {
+    "min": [
+      -27.899999618530273,
+      -33.5,
+      -23.5
+    ],
+    "max": [
+      27.899999618530273,
+      33.5,
+      31.600000381469727
+    ],
+    "size": [
+      55.79999923706055,
+      67.0,
+      55.10000038146973
+    ]
+  },
+  "surfaceArea": 19692.38570134646,
+  "signedVolume": 70640.63466601138,
+  "volume": 70640.63466601138,
+  "degenerateTriangleCount": 0,
+  "boundaryEdgeCount": 0,
+  "nonManifoldEdgeCount": 0,
+  "inconsistentOrientationEdgeCount": 0,
+  "watertightByEdgeTopology": true
+}
