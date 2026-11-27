@@ -1,0 +1,252 @@
+{
+  "source": "mold.scad",
+  "source_sha256": "53b6791a407b80af0dd9ba9c1cdf75ec6e9d9b48739146162bf04058726a2f34",
+  "original_product_sha256": "e5f54b937fdecda5719a16b1bd27b2ff65f4152e0eac3997508af70d784674f4",
+  "product_sha256": "9d69c3dff7ebfebd37f45547e4cc94aa1c734b9cd9e67129f4a98488fca001c5",
+  "units": "mm",
+  "nominal_clearance_mm": 0,
+  "material_shrinkage_compensation": "not_established",
+  "stock_size_mm": [
+    84.0,
+    102.0,
+    76.5
+  ],
+  "parts": [
+    {
+      "id": "left",
+      "volume_mm3": 518815.6793275504,
+      "bounds_mm": [
+        -74.0,
+        -116.0,
+        -79.0,
+        0.0,
+        116.0,
+        30.2
+      ],
+      "components": 1,
+      "sha256": "fe8b6e9df5e7af2c913eafaa46100f1a4d590cbc50edd4fec5a6f7ec666a9f95"
+    },
+    {
+      "id": "right",
+      "volume_mm3": 498021.75431129086,
+      "bounds_mm": [
+        0.0,
+        -116.0,
+        -79.0,
+        78.0,
+        116.0,
+        30.2
+      ],
+      "components": 1,
+      "sha256": "58154e5ab035cd14542a99b47de58b29705b0f10566a491aaba7d6e70fbf02c9"
+    },
+    {
+      "id": "lid",
+      "volume_mm3": 452656.78896447015,
+      "bounds_mm": [
+        -73.0,
+        -116.0,
+        23.6,
+        73.0,
+        116.0,
+        62.2
+      ],
+      "components": 1,
+      "sha256": "9e1c2299d628f68b41d3580f10f81d7926cf696a99d5c463ad5222608948d640"
+    },
+    {
+      "id": "upper",
+      "volume_mm3": 58984.87298677755,
+      "bounds_mm": [
+        -42.0,
+        -10.5,
+        0.0,
+        92.0,
+        10.5,
+        23.6
+      ],
+      "components": 1,
+      "sha256": "1cd290ad8b079acb2936094a39f102ffe7ae76e193ae5a9b56cf94806c5bc9e9"
+    },
+    {
+      "id": "lower",
+      "volume_mm3": 514266.3590446589,
+      "bounds_mm": [
+        -118.0,
+        -51.0,
+        -42.0,
+        118.0,
+        115.0,
+        30.2
+      ],
+      "components": 1,
+      "sha256": "bf605f8957c4103709679ab114feb2c200f1117e70f122b98126772030f12b92"
+    },
+    {
+      "id": "back",
+      "volume_mm3": 407283.06685734354,
+      "bounds_mm": [
+        -118.0,
+        -115.0,
+        -42.0,
+        118.0,
+        -21.5,
+        30.2
+      ],
+      "components": 1,
+      "sha256": "ad7237a15e13448cd65b75e8b30363dbda88cbc514cbb570b6aeecd257996ab0"
+    },
+    {
+      "id": "pin",
+      "volume_mm3": 874.8154245862266,
+      "bounds_mm": [
+        30.6,
+        -9.4,
+        19.0,
+        37.4,
+        9.4,
+        46.5
+      ],
+      "components": 1,
+      "sha256": "31640f1e2b5eacbd39c00685c4631ce144ffdf750fcccaa161cf5d2986b5482a"
+    },
+    {
+      "id": "product",
+      "volume_mm3": 81877.27634659909,
+      "bounds_mm": [
+        -27.9,
+        -38.5,
+        -23.5,
+        27.9,
+        38.5,
+        31.0
+      ],
+      "components": 1,
+      "sha256": "9d69c3dff7ebfebd37f45547e4cc94aa1c734b9cd9e67129f4a98488fca001c5"
+    }
+  ],
+  "closed_overlaps": [],
+  "sampled_paths": [
+    {
+      "part": "pin",
+      "delta_mm": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "max_overlap_mm3": 1.16157083951407e-14,
+      "with": "lid",
+      "at_distance_mm": 0,
+      "samples": 97
+    },
+    {
+      "part": "pin",
+      "delta_mm": [
+        40.0,
+        0.0,
+        0.0
+      ],
+      "max_overlap_mm3": 0,
+      "with": null,
+      "at_distance_mm": 0,
+      "samples": 117
+    },
+    {
+      "part": "lid",
+      "delta_mm": [
+        0.0,
+        0.0,
+        90.0
+      ],
+      "max_overlap_mm3": 5.157347574925441e-05,
+      "with": "product",
+      "at_distance_mm": 2.5,
+      "samples": 217
+    },
+    {
+      "part": "lower",
+      "delta_mm": [
+        0.0,
+        160.0,
+        0.0
+      ],
+      "max_overlap_mm3": 8.160485144641323e-05,
+      "with": "product",
+      "at_distance_mm": 0,
+      "samples": 357
+    },
+    {
+      "part": "back",
+      "delta_mm": [
+        0.0,
+        -110.0,
+        0.0
+      ],
+      "max_overlap_mm3": 4.3421652920503406e-05,
+      "with": "product",
+      "at_distance_mm": 0,
+      "samples": 257
+    },
+    {
+      "part": "left",
+      "delta_mm": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "max_overlap_mm3": 18.07686296627153,
+      "with": "product",
+      "at_distance_mm": 6.5,
+      "samples": 217
+    },
+    {
+      "part": "right",
+      "delta_mm": [
+        270.0,
+        0.0,
+        0.0
+      ],
+      "max_overlap_mm3": 18.076730661932462,
+      "with": "product",
+      "at_distance_mm": 6.5,
+      "samples": 577
+    },
+    {
+      "part": "upper",
+      "delta_mm": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "max_overlap_mm3": 1.8431997146953274e-06,
+      "with": "product",
+      "at_distance_mm": 0,
+      "samples": 21
+    },
+    {
+      "part": "upper",
+      "delta_mm": [
+        120.0,
+        0.0,
+        0.0
+      ],
+      "max_overlap_mm3": 4.725109192804666e-13,
+      "with": "product",
+      "at_distance_mm": 16.0,
+      "samples": 277
+    }
+  ],
+  "sample_step_near_start_mm": 0.05,
+  "sample_step_after_2mm": 0.5,
+  "continuous_sweep_proven": false,
+  "physical_release_and_sealing": "not_tested",
+  "elastic_strip_required": {
+    "parts": [
+      "left",
+      "right"
+    ],
+    "feature": "lower-arm convex end chamfers",
+    "maximum_nominal_radial_undercut_mm": 0.6,
+    "material": "flexible cast PU only; not suitable for rigid resin without redesign"
+  }
+}

@@ -6,17 +6,17 @@
   "material": "black PETG",
   "total_quantity": 16,
   "counts_so_far": {
-    "left": 1,
-    "right": 1,
-    "lid": 1,
     "screw": 2,
     "clamp-Z": 4,
     "clamp-X": 1,
     "clamp-Y": 2,
+    "left": 1,
+    "right": 1,
     "lower": 1,
     "back": 1,
     "upper": 1,
-    "pin": 1
+    "pin": 1,
+    "lid": 1
   },
   "planned_counts": [
     {
@@ -158,7 +158,7 @@
         {
           "id": "clamp-Z",
           "name": "Z1",
-          "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+          "source_sha256": "6e8a2b35ba9053d2930c889c16f07183f3dbac4c3297ca23be3c8bcb99e1d435",
           "rotation_xyz_deg": [
             180,
             0,
@@ -191,7 +191,7 @@
             "bed_contact_area_before_mm2": 1103.6845151299704,
             "bed_contact_area_after_mm2": 2254.1333875525725,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.990613297666208,
+            "COM_margin_after_mm": 27.99086198865313,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -200,7 +200,7 @@
         {
           "id": "clamp-Z",
           "name": "Z2",
-          "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+          "source_sha256": "6e8a2b35ba9053d2930c889c16f07183f3dbac4c3297ca23be3c8bcb99e1d435",
           "rotation_xyz_deg": [
             180,
             0,
@@ -233,7 +233,7 @@
             "bed_contact_area_before_mm2": 1103.6845151299704,
             "bed_contact_area_after_mm2": 2254.1333875525725,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.990613297666208,
+            "COM_margin_after_mm": 27.99086198865313,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -242,7 +242,7 @@
         {
           "id": "clamp-Z",
           "name": "Z3",
-          "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+          "source_sha256": "6e8a2b35ba9053d2930c889c16f07183f3dbac4c3297ca23be3c8bcb99e1d435",
           "rotation_xyz_deg": [
             180,
             0,
@@ -275,7 +275,7 @@
             "bed_contact_area_before_mm2": 1103.6845151299704,
             "bed_contact_area_after_mm2": 2254.1333875525725,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.990613297666208,
+            "COM_margin_after_mm": 27.99086198865313,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -284,7 +284,7 @@
         {
           "id": "clamp-Z",
           "name": "Z4",
-          "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+          "source_sha256": "6e8a2b35ba9053d2930c889c16f07183f3dbac4c3297ca23be3c8bcb99e1d435",
           "rotation_xyz_deg": [
             180,
             0,
@@ -317,7 +317,7 @@
             "bed_contact_area_before_mm2": 1103.6845151299704,
             "bed_contact_area_after_mm2": 2254.1333875525725,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.990613297666208,
+            "COM_margin_after_mm": 27.99086198865313,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -326,7 +326,7 @@
         {
           "id": "clamp-X",
           "name": "X1",
-          "source_sha256": "0a527227e2d2a875b6f2a90c4895e77a51fa09d442a266f62f49be0f59adead1",
+          "source_sha256": "42a0889b471d8fd6eaae35490388c6c0b5d25590a9d0fe6e59790ceb1ddc66be",
           "rotation_xyz_deg": [
             180,
             0,
@@ -359,7 +359,7 @@
             "bed_contact_area_before_mm2": 1103.3079300674797,
             "bed_contact_area_after_mm2": 2253.756802490082,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.99180091977803,
+            "COM_margin_after_mm": 27.99199266437145,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -368,7 +368,7 @@
         {
           "id": "clamp-Y",
           "name": "Y1",
-          "source_sha256": "205dac987317c43c494a5eb5777ed5ed54355650618f70e48dd87bb060a6dc27",
+          "source_sha256": "0418d1b1d36cb337f1fbd86525dc37bc554667c8de91bd36e8aaf3ab8058f3dc",
           "rotation_xyz_deg": [
             180,
             0,
@@ -401,7 +401,7 @@
             "bed_contact_area_before_mm2": 1119.0277247658287,
             "bed_contact_area_after_mm2": 2269.4765971884312,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.992083752957907,
+            "COM_margin_after_mm": 27.993107139336136,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -410,7 +410,7 @@
         {
           "id": "clamp-Y",
           "name": "Y2",
-          "source_sha256": "205dac987317c43c494a5eb5777ed5ed54355650618f70e48dd87bb060a6dc27",
+          "source_sha256": "0418d1b1d36cb337f1fbd86525dc37bc554667c8de91bd36e8aaf3ab8058f3dc",
           "rotation_xyz_deg": [
             180,
             0,
@@ -443,7 +443,7 @@
             "bed_contact_area_before_mm2": 1119.0277247658287,
             "bed_contact_area_after_mm2": 2269.4765971884312,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 27.992083752957907,
+            "COM_margin_after_mm": 27.993107139336136,
             "aid_volume_mm3": 1376.32981463271,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -451,8 +451,8 @@
         }
       ],
       "estimate": {
-        "prediction": "79627",
-        "weight": "676.22",
+        "prediction": "45758",
+        "weight": "347.17",
         "outside": "false",
         "support_used": "true"
       },
@@ -468,7 +468,7 @@
         {
           "id": "left",
           "name": "A",
-          "source_sha256": "790cc1f70bb26f1177681d7d0ffefd507b504471806ae3738abb5275130a537d",
+          "source_sha256": "fe8b6e9df5e7af2c913eafaa46100f1a4d590cbc50edd4fec5a6f7ec666a9f95",
           "rotation_xyz_deg": [
             0,
             0,
@@ -571,10 +571,10 @@
             "peel_links_height_mm": 0.4,
             "peel_links_width_mm": 2.4,
             "functional_body_removed_mm3": 0.0,
-            "bed_contact_area_before_mm2": 1968.0000000000002,
+            "bed_contact_area_before_mm2": 1968.0,
             "bed_contact_area_after_mm2": 4626.470060984497,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 32.322737704316125,
+            "COM_margin_after_mm": 32.40969125605671,
             "aid_volume_mm3": 2596.241548753118,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -583,7 +583,7 @@
         {
           "id": "right",
           "name": "B",
-          "source_sha256": "5a9968df8ceed324c7c7ba8c6428d7f1aed2a22b5b26ca59f379bf4ac09a9676",
+          "source_sha256": "58154e5ab035cd14542a99b47de58b29705b0f10566a491aaba7d6e70fbf02c9",
           "rotation_xyz_deg": [
             0,
             0,
@@ -710,10 +710,10 @@
             "peel_links_height_mm": 0.4,
             "peel_links_width_mm": 2.4,
             "functional_body_removed_mm3": 0.0,
-            "bed_contact_area_before_mm2": 2351.9999999999995,
-            "bed_contact_area_after_mm2": 4895.254223256239,
+            "bed_contact_area_before_mm2": 2351.999999999999,
+            "bed_contact_area_after_mm2": 4895.254223256228,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 34.2385172189538,
+            "COM_margin_after_mm": 34.363156772611546,
             "aid_volume_mm3": 2453.0456086283043,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -721,8 +721,8 @@
         }
       ],
       "estimate": {
-        "prediction": "84530",
-        "weight": "623.12",
+        "prediction": "84519",
+        "weight": "625.81",
         "outside": "false",
         "support_used": "true"
       },
@@ -738,7 +738,7 @@
         {
           "id": "lower",
           "name": "E",
-          "source_sha256": "408e0237612c56de52e4344c91d3c801b8b9790ff24e8509da2b22bdb21e08af",
+          "source_sha256": "bf605f8957c4103709679ab114feb2c200f1117e70f122b98126772030f12b92",
           "rotation_xyz_deg": [
             0,
             0,
@@ -820,7 +820,7 @@
             "bed_contact_area_before_mm2": 3040.2799999999997,
             "bed_contact_area_after_mm2": 6500.7002150382195,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 53.136333524405416,
+            "COM_margin_after_mm": 51.816357491171345,
             "aid_volume_mm3": 3219.8516962169924,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -828,8 +828,8 @@
         }
       ],
       "estimate": {
-        "prediction": "38842",
-        "weight": "286.67",
+        "prediction": "38713",
+        "weight": "288.98",
         "outside": "false",
         "support_used": "true"
       },
@@ -845,7 +845,7 @@
         {
           "id": "back",
           "name": "F",
-          "source_sha256": "e2d5bc127c7a14d815a4f610e046a6f4b7a90e3968695ef8119a812380cbcbb2",
+          "source_sha256": "ad7237a15e13448cd65b75e8b30363dbda88cbc514cbb570b6aeecd257996ab0",
           "rotation_xyz_deg": [
             0,
             0,
@@ -927,7 +927,7 @@
             "bed_contact_area_before_mm2": 2176.2799999999997,
             "bed_contact_area_after_mm2": 5022.5596924486335,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 43.52792963388461,
+            "COM_margin_after_mm": 42.608630216786175,
             "aid_volume_mm3": 2663.211659769026,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -991,8 +991,8 @@
         }
       ],
       "estimate": {
-        "prediction": "35998",
-        "weight": "269.93",
+        "prediction": "36031",
+        "weight": "272.86",
         "outside": "false",
         "support_used": "true"
       },
@@ -1008,7 +1008,7 @@
         {
           "id": "lid",
           "name": "C",
-          "source_sha256": "865bc337695c861cbccf2adce258dbb37782304face928181a5056c60dae3956",
+          "source_sha256": "9e1c2299d628f68b41d3580f10f81d7926cf696a99d5c463ad5222608948d640",
           "rotation_xyz_deg": [
             0,
             0,
@@ -1041,7 +1041,7 @@
             "bed_contact_area_before_mm2": 200.73909482727905,
             "bed_contact_area_after_mm2": 3871.662772294886,
             "COM_inside_bed_hull_after": true,
-            "COM_margin_after_mm": 72.98063763012107,
+            "COM_margin_after_mm": 72.98139059679188,
             "aid_volume_mm3": 3351.81509148749,
             "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
           },
@@ -1049,8 +1049,8 @@
         }
       ],
       "estimate": {
-        "prediction": "33708",
-        "weight": "260.35",
+        "prediction": "34042",
+        "weight": "263.92",
         "outside": "false",
         "support_used": "true"
       },

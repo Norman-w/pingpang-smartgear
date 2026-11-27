@@ -1,0 +1,46 @@
+[
+  {
+    "file": "left.stl",
+    "copies": 1
+  },
+  {
+    "file": "right.stl",
+    "copies": 1
+  },
+  {
+    "file": "lid.stl",
+    "copies": 1
+  },
+  {
+    "file": "upper.stl",
+    "copies": 1
+  },
+  {
+    "file": "lower.stl",
+    "copies": 1
+  },
+  {
+    "file": "back.stl",
+    "copies": 1
+  },
+  {
+    "file": "pin.stl",
+    "copies": 1
+  },
+  {
+    "file": "screw.stl",
+    "copies": 2
+  },
+  {
+    "file": "clamp-Z.stl",
+    "copies": 4
+  },
+  {
+    "file": "clamp-X.stl",
+    "copies": 1
+  },
+  {
+    "file": "clamp-Y.stl",
+    "copies": 2
+  }
+]

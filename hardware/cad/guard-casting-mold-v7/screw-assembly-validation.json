@@ -1,0 +1,368 @@
+{
+  "status": "PASS_SAMPLED_ASSEMBLED_SCREW_GEOMETRY",
+  "screw_instances": 8,
+  "checks": [
+    {
+      "screw": "lid--1",
+      "part": "left",
+      "overlap_mm3": 1.6776857680866897e-13
+    },
+    {
+      "screw": "lid--1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid--1",
+      "part": "lid advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "right",
+      "overlap_mm3": 6.631847848659334e-14
+    },
+    {
+      "screw": "lid-1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lid-1",
+      "part": "lid advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower--1",
+      "part": "lower advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "lower-1",
+      "part": "lower advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back--1",
+      "part": "back advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "back-1",
+      "part": "back advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side--1",
+      "part": "right advanced3mm",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "left",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "right",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "lid",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "upper",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "lower",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "back",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "pin",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "product",
+      "overlap_mm3": 0.0
+    },
+    {
+      "screw": "side-1",
+      "part": "right advanced3mm",
+      "overlap_mm3": 0.0
+    }
+  ],
+  "maximum_overlap_mm3": 1.6776857680866897e-13,
+  "physical_torque_strength_and_wear": "not_tested"
+}

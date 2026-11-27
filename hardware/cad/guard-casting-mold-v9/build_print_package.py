@@ -69,7 +69,12 @@ def main():
     mc=model.find(f"object[@id='{item.get('objectid')}']")
     settings={}
     if r['id']=='right':settings.update({'support_type':'tree(auto)','support_style':'default','support_on_build_plate_only':'1'})
-    if r['id'].startswith('clamp-') or r['id']=='screw':settings={'wall_loops':'6','sparse_infill_density':'100%','sparse_infill_pattern':'cubic','top_shell_layers':'6','bottom_shell_layers':'6'}
+    if r['id']=='screw':
+     settings={'wall_loops':'6','sparse_infill_density':'100%','sparse_infill_pattern':'cubic','top_shell_layers':'6','bottom_shell_layers':'6'}
+    elif r['id'].startswith('clamp-'):
+     # Smaller installation rods: perimeter carries the printed thread and
+     # root load; moderate infill is sufficient, unlike the demolding J rods.
+     settings={'wall_loops':'4','sparse_infill_density':'50%','sparse_infill_pattern':'cubic','top_shell_layers':'6','bottom_shell_layers':'6'}
     if r['id'] in ('pin','upper','screw') or r['id'].startswith('clamp-'):settings['enable_support']='0'
     for key,val in settings.items():ET.SubElement(mc,'metadata',{'key':key,'value':val})
     if r['id'] in ('left','right','lid','lower','back'):

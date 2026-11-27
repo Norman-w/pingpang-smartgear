@@ -1,0 +1,769 @@
+{
+  "status": "PASS_SAMPLED_MESH_PATH",
+  "parameters": {
+    "female": "hardware/cad/exports/guard-casting-mold-v7/female-test.stl",
+    "male": "hardware/cad/exports/guard-casting-mold-v7/male-test.stl",
+    "seated_z": -3.0,
+    "approach_z": 34.0,
+    "pitch": 8.0,
+    "step": 0.25,
+    "phase": -135.0,
+    "volume_tolerance": 1e-05,
+    "output": "hardware/cad/guard-casting-mold-v7/j-thread-validation.json"
+  },
+  "sha256": {
+    "hardware/cad/exports/guard-casting-mold-v7/female-test.stl": "61376ddb5e5f20d6f9f00d1cb4a2187214b4dfdc118124f3e48c460f42bb20c1",
+    "hardware/cad/exports/guard-casting-mold-v7/male-test.stl": "f42f4230b6bcb540cd0356fcb2d66b8ecbbdf846a6af3056e960774dc8aa77e0"
+  },
+  "max_intersection_mm3": 0.0,
+  "wrong_phase_intersection_mm3": 786.0842771795698,
+  "poses": [
+    {
+      "z": 34.0,
+      "rotation_deg": 1530.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 33.75,
+      "rotation_deg": 1518.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 33.5,
+      "rotation_deg": 1507.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 33.25,
+      "rotation_deg": 1496.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 33.0,
+      "rotation_deg": 1485.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 32.75,
+      "rotation_deg": 1473.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 32.5,
+      "rotation_deg": 1462.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 32.25,
+      "rotation_deg": 1451.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 32.0,
+      "rotation_deg": 1440.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 31.75,
+      "rotation_deg": 1428.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 31.5,
+      "rotation_deg": 1417.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 31.25,
+      "rotation_deg": 1406.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 31.0,
+      "rotation_deg": 1395.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 30.75,
+      "rotation_deg": 1383.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 30.5,
+      "rotation_deg": 1372.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 30.25,
+      "rotation_deg": 1361.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 30.0,
+      "rotation_deg": 1350.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 29.75,
+      "rotation_deg": 1338.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 29.5,
+      "rotation_deg": 1327.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 29.25,
+      "rotation_deg": 1316.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 29.0,
+      "rotation_deg": 1305.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 28.75,
+      "rotation_deg": 1293.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 28.5,
+      "rotation_deg": 1282.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 28.25,
+      "rotation_deg": 1271.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 28.0,
+      "rotation_deg": 1260.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 27.75,
+      "rotation_deg": 1248.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 27.5,
+      "rotation_deg": 1237.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 27.25,
+      "rotation_deg": 1226.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 27.0,
+      "rotation_deg": 1215.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 26.75,
+      "rotation_deg": 1203.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 26.5,
+      "rotation_deg": 1192.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 26.25,
+      "rotation_deg": 1181.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 26.0,
+      "rotation_deg": 1170.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 25.75,
+      "rotation_deg": 1158.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 25.5,
+      "rotation_deg": 1147.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 25.25,
+      "rotation_deg": 1136.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 25.0,
+      "rotation_deg": 1125.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 24.75,
+      "rotation_deg": 1113.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 24.5,
+      "rotation_deg": 1102.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 24.25,
+      "rotation_deg": 1091.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 24.0,
+      "rotation_deg": 1080.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 23.75,
+      "rotation_deg": 1068.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 23.5,
+      "rotation_deg": 1057.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 23.25,
+      "rotation_deg": 1046.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 23.0,
+      "rotation_deg": 1035.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 22.75,
+      "rotation_deg": 1023.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 22.5,
+      "rotation_deg": 1012.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 22.25,
+      "rotation_deg": 1001.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 22.0,
+      "rotation_deg": 990.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 21.75,
+      "rotation_deg": 978.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 21.5,
+      "rotation_deg": 967.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 21.25,
+      "rotation_deg": 956.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 21.0,
+      "rotation_deg": 945.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 20.75,
+      "rotation_deg": 933.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 20.5,
+      "rotation_deg": 922.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 20.25,
+      "rotation_deg": 911.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 20.0,
+      "rotation_deg": 900.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 19.75,
+      "rotation_deg": 888.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 19.5,
+      "rotation_deg": 877.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 19.25,
+      "rotation_deg": 866.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 19.0,
+      "rotation_deg": 855.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 18.75,
+      "rotation_deg": 843.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 18.5,
+      "rotation_deg": 832.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 18.25,
+      "rotation_deg": 821.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 18.0,
+      "rotation_deg": 810.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 17.75,
+      "rotation_deg": 798.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 17.5,
+      "rotation_deg": 787.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 17.25,
+      "rotation_deg": 776.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 17.0,
+      "rotation_deg": 765.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 16.75,
+      "rotation_deg": 753.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 16.5,
+      "rotation_deg": 742.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 16.25,
+      "rotation_deg": 731.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 16.0,
+      "rotation_deg": 720.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 15.75,
+      "rotation_deg": 708.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 15.5,
+      "rotation_deg": 697.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 15.25,
+      "rotation_deg": 686.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 15.0,
+      "rotation_deg": 675.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 14.75,
+      "rotation_deg": 663.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 14.5,
+      "rotation_deg": 652.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 14.25,
+      "rotation_deg": 641.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 14.0,
+      "rotation_deg": 630.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 13.75,
+      "rotation_deg": 618.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 13.5,
+      "rotation_deg": 607.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 13.25,
+      "rotation_deg": 596.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 13.0,
+      "rotation_deg": 585.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 12.75,
+      "rotation_deg": 573.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 12.5,
+      "rotation_deg": 562.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 12.25,
+      "rotation_deg": 551.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 12.0,
+      "rotation_deg": 540.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 11.75,
+      "rotation_deg": 528.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 11.5,
+      "rotation_deg": 517.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 11.25,
+      "rotation_deg": 506.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 11.0,
+      "rotation_deg": 495.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 10.75,
+      "rotation_deg": 483.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 10.5,
+      "rotation_deg": 472.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 10.25,
+      "rotation_deg": 461.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 10.0,
+      "rotation_deg": 450.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 9.75,
+      "rotation_deg": 438.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 9.5,
+      "rotation_deg": 427.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 9.25,
+      "rotation_deg": 416.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 9.0,
+      "rotation_deg": 405.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 8.75,
+      "rotation_deg": 393.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 8.5,
+      "rotation_deg": 382.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 8.25,
+      "rotation_deg": 371.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 8.0,
+      "rotation_deg": 360.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 7.75,
+      "rotation_deg": 348.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 7.5,
+      "rotation_deg": 337.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 7.25,
+      "rotation_deg": 326.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 7.0,
+      "rotation_deg": 315.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 6.75,
+      "rotation_deg": 303.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 6.5,
+      "rotation_deg": 292.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 6.25,
+      "rotation_deg": 281.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 6.0,
+      "rotation_deg": 270.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 5.75,
+      "rotation_deg": 258.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 5.5,
+      "rotation_deg": 247.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 5.25,
+      "rotation_deg": 236.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 5.0,
+      "rotation_deg": 225.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 4.75,
+      "rotation_deg": 213.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 4.5,
+      "rotation_deg": 202.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 4.25,
+      "rotation_deg": 191.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 4.0,
+      "rotation_deg": 180.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 3.75,
+      "rotation_deg": 168.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 3.5,
+      "rotation_deg": 157.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 3.25,
+      "rotation_deg": 146.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 3.0,
+      "rotation_deg": 135.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 2.75,
+      "rotation_deg": 123.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 2.5,
+      "rotation_deg": 112.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 2.25,
+      "rotation_deg": 101.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 2.0,
+      "rotation_deg": 90.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 1.75,
+      "rotation_deg": 78.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 1.5,
+      "rotation_deg": 67.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 1.25,
+      "rotation_deg": 56.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 1.0,
+      "rotation_deg": 45.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 0.75,
+      "rotation_deg": 33.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 0.5,
+      "rotation_deg": 22.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 0.25,
+      "rotation_deg": 11.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": 0.0,
+      "rotation_deg": 0.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -0.25,
+      "rotation_deg": -11.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -0.5,
+      "rotation_deg": -22.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -0.75,
+      "rotation_deg": -33.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -1.0,
+      "rotation_deg": -45.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -1.25,
+      "rotation_deg": -56.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -1.5,
+      "rotation_deg": -67.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -1.75,
+      "rotation_deg": -78.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -2.0,
+      "rotation_deg": -90.0,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -2.25,
+      "rotation_deg": -101.25,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -2.5,
+      "rotation_deg": -112.5,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -2.75,
+      "rotation_deg": -123.75,
+      "intersection_mm3": 0.0
+    },
+    {
+      "z": -3.0,
+      "rotation_deg": -135.0,
+      "intersection_mm3": 0.0
+    }
+  ],
+  "physical_fit_verified": false,
+  "limitations": "Finite sampling; pair with analytic lead/phase and entry-envelope checks. Counterexample must collide, otherwise engagement is unproven."
+}

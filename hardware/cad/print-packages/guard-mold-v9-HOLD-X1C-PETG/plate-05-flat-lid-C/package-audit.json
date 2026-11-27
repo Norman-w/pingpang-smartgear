@@ -1,8 +1,8 @@
 {
   "package": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.gcode.3mf",
   "geometry_project": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.3mf",
-  "geometry_project_sha256": "7a6055bdccbc4aba24719f07e5a1d9c94d32ac0b5d85ffde6010905b7f842ccc",
-  "sha256": "d5a9adfdd62bf3da8ec6e8afd9a0037057ca542b442075794d6337f13e5c1852",
+  "geometry_project_sha256": "c36464b46f6a32bef2d8246f2ce82777a8d19f0a0d8cba6d0d622ed91a7d1a7a",
+  "sha256": "12a40729e4d95db8b60d19bc51dd2531e70198b240e0375297dfc13d5da9c5dc",
   "plate_count": 1,
   "object_count": 1,
   "objects": [
@@ -22,9 +22,9 @@
       "mesh_repairs": 0
     }
   ],
-  "prediction_seconds": 33708,
-  "weight_g": 260.35,
-  "support_estimated_g_from_extrusions": 32.81637099710294,
+  "prediction_seconds": 34042,
+  "weight_g": 263.92,
+  "support_estimated_g_from_extrusions": 33.86117004941546,
   "extruding_xy_bounds_mm": [
     21.336,
     14.336,
@@ -34,8 +34,8 @@
   "support_extrusions": {
     "C.stl": {
       "Support": {
-        "moves": 10362,
-        "filament_mm": 6829.007429999764,
+        "moves": 9928,
+        "filament_mm": 7036.899749999726,
         "min": [
           24.188,
           17.188,
@@ -48,8 +48,8 @@
         ]
       },
       "Support interface": {
-        "moves": 8156,
-        "filament_mm": 3029.4345799999846,
+        "moves": 7969,
+        "filament_mm": 3130.047489999987,
         "min": [
           23.768,
           16.768,
@@ -62,8 +62,8 @@
         ]
       },
       "Support transition": {
-        "moves": 1662,
-        "filament_mm": 884.4411700000081,
+        "moves": 1604,
+        "filament_mm": 917.9650500000101,
         "min": [
           24.188,
           17.188,
@@ -86,7 +86,5 @@
   "protected_region_support_hits": [],
   "source_print_rotation_verified": true,
   "gcode_md5_verified": true,
-  "printer_sent": false,
-  "reuse": "Unchanged mold plate copied from audited v8; only outer filename changed",
-  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+  "printer_sent": false
 }

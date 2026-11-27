@@ -1,8 +1,8 @@
 {
   "package": "guard-mold-v9-HOLD-plate-03-X1C-black-PETG.gcode.3mf",
   "geometry_project": "guard-mold-v9-HOLD-plate-03-X1C-black-PETG.3mf",
-  "geometry_project_sha256": "2c4a0c1fce331b80c2730e6c89bd2702b8c15ca98edee52f5030dda2a3ea386c",
-  "sha256": "03752cde854ae57ed71c36c2af10344dab968394dd16966e9878eda3f378fd74",
+  "geometry_project_sha256": "f3c4cd18bfa407280bf2b54a6231891047418c978b69c823de0527be4de6a531",
+  "sha256": "2a374920b8de6ef05de627919f100339723627b6def1cde242faa1fc9c4dc0c7",
   "plate_count": 1,
   "object_count": 1,
   "objects": [
@@ -22,9 +22,9 @@
       "mesh_repairs": 0
     }
   ],
-  "prediction_seconds": 38842,
-  "weight_g": 286.67,
-  "support_estimated_g_from_extrusions": 31.85670699225764,
+  "prediction_seconds": 38713,
+  "weight_g": 288.98,
+  "support_estimated_g_from_extrusions": 30.92286602243255,
   "extruding_xy_bounds_mm": [
     7.336,
     29.336,
@@ -34,43 +34,43 @@
   "support_extrusions": {
     "E.stl": {
       "Support": {
-        "moves": 46723,
-        "filament_mm": 8055.567859999277,
+        "moves": 43206,
+        "filament_mm": 7789.767079999261,
         "min": [
-          24.743,
+          26.569,
           32.188,
           0.2
         ],
         "max": [
-          231.257,
+          229.431,
           195.752,
           69.28
         ]
       },
       "Support interface": {
-        "moves": 31127,
-        "filament_mm": 2012.9925299997271,
+        "moves": 28733,
+        "filament_mm": 1967.3686499997136,
         "min": [
-          24.547,
+          26.4,
           31.768,
           0.2
         ],
         "max": [
-          231.427,
+          229.6,
           198.232,
           70.36
         ]
       },
       "Support transition": {
-        "moves": 5469,
-        "filament_mm": 360.16378999998994,
+        "moves": 4850,
+        "filament_mm": 365.88296999998573,
         "min": [
-          24.743,
+          26.569,
           32.188,
           7.16
         ],
         "max": [
-          231.257,
+          229.431,
           197.81,
           69.55
         ]
@@ -86,6 +86,5 @@
   "protected_region_support_hits": [],
   "source_print_rotation_verified": true,
   "gcode_md5_verified": true,
-  "printer_sent": false,
-  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+  "printer_sent": false
 }

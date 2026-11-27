@@ -1,0 +1,49 @@
+{
+  "status": "PASS_XYZ_PRINTED_CLAMP_ASSEMBLY",
+  "rods": {
+    "Z": 4,
+    "X": 1,
+    "Y": 2
+  },
+  "printed_nuts": 0,
+  "integral_threaded_seats": 7,
+  "pair_max_overlap_mm3": 0.0,
+  "thread_paths": [
+    {
+      "rod": "Z0",
+      "correct_path_max_overlap_mm3": 3.100678850467099,
+      "wrong_phase_overlap_mm3": 343.99179714689046
+    },
+    {
+      "rod": "Z1",
+      "correct_path_max_overlap_mm3": 3.100678850467023,
+      "wrong_phase_overlap_mm3": 343.9917971468906
+    },
+    {
+      "rod": "Z2",
+      "correct_path_max_overlap_mm3": 3.1006806804454152,
+      "wrong_phase_overlap_mm3": 343.99181463664115
+    },
+    {
+      "rod": "Z3",
+      "correct_path_max_overlap_mm3": 3.100680680445267,
+      "wrong_phase_overlap_mm3": 343.99181463664104
+    },
+    {
+      "rod": "X0",
+      "correct_path_max_overlap_mm3": 3.1006311214824356,
+      "wrong_phase_overlap_mm3": 343.99188964638705
+    },
+    {
+      "rod": "Y0",
+      "correct_path_max_overlap_mm3": 3.100745602193928,
+      "wrong_phase_overlap_mm3": 343.9919322961578
+    },
+    {
+      "rod": "Y1",
+      "correct_path_max_overlap_mm3": 3.1007456021939177,
+      "wrong_phase_overlap_mm3": 343.99193229615776
+    }
+  ],
+  "physical_strength_layer_orientation_creep_and_seal": "not_tested"
+}

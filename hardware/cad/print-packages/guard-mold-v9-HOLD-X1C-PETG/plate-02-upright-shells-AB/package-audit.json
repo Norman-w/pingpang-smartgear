@@ -1,8 +1,8 @@
 {
   "package": "guard-mold-v9-HOLD-plate-02-X1C-black-PETG.gcode.3mf",
   "geometry_project": "guard-mold-v9-HOLD-plate-02-X1C-black-PETG.3mf",
-  "geometry_project_sha256": "5c5dfc49a722266154cae28392ea93d599c6ff385faedfb84647cbb020ab8cf0",
-  "sha256": "3ff3b4ebc3235b86f9ead989cdfddb093580c11d6fd34a3f0bf20ae02189053e",
+  "geometry_project_sha256": "3705f646a48ea57be1e0eb76202cd8560353f6dfe30213b06e613204e33e4588",
+  "sha256": "90f972b11098813c48c8c0dcb48b0ed19fbb07fed1812058217dc55aba8043e5",
   "plate_count": 1,
   "object_count": 2,
   "objects": [
@@ -37,20 +37,20 @@
       "mesh_repairs": 0
     }
   ],
-  "prediction_seconds": 84530,
-  "weight_g": 623.12,
-  "support_estimated_g_from_extrusions": 70.21411601607188,
+  "prediction_seconds": 84519,
+  "weight_g": 625.81,
+  "support_estimated_g_from_extrusions": 71.8278675041391,
   "extruding_xy_bounds_mm": [
-    9.161,
+    3.066,
     29.336,
     246.664,
-    224.739
+    225.69
   ],
   "support_extrusions": {
     "A.stl": {
       "Support": {
-        "moves": 41654,
-        "filament_mm": 14574.669310001156,
+        "moves": 37608,
+        "filament_mm": 14265.761220001878,
         "min": [
           12.188,
           32.188,
@@ -63,8 +63,8 @@
         ]
       },
       "Support interface": {
-        "moves": 12837,
-        "filament_mm": 2220.427539999883,
+        "moves": 11658,
+        "filament_mm": 2261.8032999998345,
         "min": [
           11.768,
           31.768,
@@ -77,8 +77,8 @@
         ]
       },
       "Support transition": {
-        "moves": 2417,
-        "filament_mm": 528.6215599999963,
+        "moves": 2129,
+        "filament_mm": 576.3273399999987,
         "min": [
           12.188,
           32.188,
@@ -93,30 +93,30 @@
     },
     "B.stl": {
       "Support": {
-        "moves": 78841,
-        "filament_mm": 4399.993639999997,
+        "moves": 94092,
+        "filament_mm": 5161.780729999627,
         "min": [
-          9.161,
-          114.691,
+          3.066,
+          114.673,
           0.2
         ],
         "max": [
-          243.013,
-          224.739,
+          245.316,
+          225.69,
           101.2
         ]
       },
       "Support interface": {
-        "moves": 12304,
-        "filament_mm": 1261.8290999999997,
+        "moves": 11544,
+        "filament_mm": 1248.1519499999936,
         "min": [
-          11.993,
+          12.064,
           123.311,
           0.4
         ],
         "max": [
-          244.261,
-          202.451,
+          244.183,
+          202.155,
           94.8
         ]
       }
@@ -127,14 +127,12 @@
     30.2
   ],
   "pin_bore_cavity_support_below_wall_z_range_mm": [
-    -61.0,
+    -58.4,
     22.200000000000003
   ],
   "excluded_corner_hits": [],
   "protected_region_support_hits": [],
   "source_print_rotation_verified": true,
   "gcode_md5_verified": true,
-  "printer_sent": false,
-  "reuse": "Unchanged mold plate copied from audited v8; only outer filename changed",
-  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+  "printer_sent": false
 }

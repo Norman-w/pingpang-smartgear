@@ -1,0 +1,770 @@
+[
+  {
+    "part": "left",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      74.0,
+      232.0,
+      109.2
+    ],
+    "bed_area_mm2": 1968.0,
+    "COM_margin_mm": 3.3,
+    "downward_area_proxy_mm2": 12558.0
+  },
+  {
+    "part": "left",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      74.0,
+      232.0,
+      109.2
+    ],
+    "bed_area_mm2": 2980.8,
+    "COM_margin_mm": 11.4,
+    "downward_area_proxy_mm2": 11309.8
+  },
+  {
+    "part": "left",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      74.0,
+      109.2,
+      232.0
+    ],
+    "bed_area_mm2": 1056.0,
+    "COM_margin_mm": -3.0,
+    "downward_area_proxy_mm2": 11297.1
+  },
+  {
+    "part": "left",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      74.0,
+      109.2,
+      232.0
+    ],
+    "bed_area_mm2": 1056.0,
+    "COM_margin_mm": -3.0,
+    "downward_area_proxy_mm2": 11259.1
+  },
+  {
+    "part": "left",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      109.2,
+      232.0,
+      74.0
+    ],
+    "bed_area_mm2": 5280.4,
+    "COM_margin_mm": 36.6,
+    "downward_area_proxy_mm2": 8995.9
+  },
+  {
+    "part": "left",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      109.2,
+      232.0,
+      74.0
+    ],
+    "bed_area_mm2": 511.2,
+    "COM_margin_mm": -53.1,
+    "downward_area_proxy_mm2": 13459.0
+  },
+  {
+    "part": "right",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      78.0,
+      232.0,
+      109.2
+    ],
+    "bed_area_mm2": 2352.0,
+    "COM_margin_mm": 5.2,
+    "downward_area_proxy_mm2": 14149.6
+  },
+  {
+    "part": "right",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      78.0,
+      232.0,
+      109.2
+    ],
+    "bed_area_mm2": 2954.8,
+    "COM_margin_mm": 13.3,
+    "downward_area_proxy_mm2": 13352.7
+  },
+  {
+    "part": "right",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      78.0,
+      109.2,
+      232.0
+    ],
+    "bed_area_mm2": 1056.0,
+    "COM_margin_mm": -4.0,
+    "downward_area_proxy_mm2": 13311.8
+  },
+  {
+    "part": "right",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      78.0,
+      109.2,
+      232.0
+    ],
+    "bed_area_mm2": 1056.0,
+    "COM_margin_mm": -4.0,
+    "downward_area_proxy_mm2": 13293.1
+  },
+  {
+    "part": "right",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      109.2,
+      232.0,
+      78.0
+    ],
+    "bed_area_mm2": 1955.0,
+    "COM_margin_mm": 4.0,
+    "downward_area_proxy_mm2": 11787.4
+  },
+  {
+    "part": "right",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      109.2,
+      232.0,
+      78.0
+    ],
+    "bed_area_mm2": 4582.4,
+    "COM_margin_mm": 35.6,
+    "downward_area_proxy_mm2": 9139.0
+  },
+  {
+    "part": "lid",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      146.0,
+      232.0,
+      38.6
+    ],
+    "bed_area_mm2": 200.7,
+    "COM_margin_mm": 3.7,
+    "downward_area_proxy_mm2": 19836.3
+  },
+  {
+    "part": "lid",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      146.0,
+      232.0,
+      38.6
+    ],
+    "bed_area_mm2": 2298.3,
+    "COM_margin_mm": -7.7,
+    "downward_area_proxy_mm2": 16486.7
+  },
+  {
+    "part": "lid",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      146.0,
+      38.6,
+      232.0
+    ],
+    "bed_area_mm2": 2182.4,
+    "COM_margin_mm": 12.0,
+    "downward_area_proxy_mm2": 6259.2
+  },
+  {
+    "part": "lid",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      146.0,
+      38.6,
+      232.0
+    ],
+    "bed_area_mm2": 2182.4,
+    "COM_margin_mm": 12.0,
+    "downward_area_proxy_mm2": 6298.0
+  },
+  {
+    "part": "lid",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      38.6,
+      232.0,
+      146.0
+    ],
+    "bed_area_mm2": 1152.0,
+    "COM_margin_mm": -7.7,
+    "downward_area_proxy_mm2": 8085.7
+  },
+  {
+    "part": "lid",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      38.6,
+      232.0,
+      146.0
+    ],
+    "bed_area_mm2": 1152.0,
+    "COM_margin_mm": -7.7,
+    "downward_area_proxy_mm2": 8114.6
+  },
+  {
+    "part": "lower",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      166.0,
+      72.2
+    ],
+    "bed_area_mm2": 3040.3,
+    "COM_margin_mm": 1.9,
+    "downward_area_proxy_mm2": 11160.5
+  },
+  {
+    "part": "lower",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      166.0,
+      72.2
+    ],
+    "bed_area_mm2": 1556.1,
+    "COM_margin_mm": -6.4,
+    "downward_area_proxy_mm2": 12423.6
+  },
+  {
+    "part": "lower",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      72.2,
+      166.0
+    ],
+    "bed_area_mm2": 695.8,
+    "COM_margin_mm": 10.7,
+    "downward_area_proxy_mm2": 12031.7
+  },
+  {
+    "part": "lower",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      72.2,
+      166.0
+    ],
+    "bed_area_mm2": 463.3,
+    "COM_margin_mm": 23.3,
+    "downward_area_proxy_mm2": 11055.8
+  },
+  {
+    "part": "lower",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      72.2,
+      166.0,
+      236.0
+    ],
+    "bed_area_mm2": 1164.8,
+    "COM_margin_mm": 1.9,
+    "downward_area_proxy_mm2": 10690.0
+  },
+  {
+    "part": "lower",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      72.2,
+      166.0,
+      236.0
+    ],
+    "bed_area_mm2": 1164.8,
+    "COM_margin_mm": 1.9,
+    "downward_area_proxy_mm2": 10690.0
+  },
+  {
+    "part": "back",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      93.5,
+      72.2
+    ],
+    "bed_area_mm2": 2176.3,
+    "COM_margin_mm": 8.5,
+    "downward_area_proxy_mm2": 9109.5
+  },
+  {
+    "part": "back",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      93.5,
+      72.2
+    ],
+    "bed_area_mm2": 1556.1,
+    "COM_margin_mm": -16.0,
+    "downward_area_proxy_mm2": 9622.9
+  },
+  {
+    "part": "back",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      72.2,
+      93.5
+    ],
+    "bed_area_mm2": 463.3,
+    "COM_margin_mm": 24.3,
+    "downward_area_proxy_mm2": 10369.9
+  },
+  {
+    "part": "back",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      236.0,
+      72.2,
+      93.5
+    ],
+    "bed_area_mm2": 609.6,
+    "COM_margin_mm": -21.8,
+    "downward_area_proxy_mm2": 11825.2
+  },
+  {
+    "part": "back",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      72.2,
+      93.5,
+      236.0
+    ],
+    "bed_area_mm2": 829.6,
+    "COM_margin_mm": 8.5,
+    "downward_area_proxy_mm2": 7030.2
+  },
+  {
+    "part": "back",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      72.2,
+      93.5,
+      236.0
+    ],
+    "bed_area_mm2": 829.6,
+    "COM_margin_mm": 8.5,
+    "downward_area_proxy_mm2": 7060.0
+  },
+  {
+    "part": "upper",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      134.0,
+      21.0,
+      23.6
+    ],
+    "bed_area_mm2": 2814.0,
+    "COM_margin_mm": 10.5,
+    "downward_area_proxy_mm2": 441.0
+  },
+  {
+    "part": "upper",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      134.0,
+      21.0,
+      23.6
+    ],
+    "bed_area_mm2": 206.2,
+    "COM_margin_mm": -12.1,
+    "downward_area_proxy_mm2": 504.0
+  },
+  {
+    "part": "upper",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      134.0,
+      23.6,
+      21.0
+    ],
+    "bed_area_mm2": 2809.0,
+    "COM_margin_mm": 11.5,
+    "downward_area_proxy_mm2": 29.1
+  },
+  {
+    "part": "upper",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      134.0,
+      23.6,
+      21.0
+    ],
+    "bed_area_mm2": 2809.0,
+    "COM_margin_mm": 11.5,
+    "downward_area_proxy_mm2": 28.9
+  },
+  {
+    "part": "upper",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      23.6,
+      21.0,
+      134.0
+    ],
+    "bed_area_mm2": 483.0,
+    "COM_margin_mm": 10.5,
+    "downward_area_proxy_mm2": 305.1
+  },
+  {
+    "part": "upper",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      23.6,
+      21.0,
+      134.0
+    ],
+    "bed_area_mm2": 483.0,
+    "COM_margin_mm": 10.5,
+    "downward_area_proxy_mm2": 304.6
+  },
+  {
+    "part": "screw",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      44.0,
+      39.7,
+      82.0
+    ],
+    "bed_area_mm2": 205.5,
+    "COM_margin_mm": 8.1,
+    "downward_area_proxy_mm2": 997.6
+  },
+  {
+    "part": "screw",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      44.0,
+      39.7,
+      82.0
+    ],
+    "bed_area_mm2": 1208.7,
+    "COM_margin_mm": 19.8,
+    "downward_area_proxy_mm2": 40.1
+  },
+  {
+    "part": "screw",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      44.0,
+      82.0,
+      39.7
+    ],
+    "bed_area_mm2": 47.8,
+    "COM_margin_mm": -21.5,
+    "downward_area_proxy_mm2": 1189.9
+  },
+  {
+    "part": "screw",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      44.0,
+      82.0,
+      39.7
+    ],
+    "bed_area_mm2": 47.8,
+    "COM_margin_mm": -21.5,
+    "downward_area_proxy_mm2": 1189.5
+  },
+  {
+    "part": "screw",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      82.0,
+      39.7,
+      44.0
+    ],
+    "bed_area_mm2": 22.8,
+    "COM_margin_mm": -21.5,
+    "downward_area_proxy_mm2": 1309.7
+  },
+  {
+    "part": "screw",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      82.0,
+      39.7,
+      44.0
+    ],
+    "bed_area_mm2": 22.8,
+    "COM_margin_mm": -21.5,
+    "downward_area_proxy_mm2": 1307.5
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      0,
+      0,
+      0
+    ],
+    "size": [
+      40.0,
+      38.0,
+      198.0
+    ],
+    "bed_area_mm2": 205.5,
+    "COM_margin_mm": 8.1,
+    "downward_area_proxy_mm2": 656.9
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      180,
+      0,
+      0
+    ],
+    "size": [
+      40.0,
+      38.0,
+      198.0
+    ],
+    "bed_area_mm2": 1119.0,
+    "COM_margin_mm": 19.0,
+    "downward_area_proxy_mm2": 0.0
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      90,
+      0,
+      0
+    ],
+    "size": [
+      40.0,
+      198.0,
+      38.0
+    ],
+    "bed_area_mm2": 41.0,
+    "COM_margin_mm": -76.7,
+    "downward_area_proxy_mm2": 3176.8
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      -90,
+      0,
+      0
+    ],
+    "size": [
+      40.0,
+      198.0,
+      38.0
+    ],
+    "bed_area_mm2": 41.0,
+    "COM_margin_mm": -76.7,
+    "downward_area_proxy_mm2": 3175.8
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      0,
+      90,
+      0
+    ],
+    "size": [
+      198.0,
+      38.0,
+      40.0
+    ],
+    "bed_area_mm2": 22.6,
+    "COM_margin_mm": -76.7,
+    "downward_area_proxy_mm2": 3363.4
+  },
+  {
+    "part": "clamp-Y",
+    "r": [
+      0,
+      -90,
+      0
+    ],
+    "size": [
+      198.0,
+      38.0,
+      40.0
+    ],
+    "bed_area_mm2": 22.6,
+    "COM_margin_mm": -76.7,
+    "downward_area_proxy_mm2": 3362.3
+  }
+]

@@ -17,8 +17,8 @@
         "Y1",
         "Y2"
       ],
-      "seconds": 79627,
-      "weight_g": 676.22,
+      "seconds": 45758,
+      "weight_g": 347.17,
       "support_path_weight_g": 0.0,
       "objects_with_support": [],
       "support_moves": 0,
@@ -37,19 +37,19 @@
         "A",
         "B"
       ],
-      "seconds": 84530,
-      "weight_g": 623.12,
-      "support_path_weight_g": 70.21411601607188,
+      "seconds": 84519,
+      "weight_g": 625.81,
+      "support_path_weight_g": 71.8278675041391,
       "objects_with_support": [
         "A.stl",
         "B.stl"
       ],
-      "support_moves": 148053,
+      "support_moves": 157031,
       "extrusion_bounds_xy_mm": [
-        9.161,
+        3.066,
         29.336,
         246.664,
-        224.739
+        225.69
       ],
       "outside_exclusion": true,
       "protected_support_hits": []
@@ -59,13 +59,13 @@
       "objects": [
         "E"
       ],
-      "seconds": 38842,
-      "weight_g": 286.67,
-      "support_path_weight_g": 31.85670699225764,
+      "seconds": 38713,
+      "weight_g": 288.98,
+      "support_path_weight_g": 30.92286602243255,
       "objects_with_support": [
         "E.stl"
       ],
-      "support_moves": 83319,
+      "support_moves": 76789,
       "extrusion_bounds_xy_mm": [
         7.336,
         29.336,
@@ -82,13 +82,13 @@
         "D",
         "G"
       ],
-      "seconds": 35998,
-      "weight_g": 269.93,
-      "support_path_weight_g": 30.294111843443673,
+      "seconds": 36031,
+      "weight_g": 272.86,
+      "support_path_weight_g": 29.485440710068914,
       "objects_with_support": [
         "F.stl"
       ],
-      "support_moves": 60402,
+      "support_moves": 56790,
       "extrusion_bounds_xy_mm": [
         7.336,
         29.336,
@@ -103,13 +103,13 @@
       "objects": [
         "C"
       ],
-      "seconds": 33708,
-      "weight_g": 260.35,
-      "support_path_weight_g": 32.81637099710294,
+      "seconds": 34042,
+      "weight_g": 263.92,
+      "support_path_weight_g": 33.86117004941546,
       "objects_with_support": [
         "C.stl"
       ],
-      "support_moves": 20180,
+      "support_moves": 19501,
       "extrusion_bounds_xy_mm": [
         21.336,
         14.336,
@@ -135,8 +135,8 @@
   },
   "service_pieces": 16,
   "plate_count": 5,
-  "total_weight_g": 2116.29,
-  "total_seconds": 272705,
+  "total_weight_g": 1798.74,
+  "total_seconds": 239063,
   "print_aids": [
     {
       "name": "J1",
@@ -182,7 +182,7 @@
       "bed_contact_area_before_mm2": 1103.6845151299704,
       "bed_contact_area_after_mm2": 2254.1333875525725,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.990613297666208,
+      "COM_margin_after_mm": 27.99086198865313,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -198,7 +198,7 @@
       "bed_contact_area_before_mm2": 1103.6845151299704,
       "bed_contact_area_after_mm2": 2254.1333875525725,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.990613297666208,
+      "COM_margin_after_mm": 27.99086198865313,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -214,7 +214,7 @@
       "bed_contact_area_before_mm2": 1103.6845151299704,
       "bed_contact_area_after_mm2": 2254.1333875525725,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.990613297666208,
+      "COM_margin_after_mm": 27.99086198865313,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -230,7 +230,7 @@
       "bed_contact_area_before_mm2": 1103.6845151299704,
       "bed_contact_area_after_mm2": 2254.1333875525725,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.990613297666208,
+      "COM_margin_after_mm": 27.99086198865313,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -246,7 +246,7 @@
       "bed_contact_area_before_mm2": 1103.3079300674797,
       "bed_contact_area_after_mm2": 2253.756802490082,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.99180091977803,
+      "COM_margin_after_mm": 27.99199266437145,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -262,7 +262,7 @@
       "bed_contact_area_before_mm2": 1119.0277247658287,
       "bed_contact_area_after_mm2": 2269.4765971884312,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.992083752957907,
+      "COM_margin_after_mm": 27.993107139336136,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -278,7 +278,7 @@
       "bed_contact_area_before_mm2": 1119.0277247658287,
       "bed_contact_area_after_mm2": 2269.4765971884312,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 27.992083752957907,
+      "COM_margin_after_mm": 27.993107139336136,
       "aid_volume_mm3": 1376.32981463271,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -291,10 +291,10 @@
       "peel_links_height_mm": 0.4,
       "peel_links_width_mm": 2.4,
       "functional_body_removed_mm3": 0.0,
-      "bed_contact_area_before_mm2": 1968.0000000000002,
+      "bed_contact_area_before_mm2": 1968.0,
       "bed_contact_area_after_mm2": 4626.470060984497,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 32.322737704316125,
+      "COM_margin_after_mm": 32.40969125605671,
       "aid_volume_mm3": 2596.241548753118,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -307,10 +307,10 @@
       "peel_links_height_mm": 0.4,
       "peel_links_width_mm": 2.4,
       "functional_body_removed_mm3": 0.0,
-      "bed_contact_area_before_mm2": 2351.9999999999995,
-      "bed_contact_area_after_mm2": 4895.254223256239,
+      "bed_contact_area_before_mm2": 2351.999999999999,
+      "bed_contact_area_after_mm2": 4895.254223256228,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 34.2385172189538,
+      "COM_margin_after_mm": 34.363156772611546,
       "aid_volume_mm3": 2453.0456086283043,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -326,7 +326,7 @@
       "bed_contact_area_before_mm2": 3040.2799999999997,
       "bed_contact_area_after_mm2": 6500.7002150382195,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 53.136333524405416,
+      "COM_margin_after_mm": 51.816357491171345,
       "aid_volume_mm3": 3219.8516962169924,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -342,7 +342,7 @@
       "bed_contact_area_before_mm2": 2176.2799999999997,
       "bed_contact_area_after_mm2": 5022.5596924486335,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 43.52792963388461,
+      "COM_margin_after_mm": 42.608630216786175,
       "aid_volume_mm3": 2663.211659769026,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     },
@@ -358,7 +358,7 @@
       "bed_contact_area_before_mm2": 200.73909482727905,
       "bed_contact_area_after_mm2": 3871.662772294886,
       "COM_inside_bed_hull_after": true,
-      "COM_margin_after_mm": 72.98063763012107,
+      "COM_margin_after_mm": 72.98139059679188,
       "aid_volume_mm3": 3351.81509148749,
       "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
     }

@@ -1,8 +1,8 @@
 {
   "package": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.gcode.3mf",
   "geometry_project": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.3mf",
-  "geometry_project_sha256": "abaae342acf278dbdf5f36d13bae0998069ab8f1e32a42152795adfb6c271fbc",
-  "sha256": "2348bc9447f98f4ba32dc5afaba837e9fee8a028d5bcad2e6432ce0f6e6f2002",
+  "geometry_project_sha256": "d019095cfa15b68b8d7f1dab5a38e6eca6f6b089448559841d564eea298c7e9e",
+  "sha256": "f36eeef4bd979e64dfb439b8fa51626365218b51b6f8efb92d7a655478f9cffd",
   "plate_count": 1,
   "object_count": 9,
   "objects": [
@@ -142,8 +142,8 @@
       "mesh_repairs": 0
     }
   ],
-  "prediction_seconds": 79627,
-  "weight_g": 676.22,
+  "prediction_seconds": 45758,
+  "weight_g": 347.17,
   "support_estimated_g_from_extrusions": 0.0,
   "extruding_xy_bounds_mm": [
     21.342,
