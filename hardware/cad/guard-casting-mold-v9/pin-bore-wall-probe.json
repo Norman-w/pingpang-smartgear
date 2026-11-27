@@ -1,0 +1,357 @@
+{
+  "source_sha256": "5a9968df8ceed324c7c7ba8c6428d7f1aed2a22b5b26ca59f379bf4ac09a9676",
+  "center_xy_mm": [
+    34,
+    0
+  ],
+  "hole_radius_mm": 2.7,
+  "wall_probe_inner_radius_mm": 2.85,
+  "wall_probe_outer_radius_mm": 3.5,
+  "probe_step_mm": 0.2,
+  "actual_bore_wall_interval_mm": [
+    23.0,
+    30.2
+  ],
+  "samples": [
+    {
+      "z_min": 17.4,
+      "z_max": 17.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 17.6,
+      "z_max": 17.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 17.8,
+      "z_max": 18.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 18.0,
+      "z_max": 18.2,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 18.2,
+      "z_max": 18.4,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 18.4,
+      "z_max": 18.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 18.6,
+      "z_max": 18.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 18.8,
+      "z_max": 19.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 19.0,
+      "z_max": 19.2,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 19.2,
+      "z_max": 19.4,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 19.4,
+      "z_max": 19.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 19.6,
+      "z_max": 19.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 19.8,
+      "z_max": 20.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 20.0,
+      "z_max": 20.2,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 20.2,
+      "z_max": 20.4,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 20.4,
+      "z_max": 20.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 20.6,
+      "z_max": 20.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 20.8,
+      "z_max": 21.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 21.0,
+      "z_max": 21.2,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 21.2,
+      "z_max": 21.4,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 21.4,
+      "z_max": 21.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 21.6,
+      "z_max": 21.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 21.8,
+      "z_max": 22.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 22.0,
+      "z_max": 22.2,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 22.2,
+      "z_max": 22.4,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 22.4,
+      "z_max": 22.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 22.6,
+      "z_max": 22.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 22.8,
+      "z_max": 23.0,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 23.0,
+      "z_max": 23.2,
+      "wall_fraction": 0.9999999999998889
+    },
+    {
+      "z_min": 23.2,
+      "z_max": 23.4,
+      "wall_fraction": 0.9999999999999964
+    },
+    {
+      "z_min": 23.4,
+      "z_max": 23.6,
+      "wall_fraction": 0.9999999999999971
+    },
+    {
+      "z_min": 23.6,
+      "z_max": 23.8,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 23.8,
+      "z_max": 24.0,
+      "wall_fraction": 0.999999999999996
+    },
+    {
+      "z_min": 24.0,
+      "z_max": 24.2,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 24.2,
+      "z_max": 24.4,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 24.4,
+      "z_max": 24.6,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 24.6,
+      "z_max": 24.8,
+      "wall_fraction": 0.999999999999996
+    },
+    {
+      "z_min": 24.8,
+      "z_max": 25.0,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 25.0,
+      "z_max": 25.2,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 25.2,
+      "z_max": 25.4,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 25.4,
+      "z_max": 25.6,
+      "wall_fraction": 0.9999999999999968
+    },
+    {
+      "z_min": 25.6,
+      "z_max": 25.8,
+      "wall_fraction": 0.999999999999996
+    },
+    {
+      "z_min": 25.8,
+      "z_max": 26.0,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 26.0,
+      "z_max": 26.2,
+      "wall_fraction": 0.9999999999999974
+    },
+    {
+      "z_min": 26.2,
+      "z_max": 26.4,
+      "wall_fraction": 0.999999999999996
+    },
+    {
+      "z_min": 26.4,
+      "z_max": 26.6,
+      "wall_fraction": 0.9999999999999964
+    },
+    {
+      "z_min": 26.6,
+      "z_max": 26.8,
+      "wall_fraction": 0.9999999999999971
+    },
+    {
+      "z_min": 26.8,
+      "z_max": 27.0,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 27.0,
+      "z_max": 27.2,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 27.2,
+      "z_max": 27.4,
+      "wall_fraction": 0.9999999999999969
+    },
+    {
+      "z_min": 27.4,
+      "z_max": 27.6,
+      "wall_fraction": 0.9999999999999972
+    },
+    {
+      "z_min": 27.6,
+      "z_max": 27.8,
+      "wall_fraction": 0.9999999999999962
+    },
+    {
+      "z_min": 27.8,
+      "z_max": 28.0,
+      "wall_fraction": 0.9999999999999972
+    },
+    {
+      "z_min": 28.0,
+      "z_max": 28.2,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 28.2,
+      "z_max": 28.4,
+      "wall_fraction": 0.9999999999999964
+    },
+    {
+      "z_min": 28.4,
+      "z_max": 28.6,
+      "wall_fraction": 0.9999999999999976
+    },
+    {
+      "z_min": 28.6,
+      "z_max": 28.8,
+      "wall_fraction": 0.9999999999999964
+    },
+    {
+      "z_min": 28.8,
+      "z_max": 29.0,
+      "wall_fraction": 0.9999999999999968
+    },
+    {
+      "z_min": 29.0,
+      "z_max": 29.2,
+      "wall_fraction": 0.9999999999999971
+    },
+    {
+      "z_min": 29.2,
+      "z_max": 29.4,
+      "wall_fraction": 0.9999999999999962
+    },
+    {
+      "z_min": 29.4,
+      "z_max": 29.6,
+      "wall_fraction": 0.999999999999996
+    },
+    {
+      "z_min": 29.6,
+      "z_max": 29.8,
+      "wall_fraction": 0.9999999999999974
+    },
+    {
+      "z_min": 29.8,
+      "z_max": 30.0,
+      "wall_fraction": 0.9999999999999964
+    },
+    {
+      "z_min": 30.0,
+      "z_max": 30.2,
+      "wall_fraction": 0.9999999999999966
+    },
+    {
+      "z_min": 30.2,
+      "z_max": 30.4,
+      "wall_fraction": 9.754893833544455e-16
+    },
+    {
+      "z_min": 30.4,
+      "z_max": 30.6,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 30.6,
+      "z_max": 30.8,
+      "wall_fraction": 0.0
+    },
+    {
+      "z_min": 30.8,
+      "z_max": 31.0,
+      "wall_fraction": 0.0
+    }
+  ]
+}

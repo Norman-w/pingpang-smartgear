@@ -1,0 +1,92 @@
+{
+  "package": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.gcode.3mf",
+  "geometry_project": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.3mf",
+  "geometry_project_sha256": "7a6055bdccbc4aba24719f07e5a1d9c94d32ac0b5d85ffde6010905b7f842ccc",
+  "sha256": "d5a9adfdd62bf3da8ec6e8afd9a0037057ca542b442075794d6337f13e5c1852",
+  "plate_count": 1,
+  "object_count": 1,
+  "objects": [
+    {
+      "name": "C.stl",
+      "min_mm": [
+        24.0,
+        19.0,
+        0.0
+      ],
+      "max_mm": [
+        170.0,
+        251.0,
+        38.5999984
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    }
+  ],
+  "prediction_seconds": 33708,
+  "weight_g": 260.35,
+  "support_estimated_g_from_extrusions": 32.81637099710294,
+  "extruding_xy_bounds_mm": [
+    21.336,
+    14.336,
+    172.664,
+    251.664
+  ],
+  "support_extrusions": {
+    "C.stl": {
+      "Support": {
+        "moves": 10362,
+        "filament_mm": 6829.007429999764,
+        "min": [
+          24.188,
+          17.188,
+          0.2
+        ],
+        "max": [
+          169.812,
+          248.812,
+          6.96
+        ]
+      },
+      "Support interface": {
+        "moves": 8156,
+        "filament_mm": 3029.4345799999846,
+        "min": [
+          23.768,
+          16.768,
+          0.84
+        ],
+        "max": [
+          170.401,
+          249.401,
+          19.1
+        ]
+      },
+      "Support transition": {
+        "moves": 1662,
+        "filament_mm": 884.4411700000081,
+        "min": [
+          24.188,
+          17.188,
+          5.527
+        ],
+        "max": [
+          169.812,
+          248.812,
+          6.56
+        ]
+      }
+    }
+  },
+  "pin_bore_actual_wall_interval_mm": [
+    23.0,
+    30.2
+  ],
+  "pin_bore_cavity_support_below_wall_z_range_mm": null,
+  "excluded_corner_hits": [],
+  "protected_region_support_hits": [],
+  "source_print_rotation_verified": true,
+  "gcode_md5_verified": true,
+  "printer_sent": false,
+  "reuse": "Unchanged mold plate copied from audited v8; only outer filename changed",
+  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+}

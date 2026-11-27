@@ -1,0 +1,272 @@
+{
+  "plate": 2,
+  "name": "upright-shells-AB",
+  "editable_3mf": "guard-mold-v9-HOLD-plate-02-X1C-black-PETG.3mf",
+  "sliced_3mf": "guard-mold-v9-HOLD-plate-02-X1C-black-PETG.gcode.3mf",
+  "objects": [
+    {
+      "id": "left",
+      "name": "A",
+      "source_sha256": "790cc1f70bb26f1177681d7d0ffefd507b504471806ae3738abb5275130a537d",
+      "rotation_xyz_deg": [
+        0,
+        0,
+        90
+      ],
+      "normalized_translation_mm": [
+        116.0,
+        74.0,
+        79.0
+      ],
+      "size_mm": [
+        232.0,
+        74.0,
+        109.2
+      ],
+      "bed_min_xy_mm": [
+        12,
+        34
+      ],
+      "scale": 1,
+      "support_blockers": [
+        {
+          "label": "rear blind locator socket",
+          "source_min_mm": [
+            -32.7,
+            -52.0,
+            4.3
+          ],
+          "source_max_mm": [
+            -25.3,
+            -44.4,
+            11.7
+          ],
+          "normalized_min_mm": [
+            160.4,
+            41.3,
+            83.3
+          ],
+          "normalized_max_mm": [
+            168.0,
+            48.699999999999996,
+            90.7
+          ],
+          "part_id": 1001
+        },
+        {
+          "label": "front blind locator socket",
+          "source_min_mm": [
+            -32.7,
+            44.4,
+            -21.7
+          ],
+          "source_max_mm": [
+            -25.3,
+            52.0,
+            -14.3
+          ],
+          "normalized_min_mm": [
+            64.0,
+            41.3,
+            57.3
+          ],
+          "normalized_max_mm": [
+            71.6,
+            48.7,
+            64.7
+          ],
+          "part_id": 1002
+        },
+        {
+          "label": "lid blind locator socket",
+          "source_min_mm": [
+            -37.7,
+            -43.7,
+            23.6
+          ],
+          "source_max_mm": [
+            -30.3,
+            -36.3,
+            31.2
+          ],
+          "normalized_min_mm": [
+            152.3,
+            36.3,
+            102.6
+          ],
+          "normalized_max_mm": [
+            159.7,
+            43.699999999999996,
+            110.2
+          ],
+          "part_id": 1003
+        }
+      ],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_bed_perimeter_frame",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1968.0000000000002,
+        "bed_contact_area_after_mm2": 4626.470060984497,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 32.322737704316125,
+        "aid_volume_mm3": 2596.241548753118,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "2"
+    },
+    {
+      "id": "right",
+      "name": "B",
+      "source_sha256": "5a9968df8ceed324c7c7ba8c6428d7f1aed2a22b5b26ca59f379bf4ac09a9676",
+      "rotation_xyz_deg": [
+        0,
+        0,
+        90
+      ],
+      "normalized_translation_mm": [
+        116.0,
+        7.102951435054649e-15,
+        79.0
+      ],
+      "size_mm": [
+        232.0,
+        78.0,
+        109.2
+      ],
+      "bed_min_xy_mm": [
+        12,
+        126
+      ],
+      "scale": 1,
+      "support_blockers": [
+        {
+          "label": "rear blind locator socket",
+          "source_min_mm": [
+            25.3,
+            -52.0,
+            15.3
+          ],
+          "source_max_mm": [
+            32.7,
+            -44.4,
+            22.7
+          ],
+          "normalized_min_mm": [
+            160.4,
+            25.300000000000004,
+            94.3
+          ],
+          "normalized_max_mm": [
+            168.0,
+            32.70000000000001,
+            101.7
+          ],
+          "part_id": 1004
+        },
+        {
+          "label": "front blind locator socket",
+          "source_min_mm": [
+            25.3,
+            44.4,
+            14.3
+          ],
+          "source_max_mm": [
+            32.7,
+            52.0,
+            21.7
+          ],
+          "normalized_min_mm": [
+            64.0,
+            25.30000000000001,
+            93.3
+          ],
+          "normalized_max_mm": [
+            71.6,
+            32.70000000000001,
+            100.7
+          ],
+          "part_id": 1005
+        },
+        {
+          "label": "lid blind locator socket",
+          "source_min_mm": [
+            30.3,
+            32.3,
+            23.6
+          ],
+          "source_max_mm": [
+            37.7,
+            39.7,
+            31.2
+          ],
+          "normalized_min_mm": [
+            76.3,
+            30.30000000000001,
+            102.6
+          ],
+          "normalized_max_mm": [
+            83.7,
+            37.70000000000001,
+            110.2
+          ],
+          "part_id": 1006
+        },
+        {
+          "label": "pull-pin alignment bore",
+          "source_min_mm": [
+            30.3,
+            -3.7,
+            -80
+          ],
+          "source_max_mm": [
+            37.7,
+            3.7,
+            44
+          ],
+          "normalized_min_mm": [
+            112.3,
+            30.300000000000008,
+            -1.0
+          ],
+          "normalized_max_mm": [
+            119.7,
+            37.70000000000001,
+            123.0
+          ],
+          "part_id": 1007
+        }
+      ],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_bed_perimeter_frame",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 2351.9999999999995,
+        "bed_contact_area_after_mm2": 4895.254223256239,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 34.2385172189538,
+        "aid_volume_mm3": 2453.0456086283043,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "4"
+    }
+  ],
+  "estimate": {
+    "prediction": "84530",
+    "weight": "623.12",
+    "outside": "false",
+    "support_used": "true"
+  },
+  "sent": false,
+  "started": false,
+  "quantity": 2,
+  "do_not_print": true
+}

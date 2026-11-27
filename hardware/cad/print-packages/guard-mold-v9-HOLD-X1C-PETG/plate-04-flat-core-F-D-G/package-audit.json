@@ -1,0 +1,123 @@
+{
+  "package": "guard-mold-v9-HOLD-plate-04-X1C-black-PETG.gcode.3mf",
+  "geometry_project": "guard-mold-v9-HOLD-plate-04-X1C-black-PETG.3mf",
+  "geometry_project_sha256": "533a930f174cdcdbdb011837e77b14613bcd742fbff4df12a11f1579a6d51db4",
+  "sha256": "bbc8739b87882500546cc1fe29756ad93bf93996874cc6688fe43b21f57d5ce7",
+  "plate_count": 1,
+  "object_count": 3,
+  "objects": [
+    {
+      "name": "F.stl",
+      "min_mm": [
+        10.0,
+        34.0,
+        0.0
+      ],
+      "max_mm": [
+        246.0,
+        127.5,
+        72.199997
+      ],
+      "support_blocker_count": 2,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "D.stl",
+      "min_mm": [
+        24.0,
+        138.0,
+        0.0
+      ],
+      "max_mm": [
+        158.0,
+        159.0,
+        23.6000004
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "G.stl",
+      "min_mm": [
+        170.0,
+        138.0,
+        0.0
+      ],
+      "max_mm": [
+        176.8000002,
+        156.79999924,
+        27.5
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    }
+  ],
+  "prediction_seconds": 35998,
+  "weight_g": 269.93,
+  "support_estimated_g_from_extrusions": 30.294111843443673,
+  "extruding_xy_bounds_mm": [
+    7.336,
+    29.336,
+    248.664,
+    159.664
+  ],
+  "support_extrusions": {
+    "F.stl": {
+      "Support interface": {
+        "moves": 25007,
+        "filament_mm": 1648.7250299997775,
+        "min": [
+          24.586,
+          31.776,
+          0.2
+        ],
+        "max": [
+          231.414,
+          125.901,
+          70.36
+        ]
+      },
+      "Support": {
+        "moves": 31431,
+        "filament_mm": 7992.5858799992175,
+        "min": [
+          24.756,
+          32.298,
+          0.2
+        ],
+        "max": [
+          231.244,
+          125.312,
+          69.28
+        ]
+      },
+      "Support transition": {
+        "moves": 3964,
+        "filament_mm": 275.8765999999946,
+        "min": [
+          24.756,
+          32.201,
+          7.16
+        ],
+        "max": [
+          231.244,
+          113.676,
+          69.55
+        ]
+      }
+    },
+    "D.stl": {},
+    "G.stl": {}
+  },
+  "pin_bore_actual_wall_interval_mm": [
+    23.0,
+    30.2
+  ],
+  "pin_bore_cavity_support_below_wall_z_range_mm": null,
+  "excluded_corner_hits": [],
+  "protected_region_support_hits": [],
+  "source_print_rotation_verified": true,
+  "gcode_md5_verified": true,
+  "printer_sent": false,
+  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+}

@@ -1,0 +1,91 @@
+{
+  "package": "guard-mold-v9-HOLD-plate-03-X1C-black-PETG.gcode.3mf",
+  "geometry_project": "guard-mold-v9-HOLD-plate-03-X1C-black-PETG.3mf",
+  "geometry_project_sha256": "2c4a0c1fce331b80c2730e6c89bd2702b8c15ca98edee52f5030dda2a3ea386c",
+  "sha256": "03752cde854ae57ed71c36c2af10344dab968394dd16966e9878eda3f378fd74",
+  "plate_count": 1,
+  "object_count": 1,
+  "objects": [
+    {
+      "name": "E.stl",
+      "min_mm": [
+        10.0,
+        34.0,
+        0.0
+      ],
+      "max_mm": [
+        246.0,
+        200.0,
+        72.199997
+      ],
+      "support_blocker_count": 2,
+      "mesh_repairs": 0
+    }
+  ],
+  "prediction_seconds": 38842,
+  "weight_g": 286.67,
+  "support_estimated_g_from_extrusions": 31.85670699225764,
+  "extruding_xy_bounds_mm": [
+    7.336,
+    29.336,
+    248.664,
+    200.664
+  ],
+  "support_extrusions": {
+    "E.stl": {
+      "Support": {
+        "moves": 46723,
+        "filament_mm": 8055.567859999277,
+        "min": [
+          24.743,
+          32.188,
+          0.2
+        ],
+        "max": [
+          231.257,
+          195.752,
+          69.28
+        ]
+      },
+      "Support interface": {
+        "moves": 31127,
+        "filament_mm": 2012.9925299997271,
+        "min": [
+          24.547,
+          31.768,
+          0.2
+        ],
+        "max": [
+          231.427,
+          198.232,
+          70.36
+        ]
+      },
+      "Support transition": {
+        "moves": 5469,
+        "filament_mm": 360.16378999998994,
+        "min": [
+          24.743,
+          32.188,
+          7.16
+        ],
+        "max": [
+          231.257,
+          197.81,
+          69.55
+        ]
+      }
+    }
+  },
+  "pin_bore_actual_wall_interval_mm": [
+    23.0,
+    30.2
+  ],
+  "pin_bore_cavity_support_below_wall_z_range_mm": null,
+  "excluded_corner_hits": [],
+  "protected_region_support_hits": [],
+  "source_print_rotation_verified": true,
+  "gcode_md5_verified": true,
+  "printer_sent": false,
+  "thumbnails": "Updated from actual posed STL layout only; G-code bytes unchanged"
+}

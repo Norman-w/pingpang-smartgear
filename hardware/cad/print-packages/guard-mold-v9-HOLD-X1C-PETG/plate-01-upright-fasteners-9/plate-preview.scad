@@ -1,0 +1,9 @@
+translate([24,24,0]) import("J1.stl");
+translate([96,24,0]) import("J2.stl");
+translate([168,24,0]) import("Z1.stl");
+translate([24,96,0]) import("Z2.stl");
+translate([96,96,0]) import("Z3.stl");
+translate([168,96,0]) import("Z4.stl");
+translate([24,168,0]) import("X1.stl");
+translate([96,168,0]) import("Y1.stl");
+translate([168,168,0]) import("Y2.stl");

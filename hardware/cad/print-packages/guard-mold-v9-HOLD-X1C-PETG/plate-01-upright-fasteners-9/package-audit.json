@@ -1,0 +1,175 @@
+{
+  "package": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.gcode.3mf",
+  "geometry_project": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.3mf",
+  "geometry_project_sha256": "abaae342acf278dbdf5f36d13bae0998069ab8f1e32a42152795adfb6c271fbc",
+  "sha256": "2348bc9447f98f4ba32dc5afaba837e9fee8a028d5bcad2e6432ce0f6e6f2002",
+  "plate_count": 1,
+  "object_count": 9,
+  "objects": [
+    {
+      "name": "J1.stl",
+      "min_mm": [
+        24.0,
+        24.0,
+        0.0
+      ],
+      "max_mm": [
+        80.0,
+        80.0,
+        82.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "J2.stl",
+      "min_mm": [
+        96.0,
+        24.0,
+        0.0
+      ],
+      "max_mm": [
+        152.0,
+        80.0,
+        82.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Z1.stl",
+      "min_mm": [
+        168.0,
+        24.0,
+        0.0
+      ],
+      "max_mm": [
+        224.0,
+        80.0,
+        148.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Z2.stl",
+      "min_mm": [
+        24.0,
+        96.0,
+        0.0
+      ],
+      "max_mm": [
+        80.0,
+        152.0,
+        148.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Z3.stl",
+      "min_mm": [
+        96.0,
+        96.0,
+        0.0
+      ],
+      "max_mm": [
+        152.0,
+        152.0,
+        148.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Z4.stl",
+      "min_mm": [
+        168.0,
+        96.0,
+        0.0
+      ],
+      "max_mm": [
+        224.0,
+        152.0,
+        148.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "X1.stl",
+      "min_mm": [
+        24.0,
+        168.0,
+        0.0
+      ],
+      "max_mm": [
+        80.0,
+        224.0,
+        178.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Y1.stl",
+      "min_mm": [
+        96.0,
+        168.0,
+        0.0
+      ],
+      "max_mm": [
+        152.0,
+        224.0,
+        198.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    },
+    {
+      "name": "Y2.stl",
+      "min_mm": [
+        168.0,
+        168.0,
+        0.0
+      ],
+      "max_mm": [
+        224.0,
+        224.0,
+        198.0
+      ],
+      "support_blocker_count": 0,
+      "mesh_repairs": 0
+    }
+  ],
+  "prediction_seconds": 79627,
+  "weight_g": 676.22,
+  "support_estimated_g_from_extrusions": 0.0,
+  "extruding_xy_bounds_mm": [
+    21.342,
+    19.341,
+    226.658,
+    224.658
+  ],
+  "support_extrusions": {
+    "J1.stl": {},
+    "J2.stl": {},
+    "Z1.stl": {},
+    "Z2.stl": {},
+    "Z3.stl": {},
+    "Z4.stl": {},
+    "X1.stl": {},
+    "Y1.stl": {},
+    "Y2.stl": {}
+  },
+  "pin_bore_actual_wall_interval_mm": [
+    23.0,
+    30.2
+  ],
+  "pin_bore_cavity_support_below_wall_z_range_mm": null,
+  "excluded_corner_hits": [],
+  "protected_region_support_hits": [],
+  "source_print_rotation_verified": true,
+  "gcode_md5_verified": true,
+  "printer_sent": false
+}

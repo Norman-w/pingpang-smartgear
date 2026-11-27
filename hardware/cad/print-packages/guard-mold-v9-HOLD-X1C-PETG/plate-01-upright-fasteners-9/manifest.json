@@ -1,0 +1,396 @@
+{
+  "plate": 1,
+  "name": "upright-fasteners-9",
+  "editable_3mf": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.3mf",
+  "sliced_3mf": "guard-mold-v9-HOLD-plate-01-X1C-black-PETG.gcode.3mf",
+  "objects": [
+    {
+      "id": "screw",
+      "name": "J1",
+      "source_sha256": "5c223272d5d0f7747654e4fa1a46980ecc01712d76f086dee6307412eafe7358",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.00000000000001,
+        82.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        82.0
+      ],
+      "bed_min_xy_mm": [
+        24,
+        24
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1208.6580573160766,
+        "bed_contact_area_after_mm2": 2088.9614228686505,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.97826665123627,
+        "aid_volume_mm3": 1052.143924700817,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "2"
+    },
+    {
+      "id": "screw",
+      "name": "J2",
+      "source_sha256": "5c223272d5d0f7747654e4fa1a46980ecc01712d76f086dee6307412eafe7358",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.00000000000001,
+        82.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        82.0
+      ],
+      "bed_min_xy_mm": [
+        96,
+        24
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1208.6580573160766,
+        "bed_contact_area_after_mm2": 2088.9614228686505,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.97826665123627,
+        "aid_volume_mm3": 1052.143924700817,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "4"
+    },
+    {
+      "id": "clamp-Z",
+      "name": "Z1",
+      "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000018,
+        148.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        148.0
+      ],
+      "bed_min_xy_mm": [
+        168,
+        24
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1103.6845151299704,
+        "bed_contact_area_after_mm2": 2254.1333875525725,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.990613297666208,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "6"
+    },
+    {
+      "id": "clamp-Z",
+      "name": "Z2",
+      "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000018,
+        148.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        148.0
+      ],
+      "bed_min_xy_mm": [
+        24,
+        96
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1103.6845151299704,
+        "bed_contact_area_after_mm2": 2254.1333875525725,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.990613297666208,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "8"
+    },
+    {
+      "id": "clamp-Z",
+      "name": "Z3",
+      "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000018,
+        148.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        148.0
+      ],
+      "bed_min_xy_mm": [
+        96,
+        96
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1103.6845151299704,
+        "bed_contact_area_after_mm2": 2254.1333875525725,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.990613297666208,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "10"
+    },
+    {
+      "id": "clamp-Z",
+      "name": "Z4",
+      "source_sha256": "57377e0fd104c83a99c8e5b2a1b7e31da626cf45a5dde180a9cc8a54e156619d",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000018,
+        148.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        148.0
+      ],
+      "bed_min_xy_mm": [
+        168,
+        96
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1103.6845151299704,
+        "bed_contact_area_after_mm2": 2254.1333875525725,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.990613297666208,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "12"
+    },
+    {
+      "id": "clamp-X",
+      "name": "X1",
+      "source_sha256": "0a527227e2d2a875b6f2a90c4895e77a51fa09d442a266f62f49be0f59adead1",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.00000000000002,
+        178.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        178.0
+      ],
+      "bed_min_xy_mm": [
+        24,
+        168
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1103.3079300674797,
+        "bed_contact_area_after_mm2": 2253.756802490082,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.99180091977803,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "14"
+    },
+    {
+      "id": "clamp-Y",
+      "name": "Y1",
+      "source_sha256": "205dac987317c43c494a5eb5777ed5ed54355650618f70e48dd87bb060a6dc27",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000025,
+        198.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        198.0
+      ],
+      "bed_min_xy_mm": [
+        96,
+        168
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1119.0277247658287,
+        "bed_contact_area_after_mm2": 2269.4765971884312,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.992083752957907,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "16"
+    },
+    {
+      "id": "clamp-Y",
+      "name": "Y2",
+      "source_sha256": "205dac987317c43c494a5eb5777ed5ed54355650618f70e48dd87bb060a6dc27",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        28.0,
+        28.000000000000025,
+        198.0
+      ],
+      "size_mm": [
+        56.0,
+        56.0,
+        198.0
+      ],
+      "bed_min_xy_mm": [
+        168,
+        168
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_annular_knob_collar",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 1119.0277247658287,
+        "bed_contact_area_after_mm2": 2269.4765971884312,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 27.992083752957907,
+        "aid_volume_mm3": 1376.32981463271,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "18"
+    }
+  ],
+  "estimate": {
+    "prediction": "79627",
+    "weight": "676.22",
+    "outside": "false",
+    "support_used": "true"
+  },
+  "sent": false,
+  "started": false,
+  "quantity": 9,
+  "do_not_print": true
+}

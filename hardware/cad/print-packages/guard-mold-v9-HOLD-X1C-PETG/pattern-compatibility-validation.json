@@ -1,0 +1,11 @@
+{
+  "status": "PASS_NATIVE_IMPORT_AND_RESLICED_GCODE",
+  "changed_objects": 9,
+  "sparse_infill_pattern": "cubic",
+  "sparse_infill_density": "100%",
+  "wall_loops": 6,
+  "model_geometry_and_placement_bytes_unchanged": true,
+  "native_import_replacement_dialog": false,
+  "actual_support_moves": 0,
+  "sent": false
+}

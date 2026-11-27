@@ -1,0 +1,3 @@
+[2026-11-27 17:38:13.631158] [0x00000001f30c6180] [trace]   Initializing StaticPrintConfigs
+
+2026-11-27 17:38:14.030 BambuStudio[59135:32984308] ApplePersistenceIgnoreState: Existing state will not be touched. New state will be written to /var/folders/nj/0ldgyptn7tb182kz7h6bbs_00000gn/T/com.bambulab.bambu-studio.savedState

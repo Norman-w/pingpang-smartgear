@@ -1,0 +1,60 @@
+{
+  "plate": 5,
+  "name": "flat-lid-C",
+  "editable_3mf": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.3mf",
+  "sliced_3mf": "guard-mold-v9-HOLD-plate-05-X1C-black-PETG.gcode.3mf",
+  "objects": [
+    {
+      "id": "lid",
+      "name": "C",
+      "source_sha256": "865bc337695c861cbccf2adce258dbb37782304face928181a5056c60dae3956",
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        73.0,
+        116.0,
+        -23.6
+      ],
+      "size_mm": [
+        146.0,
+        232.0,
+        38.6
+      ],
+      "bed_min_xy_mm": [
+        24,
+        19
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": {
+        "locator_neck_diameter_mm": 4.5,
+        "locator_feet_removal": "Cut the short feet at the 0.4mm neck with flush cutters; trim flat before assembly",
+        "kind": "removable_bed_perimeter_frame",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 0.0,
+        "bed_contact_area_before_mm2": 200.73909482727905,
+        "bed_contact_area_after_mm2": 3871.662772294886,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 72.98063763012107,
+        "aid_volume_mm3": 3351.81509148749,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "2"
+    }
+  ],
+  "estimate": {
+    "prediction": "33708",
+    "weight": "260.35",
+    "outside": "false",
+    "support_used": "true"
+  },
+  "sent": false,
+  "started": false,
+  "quantity": 1,
+  "do_not_print": true
+}

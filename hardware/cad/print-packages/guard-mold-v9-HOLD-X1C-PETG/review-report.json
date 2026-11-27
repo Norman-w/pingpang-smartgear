@@ -1,0 +1,370 @@
+{
+  "status": "DIGITAL_CHECKS_PASS_PRINT_HELD_BY_USER",
+  "do_not_print": true,
+  "sent": false,
+  "started": false,
+  "plates": [
+    {
+      "plate": 1,
+      "objects": [
+        "J1",
+        "J2",
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4",
+        "X1",
+        "Y1",
+        "Y2"
+      ],
+      "seconds": 79627,
+      "weight_g": 676.22,
+      "support_path_weight_g": 0.0,
+      "objects_with_support": [],
+      "support_moves": 0,
+      "extrusion_bounds_xy_mm": [
+        21.342,
+        19.341,
+        226.658,
+        224.658
+      ],
+      "outside_exclusion": true,
+      "protected_support_hits": []
+    },
+    {
+      "plate": 2,
+      "objects": [
+        "A",
+        "B"
+      ],
+      "seconds": 84530,
+      "weight_g": 623.12,
+      "support_path_weight_g": 70.21411601607188,
+      "objects_with_support": [
+        "A.stl",
+        "B.stl"
+      ],
+      "support_moves": 148053,
+      "extrusion_bounds_xy_mm": [
+        9.161,
+        29.336,
+        246.664,
+        224.739
+      ],
+      "outside_exclusion": true,
+      "protected_support_hits": []
+    },
+    {
+      "plate": 3,
+      "objects": [
+        "E"
+      ],
+      "seconds": 38842,
+      "weight_g": 286.67,
+      "support_path_weight_g": 31.85670699225764,
+      "objects_with_support": [
+        "E.stl"
+      ],
+      "support_moves": 83319,
+      "extrusion_bounds_xy_mm": [
+        7.336,
+        29.336,
+        248.664,
+        200.664
+      ],
+      "outside_exclusion": true,
+      "protected_support_hits": []
+    },
+    {
+      "plate": 4,
+      "objects": [
+        "F",
+        "D",
+        "G"
+      ],
+      "seconds": 35998,
+      "weight_g": 269.93,
+      "support_path_weight_g": 30.294111843443673,
+      "objects_with_support": [
+        "F.stl"
+      ],
+      "support_moves": 60402,
+      "extrusion_bounds_xy_mm": [
+        7.336,
+        29.336,
+        248.664,
+        159.664
+      ],
+      "outside_exclusion": true,
+      "protected_support_hits": []
+    },
+    {
+      "plate": 5,
+      "objects": [
+        "C"
+      ],
+      "seconds": 33708,
+      "weight_g": 260.35,
+      "support_path_weight_g": 32.81637099710294,
+      "objects_with_support": [
+        "C.stl"
+      ],
+      "support_moves": 20180,
+      "extrusion_bounds_xy_mm": [
+        21.336,
+        14.336,
+        172.664,
+        251.664
+      ],
+      "outside_exclusion": true,
+      "protected_support_hits": []
+    }
+  ],
+  "counts": {
+    "screw": 2,
+    "clamp-Z": 4,
+    "clamp-X": 1,
+    "clamp-Y": 2,
+    "left": 1,
+    "right": 1,
+    "lower": 1,
+    "back": 1,
+    "upper": 1,
+    "pin": 1,
+    "lid": 1
+  },
+  "service_pieces": 16,
+  "plate_count": 5,
+  "total_weight_g": 2116.29,
+  "total_seconds": 272705,
+  "print_aids": [
+    {
+      "name": "J1",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1208.6580573160766,
+      "bed_contact_area_after_mm2": 2088.9614228686505,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.97826665123627,
+      "aid_volume_mm3": 1052.143924700817,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "J2",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1208.6580573160766,
+      "bed_contact_area_after_mm2": 2088.9614228686505,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.97826665123627,
+      "aid_volume_mm3": 1052.143924700817,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Z1",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1103.6845151299704,
+      "bed_contact_area_after_mm2": 2254.1333875525725,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.990613297666208,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Z2",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1103.6845151299704,
+      "bed_contact_area_after_mm2": 2254.1333875525725,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.990613297666208,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Z3",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1103.6845151299704,
+      "bed_contact_area_after_mm2": 2254.1333875525725,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.990613297666208,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Z4",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1103.6845151299704,
+      "bed_contact_area_after_mm2": 2254.1333875525725,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.990613297666208,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "X1",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1103.3079300674797,
+      "bed_contact_area_after_mm2": 2253.756802490082,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.99180091977803,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Y1",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1119.0277247658287,
+      "bed_contact_area_after_mm2": 2269.4765971884312,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.992083752957907,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "Y2",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_annular_knob_collar",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1119.0277247658287,
+      "bed_contact_area_after_mm2": 2269.4765971884312,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 27.992083752957907,
+      "aid_volume_mm3": 1376.32981463271,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "A",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_bed_perimeter_frame",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 1968.0000000000002,
+      "bed_contact_area_after_mm2": 4626.470060984497,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 32.322737704316125,
+      "aid_volume_mm3": 2596.241548753118,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "B",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_bed_perimeter_frame",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 2351.9999999999995,
+      "bed_contact_area_after_mm2": 4895.254223256239,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 34.2385172189538,
+      "aid_volume_mm3": 2453.0456086283043,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "E",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_bed_perimeter_frame",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 3040.2799999999997,
+      "bed_contact_area_after_mm2": 6500.7002150382195,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 53.136333524405416,
+      "aid_volume_mm3": 3219.8516962169924,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "F",
+      "locator_neck_diameter_mm": null,
+      "locator_feet_removal": null,
+      "kind": "removable_bed_perimeter_frame",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 7.105427357601002e-15,
+      "bed_contact_area_before_mm2": 2176.2799999999997,
+      "bed_contact_area_after_mm2": 5022.5596924486335,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 43.52792963388461,
+      "aid_volume_mm3": 2663.211659769026,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    },
+    {
+      "name": "C",
+      "locator_neck_diameter_mm": 4.5,
+      "locator_feet_removal": "Cut the short feet at the 0.4mm neck with flush cutters; trim flat before assembly",
+      "kind": "removable_bed_perimeter_frame",
+      "frame_height_mm": 1.2,
+      "peel_links_height_mm": 0.4,
+      "peel_links_width_mm": 2.4,
+      "functional_body_removed_mm3": 0.0,
+      "bed_contact_area_before_mm2": 200.73909482727905,
+      "bed_contact_area_after_mm2": 3871.662772294886,
+      "COM_inside_bed_hull_after": true,
+      "COM_margin_after_mm": 72.98063763012107,
+      "aid_volume_mm3": 3351.81509148749,
+      "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+    }
+  ],
+  "thread_and_assembly_validation": "v7 geometry unchanged; correct screw paths, wrong-phase control, full assembly geometry inherited from v7 validation files",
+  "support_statement": "All nine rods upright head-down, zero support G-code on fastener plate. Mold plates retain necessary supports; remove aids before assembly.",
+  "physical_adhesion_fit_layer_strength_and_cast_release": "not_tested",
+  "previous_v7_attempt": "Transferred, then printer idle with no heating/printing observed; no resend after user hold"
+}

@@ -1,0 +1,165 @@
+{
+  "plate": 4,
+  "name": "flat-core-F-D-G",
+  "editable_3mf": "guard-mold-v9-HOLD-plate-04-X1C-black-PETG.3mf",
+  "sliced_3mf": "guard-mold-v9-HOLD-plate-04-X1C-black-PETG.gcode.3mf",
+  "objects": [
+    {
+      "id": "back",
+      "name": "F",
+      "source_sha256": "e2d5bc127c7a14d815a4f610e046a6f4b7a90e3968695ef8119a812380cbcbb2",
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        118.0,
+        115.0,
+        42.0
+      ],
+      "size_mm": [
+        236.0,
+        93.5,
+        72.2
+      ],
+      "bed_min_xy_mm": [
+        10,
+        34
+      ],
+      "scale": 1,
+      "support_blockers": [
+        {
+          "label": "upright integral guide pin",
+          "source_min_mm": [
+            -32.7,
+            -51.3,
+            4.3
+          ],
+          "source_max_mm": [
+            -25.3,
+            -44.4,
+            11.7
+          ],
+          "normalized_min_mm": [
+            85.3,
+            63.7,
+            46.3
+          ],
+          "normalized_max_mm": [
+            92.7,
+            70.6,
+            53.7
+          ],
+          "part_id": 1001
+        },
+        {
+          "label": "upright integral guide pin",
+          "source_min_mm": [
+            25.3,
+            -51.3,
+            15.3
+          ],
+          "source_max_mm": [
+            32.7,
+            -44.4,
+            22.7
+          ],
+          "normalized_min_mm": [
+            143.3,
+            63.7,
+            57.3
+          ],
+          "normalized_max_mm": [
+            150.7,
+            70.6,
+            64.7
+          ],
+          "part_id": 1002
+        }
+      ],
+      "print_aid": {
+        "locator_neck_diameter_mm": null,
+        "locator_feet_removal": null,
+        "kind": "removable_bed_perimeter_frame",
+        "frame_height_mm": 1.2,
+        "peel_links_height_mm": 0.4,
+        "peel_links_width_mm": 2.4,
+        "functional_body_removed_mm3": 7.105427357601002e-15,
+        "bed_contact_area_before_mm2": 2176.2799999999997,
+        "bed_contact_area_after_mm2": 5022.5596924486335,
+        "COM_inside_bed_hull_after": true,
+        "COM_margin_after_mm": 43.52792963388461,
+        "aid_volume_mm3": 2663.211659769026,
+        "removal": "Peel frame and 0.4mm links away before assembly; no ring remains in screw or tool envelope"
+      },
+      "object_id": "2"
+    },
+    {
+      "id": "upper",
+      "name": "D",
+      "source_sha256": "1cd290ad8b079acb2936094a39f102ffe7ae76e193ae5a9b56cf94806c5bc9e9",
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        42.0,
+        10.5,
+        -0.0
+      ],
+      "size_mm": [
+        134.0,
+        21.0,
+        23.6
+      ],
+      "bed_min_xy_mm": [
+        24,
+        138
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": null,
+      "object_id": "4"
+    },
+    {
+      "id": "pin",
+      "name": "G",
+      "source_sha256": "31640f1e2b5eacbd39c00685c4631ce144ffdf750fcccaa161cf5d2986b5482a",
+      "rotation_xyz_deg": [
+        180,
+        0,
+        0
+      ],
+      "normalized_translation_mm": [
+        -30.6,
+        9.400000000000006,
+        46.5
+      ],
+      "size_mm": [
+        6.799999999999997,
+        18.8,
+        27.5
+      ],
+      "bed_min_xy_mm": [
+        170,
+        138
+      ],
+      "scale": 1,
+      "support_blockers": [],
+      "print_aid": null,
+      "object_id": "6"
+    }
+  ],
+  "estimate": {
+    "prediction": "35998",
+    "weight": "269.93",
+    "outside": "false",
+    "support_used": "true"
+  },
+  "sent": false,
+  "started": false,
+  "quantity": 3,
+  "do_not_print": true
+}
